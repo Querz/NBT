@@ -1,0 +1,64 @@
+package de.querz.nbt;
+
+import java.io.IOException;
+
+public class StringTag extends Tag {
+	private String value;
+	
+	protected StringTag() {
+		this("");
+	}
+	
+	public StringTag(String value) {
+		this("", value);
+	}
+	
+	public StringTag(String name, String value) {
+		super(TagType.STRING, name);
+		setValue(value);
+	}
+	
+	public void setValue(String value) {
+		this.value = value;
+	}
+	
+	public int length() {
+		return value.length();
+	}
+	
+	@Override
+	public String getValue() {
+		return value;
+	}
+
+	@Override
+	protected void serialize(NBTOutputStream nbtOut) throws IOException {
+		byte[] bytes = value.getBytes(NBTConstants.CHARSET);
+		nbtOut.dos.writeShort(bytes.length);
+		nbtOut.dos.write(bytes);
+	}
+	
+	@Override
+	protected StringTag deserialize(NBTInputStream nbtIn) throws IOException {
+		int length = nbtIn.dis.readShort();
+		byte[] bytes = new byte[length];
+		nbtIn.dis.readFully(bytes);
+		value = new String(bytes, NBTConstants.CHARSET);
+		return this;
+	}
+
+	@Override
+	public String toTagString() {
+		return NBTUtil.checkColon(this) + "\"" + value + "\"";
+	}
+	
+	@Override
+	public String toString() {
+		return "<string:" + getName() + ":" + value + ">";
+	}
+	
+	@Override
+	public StringTag clone() {
+		return new StringTag(getName(), value);
+	}
+}
