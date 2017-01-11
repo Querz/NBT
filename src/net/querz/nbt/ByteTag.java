@@ -1,8 +1,8 @@
-package de.querz.nbt;
+package net.querz.nbt;
 
 import java.io.IOException;
 
-public class ByteTag extends Tag {
+public class ByteTag extends Tag implements NumberTag {
 	private byte value;
 	
 	protected ByteTag() {
@@ -57,7 +57,7 @@ public class ByteTag extends Tag {
 
 	@Override
 	public String toTagString() {
-		return NBTUtil.checkColon(this) + value + "b";
+		return NBTUtil.createNamePrefix(this) + value + "b";
 	}
 	
 	@Override

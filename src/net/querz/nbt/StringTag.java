@@ -1,4 +1,4 @@
-package de.querz.nbt;
+package net.querz.nbt;
 
 import java.io.IOException;
 
@@ -19,7 +19,7 @@ public class StringTag extends Tag {
 	}
 	
 	public void setValue(String value) {
-		this.value = value;
+		this.value = value == null ? "" : value;
 	}
 	
 	public int length() {
@@ -33,7 +33,7 @@ public class StringTag extends Tag {
 
 	@Override
 	protected void serialize(NBTOutputStream nbtOut) throws IOException {
-		byte[] bytes = value.getBytes(NBTConstants.CHARSET);
+		byte[] bytes = value.getBytes(CHARSET);
 		nbtOut.dos.writeShort(bytes.length);
 		nbtOut.dos.write(bytes);
 	}
@@ -43,13 +43,13 @@ public class StringTag extends Tag {
 		int length = nbtIn.dis.readShort();
 		byte[] bytes = new byte[length];
 		nbtIn.dis.readFully(bytes);
-		value = new String(bytes, NBTConstants.CHARSET);
+		value = new String(bytes, CHARSET);
 		return this;
 	}
 
 	@Override
 	public String toTagString() {
-		return NBTUtil.checkColon(this) + "\"" + value + "\"";
+		return NBTUtil.createNamePrefix(this) + "\"" + value + "\"";
 	}
 	
 	@Override

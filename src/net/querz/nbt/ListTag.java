@@ -1,4 +1,4 @@
-package de.querz.nbt;
+package net.querz.nbt;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,9 +32,10 @@ public class ListTag extends Tag {
 	}
 	
 	public void setValue(List<Tag> value) {
-		this.value = value;
 		if (value == null)
 			clear();
+		else
+			this.value = value;
 	}
 	
 	public TagType getListType() {
@@ -47,47 +48,54 @@ public class ListTag extends Tag {
 	
 	public void add(Tag tag) {
 		checkAddType(tag.getType());
+		Tag clone = tag.clone();
+		clone.setName("");
+		value.add(clone);
+	}
+	
+	private void addTagInstance(Tag tag) {
+		checkAddType(tag.getType());
 		value.add(tag);
 	}
 	
 	public void addBoolean(boolean b) {
-		add(new ByteTag(b));
+		addTagInstance(new ByteTag(b));
 	}
 	
 	public void addByte(byte b) {
-		add(new ByteTag(b));
+		addTagInstance(new ByteTag(b));
 	}
 	
 	public void addShort(short s) {
-		add(new ShortTag(s));
+		addTagInstance(new ShortTag(s));
 	}
 	
 	public void addInt(int i) {
-		add(new IntTag(i));
+		addTagInstance(new IntTag(i));
 	}
 	
 	public void addLong(long l) {
-		add(new LongTag(l));
+		addTagInstance(new LongTag(l));
 	}
 	
 	public void addFloat(float f) {
-		add(new FloatTag(f));
+		addTagInstance(new FloatTag(f));
 	}
 	
 	public void addDouble(double d) {
-		add(new DoubleTag(d));
+		addTagInstance(new DoubleTag(d));
 	}
 	
 	public void addString(String s) {
-		add(new StringTag(s));
+		addTagInstance(new StringTag(s));
 	}
 	
 	public void addBytes(byte[] b) {
-		add(new ByteArrayTag(b));
+		addTagInstance(new ByteArrayTag(b));
 	}
 	
 	public void addInts(int[] i) {
-		add(new IntArrayTag(i));
+		addTagInstance(new IntArrayTag(i));
 	}
 	
 	public void clear() {
@@ -228,7 +236,7 @@ public class ListTag extends Tag {
 
 	@Override
 	public String toTagString() {
-		return NBTUtil.checkColon(this) + "[" + NBTUtil.joinTagString(",", value.toArray()) + "]";
+		return NBTUtil.createNamePrefix(this) + "[" + NBTUtil.joinTagString(",", value.toArray()) + "]";
 	}
 	
 	@Override
@@ -238,6 +246,10 @@ public class ListTag extends Tag {
 	
 	@Override
 	public ListTag clone() {
-		return new ListTag(getName(), type, value);
+		List<Tag> clone = new ArrayList<Tag>(value.size());
+		for (Tag t : value) {
+			clone.add(t.clone());
+		}
+		return new ListTag(getName(), type, clone);
 	}
 }

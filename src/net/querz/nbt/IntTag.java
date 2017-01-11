@@ -1,8 +1,8 @@
-package de.querz.nbt;
+package net.querz.nbt;
 
 import java.io.IOException;
 
-public class IntTag extends Tag {
+public class IntTag extends Tag implements NumberTag {
 	private int value;
 	
 	protected IntTag() {
@@ -40,7 +40,7 @@ public class IntTag extends Tag {
 
 	@Override
 	public String toTagString() {
-		return NBTUtil.checkColon(this) + value;
+		return NBTUtil.createNamePrefix(this) + value;
 	}
 	
 	@Override

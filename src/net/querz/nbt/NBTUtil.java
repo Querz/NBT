@@ -1,14 +1,19 @@
-package de.querz.nbt;
+package net.querz.nbt;
 
 public class NBTUtil {
 	public static Number toNumber(Tag tag) {
-		if (tag != null && tag.getType().isNumeric())
+		if (tag != null && tag instanceof NumberTag)
 			return (Number) tag.getValue();
 		return new Byte((byte) 0);
 	}
 	
+	/**
+	 * checks if tag is a Number and interprets it as a boolean.
+	 * @param tag
+	 * @return true if the Number is > 0
+	 */
 	public static boolean toBoolean(Tag tag) {
-		return toNumber(tag).byteValue() != 0;
+		return toNumber(tag).byteValue() > 0;
 	}
 	
 	public static String joinObjects(String delimiter, Object... o) {
@@ -51,7 +56,7 @@ public class NBTUtil {
 		return sb.toString();
 	}
 	
-	protected static String joinTagString(String delimiter, Object... o) {
+	public static String joinTagString(String delimiter, Object... o) {
 		boolean first = true;
 		StringBuilder sb = new StringBuilder();
 		for (Object obj : o) {
@@ -61,7 +66,7 @@ public class NBTUtil {
 		return sb.toString();
 	}
 	
-	protected static String checkColon(Tag tag) {
+	public static String createNamePrefix(Tag tag) {
 		return tag.getName().equals("") ? "" : (tag.getName() + ":");
 	}
 }

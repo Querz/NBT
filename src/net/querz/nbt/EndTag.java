@@ -1,4 +1,4 @@
-package de.querz.nbt;
+package net.querz.nbt;
 
 import java.io.IOException;
 

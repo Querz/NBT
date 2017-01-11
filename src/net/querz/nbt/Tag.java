@@ -1,8 +1,11 @@
-package de.querz.nbt;
+package net.querz.nbt;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 
-public abstract class Tag implements Comparable<Tag> {
+public abstract class Tag implements Comparable<Tag>, Cloneable {
+	public static final Charset CHARSET = Charset.forName("UTF-8");
+	
 	private TagType type;
 	private String name;
 	
@@ -27,28 +30,28 @@ public abstract class Tag implements Comparable<Tag> {
 		return name;
 	}
 	
-	public void setName(String name) {
-		this.name = name;
+	public final void setName(String name) {
+		this.name = name == null ? "" : name;
 	}
 	
-	protected void serializeTag(NBTOutputStream nbtOut) throws IOException {
-		if (type.isCustom())
+	public final void serializeTag(NBTOutputStream nbtOut) throws IOException {
+		if (type == TagType.CUSTOM)
 			nbtOut.dos.writeByte(((CustomTag) this).getId());
 		else
 			nbtOut.dos.writeByte(type.getId());
-		if (name != null) {
-			byte[] nameBytes = name.getBytes(NBTConstants.CHARSET);
+		if (type != TagType.END) {
+			byte[] nameBytes = name.getBytes(CHARSET);
 			nbtOut.dos.writeShort(nameBytes.length);
 			nbtOut.dos.write(nameBytes);
 		}
 		serialize(nbtOut);
 	}
 	
-	protected static Tag deserializeTag(NBTInputStream nbtIn) throws IOException {
+	public final static Tag deserializeTag(NBTInputStream nbtIn) throws IOException {
 		int typeId = nbtIn.dis.readByte() & 0xFF;
 		TagType type = TagType.match(typeId);
 		Tag tag;
-		if (type.isCustom())
+		if (type == TagType.CUSTOM)
 			tag = TagType.getCustomTag(typeId);
 		else
 			tag = type.getTag();
@@ -56,7 +59,7 @@ public abstract class Tag implements Comparable<Tag> {
 			int nameLength = nbtIn.dis.readShort() & 0xFFFF;
 			byte[] nameBytes = new byte[nameLength];
 			nbtIn.dis.readFully(nameBytes);
-			tag.setName(new String(nameBytes, NBTConstants.CHARSET));
+			tag.setName(new String(nameBytes, CHARSET));
 		}
 		tag.deserialize(nbtIn);
 		return tag;
@@ -85,6 +88,7 @@ public abstract class Tag implements Comparable<Tag> {
 	
 	public abstract Object getValue();
 	public abstract String toTagString();
+	public abstract Tag clone();
 	protected abstract void serialize(NBTOutputStream nbtOut) throws IOException;
 	protected abstract Tag deserialize(NBTInputStream nbtIn) throws IOException;
 }

@@ -1,16 +1,16 @@
-package de.querz.nbt;
+package net.querz.nbt;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public enum TagType {
 	END(0, EndTag.class),
-	BYTE(1, ByteTag.class, true),
-	SHORT(2, ShortTag.class, true),
-	INT(3, IntTag.class, true),
-	LONG(4, LongTag.class, true),
-	FLOAT(5, FloatTag.class, true),
-	DOUBLE(6, DoubleTag.class, true),
+	BYTE(1, ByteTag.class),
+	SHORT(2, ShortTag.class),
+	INT(3, IntTag.class),
+	LONG(4, LongTag.class),
+	FLOAT(5, FloatTag.class),
+	DOUBLE(6, DoubleTag.class),
 	BYTE_ARRAY(7, ByteArrayTag.class),
 	STRING(8, StringTag.class),
 	LIST(9, ListTag.class),
@@ -20,23 +20,15 @@ public enum TagType {
 	
 	private int id;
 	private Class<? extends Tag> clazz;
-	private boolean numeric;
-	private boolean custom = false;
 	
 	private static Map<Integer, Class<? extends CustomTag>> customTags = new HashMap<Integer, Class<? extends CustomTag>>();
 	
 	private TagType() {
-		custom = true;
 	}
 	
 	private TagType(int id, Class<? extends Tag> clazz) {
-		this(id, clazz, false);
-	}
-	
-	private TagType(int id, Class<? extends Tag> clazz, boolean numeric) {
 		this.id = id;
 		this.clazz = clazz;
-		this.numeric = numeric;
 	}
 	
 	public int getId() {
@@ -50,15 +42,17 @@ public enum TagType {
 	public static Tag getCustomTag(int id) {
 		try {
 			return customTags.get(id).newInstance();
-		} catch (InstantiationException | IllegalAccessException ex) {
+		} catch (InstantiationException | IllegalAccessException | NullPointerException ex) {
 			throw new IllegalArgumentException("Unknown Tag ID: " + id);
 		}
 	}
 	
 	public Tag getTag() {
+		if (this == TagType.CUSTOM)
+			throw new IllegalArgumentException("getTag() not permitted for TagType.CUSTOM");
 		try {
 			return getTagClass().newInstance();
-		} catch (InstantiationException | IllegalAccessException ex) {
+		} catch (InstantiationException | IllegalAccessException | NullPointerException ex) {
 			ex.printStackTrace();
 			return null;
 		}
@@ -71,14 +65,6 @@ public enum TagType {
 		if (customTags.containsKey(id))
 			return TagType.CUSTOM;
 		throw new IllegalArgumentException("Unknown Tag ID: " + id);
-	}
-	
-	public boolean isNumeric() {
-		return numeric;
-	}
-	
-	public boolean isCustom() {
-		return custom;
 	}
 	
 	public static void registerCustomTag(int id, Class<? extends CustomTag> clazz) {

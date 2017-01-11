@@ -1,8 +1,8 @@
-package de.querz.nbt;
+package net.querz.nbt;
 
 import java.io.IOException;
 
-public class DoubleTag extends Tag {
+public class DoubleTag extends Tag implements NumberTag {
 	private double value;
 	
 	protected DoubleTag() {
@@ -40,7 +40,7 @@ public class DoubleTag extends Tag {
 
 	@Override
 	public String toTagString() {
-		return NBTUtil.checkColon(this) + value + "d";
+		return NBTUtil.createNamePrefix(this) + value + "d";
 	}
 	
 	@Override

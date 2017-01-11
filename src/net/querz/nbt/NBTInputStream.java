@@ -1,4 +1,4 @@
-package de.querz.nbt;
+package net.querz.nbt;
 
 import java.io.Closeable;
 import java.io.DataInputStream;
@@ -19,5 +19,9 @@ public class NBTInputStream implements Closeable {
 	@Override
 	public void close() throws IOException {
 		dis.close();
+	}
+	
+	public DataInputStream getDataInputStream() {
+		return dis;
 	}
 }

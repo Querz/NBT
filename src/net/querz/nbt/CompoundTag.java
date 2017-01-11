@@ -1,4 +1,4 @@
-package de.querz.nbt;
+package net.querz.nbt;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -33,47 +33,52 @@ public class CompoundTag extends Tag {
 	}
 	
 	public void set(Tag tag) {
+		Tag clone = tag.clone();
+		value.put(clone.getName(), clone);
+	}
+	
+	private void setTagInstance(Tag tag) {
 		value.put(tag.getName(), tag);
 	}
 	
 	public void setBoolean(String key, boolean b) {
-		set(new ByteTag(key, b));
+		setTagInstance(new ByteTag(key, b));
 	}
 	
 	public void setByte(String key, byte b) {
-		set(new ByteTag(key, b));
+		setTagInstance(new ByteTag(key, b));
 	}
 	
 	public void setShort(String key, short s) {
-		set(new ShortTag(key, s));
+		setTagInstance(new ShortTag(key, s));
 	}
 	
 	public void setInt(String key, int i) {
-		set(new IntTag(key, i));
+		setTagInstance(new IntTag(key, i));
 	}
 	
 	public void setLong(String key, long l) {
-		set(new LongTag(key, l));
+		setTagInstance(new LongTag(key, l));
 	}
 	
 	public void setFloat(String key, float f) {
-		set(new FloatTag(key, f));
+		setTagInstance(new FloatTag(key, f));
 	}
 	
 	public void setDouble(String key, double d) {
-		set(new DoubleTag(key, d));
+		setTagInstance(new DoubleTag(key, d));
 	}
 	
 	public void setString(String key, String s) {
-		set(new StringTag(key, s));
+		setTagInstance(new StringTag(key, s));
 	}
 	
 	public void setBytes(String key, byte[] b) {
-		set(new ByteArrayTag(key, b));
+		setTagInstance(new ByteArrayTag(key, b));
 	}
 	
 	public void setInts(String key, int[] i) {
-		set(new IntArrayTag(key, i));
+		setTagInstance(new IntArrayTag(key, i));
 	}
 	
 	public Tag get(String key) {
@@ -200,8 +205,9 @@ public class CompoundTag extends Tag {
 
 	@Override
 	protected void serialize(NBTOutputStream nbtOut) throws IOException {
-		for (Tag tag : value.values())
+		for (Tag tag : value.values()) {
 			tag.serializeTag(nbtOut);
+		}
 		new EndTag().serializeTag(nbtOut);
 	}
 
@@ -210,16 +216,17 @@ public class CompoundTag extends Tag {
 		clear();
 		while (true) {
 			Tag tag = Tag.deserializeTag(nbtIn);
-			if (tag.getType() == TagType.END)
+			if (tag.getType() == TagType.END) {
 				break;
-			set(tag);
+			}
+			setTagInstance(tag);
 		}
 		return this;
 	}
 
 	@Override
 	public String toTagString() {
-		return NBTUtil.checkColon(this) + "{" + NBTUtil.joinTagString(",", value.values().toArray()) + "}";
+		return NBTUtil.createNamePrefix(this) + "{" + NBTUtil.joinTagString(",", value.values().toArray()) + "}";
 	}
 	
 	@Override
@@ -229,6 +236,6 @@ public class CompoundTag extends Tag {
 	
 	@Override
 	public CompoundTag clone() {
-		return new CompoundTag(getName(), value);
+		return new CompoundTag(getName(), new HashMap<String, Tag>(value));
 	}
 }

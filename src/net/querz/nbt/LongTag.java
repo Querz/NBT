@@ -1,8 +1,8 @@
-package de.querz.nbt;
+package net.querz.nbt;
 
 import java.io.IOException;
 
-public class LongTag extends Tag {
+public class LongTag extends Tag implements NumberTag {
 	private long value;
 	
 	protected LongTag() {
@@ -40,7 +40,7 @@ public class LongTag extends Tag {
 
 	@Override
 	public String toTagString() {
-		return NBTUtil.checkColon(this) + value + "l";
+		return NBTUtil.createNamePrefix(this) + value + "l";
 	}
 	
 	@Override

@@ -1,4 +1,4 @@
-package de.querz.nbt;
+package net.querz.nbt;
 
 import java.io.IOException;
 
@@ -47,7 +47,7 @@ public class ByteArrayTag extends Tag {
 
 	@Override
 	public String toTagString() {
-		return NBTUtil.checkColon(this) + "[" + NBTUtil.joinBytes(",", value) + "]";
+		return NBTUtil.createNamePrefix(this) + "[" + NBTUtil.joinBytes(",", value) + "]";
 	}
 	
 	@Override
