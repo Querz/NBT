@@ -2,7 +2,7 @@ package net.querz.nbt;
 
 import java.io.IOException;
 
-public class FloatTag extends Tag implements NumberTag {
+public class FloatTag extends NumberTag<Float> {
 	private float value;
 	
 	protected FloatTag() {

@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import static net.querz.nbt.test.TestUtil.*;
 
 import junit.framework.TestCase;
 import net.querz.nbt.*;
@@ -116,7 +117,7 @@ public class TagTest extends TestCase {
 		assertTrue(byteList2.getBoolean(2));
 		assertFalse(byteList2.getBoolean(3));
 		assertEquals(byteList2.asByte(0), byteList.getByte(0));
-		TestUtil.assertThrowsException(() -> byteList.add(maxShort), IllegalArgumentException.class);
+		assertThrowsException(() -> byteList.add(maxShort), IllegalArgumentException.class);
 	}
 	
 	public void testCompoundTag() throws IOException {
@@ -137,12 +138,18 @@ public class TagTest extends TestCase {
 		compound.setDouble("minDouble", minDouble.getValue());
 		compound.set(string);
 		compound.set(byteList);
+		
+		//test cloning
+		assertEquals(compound, compound.clone());
+		
 		CompoundTag compoundClone = compound.clone();
 		CompoundTag compoundClone2 = compound.clone();
 		compoundClone2.setName("compoundClone2");
 		compoundClone.setName("compoundClone");
 		compound.set(compoundClone);
 		compound.set(compoundClone2);
+		//test if there's no recursion; compound should be cloned before beeing added
+		compound.set(compound);
 		CompoundTag compound2 = (CompoundTag) serializeAndDeserialize(compound);
 		assertEquals(compound, compound2);
 	}
