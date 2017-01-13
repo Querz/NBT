@@ -2,7 +2,7 @@ package net.querz.nbt;
 
 import java.io.IOException;
 
-public class LongTag extends Tag implements NumberTag {
+public class LongTag extends NumberTag<Long> {
 	private long value;
 	
 	protected LongTag() {

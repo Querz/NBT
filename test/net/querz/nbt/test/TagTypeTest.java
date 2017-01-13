@@ -1,6 +1,7 @@
 package net.querz.nbt.test;
 
 import junit.framework.TestCase;
+import net.querz.nbt.Tag;
 import net.querz.nbt.TagType;
 import net.querz.nbt.custom.ShortArrayTag;
 import static net.querz.nbt.test.TestUtil.*;
@@ -15,6 +16,9 @@ public class TagTypeTest extends TestCase {
 	}
 	
 	public void testCustomTags() {
+		ShortArrayTag.register();
+		Tag tag = TagType.getCustomTag(ShortArrayTag.TAG_ID);
+		assertTrue(tag instanceof ShortArrayTag);
 		
 	}
 }
