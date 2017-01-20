@@ -76,4 +76,13 @@ public enum TagType {
 		}
 		throw new IllegalArgumentException("Id already registered: " + id);
 	}
+	
+	public static void unregisterCustomTag(int id) {
+		match(id);
+		customTags.remove(id);
+	}
+	
+	public static void unregisterAllCustomTags() {
+		customTags.clear();
+	}
 }

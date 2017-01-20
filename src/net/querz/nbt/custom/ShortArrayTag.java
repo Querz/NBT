@@ -17,7 +17,7 @@ public class ShortArrayTag extends CustomTag {
 	
 	private short[] value;
 	
-	protected ShortArrayTag() {
+	public ShortArrayTag() {
 		this(new short[0]);
 	}
 	

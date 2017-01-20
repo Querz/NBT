@@ -148,10 +148,18 @@ public class TagTest extends TestCase {
 		compoundClone.setName("compoundClone");
 		compound.set(compoundClone);
 		compound.set(compoundClone2);
-		//test if there's no recursion; compound should be cloned before beeing added
+		
+		//test if there's no recursion; compound should be cloned before being added
 		compound.set(compound);
 		CompoundTag compound2 = (CompoundTag) serializeAndDeserialize(compound);
 		assertEquals(compound, compound2);
+	}
+	
+	public void testNBTFileReader() {
+		Tag t = new NBTFileReader("test/net/querz/nbt/test/ressources/test_compound_gzip.dat").read();
+		assertNotNull(t);
+		Tag t2 = new NBTFileReader("test/net/querz/nbt/test/ressources/test_compound.dat").read();
+		assertNotNull(t2);
 	}
 	
 	//only works with primitive tags
