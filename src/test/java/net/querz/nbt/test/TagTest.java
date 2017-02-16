@@ -2,6 +2,7 @@ package net.querz.nbt.test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import static net.querz.nbt.test.TestUtil.*;
@@ -155,10 +156,11 @@ public class TagTest extends TestCase {
 		assertEquals(compound, compound2);
 	}
 	
-	public void testNBTFileReader() {
-		Tag t = new NBTFileReader("test/net/querz/nbt/test/ressources/test_compound_gzip.dat").read();
+	public void testNBTFileReader() throws IOException {
+		System.out.println("workingdir: " + (new File(".")).getCanonicalPath());
+		Tag t = new NBTFileReader("./src/test/java/net/querz/nbt/test/resources/test_compound_gzip.dat").read();
 		assertNotNull(t);
-		Tag t2 = new NBTFileReader("test/net/querz/nbt/test/ressources/test_compound.dat").read();
+		Tag t2 = new NBTFileReader("./src/test/java/net/querz/nbt/test/resources/test_compound.dat").read();
 		assertNotNull(t2);
 	}
 	
