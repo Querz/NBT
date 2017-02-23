@@ -3,6 +3,7 @@ package net.querz.nbt;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class CompoundTag extends Tag {
 	private Map<String, Tag> value;
@@ -214,7 +215,7 @@ public class CompoundTag extends Tag {
 	@Override
 	protected Tag deserialize(NBTInputStream nbtIn) throws IOException {
 		clear();
-		while (true) {
+		for(;;) {
 			Tag tag = Tag.deserializeTag(nbtIn);
 			if (tag.getType() == TagType.END) {
 				break;
@@ -231,11 +232,15 @@ public class CompoundTag extends Tag {
 	
 	@Override
 	public String toString() {
-		return "<compound:" + getName() + ":{" + NBTUtil.joinObjects(",", value.values().toArray()) + "}>";
+		return "<compound:" + getName() + ":{" + NBTUtil.joinObjects(",", 0, value.values().toArray()) + "}>";
 	}
 	
 	@Override
 	public CompoundTag clone() {
-		return new CompoundTag(getName(), new HashMap<String, Tag>(value));
+		CompoundTag clone = new CompoundTag(getName());
+		for (Entry<String, Tag> entry : value.entrySet()) {
+			clone.setTagInstance(entry.getValue().clone());
+		}
+		return clone;
 	}
 }

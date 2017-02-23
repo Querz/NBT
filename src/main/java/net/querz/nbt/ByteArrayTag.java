@@ -1,6 +1,7 @@
 package net.querz.nbt;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 public class ByteArrayTag extends Tag {
 	private byte[] value;
@@ -53,6 +54,15 @@ public class ByteArrayTag extends Tag {
 	@Override
 	public String toString() {
 		return "<byte[]:" + getName() + ":[" + NBTUtil.joinBytes(",", value) + "]>";
+	}
+	
+	@Override
+	public boolean equals(Object other) {
+		if (!(other instanceof ByteArrayTag)) {
+			return false;
+		}
+		ByteArrayTag tag = (ByteArrayTag) other;
+		return getName() != null && getName().equals(tag.getName()) && Arrays.equals(value, tag.getValue());
 	}
 	
 	@Override

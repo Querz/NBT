@@ -202,7 +202,7 @@ public class ListTag extends Tag {
 	
 	private void checkAddType(TagType type) {
 		if (this.type != type)
-			throw new IllegalArgumentException("A list doesn't support multiple tag types: " + this.type + " != " + type);
+			throw new IllegalArgumentException("A list does not support multiple tag types: " + this.type + " != " + type);
 	}
 	
 	@Override

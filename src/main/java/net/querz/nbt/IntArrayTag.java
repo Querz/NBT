@@ -1,6 +1,7 @@
 package net.querz.nbt;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 public class IntArrayTag extends Tag {
 	private int[] value;
@@ -58,7 +59,16 @@ public class IntArrayTag extends Tag {
 	}
 	
 	@Override
+	public boolean equals(Object other) {
+		if (!(other instanceof IntArrayTag)) {
+			return false;
+		}
+		IntArrayTag tag = (IntArrayTag) other;
+		return getName() != null && getName().equals(tag.getName()) && Arrays.equals(value, tag.getValue());
+	}
+	
+	@Override
 	public IntArrayTag clone() {
-		return new IntArrayTag(getName(), value);
+		return new IntArrayTag(getName(), value.clone());
 	}
 }

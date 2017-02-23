@@ -29,7 +29,7 @@ public class TagTest extends TestCase {
 	private ByteTag boolFalse = new ByteTag("boolFalse", false);
 	private ByteArrayTag byteArray = new ByteArrayTag("byteArray", new byte[] {Byte.MIN_VALUE, -2, -1, 0, 1, 2, Byte.MAX_VALUE});
 	private IntArrayTag intArray = new IntArrayTag("intArray", new int[] {Integer.MIN_VALUE, -2, -1, 0, 1, 2, Integer.MAX_VALUE});
-	private StringTag string = new StringTag("string0aA«∑€®†Ω¨⁄øπ•±å‚∂ƒ©ªº∆@œæ‘¥≈ç√∫~µ∞…", "0aA«∑€®†Ω¨⁄øπ•±å‚∂ƒ©ªº∆@œæ‘¥≈ç√∫~µ∞…");
+	private StringTag string = new StringTag("string0aAÂ«âˆ‘â‚¬Â®â€ Î©Â¨â�„Ã¸Ï€â€¢Â±Ã¥â€šâˆ‚Æ’Â©ÂªÂºâˆ†@Å“Ã¦â€˜Â¥â‰ˆÃ§âˆšâˆ«~Âµâˆžâ€¦", "0aAÂ«âˆ‘â‚¬Â®â€ Î©Â¨â�„Ã¸Ï€â€¢Â±Ã¥â€šâˆ‚Æ’Â©ÂªÂºâˆ†@Å“Ã¦â€˜Â¥â‰ˆÃ§âˆšâˆ«~Âµâˆžâ€¦");
 	private ListTag byteList = new ListTag("byteList", TagType.BYTE);
 	private Tag nullName = new StringTag("");
 	
@@ -137,6 +137,8 @@ public class TagTest extends TestCase {
 		compound.setFloat("minFloat", minFloat.getValue());
 		compound.setDouble("maxDouble", maxDouble.getValue());
 		compound.setDouble("minDouble", minDouble.getValue());
+		compound.set(byteArray);
+		compound.set(intArray);
 		compound.set(string);
 		compound.set(byteList);
 		
