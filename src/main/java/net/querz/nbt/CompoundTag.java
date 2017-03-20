@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import net.querz.nbt.util.NBTUtil;
+
 public class CompoundTag extends Tag {
 	private Map<String, Tag> value;
 	
@@ -232,7 +234,7 @@ public class CompoundTag extends Tag {
 	
 	@Override
 	public String toString() {
-		return "<compound:" + getName() + ":{" + NBTUtil.joinObjects(",", 0, value.values().toArray()) + "}>";
+		return "<compound:" + getName() + ":{" + NBTUtil.joinArray(",", value.values().toArray()) + "}>";
 	}
 	
 	@Override

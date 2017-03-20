@@ -2,6 +2,8 @@ package net.querz.nbt;
 
 import java.io.IOException;
 
+import net.querz.nbt.util.NBTUtil;
+
 public class DoubleTag extends NumberTag<Double> {
 	private double value;
 	

@@ -1,12 +1,13 @@
 package net.querz.nbt.custom;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import net.querz.nbt.CustomTag;
 import net.querz.nbt.NBTInputStream;
 import net.querz.nbt.NBTOutputStream;
-import net.querz.nbt.NBTUtil;
 import net.querz.nbt.TagType;
+import net.querz.nbt.util.NBTUtil;
 
 public class ShortArrayTag extends CustomTag {
 	public static final int TAG_ID = 100;
@@ -61,16 +62,25 @@ public class ShortArrayTag extends CustomTag {
 
 	@Override
 	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + "[" + NBTUtil.joinShorts(",", value) + "]";
+		return NBTUtil.createNamePrefix(this) + "[" + NBTUtil.joinArray(",", value) + "]";
 	}
 	
 	@Override
 	public String toString() {
-		return "<short[]:" + getName() + ":[" + NBTUtil.joinShorts(",", value) + "]>";
+		return "<short[]:" + getName() + ":[" + NBTUtil.joinArray(",", value) + "]>";
+	}
+	
+	@Override
+	public boolean equals(Object other) {
+		if (!(other instanceof ShortArrayTag)) {
+			return false;
+		}
+		ShortArrayTag tag = (ShortArrayTag) other;
+		return getName() != null && getName().equals(tag.getName()) && Arrays.equals(value, tag.getValue());
 	}
 	
 	@Override
 	public ShortArrayTag clone() {
-		return new ShortArrayTag(getName(), value);
+		return new ShortArrayTag(getName(), value.clone());
 	}
 }

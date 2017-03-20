@@ -3,6 +3,8 @@ package net.querz.nbt;
 import java.io.IOException;
 import java.util.Arrays;
 
+import net.querz.nbt.util.NBTUtil;
+
 public class IntArrayTag extends Tag {
 	private int[] value;
 	
@@ -50,12 +52,12 @@ public class IntArrayTag extends Tag {
 
 	@Override
 	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + "[" + NBTUtil.joinInts(",", value) + "]";
+		return NBTUtil.createNamePrefix(this) + "[" + NBTUtil.joinArray(",", value) + "]";
 	}
 	
 	@Override
 	public String toString() {
-		return "<int[]:" + getName() + ":[" + NBTUtil.joinInts(",", value) + "]>";
+		return "<int[]:" + getName() + ":[" + NBTUtil.joinArray(",", value) + "]>";
 	}
 	
 	@Override

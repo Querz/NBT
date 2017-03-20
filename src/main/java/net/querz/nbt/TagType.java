@@ -32,6 +32,12 @@ public enum TagType {
 	}
 	
 	public int getId() {
+		return getId(null);
+	}
+	
+	public int getId(Tag tag) {
+		if (this == TagType.CUSTOM && tag instanceof CustomTag)
+			return ((CustomTag) tag).getId();
 		return id;
 	}
 	
@@ -65,6 +71,13 @@ public enum TagType {
 		if (customTags.containsKey(id))
 			return TagType.CUSTOM;
 		throw new IllegalArgumentException("Unknown Tag ID: " + id);
+	}
+	
+	public static Tag getTag(int id) {
+		TagType type = TagType.match(id);
+		if (type == TagType.CUSTOM)
+			return TagType.getCustomTag(id);
+		return type.getTag();
 	}
 	
 	public static void registerCustomTag(int id, Class<? extends CustomTag> clazz) {

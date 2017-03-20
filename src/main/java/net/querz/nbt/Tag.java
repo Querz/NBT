@@ -35,10 +35,7 @@ public abstract class Tag implements Comparable<Tag>, Cloneable {
 	}
 	
 	public final void serializeTag(NBTOutputStream nbtOut) throws IOException {
-		if (type == TagType.CUSTOM)
-			nbtOut.dos.writeByte(((CustomTag) this).getId());
-		else
-			nbtOut.dos.writeByte(type.getId());
+		nbtOut.dos.writeByte(type.getId(this));
 		if (type != TagType.END) {
 			byte[] nameBytes = name.getBytes(CHARSET);
 			nbtOut.dos.writeShort(nameBytes.length);
@@ -49,13 +46,8 @@ public abstract class Tag implements Comparable<Tag>, Cloneable {
 	
 	public final static Tag deserializeTag(NBTInputStream nbtIn) throws IOException {
 		int typeId = nbtIn.dis.readByte() & 0xFF;
-		TagType type = TagType.match(typeId);
-		Tag tag;
-		if (type == TagType.CUSTOM)
-			tag = TagType.getCustomTag(typeId);
-		else
-			tag = type.getTag();
-		if (type != TagType.END) {
+		Tag tag = TagType.getTag(typeId);
+		if (tag.getType() != TagType.END) {
 			int nameLength = nbtIn.dis.readShort() & 0xFFFF;
 			byte[] nameBytes = new byte[nameLength];
 			nbtIn.dis.readFully(nameBytes);

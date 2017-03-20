@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import net.querz.nbt.util.NBTUtil;
+
 public class ListTag extends Tag {
 	private TagType type;
 	private List<Tag> value;
@@ -241,7 +243,7 @@ public class ListTag extends Tag {
 	
 	@Override
 	public String toString() {
-		return "<list:" + getName() + ":[" + NBTUtil.joinObjects(",", value.toArray()) + "]>";
+		return "<list:" + getName() + ":[" + NBTUtil.joinArray(",", value.toArray()) + "]>";
 	}
 	
 	@Override

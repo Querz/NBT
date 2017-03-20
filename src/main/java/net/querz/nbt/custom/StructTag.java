@@ -19,11 +19,11 @@ import net.querz.nbt.ListTag;
 import net.querz.nbt.LongTag;
 import net.querz.nbt.NBTInputStream;
 import net.querz.nbt.NBTOutputStream;
-import net.querz.nbt.NBTUtil;
 import net.querz.nbt.ShortTag;
 import net.querz.nbt.StringTag;
 import net.querz.nbt.Tag;
 import net.querz.nbt.TagType;
+import net.querz.nbt.util.NBTUtil;
 
 public class StructTag extends CustomTag {
 	public static final int TAG_ID = 20;
@@ -67,51 +67,56 @@ public class StructTag extends CustomTag {
 	}
 	
 	public void add(Tag tag) {
+		Tag clone = tag.clone();
+		value.add(clone);
+	}
+	
+	private void addInstance(Tag tag) {
 		value.add(tag);
 	}
 	
 	public void addBoolean(boolean b) {
-		add(new ByteTag(b));
+		addInstance(new ByteTag(b));
 	}
 	
 	public void addByte(byte b) {
-		add(new ByteTag(b));
+		addInstance(new ByteTag(b));
 	}
 	
 	public void addShort(short s) {
-		add(new ShortTag(s));
+		addInstance(new ShortTag(s));
 	}
 	
 	public void addInt(int i) {
-		add(new IntTag(i));
+		addInstance(new IntTag(i));
 	}
 	
 	public void addLong(long l) {
-		add(new LongTag(l));
+		addInstance(new LongTag(l));
 	}
 	
 	public void addFloat(float f) {
-		add(new FloatTag(f));
+		addInstance(new FloatTag(f));
 	}
 	
 	public void addDouble(double d) {
-		add(new DoubleTag(d));
+		addInstance(new DoubleTag(d));
 	}
 	
 	public void addByteArray(byte[] b) {
-		add(new ByteArrayTag(b));
+		addInstance(new ByteArrayTag(b));
 	}
 	
 	public void addList(TagType type, List<Tag> l) {
-		add(new ListTag(type, l));
+		addInstance(new ListTag(type, l));
 	}
 	
 	public void addIntArray(int[] i) {
-		add(new IntArrayTag(i));
+		addInstance(new IntArrayTag(i));
 	}
 	
 	public void addString(String s) {
-		add(new StringTag(s));
+		addInstance(new StringTag(s));
 	}
 	
 	public Tag get(int index) {
@@ -233,7 +238,7 @@ public class StructTag extends CustomTag {
 			Tag tag = Tag.deserializeTag(nbtIn);
 			if (tag instanceof EndTag)
 				throw new IOException("EndTag not permitted in a struct.");
-			add(tag);
+			addInstance(tag);
 		}
 		return null;
 	}
@@ -245,11 +250,15 @@ public class StructTag extends CustomTag {
 	
 	@Override
 	public String toString() {
-		return "<struct:" + getName() + ":[" + NBTUtil.joinObjects(",", value.toArray()) + "]>";
+		return "<struct:" + getName() + ":[" + NBTUtil.joinArray(",", value.toArray()) + "]>";
 	}
 	
 	@Override
 	public StructTag clone() {
-		return new StructTag(getName(), value);
+		List<Tag> clone = new ArrayList<Tag>(value.size());
+		for (Tag tag : value) {
+			clone.add(tag.clone());
+		}
+		return new StructTag(getName(), clone);
 	}
 }

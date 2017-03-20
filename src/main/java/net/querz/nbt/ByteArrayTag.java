@@ -3,6 +3,8 @@ package net.querz.nbt;
 import java.io.IOException;
 import java.util.Arrays;
 
+import net.querz.nbt.util.NBTUtil;
+
 public class ByteArrayTag extends Tag {
 	private byte[] value;
 	
@@ -48,12 +50,12 @@ public class ByteArrayTag extends Tag {
 
 	@Override
 	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + "[" + NBTUtil.joinBytes(",", value) + "]";
+		return NBTUtil.createNamePrefix(this) + "[" + NBTUtil.joinArray(",", value) + "]";
 	}
 	
 	@Override
 	public String toString() {
-		return "<byte[]:" + getName() + ":[" + NBTUtil.joinBytes(",", value) + "]>";
+		return "<byte[]:" + getName() + ":[" + NBTUtil.joinArray(",", value) + "]>";
 	}
 	
 	@Override
@@ -67,6 +69,6 @@ public class ByteArrayTag extends Tag {
 	
 	@Override
 	public ByteArrayTag clone() {
-		return new ByteArrayTag(getName(), value);
+		return new ByteArrayTag(getName(), value.clone());
 	}
 }

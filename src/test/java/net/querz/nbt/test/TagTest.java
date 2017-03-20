@@ -41,12 +41,6 @@ public class TagTest extends TestCase {
 		nullName.setName(null);
 	}
 	
-	public void testEquals() {
-		Tag t1 = new ByteTag("b1", (byte) 12);
-		Tag t2 = new ByteTag("b1", (byte) 12);
-		assertEquals(t1, t2);
-	}
-	
 	public void testByteTag() throws IOException {
 		assertTagNotNullEquals(serializeAndDeserialize(maxByte), maxByte);
 		assertTagNotNullEquals(serializeAndDeserialize(minByte), minByte);
@@ -83,6 +77,8 @@ public class TagTest extends TestCase {
 	
 	public void testStringTag() throws IOException {
 		assertTagNotNullEquals(serializeAndDeserialize(string), string);
+		assertTagNotNullEquals(string, string.clone());
+		assertTrue(string != string.clone());
 	}
 	
 	public void testByteArrayTag() throws IOException {
@@ -91,6 +87,9 @@ public class TagTest extends TestCase {
 		assertEquals(t.getType(), byteArray.getType());
 		assertEquals(t.getName(), byteArray.getName());
 		assertTrue(Arrays.equals(t.getValue(), byteArray.getValue()));
+		assertTrue(t.equals(byteArray));
+		assertTrue(t != t.clone());
+		assertTrue(t.getValue() != t.clone().getValue());
 	}
 	
 	public void testIntArrayTag() throws IOException {
@@ -99,6 +98,9 @@ public class TagTest extends TestCase {
 		assertEquals(t.getType(), intArray.getType());
 		assertEquals(t.getName(), intArray.getName());
 		assertTrue(Arrays.equals(t.getValue(), intArray.getValue()));
+		assertTrue(t.equals(intArray));
+		assertTrue(t != t.clone());
+		assertTrue(t.getValue() != t.clone().getValue());
 	}
 	
 	public void testListTag() throws IOException {
@@ -119,6 +121,9 @@ public class TagTest extends TestCase {
 		assertFalse(byteList2.getBoolean(3));
 		assertEquals(byteList2.asByte(0), byteList.getByte(0));
 		assertThrowsException(() -> byteList.add(maxShort), IllegalArgumentException.class);
+		assertTrue(byteList2.equals(byteList));
+		assertTrue(byteList != byteList.clone());
+		assertTrue(byteList.getValue() != byteList.clone().getValue());
 	}
 	
 	public void testCompoundTag() throws IOException {
