@@ -36,52 +36,47 @@ public class CompoundTag extends Tag {
 	}
 	
 	public void set(Tag tag) {
-		Tag clone = tag.clone();
-		value.put(clone.getName(), clone);
-	}
-	
-	private void setTagInstance(Tag tag) {
 		value.put(tag.getName(), tag);
 	}
 	
 	public void setBoolean(String key, boolean b) {
-		setTagInstance(new ByteTag(key, b));
+		set(new ByteTag(key, b));
 	}
 	
 	public void setByte(String key, byte b) {
-		setTagInstance(new ByteTag(key, b));
+		set(new ByteTag(key, b));
 	}
 	
 	public void setShort(String key, short s) {
-		setTagInstance(new ShortTag(key, s));
+		set(new ShortTag(key, s));
 	}
 	
 	public void setInt(String key, int i) {
-		setTagInstance(new IntTag(key, i));
+		set(new IntTag(key, i));
 	}
 	
 	public void setLong(String key, long l) {
-		setTagInstance(new LongTag(key, l));
+		set(new LongTag(key, l));
 	}
 	
 	public void setFloat(String key, float f) {
-		setTagInstance(new FloatTag(key, f));
+		set(new FloatTag(key, f));
 	}
 	
 	public void setDouble(String key, double d) {
-		setTagInstance(new DoubleTag(key, d));
+		set(new DoubleTag(key, d));
 	}
 	
 	public void setString(String key, String s) {
-		setTagInstance(new StringTag(key, s));
+		set(new StringTag(key, s));
 	}
 	
 	public void setBytes(String key, byte[] b) {
-		setTagInstance(new ByteArrayTag(key, b));
+		set(new ByteArrayTag(key, b));
 	}
 	
 	public void setInts(String key, int[] i) {
-		setTagInstance(new IntArrayTag(key, i));
+		set(new IntArrayTag(key, i));
 	}
 	
 	public Tag get(String key) {
@@ -222,27 +217,39 @@ public class CompoundTag extends Tag {
 			if (tag.getType() == TagType.END) {
 				break;
 			}
-			setTagInstance(tag);
+			set(tag);
 		}
 		return this;
 	}
 
 	@Override
 	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + "{" + NBTUtil.joinTagString(",", value.values().toArray()) + "}";
+		return NBTUtil.createNamePrefix(this) + valueToTagString();
+	}
+	
+	@Override
+	public String valueToTagString() {
+		return "{" + NBTUtil.joinTagString(",", value.values().toArray(new Tag[0])) + "}";
 	}
 	
 	@Override
 	public String toString() {
-		return "<compound:" + getName() + ":{" + NBTUtil.joinArray(",", value.values().toArray()) + "}>";
+		return toString(0);
+//		return "<compound:" + getName() + ":{" + NBTUtil.joinArray(",", value.values().toArray()) + "}>";
 	}
 	
 	@Override
 	public CompoundTag clone() {
 		CompoundTag clone = new CompoundTag(getName());
 		for (Entry<String, Tag> entry : value.entrySet()) {
-			clone.setTagInstance(entry.getValue().clone());
+			clone.set(entry.getValue().clone());
 		}
 		return clone;
+	}
+	
+	@Override
+	public String toString(int depth) {
+		depth = incrementDepth(depth);
+		return "<compound:" + getName() + ":{" + NBTUtil.joinArray(",", value.values().toArray(), depth) + "}>";
 	}
 }

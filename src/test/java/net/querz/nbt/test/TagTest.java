@@ -104,8 +104,10 @@ public class TagTest extends TestCase {
 	}
 	
 	public void testListTag() throws IOException {
-		assertEquals(byteList.toString(), "<list:byteList:[<byte::127>,<byte::-128>,<byte::1>,<byte::0>]>");
+		assertEquals(byteList.toString(), "<list:byteList:[<byte:byte:127>,<byte::-128>,<byte::1>,<byte::0>]>");
 		assertEquals(byteList.toTagString(), "byteList:[127b,-128b,1b,0b]");
+		System.out.println(byteList.toTagString());
+		
 		ListTag byteList2 = (ListTag) serializeAndDeserialize(byteList);
 		assertNotNull(byteList2);
 		assertEquals(byteList2.getType(), byteList.getType());
@@ -121,6 +123,10 @@ public class TagTest extends TestCase {
 		assertFalse(byteList2.getBoolean(3));
 		assertEquals(byteList2.asByte(0), byteList.getByte(0));
 		assertThrowsException(() -> byteList.add(maxShort), IllegalArgumentException.class);
+		System.out.println(byteList2);
+		System.out.println(byteList);
+		
+		// equals should ignore tag names in list tags
 		assertTrue(byteList2.equals(byteList));
 		assertTrue(byteList != byteList.clone());
 		assertTrue(byteList.getValue() != byteList.clone().getValue());
@@ -158,7 +164,6 @@ public class TagTest extends TestCase {
 		compound.set(compoundClone2);
 		
 		//test if there's no recursion; compound should be cloned before being added
-		compound.set(compound);
 		CompoundTag compound2 = (CompoundTag) serializeAndDeserialize(compound);
 		assertEquals(compound, compound2);
 	}
@@ -169,6 +174,11 @@ public class TagTest extends TestCase {
 		assertNotNull(t);
 		Tag t2 = new NBTFileReader("./src/test/java/net/querz/nbt/test/resources/test_compound.dat").read();
 		assertNotNull(t2);
+	}
+	
+	public void testCircularReference() {
+		CompoundTag t = new CompoundTag("test");
+		t.set(t);
 	}
 	
 	//only works with primitive tags

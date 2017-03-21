@@ -62,7 +62,12 @@ public class ShortArrayTag extends CustomTag {
 
 	@Override
 	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + "[" + NBTUtil.joinArray(",", value) + "]";
+		return NBTUtil.createNamePrefix(this) + valueToTagString();
+	}
+	
+	@Override
+	public String valueToTagString() {
+		return "[" + NBTUtil.joinArray(",", value) + "]";
 	}
 	
 	@Override

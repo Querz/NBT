@@ -245,12 +245,23 @@ public class StructTag extends CustomTag {
 
 	@Override
 	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + "[" + NBTUtil.joinTagString(",", value.toArray()) + "]";
+		return NBTUtil.createNamePrefix(this) + valueToTagString();
+	}
+	
+	@Override
+	public String valueToTagString() {
+		return "[" + NBTUtil.joinTagString(",", value.toArray(new Tag[0])) + "]";
 	}
 	
 	@Override
 	public String toString() {
 		return "<struct:" + getName() + ":[" + NBTUtil.joinArray(",", value.toArray()) + "]>";
+	}
+	
+	@Override
+	public String toString(int depth) {
+		depth = incrementDepth(depth);
+		return "<struct:" + getName() + ":[" + NBTUtil.joinArray(",", value.toArray(), depth) + "]>";
 	}
 	
 	@Override

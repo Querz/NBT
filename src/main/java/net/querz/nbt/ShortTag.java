@@ -42,7 +42,12 @@ public class ShortTag extends NumberTag<Short> {
 
 	@Override
 	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + value;
+		return NBTUtil.createNamePrefix(this) + valueToTagString();
+	}
+	
+	@Override
+	public String valueToTagString() {
+		return value + "";
 	}
 	
 	@Override

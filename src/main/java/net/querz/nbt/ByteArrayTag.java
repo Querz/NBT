@@ -50,7 +50,12 @@ public class ByteArrayTag extends Tag {
 
 	@Override
 	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + "[" + NBTUtil.joinArray(",", value) + "]";
+		return NBTUtil.createNamePrefix(this) + valueToTagString();
+	}
+	
+	@Override
+	public String valueToTagString() {
+		return "[" + NBTUtil.joinArray(",", value) + "]";
 	}
 	
 	@Override
@@ -65,6 +70,11 @@ public class ByteArrayTag extends Tag {
 		}
 		ByteArrayTag tag = (ByteArrayTag) other;
 		return getName() != null && getName().equals(tag.getName()) && Arrays.equals(value, tag.getValue());
+	}
+	
+	@Override
+	public boolean valueEquals(Tag other) {
+		return other instanceof ByteArrayTag && Arrays.equals(value, ((ByteArrayTag) other).getValue());
 	}
 	
 	@Override

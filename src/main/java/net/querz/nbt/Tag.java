@@ -5,6 +5,7 @@ import java.nio.charset.Charset;
 
 public abstract class Tag implements Comparable<Tag>, Cloneable {
 	public static final Charset CHARSET = Charset.forName("UTF-8");
+	public static final int MAX_DEPTH = 512;
 	
 	private TagType type;
 	private String name;
@@ -66,6 +67,10 @@ public abstract class Tag implements Comparable<Tag>, Cloneable {
 		return getValue().equals(tag.getValue()) && getName().equals(tag.getName());
 	}
 	
+	public boolean valueEquals(Tag other) {
+		return other.getValue().equals(getValue());
+	}
+	
 	@Override
 	public int compareTo(Tag other) {
 		if (equals(other))
@@ -78,6 +83,18 @@ public abstract class Tag implements Comparable<Tag>, Cloneable {
 		}
 	}
 	
+	public String toString(int depth) {
+		return toString();
+	}
+	
+	protected int incrementDepth(int depth) {
+		if (depth >= MAX_DEPTH) {
+			throw new MaxDepthReachedException();
+		}
+		return depth++;
+	}
+	
+	public abstract String valueToTagString();
 	public abstract Object getValue();
 	public abstract String toTagString();
 	public abstract Tag clone();

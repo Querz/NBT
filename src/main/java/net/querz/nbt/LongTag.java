@@ -42,7 +42,12 @@ public class LongTag extends NumberTag<Long> {
 
 	@Override
 	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + value + "l";
+		return NBTUtil.createNamePrefix(this) + valueToTagString();
+	}
+	
+	@Override
+	public String valueToTagString() {
+		return value + "l";
 	}
 	
 	@Override

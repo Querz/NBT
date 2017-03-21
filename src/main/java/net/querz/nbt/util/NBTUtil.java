@@ -19,7 +19,7 @@ public class NBTUtil {
 		return toNumber(tag).byteValue() > 0;
 	}
 	
-	public static String joinTagString(String delimiter, Object... o) {
+	public static String joinTagString(String delimiter, Tag... o) {
 		boolean first = true;
 		StringBuilder sb = new StringBuilder();
 		for (Object obj : o) {
@@ -30,10 +30,18 @@ public class NBTUtil {
 	}
 	
 	public static String joinArray(String delimiter, Object array) {
+		return NBTUtil.joinArray(delimiter, array, 512);
+	}
+	
+	public static String joinArray(String delimiter, Object array, int depth) {
 		boolean first = true;
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < Array.getLength(array); i++) {
-			sb.append((first ? "" : delimiter) + Array.get(array, i));
+			if (Array.get(array, i) instanceof Tag) {
+				sb.append((first ? "" : delimiter) + ((Tag) Array.get(array, i)).toString(depth));
+			} else {
+				sb.append((first ? "" : delimiter) + Array.get(array, i));
+			}
 			first = false;
 		}
 		return sb.toString();

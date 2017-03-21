@@ -55,6 +55,11 @@ public class StringTag extends Tag {
 	}
 	
 	@Override
+	public String valueToTagString() {
+		return "\"" + value + "\"";
+	}
+	
+	@Override
 	public String toString() {
 		return "<string:" + getName() + ":" + value + ">";
 	}

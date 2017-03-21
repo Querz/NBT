@@ -28,6 +28,11 @@ public class EndTag extends Tag {
 	}
 	
 	@Override
+	public String valueToTagString() {
+		return "";
+	}
+	
+	@Override
 	public String toString() {
 		return "<end>";
 	}

@@ -59,7 +59,12 @@ public class ByteTag extends NumberTag<Byte> {
 
 	@Override
 	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + value + "b";
+		return NBTUtil.createNamePrefix(this) + valueToTagString();
+	}
+	
+	@Override
+	public String valueToTagString() {
+		return value + "b";
 	}
 	
 	@Override

@@ -42,7 +42,12 @@ public class FloatTag extends NumberTag<Float> {
 
 	@Override
 	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + value + "f";
+		return NBTUtil.createNamePrefix(this) + valueToTagString();
+	}
+	
+	@Override
+	public String valueToTagString() {
+		return value + "f";
 	}
 	
 	@Override

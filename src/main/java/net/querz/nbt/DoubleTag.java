@@ -42,7 +42,12 @@ public class DoubleTag extends NumberTag<Double> {
 
 	@Override
 	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + value + "d";
+		return NBTUtil.createNamePrefix(this) + valueToTagString();
+	}
+	
+	@Override
+	public String valueToTagString() {
+		return value + "d";
 	}
 	
 	@Override

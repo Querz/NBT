@@ -2,7 +2,6 @@ package net.querz.nbt;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import net.querz.nbt.util.NBTUtil;
@@ -50,54 +49,47 @@ public class ListTag extends Tag {
 	
 	public void add(Tag tag) {
 		checkAddType(tag.getType());
-		Tag clone = tag.clone();
-		clone.setName("");
-		value.add(clone);
-	}
-	
-	private void addTagInstance(Tag tag) {
-		checkAddType(tag.getType());
 		value.add(tag);
 	}
 	
 	public void addBoolean(boolean b) {
-		addTagInstance(new ByteTag(b));
+		add(new ByteTag(b));
 	}
 	
 	public void addByte(byte b) {
-		addTagInstance(new ByteTag(b));
+		add(new ByteTag(b));
 	}
 	
 	public void addShort(short s) {
-		addTagInstance(new ShortTag(s));
+		add(new ShortTag(s));
 	}
 	
 	public void addInt(int i) {
-		addTagInstance(new IntTag(i));
+		add(new IntTag(i));
 	}
 	
 	public void addLong(long l) {
-		addTagInstance(new LongTag(l));
+		add(new LongTag(l));
 	}
 	
 	public void addFloat(float f) {
-		addTagInstance(new FloatTag(f));
+		add(new FloatTag(f));
 	}
 	
 	public void addDouble(double d) {
-		addTagInstance(new DoubleTag(d));
+		add(new DoubleTag(d));
 	}
 	
 	public void addString(String s) {
-		addTagInstance(new StringTag(s));
+		add(new StringTag(s));
 	}
 	
 	public void addBytes(byte[] b) {
-		addTagInstance(new ByteArrayTag(b));
+		add(new ByteArrayTag(b));
 	}
 	
 	public void addInts(int[] i) {
-		addTagInstance(new IntArrayTag(i));
+		add(new IntArrayTag(i));
 	}
 	
 	public void clear() {
@@ -192,7 +184,7 @@ public class ListTag extends Tag {
 		Tag tag = get(index);
 		if (tag.getType() == TagType.COMPOUND)
 			return (CompoundTag) tag;
-		return new CompoundTag("", new HashMap<String, Tag>());
+		return new CompoundTag();
 	}
 	
 	public ListTag getListTag(int index) {
@@ -238,12 +230,53 @@ public class ListTag extends Tag {
 
 	@Override
 	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + "[" + NBTUtil.joinTagString(",", value.toArray()) + "]";
+		return NBTUtil.createNamePrefix(this) + valueToTagString();
+		
+		
+//		return NBTUtil.createNamePrefix(this) + "[" + NBTUtil.joinTagString(",", value.toArray(new Tag[0])) + "]";
+	}
+	
+	@Override
+	public String valueToTagString() {
+		StringBuilder sb = new StringBuilder();
+		boolean first = true;
+		for (Tag tag : value) {
+			sb.append((first ? "" : ",") + tag.valueToTagString());
+			first = false;
+		}
+		return "[" + sb.toString() + "]";
 	}
 	
 	@Override
 	public String toString() {
-		return "<list:" + getName() + ":[" + NBTUtil.joinArray(",", value.toArray()) + "]>";
+		return toString(0);
+	}
+	
+	@Override
+	public String toString(int depth) {
+		depth = incrementDepth(depth);
+		return "<list:" + getName() + ":[" + NBTUtil.joinArray(",", value.toArray(), depth) + "]>";
+	}
+	
+	@Override
+	public boolean equals(Object other) {
+		if (!(other instanceof ListTag)) {
+			return false;
+		}
+		ListTag list = (ListTag) other;
+		return getName().equals(list.getName()) && valueEquals(list);
+	}
+	
+	@Override
+	public boolean valueEquals(Tag other) {
+		if (!(other instanceof ListTag) || ((ListTag) other).size() != size())
+			return false;
+		for (int i = 0; i < size(); i++) {
+			if (!((ListTag) other).get(i).valueEquals(get(i))) {
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	@Override
