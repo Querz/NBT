@@ -30,23 +30,23 @@ public class DoubleTag extends NumberTag<Double> {
 	}
 
 	@Override
-	protected void serialize(NBTOutputStream nbtOut) throws IOException {
+	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
 		nbtOut.dos.writeDouble(value);
 	}
 	
 	@Override
-	protected DoubleTag deserialize(NBTInputStream nbtIn) throws IOException {
+	protected DoubleTag deserialize(NBTInputStream nbtIn, int depth) throws IOException {
 		value = nbtIn.dis.readDouble();
 		return this;
 	}
 
 	@Override
 	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + valueToTagString();
+		return NBTUtil.createNamePrefix(this) + valueToTagString(0);
 	}
 	
 	@Override
-	public String valueToTagString() {
+	public String valueToTagString(int depth) {
 		return value + "d";
 	}
 	

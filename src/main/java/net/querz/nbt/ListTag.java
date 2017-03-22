@@ -205,22 +205,22 @@ public class ListTag extends Tag {
 	}
 
 	@Override
-	protected void serialize(NBTOutputStream nbtOut) throws IOException {
+	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
 		int size = value.size();
 		nbtOut.dos.writeByte(type.getId());
 		nbtOut.dos.writeInt(size);
 		for (Tag t : value)
-			t.serialize(nbtOut);
+			t.serialize(nbtOut, incrementDepth(depth));
 	}
 	
 	@Override
-	protected ListTag deserialize(NBTInputStream nbtIn) throws IOException {
+	protected ListTag deserialize(NBTInputStream nbtIn, int depth) throws IOException {
 		int typeId = nbtIn.dis.readByte();
 		setType(TagType.match(typeId));
 		int size = nbtIn.dis.readInt();
 		clear(size);
 		for (int i = 0; i < size; i++) {
-			Tag tag = type.getTag().deserialize(nbtIn);
+			Tag tag = type.getTag().deserialize(nbtIn, incrementDepth(depth));
 			if (tag instanceof EndTag)
 				throw new IOException("EndTag not permitted in a list.");
 			add(tag);
@@ -230,18 +230,20 @@ public class ListTag extends Tag {
 
 	@Override
 	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + valueToTagString();
-		
-		
-//		return NBTUtil.createNamePrefix(this) + "[" + NBTUtil.joinTagString(",", value.toArray(new Tag[0])) + "]";
+		return toTagString(0);
 	}
 	
 	@Override
-	public String valueToTagString() {
+	public String toTagString(int depth) {
+		return NBTUtil.createNamePrefix(this) + valueToTagString(depth);
+	}
+	
+	@Override
+	public String valueToTagString(int depth) {
 		StringBuilder sb = new StringBuilder();
 		boolean first = true;
 		for (Tag tag : value) {
-			sb.append((first ? "" : ",") + tag.valueToTagString());
+			sb.append((first ? "" : ",") + tag.valueToTagString(incrementDepth(depth)));
 			first = false;
 		}
 		return "[" + sb.toString() + "]";

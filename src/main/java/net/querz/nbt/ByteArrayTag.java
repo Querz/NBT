@@ -35,13 +35,13 @@ public class ByteArrayTag extends Tag {
 	}
 
 	@Override
-	protected void serialize(NBTOutputStream nbtOut) throws IOException {
+	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
 		nbtOut.dos.writeInt(value.length);
 		nbtOut.dos.write(value);
 	}
 	
 	@Override
-	protected ByteArrayTag deserialize(NBTInputStream nbtIn) throws IOException {
+	protected ByteArrayTag deserialize(NBTInputStream nbtIn, int depth) throws IOException {
 		int length = nbtIn.dis.readInt();
 		value = new byte[length];
 		nbtIn.dis.readFully(value);
@@ -50,11 +50,11 @@ public class ByteArrayTag extends Tag {
 
 	@Override
 	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + valueToTagString();
+		return NBTUtil.createNamePrefix(this) + valueToTagString(0);
 	}
 	
 	@Override
-	public String valueToTagString() {
+	protected String valueToTagString(int depth) {
 		return "[" + NBTUtil.joinArray(",", value) + "]";
 	}
 	

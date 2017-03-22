@@ -13,12 +13,12 @@ public class EndTag extends Tag {
 	}
 
 	@Override
-	protected void serialize(NBTOutputStream nbtOut) throws IOException {
+	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
 		//already writes (byte) 0 as the tag type in superclass
 	}
 
 	@Override
-	protected Tag deserialize(NBTInputStream nbtIn) throws IOException {
+	protected Tag deserialize(NBTInputStream nbtIn, int depth) throws IOException {
 		return this;
 	}
 
@@ -28,7 +28,7 @@ public class EndTag extends Tag {
 	}
 	
 	@Override
-	public String valueToTagString() {
+	public String valueToTagString(int depth) {
 		return "";
 	}
 	

@@ -4,13 +4,18 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Arrays;
+import java.util.Random;
+
 import static net.querz.nbt.test.TestUtil.*;
 
 import junit.framework.TestCase;
 import net.querz.nbt.*;
 
 public class TagTest extends TestCase {
+	private static final Random RANDOM = new Random();
+	
 	private ByteTag maxByte = new ByteTag("byte", Byte.MAX_VALUE);
 	private ShortTag maxShort = new ShortTag("short", Short.MAX_VALUE);
 	private IntTag maxInt = new IntTag("int", Integer.MAX_VALUE);
@@ -106,7 +111,6 @@ public class TagTest extends TestCase {
 	public void testListTag() throws IOException {
 		assertEquals(byteList.toString(), "<list:byteList:[<byte:byte:127>,<byte::-128>,<byte::1>,<byte::0>]>");
 		assertEquals(byteList.toTagString(), "byteList:[127b,-128b,1b,0b]");
-		System.out.println(byteList.toTagString());
 		
 		ListTag byteList2 = (ListTag) serializeAndDeserialize(byteList);
 		assertNotNull(byteList2);
@@ -123,8 +127,6 @@ public class TagTest extends TestCase {
 		assertFalse(byteList2.getBoolean(3));
 		assertEquals(byteList2.asByte(0), byteList.getByte(0));
 		assertThrowsException(() -> byteList.add(maxShort), IllegalArgumentException.class);
-		System.out.println(byteList2);
-		System.out.println(byteList);
 		
 		// equals should ignore tag names in list tags
 		assertTrue(byteList2.equals(byteList));
@@ -166,19 +168,53 @@ public class TagTest extends TestCase {
 		//test if there's no recursion; compound should be cloned before being added
 		CompoundTag compound2 = (CompoundTag) serializeAndDeserialize(compound);
 		assertEquals(compound, compound2);
+		
+		CompoundTag toString = new CompoundTag("toString");
+		toString.set(string);
+		assertEquals(toString.toString(), TestUtil.readStringFromFile("test_compound_toString.txt"));
+		
 	}
 	
 	public void testNBTFileReader() throws IOException {
 		System.out.println("workingdir: " + (new File(".")).getCanonicalPath());
-		Tag t = new NBTFileReader("./src/test/java/net/querz/nbt/test/resources/test_compound_gzip.dat").read();
+		Tag t = new NBTFileReader(TestUtil.RESOURCES_PATH + "test_compound_gzip.dat").read();
 		assertNotNull(t);
-		Tag t2 = new NBTFileReader("./src/test/java/net/querz/nbt/test/resources/test_compound.dat").read();
+		Tag t2 = new NBTFileReader(TestUtil.RESOURCES_PATH + "test_compound.dat").read();
 		assertNotNull(t2);
 	}
 	
 	public void testCircularReference() {
-		CompoundTag t = new CompoundTag("test");
+		CompoundTag t = new CompoundTag("c");
 		t.set(t);
+		
+		assertThrowsException(() -> t.toString(), MaxDepthReachedException.class);
+		assertThrowsException(() -> wrappedSerializeAndDeserialize(t), MaxDepthReachedException.class);
+		assertThrowsException(() -> t.toTagString(), MaxDepthReachedException.class);
+		
+		
+		ListTag l = new ListTag("l", TagType.LIST);
+		l.add(l);
+		
+		assertThrowsException(() -> l.toString(), MaxDepthReachedException.class);
+		assertThrowsException(() -> wrappedSerializeAndDeserialize(l), MaxDepthReachedException.class);
+		assertThrowsException(() -> l.toTagString(), MaxDepthReachedException.class);
+		
+		
+		CompoundTag b = new CompoundTag("base");
+		CompoundTag current = new CompoundTag("depth_0");
+		b.set(current);
+		
+		//counting to a depth of Tag.MAX_DEPTH - 1
+		for (int i = 1; i < Tag.MAX_DEPTH - 1; i++) {
+			CompoundTag c = new CompoundTag("depth_" + i);
+			current.set(c);
+			c.set(new IntTag("randomInt", RANDOM.nextInt()));
+			current = c;
+		}
+//		System.out.println(b);
+		assertThrowsNoException(() -> b.toString());
+		assertThrowsNoException(() -> b.toTagString());
+		assertThrowsNoException(() -> wrappedSerializeAndDeserialize(b));
 	}
 	
 	//only works with primitive tags
@@ -201,6 +237,14 @@ public class TagTest extends TestCase {
 		ByteArrayInputStream byteIn = new ByteArrayInputStream(byteOut.toByteArray());
 		try (NBTInputStream nbtIn = new NBTInputStream(byteIn)) {
 			return nbtIn.readTag();
+		}
+	}
+	
+	private Tag wrappedSerializeAndDeserialize(Tag tag) {
+		try {
+			return serializeAndDeserialize(tag);
+		} catch (IOException ex) {
+			throw new UncheckedIOException(ex);
 		}
 	}
 }

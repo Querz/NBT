@@ -45,14 +45,14 @@ public class ShortArrayTag extends CustomTag {
 	}
 
 	@Override
-	protected void serialize(NBTOutputStream nbtOut) throws IOException {
+	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
 		nbtOut.getDataOutputStream().writeInt(value.length);
 		for (short s : value)
 			nbtOut.getDataOutputStream().writeShort(s);
 	}
 	
 	@Override
-	protected ShortArrayTag deserialize(NBTInputStream nbtIn) throws IOException {
+	protected ShortArrayTag deserialize(NBTInputStream nbtIn, int depth) throws IOException {
 		int length = nbtIn.getDataInputStream().readInt();
 		value = new short[length];
 		for (int i = 0; i < length; i++)
@@ -62,11 +62,11 @@ public class ShortArrayTag extends CustomTag {
 
 	@Override
 	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + valueToTagString();
+		return NBTUtil.createNamePrefix(this) + valueToTagString(0);
 	}
 	
 	@Override
-	public String valueToTagString() {
+	public String valueToTagString(int depth) {
 		return "[" + NBTUtil.joinArray(",", value) + "]";
 	}
 	

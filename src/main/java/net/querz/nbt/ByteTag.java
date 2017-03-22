@@ -47,23 +47,23 @@ public class ByteTag extends NumberTag<Byte> {
 	}
 
 	@Override
-	protected void serialize(NBTOutputStream nbtOut) throws IOException {
+	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
 		nbtOut.dos.writeByte(value);
 	}
 	
 	@Override
-	protected ByteTag deserialize(NBTInputStream nbtIn) throws IOException {
+	protected ByteTag deserialize(NBTInputStream nbtIn, int depth) throws IOException {
 		value = nbtIn.dis.readByte();
 		return this;
 	}
 
 	@Override
 	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + valueToTagString();
+		return NBTUtil.createNamePrefix(this) + valueToTagString(0);
 	}
 	
 	@Override
-	public String valueToTagString() {
+	protected String valueToTagString(int depth) {
 		return value + "b";
 	}
 	

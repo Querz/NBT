@@ -202,18 +202,18 @@ public class CompoundTag extends Tag {
 	}
 
 	@Override
-	protected void serialize(NBTOutputStream nbtOut) throws IOException {
+	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
 		for (Tag tag : value.values()) {
-			tag.serializeTag(nbtOut);
+			tag.serializeTag(nbtOut, incrementDepth(depth));
 		}
-		new EndTag().serializeTag(nbtOut);
+		new EndTag().serializeTag(nbtOut, depth);
 	}
 
 	@Override
-	protected Tag deserialize(NBTInputStream nbtIn) throws IOException {
+	protected Tag deserialize(NBTInputStream nbtIn, int depth) throws IOException {
 		clear();
 		for(;;) {
-			Tag tag = Tag.deserializeTag(nbtIn);
+			Tag tag = Tag.deserializeTag(nbtIn, incrementDepth(depth));
 			if (tag.getType() == TagType.END) {
 				break;
 			}
@@ -224,12 +224,18 @@ public class CompoundTag extends Tag {
 
 	@Override
 	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + valueToTagString();
+		return toTagString(0);
 	}
 	
 	@Override
-	public String valueToTagString() {
-		return "{" + NBTUtil.joinTagString(",", value.values().toArray(new Tag[0])) + "}";
+	public String toTagString(int depth) {
+		depth = incrementDepth(depth);
+		return NBTUtil.createNamePrefix(this) + valueToTagString(depth);
+	}
+	
+	@Override
+	protected String valueToTagString(int depth) {
+		return "{" + NBTUtil.joinTagString(",", value.values().toArray(new Tag[0]), depth) + "}";
 	}
 	
 	@Override
@@ -239,17 +245,17 @@ public class CompoundTag extends Tag {
 	}
 	
 	@Override
+	public String toString(int depth) {
+		depth = incrementDepth(depth);
+		return "<compound:" + getName() + ":{" + NBTUtil.joinArray(",", value.values().toArray(), depth) + "}>";
+	}
+	
+	@Override
 	public CompoundTag clone() {
 		CompoundTag clone = new CompoundTag(getName());
 		for (Entry<String, Tag> entry : value.entrySet()) {
 			clone.set(entry.getValue().clone());
 		}
 		return clone;
-	}
-	
-	@Override
-	public String toString(int depth) {
-		depth = incrementDepth(depth);
-		return "<compound:" + getName() + ":{" + NBTUtil.joinArray(",", value.values().toArray(), depth) + "}>";
 	}
 }

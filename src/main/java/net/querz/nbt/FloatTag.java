@@ -30,23 +30,23 @@ public class FloatTag extends NumberTag<Float> {
 	}
 
 	@Override
-	protected void serialize(NBTOutputStream nbtOut) throws IOException {
+	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
 		nbtOut.dos.writeFloat(value);
 	}
 
 	@Override
-	protected FloatTag deserialize(NBTInputStream nbtIn) throws IOException {
+	protected FloatTag deserialize(NBTInputStream nbtIn, int depth) throws IOException {
 		value = nbtIn.dis.readFloat();
 		return this;
 	}
 
 	@Override
 	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + valueToTagString();
+		return NBTUtil.createNamePrefix(this) + valueToTagString(0);
 	}
 	
 	@Override
-	public String valueToTagString() {
+	public String valueToTagString(int depth) {
 		return value + "f";
 	}
 	

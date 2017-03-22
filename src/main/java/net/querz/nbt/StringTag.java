@@ -34,14 +34,14 @@ public class StringTag extends Tag {
 	}
 
 	@Override
-	protected void serialize(NBTOutputStream nbtOut) throws IOException {
+	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
 		byte[] bytes = value.getBytes(CHARSET);
 		nbtOut.dos.writeShort(bytes.length);
 		nbtOut.dos.write(bytes);
 	}
 	
 	@Override
-	protected StringTag deserialize(NBTInputStream nbtIn) throws IOException {
+	protected StringTag deserialize(NBTInputStream nbtIn, int depth) throws IOException {
 		int length = nbtIn.dis.readShort();
 		byte[] bytes = new byte[length];
 		nbtIn.dis.readFully(bytes);
@@ -51,11 +51,11 @@ public class StringTag extends Tag {
 
 	@Override
 	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + "\"" + value + "\"";
+		return NBTUtil.createNamePrefix(this) + valueToTagString(0);
 	}
 	
 	@Override
-	public String valueToTagString() {
+	public String valueToTagString(int depth) {
 		return "\"" + value + "\"";
 	}
 	

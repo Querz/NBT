@@ -223,19 +223,19 @@ public class StructTag extends CustomTag {
 	}
 
 	@Override
-	protected void serialize(NBTOutputStream nbtOut) throws IOException {
+	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
 		int size = value.size();
 		nbtOut.getDataOutputStream().writeInt(size);
 		for (Tag tag : value)
-			tag.serializeTag(nbtOut);
+			tag.serializeTag(nbtOut, depth);
 	}
 
 	@Override
-	protected Tag deserialize(NBTInputStream nbtIn) throws IOException {
+	protected Tag deserialize(NBTInputStream nbtIn, int depth) throws IOException {
 		int size = nbtIn.getDataInputStream().readInt();
 		clear(size);
 		for (int i = 0; i < size; i++) {
-			Tag tag = Tag.deserializeTag(nbtIn);
+			Tag tag = Tag.deserializeTag(nbtIn, depth);
 			if (tag instanceof EndTag)
 				throw new IOException("EndTag not permitted in a struct.");
 			addInstance(tag);
@@ -245,12 +245,18 @@ public class StructTag extends CustomTag {
 
 	@Override
 	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + valueToTagString();
+		return toTagString(0);
 	}
 	
 	@Override
-	public String valueToTagString() {
-		return "[" + NBTUtil.joinTagString(",", value.toArray(new Tag[0])) + "]";
+	public String toTagString(int depth) {
+		depth = incrementDepth(depth);
+		return NBTUtil.createNamePrefix(this) + valueToTagString(depth);
+	}
+	
+	@Override
+	public String valueToTagString(int depth) {
+		return "[" + NBTUtil.joinTagString(",", value.toArray(new Tag[0]), depth) + "]";
 	}
 	
 	@Override

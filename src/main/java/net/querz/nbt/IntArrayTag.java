@@ -35,14 +35,14 @@ public class IntArrayTag extends Tag {
 	}
 
 	@Override
-	protected void serialize(NBTOutputStream nbtOut) throws IOException {
+	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
 		nbtOut.dos.writeInt(value.length);
 		for (int i : value)
 			nbtOut.dos.writeInt(i);
 	}
 	
 	@Override
-	protected IntArrayTag deserialize(NBTInputStream nbtIn) throws IOException {
+	protected IntArrayTag deserialize(NBTInputStream nbtIn, int depth) throws IOException {
 		int length = nbtIn.dis.readInt();
 		value = new int[length];
 		for (int i = 0; i < length; i++)
@@ -52,11 +52,11 @@ public class IntArrayTag extends Tag {
 
 	@Override
 	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + valueToTagString();
+		return NBTUtil.createNamePrefix(this) + valueToTagString(0);
 	}
 	
 	@Override
-	public String valueToTagString() {
+	public String valueToTagString(int depth) {
 		return "[" + NBTUtil.joinArray(",", value) + "]";
 	}
 	

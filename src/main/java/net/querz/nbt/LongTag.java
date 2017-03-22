@@ -30,23 +30,23 @@ public class LongTag extends NumberTag<Long> {
 	}
 
 	@Override
-	protected void serialize(NBTOutputStream nbtOut) throws IOException {
+	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
 		nbtOut.dos.writeLong(value);
 	}
 
 	@Override
-	protected LongTag deserialize(NBTInputStream nbtIn) throws IOException {
+	protected LongTag deserialize(NBTInputStream nbtIn, int depth) throws IOException {
 		value = nbtIn.dis.readLong();
 		return this;
 	}
 
 	@Override
 	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + valueToTagString();
+		return NBTUtil.createNamePrefix(this) + valueToTagString(0);
 	}
 	
 	@Override
-	public String valueToTagString() {
+	public String valueToTagString(int depth) {
 		return value + "l";
 	}
 	

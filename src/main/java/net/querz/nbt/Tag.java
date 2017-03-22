@@ -36,16 +36,24 @@ public abstract class Tag implements Comparable<Tag>, Cloneable {
 	}
 	
 	public final void serializeTag(NBTOutputStream nbtOut) throws IOException {
+		serializeTag(nbtOut, 0);
+	}
+	
+	public final void serializeTag(NBTOutputStream nbtOut, int depth) throws IOException {
 		nbtOut.dos.writeByte(type.getId(this));
 		if (type != TagType.END) {
 			byte[] nameBytes = name.getBytes(CHARSET);
 			nbtOut.dos.writeShort(nameBytes.length);
 			nbtOut.dos.write(nameBytes);
 		}
-		serialize(nbtOut);
+		serialize(nbtOut, depth);
 	}
 	
 	public final static Tag deserializeTag(NBTInputStream nbtIn) throws IOException {
+		return deserializeTag(nbtIn, 0);
+	}
+	
+	public final static Tag deserializeTag(NBTInputStream nbtIn, int depth) throws IOException {
 		int typeId = nbtIn.dis.readByte() & 0xFF;
 		Tag tag = TagType.getTag(typeId);
 		if (tag.getType() != TagType.END) {
@@ -54,7 +62,7 @@ public abstract class Tag implements Comparable<Tag>, Cloneable {
 			nbtIn.dis.readFully(nameBytes);
 			tag.setName(new String(nameBytes, CHARSET));
 		}
-		tag.deserialize(nbtIn);
+		tag.deserialize(nbtIn, depth);
 		return tag;
 	}
 	
@@ -87,17 +95,21 @@ public abstract class Tag implements Comparable<Tag>, Cloneable {
 		return toString();
 	}
 	
-	protected int incrementDepth(int depth) {
+	protected static int incrementDepth(int depth) {
 		if (depth >= MAX_DEPTH) {
 			throw new MaxDepthReachedException();
 		}
-		return depth++;
+		return ++depth;
 	}
 	
-	public abstract String valueToTagString();
+	public String toTagString(int depth) {
+		return toTagString();
+	}
+	
+	protected abstract String valueToTagString(int depth);
 	public abstract Object getValue();
 	public abstract String toTagString();
 	public abstract Tag clone();
-	protected abstract void serialize(NBTOutputStream nbtOut) throws IOException;
-	protected abstract Tag deserialize(NBTInputStream nbtIn) throws IOException;
+	protected abstract void serialize(NBTOutputStream nbtOut, int depth) throws IOException;
+	protected abstract Tag deserialize(NBTInputStream nbtIn, int depth) throws IOException;
 }
