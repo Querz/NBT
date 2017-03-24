@@ -1,7 +1,6 @@
-package net.querz.nbt.util;
+package net.querz.nbt;
 
-import net.querz.nbt.NumberTag;
-import net.querz.nbt.Tag;
+import net.querz.nbt.util.Array;
 
 public class NBTUtil {
 	public static Number toNumber(Tag tag) {

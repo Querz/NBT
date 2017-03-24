@@ -3,8 +3,6 @@ package net.querz.nbt;
 import java.io.IOException;
 import java.util.Arrays;
 
-import net.querz.nbt.util.NBTUtil;
-
 public class IntArrayTag extends Tag {
 	private int[] value;
 	
@@ -56,7 +54,7 @@ public class IntArrayTag extends Tag {
 	}
 	
 	@Override
-	public String valueToTagString(int depth) {
+	protected String valueToTagString(int depth) {
 		return "[" + NBTUtil.joinArray(",", value) + "]";
 	}
 	

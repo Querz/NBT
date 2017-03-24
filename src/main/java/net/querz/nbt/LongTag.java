@@ -2,8 +2,6 @@ package net.querz.nbt;
 
 import java.io.IOException;
 
-import net.querz.nbt.util.NBTUtil;
-
 public class LongTag extends NumberTag<Long> {
 	private long value;
 	
@@ -46,7 +44,7 @@ public class LongTag extends NumberTag<Long> {
 	}
 	
 	@Override
-	public String valueToTagString(int depth) {
+	protected String valueToTagString(int depth) {
 		return value + "l";
 	}
 	

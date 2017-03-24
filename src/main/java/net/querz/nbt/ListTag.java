@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.querz.nbt.util.NBTUtil;
-
 public class ListTag extends Tag {
 	private TagType type;
 	private List<Tag> value;
@@ -234,12 +232,12 @@ public class ListTag extends Tag {
 	}
 	
 	@Override
-	public String toTagString(int depth) {
+	protected String toTagString(int depth) {
 		return NBTUtil.createNamePrefix(this) + valueToTagString(depth);
 	}
 	
 	@Override
-	public String valueToTagString(int depth) {
+	protected String valueToTagString(int depth) {
 		StringBuilder sb = new StringBuilder();
 		boolean first = true;
 		for (Tag tag : value) {
@@ -255,7 +253,7 @@ public class ListTag extends Tag {
 	}
 	
 	@Override
-	public String toString(int depth) {
+	protected String toString(int depth) {
 		depth = incrementDepth(depth);
 		return "<list:" + getName() + ":[" + NBTUtil.joinArray(",", value.toArray(), depth) + "]>";
 	}

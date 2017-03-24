@@ -75,7 +75,7 @@ public abstract class Tag implements Comparable<Tag>, Cloneable {
 		return getValue().equals(tag.getValue()) && getName().equals(tag.getName());
 	}
 	
-	public boolean valueEquals(Tag other) {
+	protected boolean valueEquals(Tag other) {
 		return other.getValue().equals(getValue());
 	}
 	
@@ -91,7 +91,7 @@ public abstract class Tag implements Comparable<Tag>, Cloneable {
 		}
 	}
 	
-	public String toString(int depth) {
+	protected String toString(int depth) {
 		return toString();
 	}
 	
@@ -102,7 +102,7 @@ public abstract class Tag implements Comparable<Tag>, Cloneable {
 		return ++depth;
 	}
 	
-	public String toTagString(int depth) {
+	protected String toTagString(int depth) {
 		return toTagString();
 	}
 	

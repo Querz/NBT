@@ -28,7 +28,7 @@ public class EndTag extends Tag {
 	}
 	
 	@Override
-	public String valueToTagString(int depth) {
+	protected String valueToTagString(int depth) {
 		return "";
 	}
 	

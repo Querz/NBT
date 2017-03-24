@@ -6,8 +6,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.querz.nbt.util.NBTUtil;
-
 public class CompoundTag extends Tag {
 	private Map<String, Tag> value;
 	
@@ -233,7 +231,7 @@ public class CompoundTag extends Tag {
 	}
 	
 	@Override
-	public String toTagString(int depth) {
+	protected String toTagString(int depth) {
 		depth = incrementDepth(depth);
 		return NBTUtil.createNamePrefix(this) + valueToTagString(depth);
 	}
@@ -246,11 +244,10 @@ public class CompoundTag extends Tag {
 	@Override
 	public String toString() {
 		return toString(0);
-//		return "<compound:" + getName() + ":{" + NBTUtil.joinArray(",", value.values().toArray()) + "}>";
 	}
 	
 	@Override
-	public String toString(int depth) {
+	protected String toString(int depth) {
 		depth = incrementDepth(depth);
 		return "<compound:" + getName() + ":{" + NBTUtil.joinArray(",", value.values().toArray(), depth) + "}>";
 	}

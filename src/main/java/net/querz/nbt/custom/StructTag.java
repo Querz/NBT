@@ -19,11 +19,11 @@ import net.querz.nbt.ListTag;
 import net.querz.nbt.LongTag;
 import net.querz.nbt.NBTInputStream;
 import net.querz.nbt.NBTOutputStream;
+import net.querz.nbt.NBTUtil;
 import net.querz.nbt.ShortTag;
 import net.querz.nbt.StringTag;
 import net.querz.nbt.Tag;
 import net.querz.nbt.TagType;
-import net.querz.nbt.util.NBTUtil;
 
 public class StructTag extends CustomTag {
 	public static final int TAG_ID = 20;
@@ -249,7 +249,7 @@ public class StructTag extends CustomTag {
 	}
 	
 	@Override
-	public String toTagString(int depth) {
+	protected String toTagString(int depth) {
 		depth = incrementDepth(depth);
 		return NBTUtil.createNamePrefix(this) + valueToTagString(depth);
 	}

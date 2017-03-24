@@ -2,8 +2,6 @@ package net.querz.nbt;
 
 import java.io.IOException;
 
-import net.querz.nbt.util.NBTUtil;
-
 public class ShortTag extends NumberTag<Short> {
 	private short value;
 	
@@ -46,7 +44,7 @@ public class ShortTag extends NumberTag<Short> {
 	}
 	
 	@Override
-	public String valueToTagString(int depth) {
+	protected String valueToTagString(int depth) {
 		return value + "";
 	}
 	

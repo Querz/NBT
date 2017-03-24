@@ -2,8 +2,6 @@ package net.querz.nbt;
 
 import java.io.IOException;
 
-import net.querz.nbt.util.NBTUtil;
-
 public class ByteTag extends NumberTag<Byte> {
 	private byte value;
 	

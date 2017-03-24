@@ -3,8 +3,6 @@ package net.querz.nbt;
 import java.io.IOException;
 import java.util.Arrays;
 
-import net.querz.nbt.util.NBTUtil;
-
 public class ByteArrayTag extends Tag {
 	private byte[] value;
 	
@@ -73,7 +71,7 @@ public class ByteArrayTag extends Tag {
 	}
 	
 	@Override
-	public boolean valueEquals(Tag other) {
+	protected boolean valueEquals(Tag other) {
 		return other instanceof ByteArrayTag && Arrays.equals(value, ((ByteArrayTag) other).getValue());
 	}
 	

@@ -6,8 +6,8 @@ import java.util.Arrays;
 import net.querz.nbt.CustomTag;
 import net.querz.nbt.NBTInputStream;
 import net.querz.nbt.NBTOutputStream;
+import net.querz.nbt.NBTUtil;
 import net.querz.nbt.TagType;
-import net.querz.nbt.util.NBTUtil;
 
 public class ShortArrayTag extends CustomTag {
 	public static final int TAG_ID = 100;
@@ -66,7 +66,7 @@ public class ShortArrayTag extends CustomTag {
 	}
 	
 	@Override
-	public String valueToTagString(int depth) {
+	protected String valueToTagString(int depth) {
 		return "[" + NBTUtil.joinArray(",", value) + "]";
 	}
 	

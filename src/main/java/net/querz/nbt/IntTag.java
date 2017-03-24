@@ -2,8 +2,6 @@ package net.querz.nbt;
 
 import java.io.IOException;
 
-import net.querz.nbt.util.NBTUtil;
-
 public class IntTag extends NumberTag<Integer> {
 	private int value;
 	
@@ -46,7 +44,7 @@ public class IntTag extends NumberTag<Integer> {
 	}
 	
 	@Override
-	public String valueToTagString(int depth) {
+	protected String valueToTagString(int depth) {
 		return value + "";
 	}
 	

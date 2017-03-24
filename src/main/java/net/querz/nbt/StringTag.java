@@ -2,8 +2,6 @@ package net.querz.nbt;
 
 import java.io.IOException;
 
-import net.querz.nbt.util.NBTUtil;
-
 public class StringTag extends Tag {
 	private String value;
 	
@@ -55,7 +53,7 @@ public class StringTag extends Tag {
 	}
 	
 	@Override
-	public String valueToTagString(int depth) {
+	protected String valueToTagString(int depth) {
 		return "\"" + value + "\"";
 	}
 	

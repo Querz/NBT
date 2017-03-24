@@ -1,7 +1,7 @@
 package net.querz.nbt.test;
 
 import junit.framework.TestCase;
-import net.querz.nbt.util.NBTUtil;
+import net.querz.nbt.NBTUtil;
 
 public class NBTUtilTest extends TestCase {
 	
