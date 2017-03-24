@@ -2,9 +2,10 @@ package net.querz.nbt.test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -38,6 +39,33 @@ public class TagTest extends TestCase {
 	private ListTag byteList = new ListTag("byteList", TagType.BYTE);
 	private Tag nullName = new StringTag("");
 	
+	private void populateCompoundTag(CompoundTag tag) {
+		tag.setBoolean("boolTrue", boolTrue.getBoolean());
+		tag.setBoolean("boolFalse", boolFalse.getBoolean());
+		tag.setByte("maxByte", maxByte.getValue());
+		tag.setByte("minByte", minByte.getValue());
+		tag.setShort("maxShort", maxShort.getValue());
+		tag.setShort("minShort", minShort.getValue());
+		tag.setInt("maxInt", maxInt.getValue());
+		tag.setInt("minInt", minInt.getValue());
+		tag.setLong("maxLong", maxLong.getValue());
+		tag.setLong("minLong", minLong.getValue());
+		tag.setFloat("maxFloat", maxFloat.getValue());
+		tag.setFloat("minFloat", minFloat.getValue());
+		tag.setDouble("maxDouble", maxDouble.getValue());
+		tag.setDouble("minDouble", minDouble.getValue());
+		tag.set(byteArray);
+		tag.set(intArray);
+		tag.set(string);
+		tag.set(byteList);
+		CompoundTag compoundClone = tag.clone();
+		CompoundTag compoundClone2 = tag.clone();
+		compoundClone.setName("compoundClone");
+		compoundClone2.setName("compoundClone2");
+		tag.set(compoundClone);
+		tag.set(compoundClone2);
+	}
+	
 	public void setUp() {
 		byteList.add(maxByte);
 		byteList.addByte((byte) minByte.getValue());
@@ -51,39 +79,53 @@ public class TagTest extends TestCase {
 		assertTagNotNullEquals(serializeAndDeserialize(minByte), minByte);
 		assertTagNotNullEquals(serializeAndDeserialize(boolTrue), boolTrue);
 		assertTagNotNullEquals(serializeAndDeserialize(boolFalse), boolFalse);
+		assertEquals(maxByte.toString(), "<byte:byte:127>");
+		assertEquals(maxByte.toTagString(), "byte:127b");
 	}
 	
 	public void testShortTag() throws IOException {
 		assertTagNotNullEquals(serializeAndDeserialize(maxShort), maxShort);
 		assertTagNotNullEquals(serializeAndDeserialize(minShort), minShort);
+		assertEquals(maxShort.toString(), "<short:short:32767>");
+		assertEquals(maxShort.toTagString(), "short:32767");
 	}
 	
 	public void testIntTag() throws IOException {
 		assertTagNotNullEquals(serializeAndDeserialize(maxInt), maxInt);
 		assertTagNotNullEquals(serializeAndDeserialize(minInt), minInt);
+		assertEquals(maxInt.toString(), "<int:int:2147483647>");
+		assertEquals(maxInt.toTagString(), "int:2147483647");
 	}
 	
 	public void testLongTag() throws IOException {
 		assertTagNotNullEquals(serializeAndDeserialize(maxLong), maxLong);
 		assertTagNotNullEquals(serializeAndDeserialize(minLong), minLong);
+		assertEquals(maxLong.toString(), "<long:long:9223372036854775807>");
+		assertEquals(maxLong.toTagString(), "long:9223372036854775807l");
 	}
 	
 	public void testFloatTag() throws IOException {
 		assertTagNotNullEquals(serializeAndDeserialize(maxFloat), maxFloat);
 		assertTagNotNullEquals(serializeAndDeserialize(minFloat), minFloat);
 		assertTagNotNullEquals(serializeAndDeserialize(decFloat), decFloat);
+		assertEquals(maxFloat.toString(), "<float:float:3.4028235E38>");
+		assertEquals(maxFloat.toTagString(), "float:3.4028235E38f");
 	}
 	
 	public void testDoubleTag() throws IOException {
 		assertTagNotNullEquals(serializeAndDeserialize(maxDouble), maxDouble);
 		assertTagNotNullEquals(serializeAndDeserialize(minDouble), minDouble);
 		assertTagNotNullEquals(serializeAndDeserialize(decDouble), decDouble);
+		assertEquals(maxDouble.toString(), "<double:double:1.7976931348623157E308>");
+		assertEquals(maxDouble.toTagString(), "double:1.7976931348623157E308d");
 	}
 	
 	public void testStringTag() throws IOException {
 		assertTagNotNullEquals(serializeAndDeserialize(string), string);
 		assertTagNotNullEquals(string, string.clone());
 		assertTrue(string != string.clone());
+		assertEquals(string.toString(), "<string:" + string.getName() + ":" + string.getValue() + ">");
+		assertEquals(string.toTagString(), string.getName() + ":\"" + string.getValue() + "\"");
 	}
 	
 	public void testByteArrayTag() throws IOException {
@@ -95,6 +137,8 @@ public class TagTest extends TestCase {
 		assertTrue(t.equals(byteArray));
 		assertTrue(t != t.clone());
 		assertTrue(t.getValue() != t.clone().getValue());
+		assertEquals(byteArray.toString(), "<byte[]:byteArray:[-128,-2,-1,0,1,2,127]>");
+		assertEquals(byteArray.toTagString(), "byteArray:[-128,-2,-1,0,1,2,127]");
 	}
 	
 	public void testIntArrayTag() throws IOException {
@@ -106,12 +150,11 @@ public class TagTest extends TestCase {
 		assertTrue(t.equals(intArray));
 		assertTrue(t != t.clone());
 		assertTrue(t.getValue() != t.clone().getValue());
+		assertEquals(intArray.toString(), "<int[]:intArray:[-2147483648,-2,-1,0,1,2,2147483647]>");
+		assertEquals(intArray.toTagString(), "intArray:[-2147483648,-2,-1,0,1,2,2147483647]");
 	}
 	
 	public void testListTag() throws IOException {
-		assertEquals(byteList.toString(), "<list:byteList:[<byte:byte:127>,<byte::-128>,<byte::1>,<byte::0>]>");
-		assertEquals(byteList.toTagString(), "byteList:[127b,-128b,1b,0b]");
-		
 		ListTag byteList2 = (ListTag) serializeAndDeserialize(byteList);
 		assertNotNull(byteList2);
 		assertEquals(byteList2.getType(), byteList.getType());
@@ -132,55 +175,39 @@ public class TagTest extends TestCase {
 		assertTrue(byteList2.equals(byteList));
 		assertTrue(byteList != byteList.clone());
 		assertTrue(byteList.getValue() != byteList.clone().getValue());
+		
+		assertEquals(byteList.toString(), TestUtil.readStringFromFile("test_list_toString.txt"));
+		assertEquals(byteList.toTagString(), TestUtil.readStringFromFile("test_list_toTagString.txt"));
 	}
 	
 	public void testCompoundTag() throws IOException {
 		CompoundTag compound = new CompoundTag("compound");
 		compound.clearOrdered();
-		compound.setBoolean("boolTrue", boolTrue.getBoolean());
-		compound.setBoolean("boolFalse", boolFalse.getBoolean());
-		compound.setByte("maxByte", maxByte.getValue());
-		compound.setByte("minByte", minByte.getValue());
-		compound.setShort("maxShort", maxShort.getValue());
-		compound.setShort("minShort", minShort.getValue());
-		compound.setInt("maxInt", maxInt.getValue());
-		compound.setInt("minInt", minInt.getValue());
-		compound.setLong("maxLong", maxLong.getValue());
-		compound.setLong("minLong", minLong.getValue());
-		compound.setFloat("maxFloat", maxFloat.getValue());
-		compound.setFloat("minFloat", minFloat.getValue());
-		compound.setDouble("maxDouble", maxDouble.getValue());
-		compound.setDouble("minDouble", minDouble.getValue());
-		compound.set(byteArray);
-		compound.set(intArray);
-		compound.set(string);
-		compound.set(byteList);
+		populateCompoundTag(compound);
 		
 		//test cloning
 		assertEquals(compound, compound.clone());
+		assertFalse(compound == compound.clone());
 		
-		CompoundTag compoundClone = compound.clone();
-		CompoundTag compoundClone2 = compound.clone();
-		compoundClone2.setName("compoundClone2");
-		compoundClone.setName("compoundClone");
-		compound.set(compoundClone);
-		compound.set(compoundClone2);
-		
-		//test if there's no recursion; compound should be cloned before being added
 		CompoundTag compound2 = (CompoundTag) serializeAndDeserialize(compound);
 		assertEquals(compound, compound2);
 
 		assertEquals(compound.toString(), TestUtil.readStringFromFile("test_compound_toString.txt"));
 		assertEquals(compound.toTagString(), TestUtil.readStringFromFile("test_compound_toTagString.txt"));
-		
 	}
 	
-	public void testNBTFileReader() throws IOException {
-		System.out.println("workingdir: " + (new File(".")).getCanonicalPath());
+	public void testNBTFileReader() {
 		Tag t = new NBTFileReader(TestUtil.RESOURCES_PATH + "test_compound_gzip.dat").read();
 		assertNotNull(t);
 		Tag t2 = new NBTFileReader(TestUtil.RESOURCES_PATH + "test_compound.dat").read();
 		assertNotNull(t2);
+	}
+	
+	public void testNBTFileWriter() {
+		CompoundTag compound = new CompoundTag("compound");
+		populateCompoundTag(compound);
+		new NBTFileWriter(TestUtil.RESOURCES_PATH + "test_NBTFileWriter.dat").write(compound);
+		assertTrue(Files.exists(Paths.get(TestUtil.RESOURCES_PATH + "test_NBTFileWriter.dat")));
 	}
 	
 	public void testCircularReference() {
@@ -211,10 +238,14 @@ public class TagTest extends TestCase {
 			c.set(new IntTag("randomInt", RANDOM.nextInt()));
 			current = c;
 		}
-//		System.out.println(b);
+
 		assertThrowsNoException(() -> b.toString());
 		assertThrowsNoException(() -> b.toTagString());
 		assertThrowsNoException(() -> wrappedSerializeAndDeserialize(b));
+	}
+	
+	public void tearDown() throws IOException {
+		Files.deleteIfExists(Paths.get(TestUtil.RESOURCES_PATH + "test_NBTFileWriter.dat"));
 	}
 	
 	//only works with primitive tags
