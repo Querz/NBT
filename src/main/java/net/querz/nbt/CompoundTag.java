@@ -2,6 +2,7 @@ package net.querz.nbt;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -189,6 +190,10 @@ public class CompoundTag extends Tag {
 		value = new HashMap<String, Tag>();
 	}
 	
+	public void clearOrdered() {
+		value = new LinkedHashMap<String, Tag>();
+	}
+	
 	public void setValue(Map<String, Tag> value) {
 		if (value == null)
 			clear();
@@ -253,6 +258,9 @@ public class CompoundTag extends Tag {
 	@Override
 	public CompoundTag clone() {
 		CompoundTag clone = new CompoundTag(getName());
+		if (value instanceof LinkedHashMap) {
+			clone.clearOrdered();
+		}
 		for (Entry<String, Tag> entry : value.entrySet()) {
 			clone.set(entry.getValue().clone());
 		}

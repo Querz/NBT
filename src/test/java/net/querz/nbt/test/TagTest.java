@@ -136,6 +136,7 @@ public class TagTest extends TestCase {
 	
 	public void testCompoundTag() throws IOException {
 		CompoundTag compound = new CompoundTag("compound");
+		compound.clearOrdered();
 		compound.setBoolean("boolTrue", boolTrue.getBoolean());
 		compound.setBoolean("boolFalse", boolFalse.getBoolean());
 		compound.setByte("maxByte", maxByte.getValue());
@@ -168,10 +169,9 @@ public class TagTest extends TestCase {
 		//test if there's no recursion; compound should be cloned before being added
 		CompoundTag compound2 = (CompoundTag) serializeAndDeserialize(compound);
 		assertEquals(compound, compound2);
-		
-		CompoundTag toString = new CompoundTag("toString");
-		toString.set(string);
-		assertEquals(toString.toString(), TestUtil.readStringFromFile("test_compound_toString.txt"));
+
+		assertEquals(compound.toString(), TestUtil.readStringFromFile("test_compound_toString.txt"));
+		assertEquals(compound.toTagString(), TestUtil.readStringFromFile("test_compound_toTagString.txt"));
 		
 	}
 	
