@@ -73,3 +73,6 @@ local.properties
 
 # Code Recommenders
 .recommenders/
+
+# IDEA folder
+.idea/
