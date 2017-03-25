@@ -91,11 +91,11 @@ public class ListTag extends Tag {
 	}
 	
 	public void clear() {
-		value = new ArrayList<Tag>();
+		value = new ArrayList<>();
 	}
 	
 	public void clear(int init) {
-		value = new ArrayList<Tag>(init);
+		value = new ArrayList<>(init);
 	}
 	
 	protected void setType(TagType type) {
@@ -107,9 +107,7 @@ public class ListTag extends Tag {
 	}
 	
 	public boolean getBoolean(int index) {
-		if (this.type == TagType.BYTE)
-			return NBTUtil.toBoolean(get(index));
-		return false;
+		return this.type == TagType.BYTE && NBTUtil.toBoolean(get(index));
 	}
 	
 	public byte getByte(int index) {
@@ -218,10 +216,13 @@ public class ListTag extends Tag {
 		int size = nbtIn.dis.readInt();
 		clear(size);
 		for (int i = 0; i < size; i++) {
-			Tag tag = type.getTag().deserialize(nbtIn, incrementDepth(depth));
-			if (tag instanceof EndTag)
-				throw new IOException("EndTag not permitted in a list.");
-			add(tag);
+			Tag typeTag = type.getTag();
+			if (typeTag != null) {
+				Tag tag = typeTag.deserialize(nbtIn, incrementDepth(depth));
+				if (tag instanceof EndTag)
+					throw new IOException("EndTag not permitted in a list.");
+				add(tag);
+			}
 		}
 		return this;
 	}
@@ -241,7 +242,7 @@ public class ListTag extends Tag {
 		StringBuilder sb = new StringBuilder();
 		boolean first = true;
 		for (Tag tag : value) {
-			sb.append((first ? "" : ",") + tag.valueToTagString(incrementDepth(depth)));
+			sb.append(first ? "" : ",").append(tag.valueToTagString(incrementDepth(depth)));
 			first = false;
 		}
 		return "[" + sb.toString() + "]";
@@ -281,7 +282,7 @@ public class ListTag extends Tag {
 	
 	@Override
 	public ListTag clone() {
-		List<Tag> clone = new ArrayList<Tag>(value.size());
+		List<Tag> clone = new ArrayList<>(value.size());
 		for (Tag t : value) {
 			clone.add(t.clone());
 		}

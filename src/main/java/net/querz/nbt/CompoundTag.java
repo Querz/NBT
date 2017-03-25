@@ -9,7 +9,7 @@ import java.util.Map.Entry;
 public class CompoundTag extends Tag {
 	private Map<String, Tag> value;
 	
-	public CompoundTag() {
+	protected CompoundTag() {
 		this("", null);
 	}
 	
@@ -88,15 +88,13 @@ public class CompoundTag extends Tag {
 	
 	public boolean getBoolean(String key) {
 		Tag tag = get(key);
-		if (isType(tag, TagType.BYTE))
-			return ((ByteTag) tag).getBoolean();
-		return false;
+		return isType(tag, TagType.BYTE) && ((ByteTag) tag).getBoolean();
 	}
 	
 	public byte getByte(String key) {
 		Tag tag = get(key);
 		if (isType(tag, TagType.BYTE))
-			return ((Byte) tag.getValue()).byteValue();
+			return (byte) tag.getValue();
 		return 0;
 	}
 	

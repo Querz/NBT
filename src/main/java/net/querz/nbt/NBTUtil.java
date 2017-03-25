@@ -6,12 +6,12 @@ public class NBTUtil {
 	public static Number toNumber(Tag tag) {
 		if (tag != null && tag instanceof NumberTag)
 			return (Number) tag.getValue();
-		return new Byte((byte) 0);
+		return 0;
 	}
 	
 	/**
 	 * checks if tag is a Number and interprets it as a boolean.
-	 * @param tag
+	 * @param tag the Tag instance to be turned into a boolean
 	 * @return true if the Number is > 0
 	 */
 	public static boolean toBoolean(Tag tag) {
@@ -26,7 +26,7 @@ public class NBTUtil {
 		boolean first = true;
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < Array.getLength(array); i++) {
-			sb.append((first ? "" : delimiter) + ((Tag) Array.get(array, i)).toTagString(depth));
+			sb.append(first ? "" : delimiter).append(((Tag) Array.get(array, i)).toTagString(depth));
 			first = false;
 		}
 		return sb.toString();
@@ -41,9 +41,9 @@ public class NBTUtil {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < Array.getLength(array); i++) {
 			if (Array.get(array, i) instanceof Tag) {
-				sb.append((first ? "" : delimiter) + ((Tag) Array.get(array, i)).toString(depth));
+				sb.append(first ? "" : delimiter).append(((Tag) Array.get(array, i)).toString(depth));
 			} else {
-				sb.append((first ? "" : delimiter) + Array.get(array, i));
+				sb.append(first ? "" : delimiter).append(Array.get(array, i));
 			}
 			first = false;
 		}

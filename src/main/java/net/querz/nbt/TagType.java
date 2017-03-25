@@ -21,12 +21,12 @@ public enum TagType {
 	private int id;
 	private Class<? extends Tag> clazz;
 	
-	private static Map<Integer, Class<? extends CustomTag>> customTags = new HashMap<Integer, Class<? extends CustomTag>>();
+	private static Map<Integer, Class<? extends CustomTag>> customTags = new HashMap<>();
 	
-	private TagType() {
+	TagType() {
 	}
 	
-	private TagType(int id, Class<? extends Tag> clazz) {
+	TagType(int id, Class<? extends Tag> clazz) {
 		this.id = id;
 		this.clazz = clazz;
 	}

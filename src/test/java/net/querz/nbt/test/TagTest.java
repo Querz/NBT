@@ -66,11 +66,12 @@ public class TagTest extends TestCase {
 		tag.set(compoundClone2);
 	}
 	
-	public void setUp() {
+	public void setUp() throws Exception {
+		super.setUp();
 		byteList.add(maxByte);
-		byteList.addByte((byte) minByte.getValue());
-		byteList.addBoolean(((ByteTag) boolTrue).getBoolean());
-		byteList.addBoolean(((ByteTag) boolFalse).getBoolean());
+		byteList.addByte(minByte.getValue());
+		byteList.addBoolean((boolTrue).getBoolean());
+		byteList.addBoolean((boolFalse).getBoolean());
 		nullName.setName(null);
 	}
 	
@@ -214,17 +215,17 @@ public class TagTest extends TestCase {
 		CompoundTag t = new CompoundTag("c");
 		t.set(t);
 		
-		assertThrowsException(() -> t.toString(), MaxDepthReachedException.class);
+		assertThrowsException(t::toString, MaxDepthReachedException.class);
 		assertThrowsException(() -> wrappedSerializeAndDeserialize(t), MaxDepthReachedException.class);
-		assertThrowsException(() -> t.toTagString(), MaxDepthReachedException.class);
+		assertThrowsException(t::toTagString, MaxDepthReachedException.class);
 		
 		
 		ListTag l = new ListTag("l", TagType.LIST);
 		l.add(l);
 		
-		assertThrowsException(() -> l.toString(), MaxDepthReachedException.class);
+		assertThrowsException(l::toString, MaxDepthReachedException.class);
 		assertThrowsException(() -> wrappedSerializeAndDeserialize(l), MaxDepthReachedException.class);
-		assertThrowsException(() -> l.toTagString(), MaxDepthReachedException.class);
+		assertThrowsException(l::toTagString, MaxDepthReachedException.class);
 		
 		
 		CompoundTag b = new CompoundTag("base");
@@ -239,12 +240,13 @@ public class TagTest extends TestCase {
 			current = c;
 		}
 
-		assertThrowsNoException(() -> b.toString());
-		assertThrowsNoException(() -> b.toTagString());
+		assertThrowsNoException(b::toString);
+		assertThrowsNoException(b::toTagString);
 		assertThrowsNoException(() -> wrappedSerializeAndDeserialize(b));
 	}
 	
-	public void tearDown() throws IOException {
+	public void tearDown() throws Exception {
+		super.tearDown();
 		Files.deleteIfExists(Paths.get(TestUtil.RESOURCES_PATH + "test_NBTFileWriter.dat"));
 	}
 	

@@ -7,7 +7,8 @@ import net.querz.nbt.custom.ShortArrayTag;
 import static net.querz.nbt.test.TestUtil.*;
 
 public class TagTypeTest extends TestCase {
-	public void tearDown() {
+	public void tearDown() throws Exception {
+		super.tearDown();
 		TagType.unregisterAllCustomTags();
 	}
 	

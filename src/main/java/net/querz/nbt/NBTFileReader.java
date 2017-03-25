@@ -21,7 +21,7 @@ public class NBTFileReader {
 	public Tag read() {
 		try (
 			FileInputStream fileIn = new FileInputStream(file);
-			NBTInputStream nbtIn = new NBTInputStream(decompress(fileIn));
+			NBTInputStream nbtIn = new NBTInputStream(decompress(fileIn))
 		) {
 			return nbtIn.readTag();
 		} catch (IOException ex) {

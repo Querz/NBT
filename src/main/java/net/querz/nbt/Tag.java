@@ -49,11 +49,11 @@ public abstract class Tag implements Comparable<Tag>, Cloneable {
 		serialize(nbtOut, depth);
 	}
 	
-	public final static Tag deserializeTag(NBTInputStream nbtIn) throws IOException {
+	public static Tag deserializeTag(NBTInputStream nbtIn) throws IOException {
 		return deserializeTag(nbtIn, 0);
 	}
 	
-	public final static Tag deserializeTag(NBTInputStream nbtIn, int depth) throws IOException {
+	public static Tag deserializeTag(NBTInputStream nbtIn, int depth) throws IOException {
 		int typeId = nbtIn.dis.readByte() & 0xFF;
 		Tag tag = TagType.getTag(typeId);
 		if (tag.getType() != TagType.END) {

@@ -25,7 +25,9 @@ public class TestUtil {
 		try {
 			r.run();
 			TestCase.fail();
-		} catch (Exception ex) {}
+		} catch (Exception ignore) {
+			//Method threw an exception. We're happy now. Thanks IntelliJ.
+		}
 	}
 	
 	public static void assertThrowsNoException(Runnable r) {
@@ -34,7 +36,6 @@ public class TestUtil {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			TestCase.fail("Threw exception " + ex.getClass().getName() + " with message \"" + ex.getMessage() + "\"");
-			
 		}
 	}
 	
