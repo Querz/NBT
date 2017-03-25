@@ -59,11 +59,11 @@ public class StructTag extends CustomTag {
 	}
 	
 	public void clear() {
-		value = new ArrayList<Tag>();
+		value = new ArrayList<>();
 	}
 	
 	public void clear(int init) {
-		value = new ArrayList<Tag>(init);
+		value = new ArrayList<>(init);
 	}
 	
 	public void add(Tag tag) {
@@ -128,9 +128,7 @@ public class StructTag extends CustomTag {
 	}
 	
 	public boolean getBoolean(int index) {
-		if (get(index).getType() == TagType.BYTE)
-			return ((ByteTag) get(index)).getBoolean();
-		return false;
+		return get(index).getType() == TagType.BYTE && ((ByteTag) get(index)).getBoolean();
 	}
 	
 	public byte getByte(int index) {
@@ -207,7 +205,7 @@ public class StructTag extends CustomTag {
 		Tag tag = get(index);
 		if (tag.getType() == TagType.COMPOUND)
 			return (CompoundTag) tag;
-		return new CompoundTag("", new HashMap<String, Tag>());
+		return new CompoundTag("", new HashMap<>());
 	}
 	
 	public ListTag getListTag(int index) {
@@ -272,7 +270,7 @@ public class StructTag extends CustomTag {
 	
 	@Override
 	public StructTag clone() {
-		List<Tag> clone = new ArrayList<Tag>(value.size());
+		List<Tag> clone = new ArrayList<>(value.size());
 		for (Tag tag : value) {
 			clone.add(tag.clone());
 		}
