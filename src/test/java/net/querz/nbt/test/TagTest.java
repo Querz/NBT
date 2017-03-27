@@ -13,6 +13,8 @@ import static net.querz.nbt.test.TestUtil.*;
 
 import junit.framework.TestCase;
 import net.querz.nbt.*;
+import net.querz.nbt.custom.ShortArrayTag;
+import net.querz.nbt.custom.StructTag;
 
 public class TagTest extends TestCase {
 	private static final Random RANDOM = new Random();
@@ -34,6 +36,7 @@ public class TagTest extends TestCase {
 	private ByteTag boolTrue = new ByteTag("boolTrue", true);
 	private ByteTag boolFalse = new ByteTag("boolFalse", false);
 	private ByteArrayTag byteArray = new ByteArrayTag("byteArray", new byte[] {Byte.MIN_VALUE, -2, -1, 0, 1, 2, Byte.MAX_VALUE});
+	private ShortArrayTag shortArray = new ShortArrayTag("shortArray", new short[] {Short.MIN_VALUE, -2, -1, 0, 1, 2, Short.MAX_VALUE});
 	private IntArrayTag intArray = new IntArrayTag("intArray", new int[] {Integer.MIN_VALUE, -2, -1, 0, 1, 2, Integer.MAX_VALUE});
 	private StringTag string = new StringTag("string0aAÂ«âˆ‘â‚¬Â®â€ Î©Â¨â�„Ã¸Ï€â€¢Â±Ã¥â€šâˆ‚Æ’Â©ÂªÂºâˆ†@Å“Ã¦â€˜Â¥â‰ˆÃ§âˆšâˆ«~Âµâˆžâ€¦", "0aAÂ«âˆ‘â‚¬Â®â€ Î©Â¨â�„Ã¸Ï€â€¢Â±Ã¥â€šâˆ‚Æ’Â©ÂªÂºâˆ†@Å“Ã¦â€˜Â¥â‰ˆÃ§âˆšâˆ«~Âµâˆžâ€¦");
 	private ListTag byteList = new ListTag("byteList", TagType.BYTE);
@@ -63,6 +66,11 @@ public class TagTest extends TestCase {
 		compoundClone2.setName("compoundClone2");
 		tag.set(compoundClone);
 		tag.set(compoundClone2);
+	}
+
+	private void populateStructTag(StructTag tag) {
+		tag.add(maxByte);
+		tag.add(decDouble);
 	}
 	
 	public void setUp() throws Exception {
@@ -152,6 +160,33 @@ public class TagTest extends TestCase {
 		assertEquals(intArray.toString(), "<int[]:intArray:[-2147483648,-2,-1,0,1,2,2147483647]>");
 		assertEquals(intArray.toTagString(), "intArray:[-2147483648,-2,-1,0,1,2,2147483647]");
 	}
+
+	public void testShortArrayTag() throws IOException {
+		ShortArrayTag.register();
+		ShortArrayTag t = (ShortArrayTag) serializeAndDeserialize(shortArray);
+		assertNotNull(t);
+		assertEquals(t.getType(), shortArray.getType());
+		assertEquals(t.getName(), shortArray.getName());
+		assertTrue(Arrays.equals(t.getValue(), shortArray.getValue()));
+		assertTrue(t.equals(shortArray));
+		assertTrue(t != t.clone());
+		assertTrue(t.getValue() != t.clone().getValue());
+		assertEquals(shortArray.toString(), "<short[]:shortArray:[-32768,-2,-1,0,1,2,32767]>");
+		assertEquals(shortArray.toTagString(), "shortArray:[-32768,-2,-1,0,1,2,32767]");
+	}
+
+	public void testStructTag() throws IOException {
+		StructTag.register();
+		StructTag struct = new StructTag("struct");
+		populateStructTag(struct);
+
+		//test cloning
+		assertEquals(struct, struct.clone());
+		assertFalse(struct == struct.clone());
+
+		StructTag struct2 = (StructTag) serializeAndDeserialize(struct);
+		assertEquals(struct, struct2);
+	}
 	
 	public void testListTag() throws IOException {
 		ListTag byteList2 = (ListTag) serializeAndDeserialize(byteList);
@@ -178,6 +213,22 @@ public class TagTest extends TestCase {
 		assertEquals(byteList.toString(), TestUtil.readStringFromFile("test_list_toString.txt"));
 		assertEquals(byteList.toTagString(), TestUtil.readStringFromFile("test_list_toTagString.txt"));
 	}
+
+	public void testCustomListTag() throws IOException {
+		ShortArrayTag.register();
+		StructTag.register();
+
+		ListTag custom = new ListTag("custom", TagType.CUSTOM);
+
+		StructTag struct = new StructTag("struct");
+		populateStructTag(struct);
+		custom.add(shortArray);
+		assertThrowsException(() -> custom.add(struct), IllegalArgumentException.class);
+		assertThrowsException(() -> custom.add(maxByte), IllegalArgumentException.class);
+		assertThrowsNoException(() -> custom.add(shortArray));
+		assertThrowsNoException(() -> wrappedSerializeAndDeserialize(custom));
+		assertEquals(custom, serializeAndDeserialize(custom));
+	}
 	
 	public void testCompoundTag() throws IOException {
 		CompoundTag compound = new CompoundTag("compound");
@@ -193,6 +244,19 @@ public class TagTest extends TestCase {
 
 		assertEquals(compound.toString(), TestUtil.readStringFromFile("test_compound_toString.txt"));
 		assertEquals(compound.toTagString(), TestUtil.readStringFromFile("test_compound_toTagString.txt"));
+	}
+
+	public void testCustomCompoundTag() throws IOException {
+		ShortArrayTag.register();
+		StructTag.register();
+		CompoundTag custom = new CompoundTag("compound");
+
+		StructTag struct = new StructTag("struct");
+		populateStructTag(struct);
+		custom.set(shortArray);
+		custom.set(struct);
+		assertThrowsNoException(() -> wrappedSerializeAndDeserialize(custom));
+		assertEquals(custom, serializeAndDeserialize(custom));
 	}
 	
 	public void testNBTFileReader() {
@@ -246,6 +310,7 @@ public class TagTest extends TestCase {
 	public void tearDown() throws Exception {
 		super.tearDown();
 		Files.deleteIfExists(Paths.get(TestUtil.RESOURCES_PATH + "test_NBTFileWriter.dat"));
+		TagType.unregisterAllCustomTags();
 	}
 	
 	//only works with primitive tags
@@ -259,12 +324,21 @@ public class TagTest extends TestCase {
 		//compares reference if it's not a primitive
 		assertEquals(t1.getValue(), t2.getValue());
 	}
-	
+
 	private Tag serializeAndDeserialize(Tag tag) throws IOException {
+		return serializeAndDeserialize(tag, false);
+	}
+	
+	private Tag serializeAndDeserialize(Tag tag, boolean debugBytes) throws IOException {
 		ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
 		try (NBTOutputStream nbtOut = new NBTOutputStream(byteOut)) {
 			nbtOut.writeTag(tag);
 		}
+
+		if (debugBytes) {
+			System.out.println(Arrays.toString(byteOut.toByteArray()));
+		}
+
 		ByteArrayInputStream byteIn = new ByteArrayInputStream(byteOut.toByteArray());
 		try (NBTInputStream nbtIn = new NBTInputStream(byteIn)) {
 			return nbtIn.readTag();

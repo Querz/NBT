@@ -6,6 +6,7 @@ import java.util.List;
 
 public class ListTag extends Tag {
 	private TagType type;
+	private int typeId;
 	private List<Tag> value;
 	
 	protected ListTag() {
@@ -46,7 +47,7 @@ public class ListTag extends Tag {
 	}
 	
 	public void add(Tag tag) {
-		checkAddType(tag.getType());
+		checkAddType(tag);
 		value.add(tag);
 	}
 	
@@ -190,9 +191,22 @@ public class ListTag extends Tag {
 		return new ListTag(TagType.STRING);
 	}
 	
-	private void checkAddType(TagType type) {
-		if (this.type != type)
-			throw new IllegalArgumentException("A list does not support multiple tag types: " + this.type + " != " + type);
+	private void checkAddType(Tag tag) {
+		if (this.type != tag.getType()
+				|| (tag.getType() == TagType.CUSTOM && value.size() != 0 && typeId != tag.getType().getId(tag))) {
+
+			throw new IllegalArgumentException(
+					String.format(
+							"A list does not support multiple tag types: %s (%d) != %s (%d)",
+							type,
+							typeId,
+							tag.getType(),
+							tag.getType().getId(tag)
+					)
+			);
+		} else if (tag.getType() == TagType.CUSTOM && value.size() == 0) {
+			typeId = tag.getType().getId(tag);
+		}
 	}
 	
 	@Override
@@ -203,7 +217,11 @@ public class ListTag extends Tag {
 	@Override
 	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
 		int size = value.size();
-		nbtOut.dos.writeByte(type.getId());
+		if (type == TagType.CUSTOM) {
+			nbtOut.dos.writeByte(typeId);
+		} else {
+			nbtOut.dos.writeByte(type.getId());
+		}
 		nbtOut.dos.writeInt(size);
 		for (Tag t : value)
 			t.serialize(nbtOut, incrementDepth(depth));
@@ -216,11 +234,12 @@ public class ListTag extends Tag {
 		int size = nbtIn.dis.readInt();
 		clear(size);
 		for (int i = 0; i < size; i++) {
-			Tag typeTag = type.getTag();
+			Tag typeTag = TagType.getTag(typeId);
 			if (typeTag != null) {
 				Tag tag = typeTag.deserialize(nbtIn, incrementDepth(depth));
-				if (tag instanceof EndTag)
+				if (tag instanceof EndTag) {
 					throw new IOException("EndTag not permitted in a list.");
+				}
 				add(tag);
 			}
 		}

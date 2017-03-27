@@ -11,22 +11,30 @@ import junit.framework.TestCase;
 public class TestUtil {
 
 	public static final String RESOURCES_PATH = "./src/test/java/net/querz/nbt/test/resources/";
-	
+
+
 	public static void assertThrowsException(Runnable r, Class<? extends Exception> e) {
+		assertThrowsException(r, e, false);
+	}
+
+	public static void assertThrowsException(Runnable r, Class<? extends Exception> e, boolean printStackTrace) {
 		try {
 			r.run();
 			TestCase.fail();
 		} catch (Exception ex) {
+			if (printStackTrace)
+				ex.printStackTrace();
 			TestCase.assertEquals(ex.getClass(), e);
 		}
 	}
 	
-	public static void assertThrowsException(Runnable r) {
+	public static void assertThrowsException(Runnable r, boolean printStackTrace) {
 		try {
 			r.run();
 			TestCase.fail();
-		} catch (Exception ignore) {
-			//Method threw an exception. We're happy now. Thanks IntelliJ.
+		} catch (Exception ex) {
+			if (printStackTrace)
+				ex.printStackTrace();
 		}
 	}
 	

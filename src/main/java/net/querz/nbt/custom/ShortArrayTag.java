@@ -3,11 +3,7 @@ package net.querz.nbt.custom;
 import java.io.IOException;
 import java.util.Arrays;
 
-import net.querz.nbt.CustomTag;
-import net.querz.nbt.NBTInputStream;
-import net.querz.nbt.NBTOutputStream;
-import net.querz.nbt.NBTUtil;
-import net.querz.nbt.TagType;
+import net.querz.nbt.*;
 
 public class ShortArrayTag extends CustomTag {
 	public static final int TAG_ID = 100;
@@ -82,6 +78,11 @@ public class ShortArrayTag extends CustomTag {
 		}
 		ShortArrayTag tag = (ShortArrayTag) other;
 		return getName() != null && getName().equals(tag.getName()) && Arrays.equals(value, tag.getValue());
+	}
+
+	@Override
+	protected boolean valueEquals(Tag other) {
+		return other instanceof ShortArrayTag && Arrays.equals(value, ((ShortArrayTag) other).getValue());
 	}
 	
 	@Override

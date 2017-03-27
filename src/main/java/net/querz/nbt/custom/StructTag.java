@@ -67,56 +67,51 @@ public class StructTag extends CustomTag {
 	}
 	
 	public void add(Tag tag) {
-		Tag clone = tag.clone();
-		value.add(clone);
-	}
-	
-	private void addInstance(Tag tag) {
 		value.add(tag);
 	}
 	
 	public void addBoolean(boolean b) {
-		addInstance(new ByteTag(b));
+		add(new ByteTag(b));
 	}
 	
 	public void addByte(byte b) {
-		addInstance(new ByteTag(b));
+		add(new ByteTag(b));
 	}
 	
 	public void addShort(short s) {
-		addInstance(new ShortTag(s));
+		add(new ShortTag(s));
 	}
 	
 	public void addInt(int i) {
-		addInstance(new IntTag(i));
+		add(new IntTag(i));
 	}
 	
 	public void addLong(long l) {
-		addInstance(new LongTag(l));
+		add(new LongTag(l));
 	}
 	
 	public void addFloat(float f) {
-		addInstance(new FloatTag(f));
+		add(new FloatTag(f));
 	}
 	
 	public void addDouble(double d) {
-		addInstance(new DoubleTag(d));
+		add(new DoubleTag(d));
 	}
 	
 	public void addByteArray(byte[] b) {
-		addInstance(new ByteArrayTag(b));
+		add(new ByteArrayTag(b));
 	}
 	
 	public void addList(TagType type, List<Tag> l) {
-		addInstance(new ListTag(type, l));
+		add(new ListTag(type, l));
 	}
 	
 	public void addIntArray(int[] i) {
-		addInstance(new IntArrayTag(i));
+		add(new IntArrayTag(i));
 	}
 	
 	public void addString(String s) {
-		addInstance(new StringTag(s));
+		add(new StringTag(s));
 	}
 	
 	public Tag get(int index) {
@@ -236,7 +231,7 @@ public class StructTag extends CustomTag {
 			Tag tag = Tag.deserializeTag(nbtIn, depth);
 			if (tag instanceof EndTag)
 				throw new IOException("EndTag not permitted in a struct.");
-			addInstance(tag);
+			add(tag);
 		}
 		return null;
 	}
@@ -259,13 +254,18 @@ public class StructTag extends CustomTag {
 	
 	@Override
 	public String toString() {
-		return "<struct:" + getName() + ":[" + NBTUtil.joinArray(",", value.toArray()) + "]>";
+		return toString(0);
 	}
 	
 	@Override
 	public String toString(int depth) {
 		depth = incrementDepth(depth);
 		return "<struct:" + getName() + ":[" + NBTUtil.joinArray(",", value.toArray(), depth) + "]>";
+	}
+
+	@Override
+	public boolean valueEquals(Tag other) {
+		return other instanceof StructTag && ((StructTag) other).value.equals(value);
 	}
 	
 	@Override
