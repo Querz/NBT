@@ -76,3 +76,6 @@ local.properties
 
 # IDEA folder
 .idea/
+
+# ignore javadoc for now
+doc/

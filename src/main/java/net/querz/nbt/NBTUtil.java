@@ -18,7 +18,7 @@ public class NBTUtil {
 	/**
 	 * checks if tag is a {@code Number} and interprets it as a boolean.
 	 * @param tag the Tag instance to be turned into a boolean
-	 * @return true if the Number is > 0
+	 * @return true if the Number is &gt; 0
 	 */
 	public static boolean toBoolean(Tag tag) {
 		return toNumber(tag).byteValue() > 0;

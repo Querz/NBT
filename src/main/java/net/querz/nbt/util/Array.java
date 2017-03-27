@@ -1,5 +1,11 @@
 package net.querz.nbt.util;
 
+/**
+ * An Array utility class to functionally replace java.lang.reflect.Array, because it uses native methods
+ * and is therefore not optimized at runtime.
+ * Even though this class might look ugly, it will significantly improve performance when used excessively
+ * compared to {@code java.lang.reflect.Array}
+ */
 public class Array {
 	private static RuntimeException badArray(Object array) {
 		if (array == null)
