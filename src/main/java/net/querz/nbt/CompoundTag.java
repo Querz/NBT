@@ -101,35 +101,35 @@ public class CompoundTag extends Tag {
 	public short getShort(String key) {
 		Tag tag = get(key);
 		if (isType(tag, TagType.SHORT))
-			return ((Short) tag.getValue()).shortValue();
+			return (short) tag.getValue();
 		return 0;
 	}
 	
 	public int getInt(String key) {
 		Tag tag = get(key);
 		if (isType(tag, TagType.INT))
-			return ((Integer) tag.getValue()).intValue();
+			return (int) tag.getValue();
 		return 0;
 	}
 	
 	public long getLong(String key) {
 		Tag tag = get(key);
 		if (isType(tag, TagType.LONG))
-			return ((Long) tag.getValue()).longValue();
+			return (long) tag.getValue();
 		return 0;
 	}
 	
 	public float getFloat(String key) {
 		Tag tag = get(key);
 		if (isType(tag, TagType.FLOAT))
-			return ((Float) tag.getValue()).floatValue();
+			return (float) tag.getValue();
 		return 0;
 	}
 	
 	public double getDouble(String key) {
 		Tag tag = get(key);
 		if (isType(tag, TagType.DOUBLE))
-			return ((Double) tag.getValue()).doubleValue();
+			return (double) tag.getValue();
 		return 0;
 	}
 	
@@ -183,11 +183,11 @@ public class CompoundTag extends Tag {
 	}
 	
 	public void clear() {
-		value = new HashMap<String, Tag>();
+		value = new HashMap<>();
 	}
 	
 	public void clearOrdered() {
-		value = new LinkedHashMap<String, Tag>();
+		value = new LinkedHashMap<>();
 	}
 	
 	public void setValue(Map<String, Tag> value) {

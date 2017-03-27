@@ -3,8 +3,21 @@ package net.querz.nbt;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
+/**
+ * This is an abstract representation of an NBT Tag.
+ * An NBT Tag always consists of a name, a type and a value, of which the name and the type are stored
+ * in this class.
+ */
 public abstract class Tag implements Comparable<Tag>, Cloneable {
+
+	/**
+	 * Strngs in the NBT specification are always UTF-8 encoded.
+	 */
 	public static final Charset CHARSET = Charset.forName("UTF-8");
+
+	/**
+	 * Every NBT structure specified by the default
+	 */
 	public static final int MAX_DEPTH = 512;
 	
 	private TagType type;

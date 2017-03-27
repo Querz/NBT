@@ -3,6 +3,12 @@ package net.querz.nbt;
 import net.querz.nbt.util.Array;
 
 public class NBTUtil {
+
+	/**
+	 * gets the {@code Number} value of any tag
+	 * @param tag The tag to get the {@code Number} value from
+	 * @return the value of {@code tag} or 0 if {@code} tag is not an instance of {@code NumberTag}
+	 */
 	public static Number toNumber(Tag tag) {
 		if (tag != null && tag instanceof NumberTag)
 			return (Number) tag.getValue();
@@ -10,14 +16,14 @@ public class NBTUtil {
 	}
 	
 	/**
-	 * checks if tag is a Number and interprets it as a boolean.
+	 * checks if tag is a {@code Number} and interprets it as a boolean.
 	 * @param tag the Tag instance to be turned into a boolean
 	 * @return true if the Number is > 0
 	 */
 	public static boolean toBoolean(Tag tag) {
 		return toNumber(tag).byteValue() > 0;
 	}
-	
+
 	public static String joinTagString(String delimiter, Object array) {
 		return joinTagString(delimiter, array, 0);
 	}

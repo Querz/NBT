@@ -37,8 +37,7 @@ public class TagTest extends TestCase {
 	private IntArrayTag intArray = new IntArrayTag("intArray", new int[] {Integer.MIN_VALUE, -2, -1, 0, 1, 2, Integer.MAX_VALUE});
 	private StringTag string = new StringTag("string0aAÂ«âˆ‘â‚¬Â®â€ Î©Â¨â�„Ã¸Ï€â€¢Â±Ã¥â€šâˆ‚Æ’Â©ÂªÂºâˆ†@Å“Ã¦â€˜Â¥â‰ˆÃ§âˆšâˆ«~Âµâˆžâ€¦", "0aAÂ«âˆ‘â‚¬Â®â€ Î©Â¨â�„Ã¸Ï€â€¢Â±Ã¥â€šâˆ‚Æ’Â©ÂªÂºâˆ†@Å“Ã¦â€˜Â¥â‰ˆÃ§âˆšâˆ«~Âµâˆžâ€¦");
 	private ListTag byteList = new ListTag("byteList", TagType.BYTE);
-	private Tag nullName = new StringTag("");
-	
+
 	private void populateCompoundTag(CompoundTag tag) {
 		tag.setBoolean("boolTrue", boolTrue.getBoolean());
 		tag.setBoolean("boolFalse", boolFalse.getBoolean());
@@ -72,7 +71,6 @@ public class TagTest extends TestCase {
 		byteList.addByte(minByte.getValue());
 		byteList.addBoolean((boolTrue).getBoolean());
 		byteList.addBoolean((boolFalse).getBoolean());
-		nullName.setName(null);
 	}
 	
 	public void testByteTag() throws IOException {
@@ -172,7 +170,7 @@ public class TagTest extends TestCase {
 		assertEquals(byteList2.asByte(0), byteList.getByte(0));
 		assertThrowsException(() -> byteList.add(maxShort), IllegalArgumentException.class);
 		
-		// equals should ignore tag names in list tags
+		//equals should ignore tag names in list tags
 		assertTrue(byteList2.equals(byteList));
 		assertTrue(byteList != byteList.clone());
 		assertTrue(byteList.getValue() != byteList.clone().getValue());

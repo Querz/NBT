@@ -5,9 +5,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
+import java.util.Arrays;
 import java.util.zip.GZIPInputStream;
 
 public class NBTFileReader {
+	private static final byte[] GZIP_MAGIC_NUMBERS = {(byte) 0x1F, (byte) 0x8B};
 	private File file;
 	
 	public NBTFileReader(File file) {
@@ -35,7 +37,7 @@ public class NBTFileReader {
 		byte[] signature = new byte[2];
 		pbis.read(signature);
 		pbis.unread(signature);
-		if (signature[0] == (byte) 0x1F && signature[1] == (byte) 0x8B)
+		if (Arrays.equals(signature, GZIP_MAGIC_NUMBERS))
 			return new GZIPInputStream(pbis);
 		return pbis;
 	}
