@@ -3,6 +3,11 @@ package net.querz.nbt;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Enum to represent all possible types of tags. All custom tags are of type {@link TagType#CUSTOM}.<br>
+ * {@link CustomTag} implementations have to be registered using {@link TagType#registerCustomTag(int, Class)}
+ *
+ */
 public enum TagType {
 	END(0, EndTag.class),
 	BYTE(1, ByteTag.class),

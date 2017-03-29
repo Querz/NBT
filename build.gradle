@@ -11,17 +11,21 @@ apply plugin: 'java'
 
 sourceCompatibility = 1.8
 version = '1.0'
+
 jar {
-    manifest {
-        attributes 'Implementation-Title': 'net.querz.nbt',
-                   'Implementation-Version': version
-    }
+    manifest.attributes 'Implementation-Title': 'net.querz.nbt',
+                        'Implementation-Version': version
 }
 
-task myJavadocs(type: Javadoc) {    
+// In this section you declare the options for your javadoc
+javadoc {
     source = sourceSets.main.allJava
     classpath = configurations.compile
     destinationDir = file("./doc/")
+    options.windowTitle 'NBT'
+    options.encoding 'utf-8'
+    options.linkSource true
+    options.links 'https://docs.oracle.com/javase/8/docs/api/'
 }
 
 // In this section you declare where to find the dependencies of your project

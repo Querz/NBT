@@ -11,12 +11,12 @@ import java.nio.charset.Charset;
 public abstract class Tag implements Comparable<Tag>, Cloneable {
 
 	/**
-	 * Strngs in the NBT specification are always UTF-8 encoded.
+	 * Strings in the NBT specification are always UTF-8 encoded.
 	 */
 	public static final Charset CHARSET = Charset.forName("UTF-8");
 
 	/**
-	 * Every NBT structure specified by the default
+	 * An NBT structure must have a maximum depth of 512.
 	 */
 	public static final int MAX_DEPTH = 512;
 	
@@ -78,7 +78,19 @@ public abstract class Tag implements Comparable<Tag>, Cloneable {
 		tag.deserialize(nbtIn, depth);
 		return tag;
 	}
-	
+
+	protected boolean valueEquals(Tag other) {
+		return other.getValue().equals(getValue());
+	}
+
+	protected String toString(int depth) {
+		return toString();
+	}
+
+	protected String toTagString(int depth) {
+		return toTagString();
+	}
+
 	@Override
 	public boolean equals(Object other) {
 		if (!(other instanceof Tag)) {
@@ -87,42 +99,40 @@ public abstract class Tag implements Comparable<Tag>, Cloneable {
 		Tag tag = (Tag) other;
 		return getValue().equals(tag.getValue()) && getName().equals(tag.getName());
 	}
-	
-	protected boolean valueEquals(Tag other) {
-		return other.getValue().equals(getValue());
-	}
-	
+
+	/**
+	 * Compares this tag's name with another tag's name, because the name is the only thing that is
+	 * consistent throughout all tags.
+	 *
+	 * @param other The tag to compare this tag with
+	 * @return See {@link java.lang.String#compareTo(String)}
+	 */
 	@Override
 	public int compareTo(Tag other) {
-		if (equals(other))
-			return 0;
-		else {
-			if (other.getName().equals(getName()))
-				throw new IllegalStateException("Cannot compare two Tags with the same name but different values.");
-			else
-				return getName().compareTo(other.getName());
-		}
+		return getName().compareTo(other.getName());
 	}
-	
-	protected String toString(int depth) {
-		return toString();
-	}
-	
+
+	/**
+	 * Increments {@code depth} by one.<br>
+	 * Throws a {@link MaxDepthReachedException} if {@link Tag#MAX_DEPTH} is reached.<br>
+	 * Throws a {@link IllegalArgumentException} if {@code depth &lt; 0}.
+	 *
+	 * @param depth The initial depth given to this method
+	 * @return returns the incremented depth
+	 */
 	protected static int incrementDepth(int depth) {
-		if (depth >= MAX_DEPTH) {
+		if (depth >= MAX_DEPTH)
 			throw new MaxDepthReachedException();
-		}
+		if (depth < 0)
+			throw new IllegalArgumentException("Initial depth cannot be negative.");
 		return ++depth;
 	}
-	
-	protected String toTagString(int depth) {
-		return toTagString();
-	}
-	
+
 	protected abstract String valueToTagString(int depth);
+	protected abstract void serialize(NBTOutputStream nbtOut, int depth) throws IOException;
+	protected abstract Tag deserialize(NBTInputStream nbtIn, int depth) throws IOException;
+
 	public abstract Object getValue();
 	public abstract String toTagString();
 	public abstract Tag clone();
-	protected abstract void serialize(NBTOutputStream nbtOut, int depth) throws IOException;
-	protected abstract Tag deserialize(NBTInputStream nbtIn, int depth) throws IOException;
 }
