@@ -113,12 +113,12 @@ public abstract class Tag implements Comparable<Tag>, Cloneable {
 	}
 
 	/**
-	 * Increments {@code depth} by one.<br>
-	 * Throws a {@link MaxDepthReachedException} if {@link Tag#MAX_DEPTH} is reached.<br>
-	 * Throws a {@link IllegalArgumentException} if {@code depth &lt; 0}.
+	 * Increments {@code depth} by one.
 	 *
 	 * @param depth The initial depth given to this method
 	 * @return returns the incremented depth
+	 * @throws MaxDepthReachedException if {@link Tag#MAX_DEPTH} is reached
+	 * @throws IllegalArgumentException if {@code depth < 0}
 	 */
 	protected static int incrementDepth(int depth) {
 		if (depth >= MAX_DEPTH)
