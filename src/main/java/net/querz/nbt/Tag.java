@@ -161,6 +161,7 @@ public abstract class Tag implements Comparable<Tag>, Cloneable {
 	protected abstract void serialize(NBTOutputStream nbtOut, int depth) throws IOException;
 	protected abstract Tag deserialize(NBTInputStream nbtIn, int depth) throws IOException;
 	public abstract Object getValue();
+	public abstract String toString();
 	public abstract String toTagString();
 	public abstract Tag clone();
 }
