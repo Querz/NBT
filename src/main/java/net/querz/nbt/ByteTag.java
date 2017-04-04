@@ -2,7 +2,7 @@ package net.querz.nbt;
 
 import java.io.IOException;
 
-public class ByteTag extends NumberTag<Byte> {
+public class ByteTag extends NumberTag {
 	private byte value;
 	
 	protected ByteTag() {

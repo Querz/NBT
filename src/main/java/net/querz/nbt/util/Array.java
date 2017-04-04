@@ -270,23 +270,22 @@ public class Array {
 	}
 
 	public static boolean equals(Object o, Object p) {
-		if (o instanceof Object[] && p instanceof Object[]) {
+		if (o instanceof Object[] && p instanceof Object[])
 			return Arrays.equals((Object[]) o, (Object[]) p);
-		} else if (o instanceof byte[] && p instanceof byte[]) {
+		else if (o instanceof byte[] && p instanceof byte[])
 			return Arrays.equals((byte[]) o, (byte[]) p);
-		} else if (o instanceof short[] && p instanceof short[]) {
+		else if (o instanceof short[] && p instanceof short[])
 			return Arrays.equals((short[]) o, (short[]) p);
-		} else if (o instanceof int[] && p instanceof int[]) {
+		else if (o instanceof int[] && p instanceof int[])
 			return Arrays.equals((int[]) o, (int[]) p);
-		} else if (o instanceof long[] && p instanceof long[]) {
+		else if (o instanceof long[] && p instanceof long[])
 			return Arrays.equals((long[]) o, (long[]) p);
-		} else if (o instanceof float[] && p instanceof float[]) {
+		else if (o instanceof float[] && p instanceof float[])
 			return Arrays.equals((float[]) o, (float[]) p);
-		} else if (o instanceof double[] && p instanceof double[]) {
+		else if (o instanceof double[] && p instanceof double[])
 			return Arrays.equals((double[]) o, (double[]) p);
-		} else if (o instanceof char[] && p instanceof char[]) {
+		else if (o instanceof char[] && p instanceof char[])
 			return Arrays.equals((char[]) o, (char[]) p);
-		}
 		return false;
 	}
 }

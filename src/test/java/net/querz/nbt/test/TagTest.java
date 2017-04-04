@@ -31,6 +31,12 @@ public class TagTest extends TestCase {
 	private LongTag minLong = new LongTag("long", Long.MIN_VALUE);
 	private FloatTag minFloat = new FloatTag("float", Float.MIN_VALUE);
 	private DoubleTag minDouble = new DoubleTag("double", Double.MIN_VALUE);
+	private ByteTag zeroByte = new ByteTag("byte", (byte) 0);
+	private ShortTag zeroShort = new ShortTag("short", (short) 0);
+	private IntTag zeroInt = new IntTag("int", 0);
+	private LongTag zeroLong = new LongTag("long", 0L);
+	private FloatTag zeroFloat = new FloatTag("float", 0.0F);
+	private DoubleTag zeroDouble = new DoubleTag("double", 0.0D);
 	private FloatTag decFloat = new FloatTag("decFloat", (float) Math.PI);
 	private DoubleTag decDouble = new DoubleTag("decDouble", Math.PI);
 	private ByteTag boolTrue = new ByteTag("boolTrue", true);
@@ -80,7 +86,7 @@ public class TagTest extends TestCase {
 		byteList.addBoolean((boolTrue).getBoolean());
 		byteList.addBoolean((boolFalse).getBoolean());
 	}
-	
+
 	public void testByteTag() throws IOException {
 		assertTagNotNullEquals(serializeAndDeserialize(maxByte), maxByte);
 		assertTagNotNullEquals(serializeAndDeserialize(minByte), minByte);
@@ -88,6 +94,10 @@ public class TagTest extends TestCase {
 		assertTagNotNullEquals(serializeAndDeserialize(boolFalse), boolFalse);
 		assertEquals(maxByte.toString(), "<byte:byte:127>");
 		assertEquals(maxByte.toTagString(), "byte:127b");
+		assertTrue(maxByte.equals(serializeAndDeserialize(maxByte)));
+		assertFalse(maxByte.equals(minByte));
+		assertFalse(maxByte.equals(null));
+		assertFalse(zeroByte.equals(zeroShort));
 	}
 	
 	public void testShortTag() throws IOException {
@@ -95,6 +105,8 @@ public class TagTest extends TestCase {
 		assertTagNotNullEquals(serializeAndDeserialize(minShort), minShort);
 		assertEquals(maxShort.toString(), "<short:short:32767>");
 		assertEquals(maxShort.toTagString(), "short:32767");
+		assertThrowsException(maxShort::asByte, IllegalStateException.class);
+		assertThrowsNoException(maxShort::asShort);
 	}
 	
 	public void testIntTag() throws IOException {
@@ -102,6 +114,8 @@ public class TagTest extends TestCase {
 		assertTagNotNullEquals(serializeAndDeserialize(minInt), minInt);
 		assertEquals(maxInt.toString(), "<int:int:2147483647>");
 		assertEquals(maxInt.toTagString(), "int:2147483647");
+		assertThrowsException(maxInt::asShort, IllegalStateException.class);
+		assertThrowsNoException(maxInt::asInt);
 	}
 	
 	public void testLongTag() throws IOException {
@@ -109,6 +123,8 @@ public class TagTest extends TestCase {
 		assertTagNotNullEquals(serializeAndDeserialize(minLong), minLong);
 		assertEquals(maxLong.toString(), "<long:long:9223372036854775807>");
 		assertEquals(maxLong.toTagString(), "long:9223372036854775807l");
+		assertThrowsException(maxLong::asInt, IllegalStateException.class);
+		assertThrowsNoException(maxLong::asLong);
 	}
 	
 	public void testFloatTag() throws IOException {
@@ -117,6 +133,10 @@ public class TagTest extends TestCase {
 		assertTagNotNullEquals(serializeAndDeserialize(decFloat), decFloat);
 		assertEquals(maxFloat.toString(), "<float:float:3.4028235E38>");
 		assertEquals(maxFloat.toTagString(), "float:3.4028235E38f");
+		assertThrowsException(maxFloat::asShort, IllegalStateException.class);
+		assertThrowsException(maxFloat::asInt, IllegalStateException.class);
+		assertThrowsNoException(maxFloat::asFloat);
+		assertThrowsNoException(maxFloat::asDouble);
 	}
 	
 	public void testDoubleTag() throws IOException {
@@ -125,6 +145,9 @@ public class TagTest extends TestCase {
 		assertTagNotNullEquals(serializeAndDeserialize(decDouble), decDouble);
 		assertEquals(maxDouble.toString(), "<double:double:1.7976931348623157E308>");
 		assertEquals(maxDouble.toTagString(), "double:1.7976931348623157E308d");
+		assertThrowsException(maxDouble::asFloat, IllegalStateException.class);
+		assertThrowsException(maxDouble::asLong, IllegalStateException.class);
+		assertThrowsNoException(maxDouble::asDouble);
 	}
 	
 	public void testStringTag() throws IOException {

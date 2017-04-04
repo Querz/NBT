@@ -111,7 +111,7 @@ public abstract class Tag implements Comparable<Tag>, Cloneable {
 	 */
 	@Override
 	public boolean equals(Object other) {
-		if (!this.getClass().equals(other.getClass())) {
+		if (other == null || !this.getClass().equals(other.getClass())) {
 			return false;
 		}
 		Tag tag = (Tag) other;

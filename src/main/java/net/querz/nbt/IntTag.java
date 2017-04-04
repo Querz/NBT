@@ -2,7 +2,7 @@ package net.querz.nbt;
 
 import java.io.IOException;
 
-public class IntTag extends NumberTag<Integer> {
+public class IntTag extends NumberTag {
 	private int value;
 	
 	protected IntTag() {
