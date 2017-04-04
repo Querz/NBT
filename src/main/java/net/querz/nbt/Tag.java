@@ -96,7 +96,7 @@ public abstract class Tag implements Comparable<Tag>, Cloneable {
 	 *
 	 * @param depth The current depth of the NBT structure
 	 * @return A json-like {@link String} representation of the current tag, usable
-	 * 			in Minecraft commands
+	 * in Minecraft commands
 	 */
 	protected String toTagString(int depth) {
 		return toTagString();
@@ -111,7 +111,7 @@ public abstract class Tag implements Comparable<Tag>, Cloneable {
 	 */
 	@Override
 	public boolean equals(Object other) {
-		if (!(other instanceof Tag)) {
+		if (!this.getClass().equals(other.getClass())) {
 			return false;
 		}
 		Tag tag = (Tag) other;

@@ -3,7 +3,7 @@ package net.querz.nbt;
 import java.io.IOException;
 import java.util.Arrays;
 
-public class ByteArrayTag extends Tag {
+public class ByteArrayTag extends ArrayTag {
 	private byte[] value;
 	
 	protected ByteArrayTag() {
@@ -21,10 +21,6 @@ public class ByteArrayTag extends Tag {
 	
 	public void setValue(byte[] value) {
 		this.value = value;
-	}
-	
-	public int length() {
-		return value.length;
 	}
 	
 	@Override
@@ -45,34 +41,10 @@ public class ByteArrayTag extends Tag {
 		nbtIn.dis.readFully(value);
 		return this;
 	}
-
-	@Override
-	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + valueToTagString(0);
-	}
-	
-	@Override
-	protected String valueToTagString(int depth) {
-		return "[" + NBTUtil.joinArray(",", value) + "]";
-	}
 	
 	@Override
 	public String toString() {
 		return "<byte[]:" + getName() + ":[" + NBTUtil.joinArray(",", value) + "]>";
-	}
-	
-	@Override
-	public boolean equals(Object other) {
-		if (!(other instanceof ByteArrayTag)) {
-			return false;
-		}
-		ByteArrayTag tag = (ByteArrayTag) other;
-		return getName() != null && getName().equals(tag.getName()) && Arrays.equals(value, tag.getValue());
-	}
-	
-	@Override
-	protected boolean valueEquals(Tag other) {
-		return other instanceof ByteArrayTag && Arrays.equals(value, ((ByteArrayTag) other).getValue());
 	}
 	
 	@Override

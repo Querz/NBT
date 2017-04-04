@@ -3,7 +3,7 @@ package net.querz.nbt;
 import java.io.IOException;
 import java.util.Arrays;
 
-public class IntArrayTag extends Tag {
+public class IntArrayTag extends ArrayTag {
 	private int[] value;
 	
 	protected IntArrayTag() {
@@ -21,10 +21,6 @@ public class IntArrayTag extends Tag {
 	
 	public void setValue(int[] value) {
 		this.value = value;
-	}
-	
-	public int length() {
-		return value.length;
 	}
 	
 	@Override
@@ -47,36 +43,12 @@ public class IntArrayTag extends Tag {
 			value[i] = nbtIn.dis.readInt();
 		return this;
 	}
-
-	@Override
-	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + valueToTagString(0);
-	}
-	
-	@Override
-	protected String valueToTagString(int depth) {
-		return "[" + NBTUtil.joinArray(",", value) + "]";
-	}
 	
 	@Override
 	public String toString() {
 		return "<int[]:" + getName() + ":[" + NBTUtil.joinArray(",", value) + "]>";
 	}
-	
-	@Override
-	public boolean equals(Object other) {
-		if (!(other instanceof IntArrayTag)) {
-			return false;
-		}
-		IntArrayTag tag = (IntArrayTag) other;
-		return getName() != null && getName().equals(tag.getName()) && Arrays.equals(value, tag.getValue());
-	}
-	
-	@Override
-	public boolean valueEquals(Tag other) {
-		return other instanceof IntArrayTag && Arrays.equals(value, ((IntArrayTag) other).getValue());
-	}
-	
+
 	@Override
 	public IntArrayTag clone() {
 		return new IntArrayTag(getName(), value.clone());
