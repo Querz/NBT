@@ -79,32 +79,61 @@ public abstract class Tag implements Comparable<Tag>, Cloneable {
 		return tag;
 	}
 
-	protected boolean valueEquals(Tag other) {
-		return other.getValue().equals(getValue());
-	}
-
+	/**
+	 * A dummy {@code toString()} method accepting a depth value.<br>
+	 * Depth calculation should be done with {@link Tag#incrementDepth(int)}.
+	 *
+	 * @param depth The current depth of the NBT structure
+	 * @return A {@link String} representation of the current tag
+	 */
 	protected String toString(int depth) {
 		return toString();
 	}
 
+	/**
+	 * A {@link Tag#toTagString()} method accepting a depth value.<br>
+	 * Depth calculation should be done with {@link Tag#incrementDepth(int)}.
+	 *
+	 * @param depth The current depth of the NBT structure
+	 * @return A json-like {@link String} representation of the current tag, usable
+	 * 			in Minecraft commands
+	 */
 	protected String toTagString(int depth) {
 		return toTagString();
 	}
 
+	/**
+	 * Compares this tags's name and value with another tag's name and value.<br>
+	 * Should be overridden in implementations with complex values.
+	 *
+	 * @param other The object to compare to
+	 * @return true if they are equals under the conditions described above
+	 */
 	@Override
 	public boolean equals(Object other) {
 		if (!(other instanceof Tag)) {
 			return false;
 		}
 		Tag tag = (Tag) other;
-		return getValue().equals(tag.getValue()) && getName().equals(tag.getName());
+		return valueEquals(tag) && getName().equals(tag.getName());
+	}
+
+	/**
+	 * Compares the value of {@code other} to this tag's value.
+	 * Should be overridden in implementations with complex values.
+	 *
+	 * @param other The tag to compare the value to
+	 * @return true if the values are equal
+	 */
+	protected boolean valueEquals(Tag other) {
+		return other.getValue().equals(getValue());
 	}
 
 	/**
 	 * Compares this tag's name with another tag's name, because the name is the only thing that is
 	 * consistent throughout all tags.
 	 *
-	 * @param other The tag to compare this tag with
+	 * @param other The tag to compare to
 	 * @return See {@link java.lang.String#compareTo(String)}
 	 */
 	@Override
@@ -131,7 +160,6 @@ public abstract class Tag implements Comparable<Tag>, Cloneable {
 	protected abstract String valueToTagString(int depth);
 	protected abstract void serialize(NBTOutputStream nbtOut, int depth) throws IOException;
 	protected abstract Tag deserialize(NBTInputStream nbtIn, int depth) throws IOException;
-
 	public abstract Object getValue();
 	public abstract String toTagString();
 	public abstract Tag clone();
