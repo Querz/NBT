@@ -2,6 +2,21 @@
 #### A java implementation of the NBT protocol, including a way to implement custom tags.
 ---
 ### Creating Tags
+Tags can be used by creating instances of the corresponding tag classes:
+
+| Tag class    | Superclass | ID |
+| ---------    | ---------- | -: |
+| ByteTag      | NumberTag  | 1  |
+| ShortTag     | NumberTag  | 2  |
+| IntTag       | NumberTag  | 3  |
+| LongTag      | NumberTag  |
+| FloatTag     | NumberTag  |
+| DoubleTag    | NumberTag  |
+| ByteArrayTag | ArrayTag   |
+| IntArrayTag  | ArrayTag   |
+| StringTag    | Tag        |
+| ListTag      | Tag        |
+| CompoundTag  | Tag        |
 
 ```
 ByteTag bt = new ByteTag("8bitRetroNumber", (byte) 1);
