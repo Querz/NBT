@@ -20,7 +20,7 @@ According to the [specification](http://minecraft.gamepedia.com/NBT_format), the
 | CompoundTag  | Tag        | 10 | Fully formed tags, followed by an EndTag |
 | IntArrayTag  | ArrayTag   | 11 | IntTag's payload *size*, then *size* IntTag's payloads |
 
-* The [EndTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/EndTag.java) is only used to mark the end of a [CompoundTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/CompoundTag.java) in its serialized state.
+* The [EndTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/EndTag.java) is only used to mark the end of a [CompoundTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/CompoundTag.java) in its serialized state or an empty [ListTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/ListTag.java).
 
 * The maximum depth of the NBT structure is 512. If the depth exceeds this restriction during serialization, deserialization or String conversion, a [MaxDepthReachedException](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/MaxDepthReachedException.java) is thrown. This usually happens when a circular reference exists in the NBT structure. The NBT specification does not allow circular references, as there is no tag to represent this.
 
