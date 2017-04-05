@@ -5,7 +5,7 @@
 According to the [specification](http://minecraft.gamepedia.com/NBT_format), there are currently 12 different types of tags:
 
 | Tag class    | Superclass | ID | Payload |
-| ---------    | ---------- | -: | ----------- |
+| ---------    | ---------- | -- | ----------- |
 | EndTag       | Tag        | 0  | None |
 | ByteTag      | NumberTag  | 1  | 1 byte / 8 bits, signed |
 | ShortTag     | NumberTag  | 2  | 2 bytes / 16 bits, signed, big endian |
