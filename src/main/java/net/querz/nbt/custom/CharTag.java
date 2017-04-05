@@ -4,7 +4,7 @@ import net.querz.nbt.*;
 
 import java.io.IOException;
 
-public class CharTag extends CustomTag {
+public class CharTag extends Tag implements CustomTag {
 	public static final int TAG_ID = 110;
 
 	public static void register() {
@@ -14,7 +14,7 @@ public class CharTag extends CustomTag {
 	private char value;
 
 	public CharTag(String name) {
-		super(TAG_ID, name);
+		this(name, (char) 0);
 	}
 
 	protected CharTag() {
@@ -26,12 +26,17 @@ public class CharTag extends CustomTag {
 	}
 
 	public CharTag(String name, char value) {
-		super(TAG_ID, name);
+		super(TagType.CUSTOM, name);
 		setValue(value);
 	}
 
 	public void setValue(char value) {
 		this.value = value;
+	}
+
+	@Override
+	public int getId() {
+		return TAG_ID;
 	}
 
 	@Override

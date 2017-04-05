@@ -26,7 +26,7 @@ public enum TagType {
 	private int id;
 	private Class<? extends Tag> clazz;
 	
-	private static Map<Integer, Class<? extends CustomTag>> customTags = new HashMap<>();
+	private static Map<Integer, Class<? extends Tag>> customTags = new HashMap<>();
 	
 	TagType() {
 	}
@@ -85,7 +85,7 @@ public enum TagType {
 		return type.getTag();
 	}
 	
-	public static void registerCustomTag(int id, Class<? extends CustomTag> clazz) {
+	public static <T extends Tag & CustomTag> void registerCustomTag(int id, Class<T> clazz) {
 		try {
 			match(id);
 		} catch (IllegalArgumentException ex) {

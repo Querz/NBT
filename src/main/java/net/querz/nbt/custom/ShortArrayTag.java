@@ -5,7 +5,7 @@ import java.util.Arrays;
 
 import net.querz.nbt.*;
 
-public class ShortArrayTag extends CustomTag {
+public class ShortArrayTag extends ArrayTag implements CustomTag {
 	public static final int TAG_ID = 100;
 	
 	public static void register() {
@@ -23,16 +23,17 @@ public class ShortArrayTag extends CustomTag {
 	}
 	
 	public ShortArrayTag(String name, short[] value) {
-		super(TAG_ID, name);
+		super(TagType.CUSTOM, name);
 		setValue(value);
 	}
 	
 	public void setValue(short[] value) {
 		this.value = value;
 	}
-	
-	public int length() {
-		return value.length;
+
+	@Override
+	public int getId() {
+		return TAG_ID;
 	}
 	
 	@Override
@@ -55,34 +56,10 @@ public class ShortArrayTag extends CustomTag {
 			value[i] = nbtIn.getDataInputStream().readShort();
 		return this;
 	}
-
-	@Override
-	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + valueToTagString(0);
-	}
-	
-	@Override
-	protected String valueToTagString(int depth) {
-		return "[" + NBTUtil.joinArray(",", value) + "]";
-	}
 	
 	@Override
 	public String toString() {
 		return "<short[]:" + getName() + ":[" + NBTUtil.joinArray(",", value) + "]>";
-	}
-	
-	@Override
-	public boolean equals(Object other) {
-		if (!(other instanceof ShortArrayTag)) {
-			return false;
-		}
-		ShortArrayTag tag = (ShortArrayTag) other;
-		return getName() != null && getName().equals(tag.getName()) && Arrays.equals(value, tag.getValue());
-	}
-
-	@Override
-	protected boolean valueEquals(Tag other) {
-		return other instanceof ShortArrayTag && Arrays.equals(value, ((ShortArrayTag) other).getValue());
 	}
 	
 	@Override

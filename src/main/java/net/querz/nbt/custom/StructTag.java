@@ -25,8 +25,8 @@ import net.querz.nbt.StringTag;
 import net.querz.nbt.Tag;
 import net.querz.nbt.TagType;
 
-public class StructTag extends CustomTag {
-	public static final int TAG_ID = 20;
+public class StructTag extends Tag implements CustomTag {
+	public static final int TAG_ID = 120;
 	
 	public static void register() {
 		TagType.registerCustomTag(TAG_ID, StructTag.class);
@@ -47,7 +47,7 @@ public class StructTag extends CustomTag {
 	}
 	
 	public StructTag(String name, List<Tag> value) {
-		super(TAG_ID, name);
+		super(TagType.CUSTOM, name);
 		setValue(value);
 	}
 	
@@ -208,6 +208,11 @@ public class StructTag extends CustomTag {
 		if (tag.getType() == TagType.LIST)
 			return (ListTag) tag;
 		return new ListTag(TagType.STRING);
+	}
+
+	@Override
+	public int getId() {
+		return TAG_ID;
 	}
 	
 	@Override
