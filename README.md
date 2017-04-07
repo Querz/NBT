@@ -26,7 +26,7 @@ According to the [specification](http://minecraft.gamepedia.com/NBT_format), the
 
 ---
 ### Example usage:
-```
+```java
 ByteTag bt = new ByteTag("8bitNumber", (byte) 1);
 DoubleTag dt = new DoubleTag("64bitFloatingPointNumber", 1.234);
 
@@ -41,19 +41,19 @@ There are several utility classes that make your life easier using this library.
 #### NBTFileWriter
 The NBTFileWriter lets you write a Tag into a gzip compressed or uncompressed file in one line. Files are gzip compressed by default.
 Example usage:
-```
+```java
 new NBTFileWriter("filename.dat").write(tag);
 ```
 #### NBTFileReader
 The NBTFileReader reads any file containing NBT data. No worry about compression, it will automatically uncompress gzip compressed files.
 Example usage:
-```
+```java
 Tag tag = new NBTFileReader("filename.dat").read();
 ```
 #### Playing Minecraft?
 Each tag can be converted into a JSON-like NBT String used in Minecraft commands.
 Example usage:
-```
+```java
 CompoundTag c = new CompoundTag("compound");
 c.setByte("byte", (byte) 5);
 c.setString("string", "test");
@@ -68,8 +68,8 @@ There are 3 example classes in net.querz.nbt.custom that show how to implement c
 
 | Class         | ID  | Description |
 | ------------- | :-: | ----------- |
-| CharTag       | 110 | Character (char) tag. |
 | ShortArrayTag | 100 | In addition to the already existing ByteArrayTag and IntArrayTag. |
+| CharTag       | 110 | Character (char) tag. |
 | StructTag     | 120 | Similar to the ListTag, but with the ability to store multiple types. |
 
 To be able to use a custom tag, it must be registered during runtime with [TagType](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/TagType.java)#registerCustomTag(int, Class).
