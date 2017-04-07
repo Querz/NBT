@@ -59,7 +59,7 @@ c.setByte("byte", (byte) 5);
 c.setString("string", "test");
 String s = c.toTagString();
 
-//output: c:{byte:5b,string:"test"}
+//output: compound:{byte:5b,string:"test"}
 ```
 ---
 ### Custom tags
