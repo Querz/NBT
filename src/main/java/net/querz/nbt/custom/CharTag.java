@@ -17,7 +17,7 @@ public class CharTag extends Tag implements CustomTag {
 		this(name, (char) 0);
 	}
 
-	protected CharTag() {
+	public CharTag() {
 		this((char) 0);
 	}
 

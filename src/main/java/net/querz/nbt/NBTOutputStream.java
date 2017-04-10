@@ -12,7 +12,7 @@ public class NBTOutputStream implements Closeable {
 		dos = new DataOutputStream(os);
 	}
 	
-	public void writeTag(Tag tag) throws IOException {
+	public void writeTag(Tag tag) throws Exception {
 		tag.serializeTag(this);
 	}
 	

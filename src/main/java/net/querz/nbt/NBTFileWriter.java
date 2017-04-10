@@ -27,7 +27,7 @@ public class NBTFileWriter {
 			NBTOutputStream nbtOut = new NBTOutputStream(gzip ? gzipOut : fileOut)
 		) {
 			nbtOut.writeTag(tag);
-		} catch (IOException ex) {
+		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 	}

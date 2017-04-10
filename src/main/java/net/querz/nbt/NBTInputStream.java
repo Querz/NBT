@@ -12,7 +12,7 @@ public class NBTInputStream implements Closeable {
 		dis = new DataInputStream(is);
 	}
 	
-	public Tag readTag() throws IOException {
+	public Tag readTag() throws Exception {
 		return Tag.deserializeTag(this);
 	}
 	

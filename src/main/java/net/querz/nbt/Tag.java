@@ -48,11 +48,11 @@ public abstract class Tag implements Comparable<Tag>, Cloneable {
 		this.name = name == null ? "" : name;
 	}
 	
-	public final void serializeTag(NBTOutputStream nbtOut) throws IOException {
+	public final void serializeTag(NBTOutputStream nbtOut) throws Exception {
 		serializeTag(nbtOut, 0);
 	}
 	
-	public final void serializeTag(NBTOutputStream nbtOut, int depth) throws IOException {
+	public final void serializeTag(NBTOutputStream nbtOut, int depth) throws Exception {
 		nbtOut.dos.writeByte(type.getId(this));
 		if (type != TagType.END) {
 			byte[] nameBytes = name.getBytes(CHARSET);
@@ -62,11 +62,11 @@ public abstract class Tag implements Comparable<Tag>, Cloneable {
 		serialize(nbtOut, depth);
 	}
 	
-	public static Tag deserializeTag(NBTInputStream nbtIn) throws IOException {
+	public static Tag deserializeTag(NBTInputStream nbtIn) throws Exception {
 		return deserializeTag(nbtIn, 0);
 	}
 	
-	public static Tag deserializeTag(NBTInputStream nbtIn, int depth) throws IOException {
+	public static Tag deserializeTag(NBTInputStream nbtIn, int depth) throws Exception {
 		int typeId = nbtIn.dis.readByte() & 0xFF;
 		Tag tag = TagType.getTag(typeId);
 		if (tag.getType() != TagType.END) {
@@ -158,8 +158,8 @@ public abstract class Tag implements Comparable<Tag>, Cloneable {
 	}
 
 	protected abstract String valueToTagString(int depth);
-	protected abstract void serialize(NBTOutputStream nbtOut, int depth) throws IOException;
-	protected abstract Tag deserialize(NBTInputStream nbtIn, int depth) throws IOException;
+	protected abstract void serialize(NBTOutputStream nbtOut, int depth) throws Exception;
+	protected abstract Tag deserialize(NBTInputStream nbtIn, int depth) throws Exception;
 	public abstract Object getValue();
 	public abstract String toString();
 	public abstract String toTagString();

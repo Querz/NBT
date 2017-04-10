@@ -203,7 +203,7 @@ public class CompoundTag extends Tag {
 	}
 
 	@Override
-	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
+	protected void serialize(NBTOutputStream nbtOut, int depth) throws Exception {
 		for (Tag tag : value.values()) {
 			tag.serializeTag(nbtOut, incrementDepth(depth));
 		}
@@ -211,7 +211,7 @@ public class CompoundTag extends Tag {
 	}
 
 	@Override
-	protected Tag deserialize(NBTInputStream nbtIn, int depth) throws IOException {
+	protected Tag deserialize(NBTInputStream nbtIn, int depth) throws Exception {
 		clear();
 		for(;;) {
 			Tag tag = Tag.deserializeTag(nbtIn, incrementDepth(depth));

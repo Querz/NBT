@@ -221,7 +221,7 @@ public class StructTag extends Tag implements CustomTag {
 	}
 
 	@Override
-	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
+	protected void serialize(NBTOutputStream nbtOut, int depth) throws Exception {
 		int size = value.size();
 		nbtOut.getDataOutputStream().writeInt(size);
 		for (Tag tag : value)
@@ -229,7 +229,7 @@ public class StructTag extends Tag implements CustomTag {
 	}
 
 	@Override
-	protected Tag deserialize(NBTInputStream nbtIn, int depth) throws IOException {
+	protected Tag deserialize(NBTInputStream nbtIn, int depth) throws Exception {
 		int size = nbtIn.getDataInputStream().readInt();
 		clear(size);
 		for (int i = 0; i < size; i++) {

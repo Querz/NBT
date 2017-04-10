@@ -215,7 +215,7 @@ public class ListTag extends Tag {
 	}
 
 	@Override
-	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
+	protected void serialize(NBTOutputStream nbtOut, int depth) throws Exception {
 		int size = value.size();
 		if (type == TagType.CUSTOM) {
 			nbtOut.dos.writeByte(typeId);
@@ -228,7 +228,7 @@ public class ListTag extends Tag {
 	}
 	
 	@Override
-	protected ListTag deserialize(NBTInputStream nbtIn, int depth) throws IOException {
+	protected ListTag deserialize(NBTInputStream nbtIn, int depth) throws Exception {
 		int typeId = nbtIn.dis.readByte();
 		setType(TagType.match(typeId));
 		int size = nbtIn.dis.readInt();

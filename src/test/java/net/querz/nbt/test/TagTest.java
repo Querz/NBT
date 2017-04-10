@@ -13,6 +13,7 @@ import static net.querz.nbt.test.TestUtil.*;
 
 import junit.framework.TestCase;
 import net.querz.nbt.*;
+import net.querz.nbt.custom.ObjectTag;
 import net.querz.nbt.custom.ShortArrayTag;
 import net.querz.nbt.custom.StructTag;
 
@@ -87,7 +88,7 @@ public class TagTest extends TestCase {
 		byteList.addBoolean((boolFalse).getBoolean());
 	}
 
-	public void testByteTag() throws IOException {
+	public void testByteTag() throws Exception {
 		assertTagNotNullEquals(serializeAndDeserialize(maxByte), maxByte);
 		assertTagNotNullEquals(serializeAndDeserialize(minByte), minByte);
 		assertTagNotNullEquals(serializeAndDeserialize(boolTrue), boolTrue);
@@ -100,7 +101,7 @@ public class TagTest extends TestCase {
 		assertFalse(zeroByte.equals(zeroShort));
 	}
 	
-	public void testShortTag() throws IOException {
+	public void testShortTag() throws Exception {
 		assertTagNotNullEquals(serializeAndDeserialize(maxShort), maxShort);
 		assertTagNotNullEquals(serializeAndDeserialize(minShort), minShort);
 		assertEquals(maxShort.toString(), "<short:short:32767>");
@@ -109,7 +110,7 @@ public class TagTest extends TestCase {
 		assertThrowsNoException(maxShort::asShort);
 	}
 	
-	public void testIntTag() throws IOException {
+	public void testIntTag() throws Exception {
 		assertTagNotNullEquals(serializeAndDeserialize(maxInt), maxInt);
 		assertTagNotNullEquals(serializeAndDeserialize(minInt), minInt);
 		assertEquals(maxInt.toString(), "<int:int:2147483647>");
@@ -118,7 +119,7 @@ public class TagTest extends TestCase {
 		assertThrowsNoException(maxInt::asInt);
 	}
 	
-	public void testLongTag() throws IOException {
+	public void testLongTag() throws Exception {
 		assertTagNotNullEquals(serializeAndDeserialize(maxLong), maxLong);
 		assertTagNotNullEquals(serializeAndDeserialize(minLong), minLong);
 		assertEquals(maxLong.toString(), "<long:long:9223372036854775807>");
@@ -127,7 +128,7 @@ public class TagTest extends TestCase {
 		assertThrowsNoException(maxLong::asLong);
 	}
 	
-	public void testFloatTag() throws IOException {
+	public void testFloatTag() throws Exception {
 		assertTagNotNullEquals(serializeAndDeserialize(maxFloat), maxFloat);
 		assertTagNotNullEquals(serializeAndDeserialize(minFloat), minFloat);
 		assertTagNotNullEquals(serializeAndDeserialize(decFloat), decFloat);
@@ -139,7 +140,7 @@ public class TagTest extends TestCase {
 		assertThrowsNoException(maxFloat::asDouble);
 	}
 	
-	public void testDoubleTag() throws IOException {
+	public void testDoubleTag() throws Exception {
 		assertTagNotNullEquals(serializeAndDeserialize(maxDouble), maxDouble);
 		assertTagNotNullEquals(serializeAndDeserialize(minDouble), minDouble);
 		assertTagNotNullEquals(serializeAndDeserialize(decDouble), decDouble);
@@ -150,7 +151,7 @@ public class TagTest extends TestCase {
 		assertThrowsNoException(maxDouble::asDouble);
 	}
 	
-	public void testStringTag() throws IOException {
+	public void testStringTag() throws Exception {
 		assertTagNotNullEquals(serializeAndDeserialize(string), string);
 		assertTagNotNullEquals(string, string.clone());
 		assertTrue(string != string.clone());
@@ -158,7 +159,7 @@ public class TagTest extends TestCase {
 		assertEquals(string.toTagString(), string.getName() + ":\"" + string.getValue() + "\"");
 	}
 	
-	public void testByteArrayTag() throws IOException {
+	public void testByteArrayTag() throws Exception {
 		ByteArrayTag t = (ByteArrayTag) serializeAndDeserialize(byteArray);
 		assertNotNull(t);
 		assertEquals(t.getType(), byteArray.getType());
@@ -171,7 +172,7 @@ public class TagTest extends TestCase {
 		assertEquals(byteArray.toTagString(), "byteArray:[-128,-2,-1,0,1,2,127]");
 	}
 	
-	public void testIntArrayTag() throws IOException {
+	public void testIntArrayTag() throws Exception {
 		IntArrayTag t = (IntArrayTag) serializeAndDeserialize(intArray);
 		assertNotNull(t);
 		assertEquals(t.getType(), intArray.getType());
@@ -184,7 +185,7 @@ public class TagTest extends TestCase {
 		assertEquals(intArray.toTagString(), "intArray:[-2147483648,-2,-1,0,1,2,2147483647]");
 	}
 
-	public void testShortArrayTag() throws IOException {
+	public void testShortArrayTag() throws Exception {
 		ShortArrayTag.register();
 		ShortArrayTag t = (ShortArrayTag) serializeAndDeserialize(shortArray);
 		assertNotNull(t);
@@ -198,7 +199,7 @@ public class TagTest extends TestCase {
 		assertEquals(shortArray.toTagString(), "shortArray:[-32768,-2,-1,0,1,2,32767]");
 	}
 
-	public void testStructTag() throws IOException {
+	public void testStructTag() throws Exception {
 		StructTag.register();
 		StructTag struct = new StructTag("struct");
 		populateStructTag(struct);
@@ -210,8 +211,17 @@ public class TagTest extends TestCase {
 		StructTag struct2 = (StructTag) serializeAndDeserialize(struct);
 		assertEquals(struct, struct2);
 	}
+
+	public void testObjectTag() throws Exception {
+		ObjectTag.register();
+		ObjectTag<TestObject> o = new ObjectTag<>("object", new TestObject());
+		ObjectTag<TestObject> c = o.clone();
+		assertFalse(o == c);
+
+		ObjectTag s = (ObjectTag) serializeAndDeserialize(o);
+	}
 	
-	public void testListTag() throws IOException {
+	public void testListTag() throws Exception {
 		ListTag byteList2 = (ListTag) serializeAndDeserialize(byteList);
 		assertNotNull(byteList2);
 		assertEquals(byteList2.getType(), byteList.getType());
@@ -237,7 +247,7 @@ public class TagTest extends TestCase {
 		assertEquals(byteList.toTagString(), TestUtil.readStringFromFile("test_list_toTagString.txt"));
 	}
 
-	public void testCustomListTag() throws IOException {
+	public void testCustomListTag() throws Exception {
 		ShortArrayTag.register();
 		StructTag.register();
 
@@ -253,7 +263,7 @@ public class TagTest extends TestCase {
 		assertEquals(custom, serializeAndDeserialize(custom));
 	}
 	
-	public void testCompoundTag() throws IOException {
+	public void testCompoundTag() throws Exception {
 		CompoundTag compound = new CompoundTag("compound");
 		compound.clearOrdered();
 		populateCompoundTag(compound);
@@ -269,7 +279,7 @@ public class TagTest extends TestCase {
 		assertEquals(compound.toTagString(), TestUtil.readStringFromFile("test_compound_toTagString.txt"));
 	}
 
-	public void testCustomCompoundTag() throws IOException {
+	public void testCustomCompoundTag() throws Exception {
 		ShortArrayTag.register();
 		StructTag.register();
 		CompoundTag custom = new CompoundTag("compound");
@@ -348,11 +358,11 @@ public class TagTest extends TestCase {
 		assertEquals(t1.getValue(), t2.getValue());
 	}
 
-	private Tag serializeAndDeserialize(Tag tag) throws IOException {
+	private Tag serializeAndDeserialize(Tag tag) throws Exception {
 		return serializeAndDeserialize(tag, false);
 	}
 	
-	private Tag serializeAndDeserialize(Tag tag, boolean debugBytes) throws IOException {
+	private Tag serializeAndDeserialize(Tag tag, boolean debugBytes) throws Exception {
 		ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
 		try (NBTOutputStream nbtOut = new NBTOutputStream(byteOut)) {
 			nbtOut.writeTag(tag);
@@ -371,8 +381,10 @@ public class TagTest extends TestCase {
 	private Tag wrappedSerializeAndDeserialize(Tag tag) {
 		try {
 			return serializeAndDeserialize(tag);
-		} catch (IOException ex) {
-			throw new UncheckedIOException(ex);
+		} catch (RuntimeException ex) {
+			throw ex;
+		} catch (Exception ex) {
+			throw new RuntimeException(ex);
 		}
 	}
 }

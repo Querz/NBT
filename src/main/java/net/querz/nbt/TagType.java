@@ -53,8 +53,10 @@ public enum TagType {
 	public static Tag getCustomTag(int id) {
 		try {
 			return customTags.get(id).newInstance();
-		} catch (InstantiationException | IllegalAccessException | NullPointerException ex) {
+		} catch (NullPointerException ex) {
 			throw new IllegalArgumentException("Unknown Tag ID: " + id);
+		} catch (InstantiationException | IllegalAccessException ex) {
+			throw new RuntimeException("Cannot instantiate Tag with ID " + id);
 		}
 	}
 	
