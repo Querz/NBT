@@ -64,10 +64,11 @@ String s = c.toTagString();
 ---
 ### Custom tags
 Interested in more advanced features, and the default NBT protocol just isn't enough? Simply create your own tags!
-There are 3 example classes in net.querz.nbt.custom that show how to implement custom tags:
+There are 4 example classes in net.querz.nbt.custom that show how to implement custom tags:
 
 | Class         | ID  | Description |
 | ------------- | :-: | ----------- |
+| ObjectTag     | 90  | A Wrapper Tag that serializes and deserializes any object using the default java serialization. |
 | ShortArrayTag | 100 | In addition to the already existing ByteArrayTag and IntArrayTag. |
 | CharTag       | 110 | Character (char) tag. |
 | StructTag     | 120 | Similar to the ListTag, but with the ability to store multiple types. |
