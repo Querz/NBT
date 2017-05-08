@@ -216,9 +216,10 @@ public class TagTest extends TestCase {
 		ObjectTag.register();
 		ObjectTag<TestObject> o = new ObjectTag<>("object", new TestObject());
 		ObjectTag<TestObject> c = o.clone();
-		assertFalse(o == c);
-
-		ObjectTag s = (ObjectTag) serializeAndDeserialize(o);
+		assertTrue(o != c);
+		assertThrowsNoException(() -> wrappedSerializeAndDeserialize(o));
+		ObjectTag<TestObject> o2 = new ObjectTag<>("nullObject", null);
+		assertThrowsNoException(() -> wrappedSerializeAndDeserialize(o2));
 	}
 	
 	public void testListTag() throws Exception {
