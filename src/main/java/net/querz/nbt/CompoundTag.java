@@ -213,7 +213,7 @@ public class CompoundTag extends Tag {
 	@Override
 	protected Tag deserialize(NBTInputStream nbtIn, int depth) throws Exception {
 		clear();
-		for(;;) {
+		for (;;) {
 			Tag tag = Tag.deserializeTag(nbtIn, incrementDepth(depth));
 			if (tag.getType() == TagType.END) {
 				break;

@@ -3,7 +3,7 @@ package net.querz.nbt.test;
 import java.io.Serializable;
 import java.util.Random;
 
-public class TestObject implements Serializable, Cloneable {
+public class DummyObject implements Serializable, Cloneable {
 	private static final Random RANDOM = new Random();
 
 	public byte a = (byte) RANDOM.nextInt(Byte.MAX_VALUE);
@@ -26,8 +26,8 @@ public class TestObject implements Serializable, Cloneable {
 
 	@Override
 	public boolean equals(Object other) {
-		if (other instanceof TestObject) {
-			TestObject t = (TestObject) other;
+		if (other instanceof DummyObject) {
+			DummyObject t = (DummyObject) other;
 			return t.a == a
 					&& t.b == b
 					&& t.c == c

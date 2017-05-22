@@ -2,8 +2,6 @@ package net.querz.nbt.test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -34,10 +32,6 @@ public class TagTest extends TestCase {
 	private DoubleTag minDouble = new DoubleTag("double", Double.MIN_VALUE);
 	private ByteTag zeroByte = new ByteTag("byte", (byte) 0);
 	private ShortTag zeroShort = new ShortTag("short", (short) 0);
-	private IntTag zeroInt = new IntTag("int", 0);
-	private LongTag zeroLong = new LongTag("long", 0L);
-	private FloatTag zeroFloat = new FloatTag("float", 0.0F);
-	private DoubleTag zeroDouble = new DoubleTag("double", 0.0D);
 	private FloatTag decFloat = new FloatTag("decFloat", (float) Math.PI);
 	private DoubleTag decDouble = new DoubleTag("decDouble", Math.PI);
 	private ByteTag boolTrue = new ByteTag("boolTrue", true);
@@ -214,11 +208,11 @@ public class TagTest extends TestCase {
 
 	public void testObjectTag() throws Exception {
 		ObjectTag.register();
-		ObjectTag<TestObject> o = new ObjectTag<>("object", new TestObject());
-		ObjectTag<TestObject> c = o.clone();
+		ObjectTag<DummyObject> o = new ObjectTag<>("object", new DummyObject());
+		ObjectTag<DummyObject> c = o.clone();
 		assertTrue(o != c);
 		assertThrowsNoException(() -> wrappedSerializeAndDeserialize(o));
-		ObjectTag<TestObject> o2 = new ObjectTag<>("nullObject", null);
+		ObjectTag<DummyObject> o2 = new ObjectTag<>("nullObject", null);
 		assertThrowsNoException(() -> wrappedSerializeAndDeserialize(o2));
 	}
 	
