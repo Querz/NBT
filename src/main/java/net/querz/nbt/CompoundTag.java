@@ -77,6 +77,10 @@ public class CompoundTag extends Tag {
 	public void setInts(String key, int[] i) {
 		set(new IntArrayTag(key, i));
 	}
+
+	public void setLongs(String key, long[] l) {
+		set(new LongArrayTag(key, l));
+	}
 	
 	public Tag get(String key) {
 		return value.get(key);
@@ -180,6 +184,13 @@ public class CompoundTag extends Tag {
 		if (isType(tag, TagType.INT_ARRAY))
 			return ((int[]) tag.getValue());
 		return new int[0];
+	}
+
+	public long[] getLongs(String key) {
+		Tag tag = get(key);
+		if (isType(tag, TagType.LONG_ARRAY))
+			return ((long[]) tag.getValue());
+		return new long[0];
 	}
 	
 	public void clear() {

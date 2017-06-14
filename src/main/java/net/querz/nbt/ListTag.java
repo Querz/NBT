@@ -90,6 +90,10 @@ public class ListTag extends Tag {
 	public void addInts(int[] i) {
 		add(new IntArrayTag(i));
 	}
+
+	public void addLongs(long[] l) {
+		add(new LongArrayTag(l));
+	}
 	
 	public void clear() {
 		value = new ArrayList<>();
@@ -145,6 +149,24 @@ public class ListTag extends Tag {
 		if (this.type == TagType.DOUBLE)
 			return ((DoubleTag) get(index)).getValue();
 		return 0;
+	}
+
+	public byte[] getBytes(int index) {
+		if (this.type == TagType.BYTE_ARRAY)
+			return ((ByteArrayTag) get(index)).getValue();
+		return new byte[0];
+	}
+
+	public int[] getInts(int index) {
+		if (this.type == TagType.INT_ARRAY)
+			return ((IntArrayTag) get(index)).getValue();
+		return new int[0];
+	}
+
+	public long[] getLongs(int index) {
+		if (this.type == TagType.LONG_ARRAY)
+			return ((LongArrayTag) get(index)).getValue();
+		return new long[0];
 	}
 	
 	public String getString(int index) {
