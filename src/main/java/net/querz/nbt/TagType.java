@@ -21,6 +21,7 @@ public enum TagType {
 	LIST(9, ListTag.class),
 	COMPOUND(10, CompoundTag.class),
 	INT_ARRAY(11, IntArrayTag.class),
+	LONG_ARRAY(12, LongArrayTag.class),
 	CUSTOM;
 	
 	private int id;

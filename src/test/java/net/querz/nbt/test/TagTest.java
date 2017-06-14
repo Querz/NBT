@@ -39,6 +39,7 @@ public class TagTest extends TestCase {
 	private ByteArrayTag byteArray = new ByteArrayTag("byteArray", new byte[] {Byte.MIN_VALUE, -2, -1, 0, 1, 2, Byte.MAX_VALUE});
 	private ShortArrayTag shortArray = new ShortArrayTag("shortArray", new short[] {Short.MIN_VALUE, -2, -1, 0, 1, 2, Short.MAX_VALUE});
 	private IntArrayTag intArray = new IntArrayTag("intArray", new int[] {Integer.MIN_VALUE, -2, -1, 0, 1, 2, Integer.MAX_VALUE});
+	private LongArrayTag longArray = new LongArrayTag("longArray", new long[] {Long.MIN_VALUE, -2, -1, 0, 1, 2, Long.MAX_VALUE});
 	private StringTag string = new StringTag("string0aAÂ«âˆ‘â‚¬Â®â€ Î©Â¨â�„Ã¸Ï€â€¢Â±Ã¥â€šâˆ‚Æ’Â©ÂªÂºâˆ†@Å“Ã¦â€˜Â¥â‰ˆÃ§âˆšâˆ«~Âµâˆžâ€¦", "0aAÂ«âˆ‘â‚¬Â®â€ Î©Â¨â�„Ã¸Ï€â€¢Â±Ã¥â€šâˆ‚Æ’Â©ÂªÂºâˆ†@Å“Ã¦â€˜Â¥â‰ˆÃ§âˆšâˆ«~Âµâˆžâ€¦");
 	private ListTag byteList = new ListTag("byteList", TagType.BYTE);
 
@@ -177,6 +178,19 @@ public class TagTest extends TestCase {
 		assertTrue(t.getValue() != t.clone().getValue());
 		assertEquals(intArray.toString(), "<int[]:intArray:[-2147483648,-2,-1,0,1,2,2147483647]>");
 		assertEquals(intArray.toTagString(), "intArray:[-2147483648,-2,-1,0,1,2,2147483647]");
+	}
+
+	public void testLongArrayTag() throws Exception {
+		LongArrayTag t = (LongArrayTag) serializeAndDeserialize(longArray);
+		assertNotNull(t);
+		assertEquals(t.getType(), longArray.getType());
+		assertEquals(t.getName(), longArray.getName());
+		assertTrue(Arrays.equals(t.getValue(), longArray.getValue()));
+		assertTrue(t.equals(longArray));
+		assertTrue(t != t.clone());
+		assertTrue(t.getValue() != t.clone().getValue());
+		assertEquals(longArray.toString(), "<long[]:longArray:[-9223372036854775808,-2,-1,0,1,2,9223372036854775807]>");
+		assertEquals(longArray.toTagString(), "longArray:[-9223372036854775808,-2,-1,0,1,2,9223372036854775807]");
 	}
 
 	public void testShortArrayTag() throws Exception {
