@@ -19,6 +19,7 @@ According to the [specification](http://minecraft.gamepedia.com/NBT_format), the
 | ListTag      | Tag        | 9  | ByteTag's payload *tagId*, then IntTag's payload *size*, then *size* tags' payloads, all of type *tagId* |
 | CompoundTag  | Tag        | 10 | Fully formed tags, followed by an EndTag |
 | IntArrayTag  | ArrayTag   | 11 | IntTag's payload *size*, then *size* IntTag's payloads |
+| LongArrayTag | ArrayTag   | 12 | IntTag's payload *size*, then *size* LongTag's payloads |
 
 * The [EndTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/EndTag.java) is only used to mark the end of a [CompoundTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/CompoundTag.java) in its serialized state or an empty [ListTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/ListTag.java).
 
@@ -34,6 +35,7 @@ CompoundTag ct = new CompoundTag("compound");
 
 ct.set(bt);
 ct.set(dt);
+ct.setString("string", "stringValue");
 ```
 ---
 ### Utility
@@ -69,7 +71,7 @@ There are 4 example classes in net.querz.nbt.custom that show how to implement c
 | Class         | ID  | Description |
 | ------------- | :-: | ----------- |
 | ObjectTag     | 90  | A Wrapper Tag that serializes and deserializes any object using the default java serialization. |
-| ShortArrayTag | 100 | In addition to the already existing ByteArrayTag and IntArrayTag. |
+| ShortArrayTag | 100 | In addition to the already existing ByteArrayTag, IntArrayTag and LongArrayTag. |
 | CharTag       | 110 | Character (char) tag. |
 | StructTag     | 120 | Similar to the ListTag, but with the ability to store multiple types. |
 
