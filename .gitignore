@@ -79,3 +79,6 @@ local.properties
 
 # ignore javadoc for now
 doc/
+
+# ignore out
+out/
