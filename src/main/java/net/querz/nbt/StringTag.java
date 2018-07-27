@@ -54,7 +54,7 @@ public class StringTag extends Tag {
 	
 	@Override
 	protected String valueToTagString(int depth) {
-		return "\"" + value + "\"";
+		return NBTUtil.createPossiblyEscapedString(value);
 	}
 	
 	@Override

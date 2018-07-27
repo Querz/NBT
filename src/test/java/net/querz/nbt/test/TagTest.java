@@ -151,7 +151,7 @@ public class TagTest extends TestCase {
 		assertTagNotNullEquals(string, string.clone());
 		assertTrue(string != string.clone());
 		assertEquals(string.toString(), "<string:" + string.getName() + ":" + string.getValue() + ">");
-		assertEquals(string.toTagString(), string.getName() + ":\"" + string.getValue() + "\"");
+		assertEquals(string.toTagString(), "\"" + string.getName() + "\":\"" + string.getValue() + "\"");
 	}
 	
 	public void testByteArrayTag() throws Exception {

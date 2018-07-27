@@ -258,7 +258,7 @@ public class CompoundTag extends Tag {
 	@Override
 	protected String toString(int depth) {
 		depth = incrementDepth(depth);
-		return "<compound:" + getName() + ":{" + NBTUtil.joinArray(",", value.values().toArray(), depth) + "}>";
+		return "<compound:" + getName() + ":{" + NBTUtil.joinArray(",", value.values().toArray(), "", depth, false) + "}>";
 	}
 	
 	@Override
