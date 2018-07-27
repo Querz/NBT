@@ -160,11 +160,11 @@ public class TagTest extends TestCase {
 		assertEquals(t.getType(), byteArray.getType());
 		assertEquals(t.getName(), byteArray.getName());
 		assertTrue(Arrays.equals(t.getValue(), byteArray.getValue()));
-		assertTrue(t.equals(byteArray));
+		assertEquals(t, byteArray);
 		assertTrue(t != t.clone());
 		assertTrue(t.getValue() != t.clone().getValue());
 		assertEquals(byteArray.toString(), "<byte[]:byteArray:[-128,-2,-1,0,1,2,127]>");
-		assertEquals(byteArray.toTagString(), "byteArray:[-128,-2,-1,0,1,2,127]");
+		assertEquals(byteArray.toTagString(), "byteArray:[B;-128b,-2b,-1b,0b,1b,2b,127b]");
 	}
 	
 	public void testIntArrayTag() throws Exception {
@@ -177,7 +177,7 @@ public class TagTest extends TestCase {
 		assertTrue(t != t.clone());
 		assertTrue(t.getValue() != t.clone().getValue());
 		assertEquals(intArray.toString(), "<int[]:intArray:[-2147483648,-2,-1,0,1,2,2147483647]>");
-		assertEquals(intArray.toTagString(), "intArray:[-2147483648,-2,-1,0,1,2,2147483647]");
+		assertEquals(intArray.toTagString(), "intArray:[I;-2147483648,-2,-1,0,1,2,2147483647]");
 	}
 
 	public void testLongArrayTag() throws Exception {
@@ -190,7 +190,7 @@ public class TagTest extends TestCase {
 		assertTrue(t != t.clone());
 		assertTrue(t.getValue() != t.clone().getValue());
 		assertEquals(longArray.toString(), "<long[]:longArray:[-9223372036854775808,-2,-1,0,1,2,9223372036854775807]>");
-		assertEquals(longArray.toTagString(), "longArray:[-9223372036854775808,-2,-1,0,1,2,9223372036854775807]");
+		assertEquals(longArray.toTagString(), "longArray:[L;-9223372036854775808l,-2l,-1l,0l,1l,2l,9223372036854775807l]");
 	}
 
 	public void testShortArrayTag() throws Exception {
@@ -204,7 +204,7 @@ public class TagTest extends TestCase {
 		assertTrue(t != t.clone());
 		assertTrue(t.getValue() != t.clone().getValue());
 		assertEquals(shortArray.toString(), "<short[]:shortArray:[-32768,-2,-1,0,1,2,32767]>");
-		assertEquals(shortArray.toTagString(), "shortArray:[-32768,-2,-1,0,1,2,32767]");
+		assertEquals(shortArray.toTagString(), "shortArray:[S;-32768s,-2s,-1s,0s,1s,2s,32767s]");
 	}
 
 	public void testStructTag() throws Exception {

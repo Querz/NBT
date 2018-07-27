@@ -37,19 +37,27 @@ public class NBTUtil {
 		}
 		return sb.toString();
 	}
-	
+
 	public static String joinArray(String delimiter, Object array) {
-		return NBTUtil.joinArray(delimiter, array, 0);
+		return NBTUtil.joinArray(delimiter, array, "", 0);
 	}
 	
 	public static String joinArray(String delimiter, Object array, int depth) {
+		return NBTUtil.joinArray(delimiter, array, "", depth);
+	}
+
+	public static String joinArray(String delimiter, Object array, String typeSuffix) {
+		return NBTUtil.joinArray(delimiter, array, typeSuffix, 0);
+	}
+	
+	public static String joinArray(String delimiter, Object array, String typeSuffix, int depth) {
 		boolean first = true;
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < Array.getLength(array); i++) {
 			if (Array.get(array, i) instanceof Tag) {
-				sb.append(first ? "" : delimiter).append(((Tag) Array.get(array, i)).toString(depth));
+				sb.append(first ? "" : delimiter).append(((Tag) Array.get(array, i)).toTagString(depth));
 			} else {
-				sb.append(first ? "" : delimiter).append(Array.get(array, i));
+				sb.append(first ? "" : delimiter).append(Array.get(array, i)).append(typeSuffix);
 			}
 			first = false;
 		}

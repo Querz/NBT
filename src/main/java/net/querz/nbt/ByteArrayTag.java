@@ -15,7 +15,7 @@ public class ByteArrayTag extends ArrayTag {
 	}
 	
 	public ByteArrayTag(String name, byte[] value) {
-		super(TagType.BYTE_ARRAY, name);
+		super(TagType.BYTE_ARRAY, name, "B", "b");
 		setValue(value);
 	}
 	
