@@ -45,7 +45,7 @@ public class ShortTag extends NumberTag {
 	
 	@Override
 	protected String valueToTagString(int depth) {
-		return value + "";
+		return value + "s";
 	}
 	
 	@Override
