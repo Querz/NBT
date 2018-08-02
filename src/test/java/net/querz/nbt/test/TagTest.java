@@ -100,7 +100,7 @@ public class TagTest extends TestCase {
 		assertTagNotNullEquals(serializeAndDeserialize(maxShort), maxShort);
 		assertTagNotNullEquals(serializeAndDeserialize(minShort), minShort);
 		assertEquals(maxShort.toString(), "<short:short:32767>");
-		assertEquals(maxShort.toTagString(), "short:32767");
+		assertEquals(maxShort.toTagString(), "short:32767s");
 		assertThrowsException(maxShort::asByte, IllegalStateException.class);
 		assertThrowsNoException(maxShort::asShort);
 	}
