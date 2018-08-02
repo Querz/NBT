@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 public class NBTUtil {
 
-    public static Pattern noNeedToEscapePattern = Pattern.compile("[a-zA-Z0-9_\\-+]*");
+    public static Pattern noNeedToEscapePattern = Pattern.compile("[a-zA-Z0-9_\\-+]+");
 
 	/**
 	 * gets the {@code Number} value of any tag
