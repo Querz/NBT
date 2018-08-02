@@ -23,7 +23,7 @@ public class ShortArrayTag extends ArrayTag implements CustomTag {
 	}
 	
 	public ShortArrayTag(String name, short[] value) {
-		super(TagType.CUSTOM, name);
+		super(TagType.CUSTOM, name, "S", "s");
 		setValue(value);
 	}
 	

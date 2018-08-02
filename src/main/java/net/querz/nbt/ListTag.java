@@ -297,7 +297,7 @@ public class ListTag extends Tag {
 	@Override
 	protected String toString(int depth) {
 		depth = incrementDepth(depth);
-		return "<list:" + getName() + ":[" + NBTUtil.joinArray(",", value.toArray(), depth) + "]>";
+		return "<list:" + getName() + ":[" + NBTUtil.joinArray(",", value.toArray(), "", depth,  false) + "]>";
 	}
 	
 	@Override

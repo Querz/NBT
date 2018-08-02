@@ -254,7 +254,7 @@ public class StructTag extends Tag implements CustomTag {
 	
 	@Override
 	public String valueToTagString(int depth) {
-		return "[" + NBTUtil.joinTagString(",", value.toArray(new Tag[0]), depth) + "]";
+		return "[" + NBTUtil.joinArray(",", value.toArray(new Tag[0]), depth) + "]";
 	}
 	
 	@Override
