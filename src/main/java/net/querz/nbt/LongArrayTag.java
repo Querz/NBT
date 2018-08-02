@@ -14,7 +14,7 @@ public class LongArrayTag extends ArrayTag {
 	}
 
 	public LongArrayTag(String name, long[] value) {
-		super(TagType.LONG_ARRAY, name);
+		super(TagType.LONG_ARRAY, name, "L", "l");
 		setValue(value);
 	}
 	

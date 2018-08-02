@@ -15,7 +15,7 @@ public class IntArrayTag extends ArrayTag {
 	}
 	
 	public IntArrayTag(String name, int[] value) {
-		super(TagType.INT_ARRAY, name);
+		super(TagType.INT_ARRAY, name, "I");
 		setValue(value);
 	}
 	

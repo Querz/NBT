@@ -4,8 +4,17 @@ import net.querz.nbt.util.Array;
 
 public abstract class ArrayTag extends Tag {
 
-	public ArrayTag(TagType type, String name) {
+	private String typeIdentifier;
+	private String typeSuffix;
+
+	public ArrayTag(TagType type, String name, String typeIdentifier) {
+		this(type, name, typeIdentifier, "");
+	}
+
+	public ArrayTag(TagType type, String name, String typeIdentifier, String typeSuffix) {
 		super(type, name);
+		this.typeIdentifier = typeIdentifier;
+		this.typeSuffix = typeSuffix;
 	}
 
 	public int length() {
@@ -19,7 +28,7 @@ public abstract class ArrayTag extends Tag {
 
 	@Override
 	protected String valueToTagString(int depth) {
-		return "[" + NBTUtil.joinArray(",", getValue()) + "]";
+		return "[" + typeIdentifier + ";" + NBTUtil.joinArray(",", getValue(), typeSuffix) + "]";
 	}
 
 	@Override
