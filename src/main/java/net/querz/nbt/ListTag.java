@@ -2,7 +2,10 @@ package net.querz.nbt;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ListTag extends Tag {
 	private TagType type;
@@ -94,7 +97,19 @@ public class ListTag extends Tag {
 	public void addLongs(long[] l) {
 		add(new LongArrayTag(l));
 	}
-	
+
+	public void addList(TagType type, List<Tag> l) {
+		add(new ListTag(type, l));
+	}
+
+	public void addList(TagType type, Tag... t) {
+		add(new ListTag(type, Arrays.asList(t)));
+	}
+
+	public void addMap(Map<String, Tag> m) {
+		add(new CompoundTag(m));
+	}
+
 	public void clear() {
 		value = new ArrayList<>();
 	}
@@ -174,6 +189,90 @@ public class ListTag extends Tag {
 			return ((StringTag) get(index)).getValue();
 		return "";
 	}
+
+	public List<Tag> getList(int index) {
+		if (this.type == TagType.LIST)
+			return ((ListTag) get(index)).getValue();
+		return new ArrayList<>(0);
+	}
+
+	public Map<String, Tag> getMap(int index) {
+		if (this.type == TagType.COMPOUND)
+			return ((CompoundTag) get(index)).getValue();
+		return new HashMap<>(0);
+	}
+
+	public ByteTag getByteTag(int index) {
+		if (this.type == TagType.BYTE)
+			return (ByteTag) get(index);
+		return null;
+	}
+
+	public ShortTag getShortTag(int index) {
+		if (this.type == TagType.SHORT)
+			return (ShortTag) get(index);
+		return null;
+	}
+
+	public IntTag getIntTag(int index) {
+		if (this.type == TagType.INT)
+			return (IntTag) get(index);
+		return null;
+	}
+
+	public LongTag getLongTag(int index) {
+		if (this.type == TagType.LONG)
+			return (LongTag) get(index);
+		return null;
+	}
+
+	public FloatTag getFloatTag(int index) {
+		if (this.type == TagType.FLOAT)
+			return (FloatTag) get(index);
+		return null;
+	}
+
+	public DoubleTag getDoubleTag(int index) {
+		if (this.type == TagType.DOUBLE)
+			return (DoubleTag) get(index);
+		return null;
+	}
+
+	public StringTag getStringTag(int index) {
+		if (this.type == TagType.STRING)
+			return (StringTag) get(index);
+		return null;
+	}
+
+	public ByteArrayTag getByteArrayTag(int index) {
+		if (this.type == TagType.BYTE_ARRAY)
+			return (ByteArrayTag) get(index);
+		return null;
+	}
+
+	public IntArrayTag getIntArrayTag(int index) {
+		if (this.type == TagType.INT_ARRAY)
+			return (IntArrayTag) get(index);
+		return null;
+	}
+
+	public LongArrayTag getLongArrayTag(int index) {
+		if (this.type == TagType.LONG_ARRAY)
+			return (LongArrayTag) get(index);
+		return null;
+	}
+
+	public ListTag getListTag(int index) {
+		if (this.type == TagType.LIST)
+			return (ListTag) get(index);
+		return null;
+	}
+
+	public CompoundTag getCompoundTag(int index) {
+		if (this.type == TagType.COMPOUND)
+			return (CompoundTag) get(index);
+		return null;
+	}
 	
 	public byte asByte(int index) {
 		return NBTUtil.toNumber(get(index)).byteValue();
@@ -197,20 +296,6 @@ public class ListTag extends Tag {
 	
 	public double asDouble(int index) {
 		return NBTUtil.toNumber(get(index)).doubleValue();
-	}
-	
-	public CompoundTag getCompoundTag(int index) {
-		Tag tag = get(index);
-		if (tag.getType() == TagType.COMPOUND)
-			return (CompoundTag) tag;
-		return new CompoundTag();
-	}
-	
-	public ListTag getListTag(int index) {
-		Tag tag = get(index);
-		if (tag.getType() == TagType.LIST)
-			return (ListTag) tag;
-		return new ListTag(TagType.STRING);
 	}
 	
 	private void checkAddType(Tag tag) {

@@ -2,10 +2,10 @@ package net.querz.nbt.custom;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.NoSuchElementException;
-
+import java.util.Map;
 import net.querz.nbt.ByteArrayTag;
 import net.querz.nbt.ByteTag;
 import net.querz.nbt.CompoundTag;
@@ -16,6 +16,7 @@ import net.querz.nbt.FloatTag;
 import net.querz.nbt.IntArrayTag;
 import net.querz.nbt.IntTag;
 import net.querz.nbt.ListTag;
+import net.querz.nbt.LongArrayTag;
 import net.querz.nbt.LongTag;
 import net.querz.nbt.NBTInputStream;
 import net.querz.nbt.NBTOutputStream;
@@ -97,29 +98,37 @@ public class StructTag extends Tag implements CustomTag {
 	public void addDouble(double d) {
 		add(new DoubleTag(d));
 	}
+
+	public void addString(String s) {
+		add(new StringTag(s));
+	}
 	
 	public void addByteArray(byte[] b) {
 		add(new ByteArrayTag(b));
 	}
 	
-	public void addList(TagType type, List<Tag> l) {
-		add(new ListTag(type, l));
-	}
-	
 	public void addIntArray(int[] i) {
 		add(new IntArrayTag(i));
 	}
-	
-	public void addString(String s) {
-		add(new StringTag(s));
+
+	public void addLongArray(long[] l) {
+		add(new LongArrayTag(l));
+	}
+
+	public void addList(TagType type, List<Tag> l) {
+		add(new ListTag(type, l));
+	}
+
+	public void addList(TagType type, Tag... t) {
+		add(new ListTag(type, Arrays.asList(t)));
+	}
+
+	public void addMap(Map<String, Tag> m) {
+		add(new CompoundTag(m));
 	}
 	
 	public Tag get(int index) {
-		try {
-			return value.get(index);
-		} catch (NoSuchElementException ex) {
-			return null;
-		}
+		return value.get(index);
 	}
 	
 	public boolean getBoolean(int index) {
@@ -161,12 +170,127 @@ public class StructTag extends Tag implements CustomTag {
 			return ((DoubleTag) get(index)).getValue();
 		return 0;
 	}
-	
+
 	public String getString(int index) {
 		if (get(index).getType() == TagType.STRING)
 			return ((StringTag) get(index)).getValue();
 		return "";
 	}
+
+	public byte[] getBytes(int index) {
+		if (get(index).getType() == TagType.BYTE_ARRAY)
+			return ((ByteArrayTag) get(index)).getValue();
+		return new byte[0];
+	}
+
+	public int[] getInts(int index) {
+		if (get(index).getType() == TagType.INT_ARRAY)
+			return ((IntArrayTag) get(index)).getValue();
+		return new int[0];
+	}
+
+	public long[] getLongs(int index) {
+		if (get(index).getType() == TagType.LONG_ARRAY)
+			return ((LongArrayTag) get(index)).getValue();
+		return new long[0];
+	}
+
+	public List<Tag> getList(int index) {
+		if (get(index).getType() == TagType.LIST)
+			return ((ListTag) get(index)).getValue();
+		return new ArrayList<>(0);
+	}
+
+	public Map<String, Tag> getMap(int index) {
+		if (get(index).getType() == TagType.COMPOUND)
+			return ((CompoundTag) get(index)).getValue();
+		return new HashMap<>(0);
+	}
+
+	public ByteTag getByteTag(int index) {
+		Tag tag = get(index);
+		if (tag.getType() == TagType.BYTE)
+			return (ByteTag) tag;
+		return null;
+	}
+
+	public ShortTag getShortTag(int index) {
+		Tag tag = get(index);
+		if (tag.getType() == TagType.SHORT)
+			return (ShortTag) tag;
+		return null;
+	}
+
+	public IntTag getIntTag(int index) {
+		Tag tag = get(index);
+		if (tag.getType() == TagType.INT)
+			return (IntTag) tag;
+		return null;
+	}
+
+	public LongTag getLongTag(int index) {
+		Tag tag = get(index);
+		if (tag.getType() == TagType.LONG)
+			return (LongTag) tag;
+		return null;
+	}
+
+	public FloatTag getFloatTag(int index) {
+		Tag tag = get(index);
+		if (tag.getType() == TagType.FLOAT)
+			return (FloatTag) tag;
+		return null;
+	}
+
+	public DoubleTag getDoubleTag(int index) {
+		Tag tag = get(index);
+		if (tag.getType() == TagType.DOUBLE)
+			return (DoubleTag) tag;
+		return null;
+	}
+
+	public StringTag getStringTag(int index) {
+		Tag tag = get(index);
+		if (tag.getType() == TagType.STRING)
+			return (StringTag) tag;
+		return null;
+	}
+
+	public ByteArrayTag getByteArrayTag(int index) {
+		Tag tag = get(index);
+		if (tag.getType() == TagType.BYTE_ARRAY)
+			return (ByteArrayTag) tag;
+		return null;
+	}
+
+	public IntArrayTag getIntArrayTag(int index) {
+		Tag tag = get(index);
+		if (tag.getType() == TagType.INT_ARRAY)
+			return (IntArrayTag) tag;
+		return null;
+	}
+
+	public LongArrayTag getLongArrayTag(int index) {
+		Tag tag = get(index);
+		if (tag.getType() == TagType.LONG_ARRAY)
+			return (LongArrayTag) tag;
+		return null;
+	}
+
+	public ListTag getListTag(int index) {
+		Tag tag = get(index);
+		if (tag.getType() == TagType.LIST)
+			return (ListTag) tag;
+		return null;
+	}
+
+	public CompoundTag getCompoundTag(int index) {
+		Tag tag = get(index);
+		if (tag.getType() == TagType.COMPOUND)
+			return (CompoundTag) tag;
+		return null;
+	}
+
 	
 	public boolean asBoolean(int index) {
 		return NBTUtil.toBoolean(get(index));
@@ -195,19 +319,9 @@ public class StructTag extends Tag implements CustomTag {
 	public double asDouble(int index) {
 		return NBTUtil.toNumber(get(index)).doubleValue();
 	}
-	
-	public CompoundTag getCompoundTag(int index) {
-		Tag tag = get(index);
-		if (tag.getType() == TagType.COMPOUND)
-			return (CompoundTag) tag;
-		return new CompoundTag("", new HashMap<>());
-	}
-	
-	public ListTag getListTag(int index) {
-		Tag tag = get(index);
-		if (tag.getType() == TagType.LIST)
-			return (ListTag) tag;
-		return new ListTag(TagType.STRING);
+
+	public int size() {
+		return value.size();
 	}
 
 	@Override

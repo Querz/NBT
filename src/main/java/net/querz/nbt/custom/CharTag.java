@@ -1,7 +1,6 @@
 package net.querz.nbt.custom;
 
 import net.querz.nbt.*;
-
 import java.io.IOException;
 
 public class CharTag extends Tag implements CustomTag {

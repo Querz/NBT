@@ -1,7 +1,6 @@
 package net.querz.nbt;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 public class IntArrayTag extends ArrayTag {
 	private int[] value;

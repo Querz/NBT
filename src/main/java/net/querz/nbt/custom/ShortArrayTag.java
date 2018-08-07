@@ -1,8 +1,6 @@
 package net.querz.nbt.custom;
 
 import java.io.IOException;
-import java.util.Arrays;
-
 import net.querz.nbt.*;
 
 public class ShortArrayTag extends ArrayTag implements CustomTag {

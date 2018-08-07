@@ -29,8 +29,7 @@ public enum TagType {
 	
 	private static Map<Integer, Class<? extends Tag>> customTags = new HashMap<>();
 	
-	TagType() {
-	}
+	TagType() {}
 	
 	TagType(int id, Class<? extends Tag> clazz) {
 		this.id = id;

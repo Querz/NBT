@@ -1,8 +1,10 @@
 package net.querz.nbt;
 
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -80,6 +82,18 @@ public class CompoundTag extends Tag {
 
 	public void setLongs(String key, long[] l) {
 		set(new LongArrayTag(key, l));
+	}
+
+	public void setList(String key, TagType type, List<Tag> l) {
+		set(new ListTag(key, type, l));
+	}
+
+	public void setList(String key, TagType type, Tag... t) {
+		set(new ListTag(key, type, Arrays.asList(t)));
+	}
+
+	public void setMap(String key, Map<String, Tag> m) {
+		set(new CompoundTag(key, m));
 	}
 	
 	public Tag get(String key) {
@@ -191,6 +205,108 @@ public class CompoundTag extends Tag {
 		if (isType(tag, TagType.LONG_ARRAY))
 			return ((long[]) tag.getValue());
 		return new long[0];
+	}
+
+	public List<Tag> getList(String key) {
+		Tag tag = get(key);
+		if (isType(tag, TagType.LIST))
+			return ((ListTag) tag).getValue();
+		return new ArrayList<>(0);
+	}
+
+	public Map<String, Tag> getMap(String key) {
+		Tag tag = get(key);
+		if (isType(tag, TagType.COMPOUND))
+			return ((CompoundTag) tag).getValue();
+		return new HashMap<>(0);
+	}
+
+	public ByteTag getByteTag(String key) {
+		Tag tag = get(key);
+		if (isType(tag, TagType.BYTE))
+			return (ByteTag) tag;
+		return null;
+	}
+
+	public ShortTag getShortTag(String key) {
+		Tag tag = get(key);
+		if (isType(tag, TagType.SHORT))
+			return (ShortTag) tag;
+		return null;
+	}
+
+	public IntTag getIntTag(String key) {
+		Tag tag = get(key);
+		if (isType(tag, TagType.INT))
+			return (IntTag) tag;
+		return null;
+	}
+
+	public LongTag getLongTag(String key) {
+		Tag tag = get(key);
+		if (isType(tag, TagType.LONG))
+			return (LongTag) tag;
+		return null;
+	}
+
+	public FloatTag getFloatTag(String key) {
+		Tag tag = get(key);
+		if (isType(tag, TagType.FLOAT))
+			return (FloatTag) tag;
+		return null;
+	}
+
+	public DoubleTag getDoubleTag(String key) {
+		Tag tag = get(key);
+		if (isType(tag, TagType.DOUBLE))
+			return (DoubleTag) tag;
+		return null;
+	}
+
+	public StringTag getStringTag(String key) {
+		Tag tag = get(key);
+		if (isType(tag, TagType.STRING))
+			return (StringTag) tag;
+		return null;
+	}
+
+	public ByteArrayTag getByteArrayTag(String key) {
+		Tag tag = get(key);
+		if (isType(tag, TagType.BYTE_ARRAY))
+			return (ByteArrayTag) tag;
+		return null;
+	}
+
+	public IntArrayTag getIntArrayTag(String key) {
+		Tag tag = get(key);
+		if (isType(tag, TagType.INT_ARRAY))
+			return (IntArrayTag) tag;
+		return null;
+	}
+
+	public LongArrayTag getLongArrayTag(String key) {
+		Tag tag = get(key);
+		if (isType(tag, TagType.LONG_ARRAY))
+			return (LongArrayTag) tag;
+		return null;
+	}
+
+	public ListTag getListTag(String key) {
+		Tag tag = get(key);
+		if (isType(tag, TagType.LIST))
+			return (ListTag) tag;
+		return null;
+	}
+
+	public CompoundTag getCompoundTag(String key) {
+		Tag tag = get(key);
+		if (isType(tag, TagType.COMPOUND))
+			return (CompoundTag) tag;
+		return null;
+	}
+
+	public int size() {
+		return value.size();
 	}
 	
 	public void clear() {

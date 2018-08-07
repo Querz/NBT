@@ -1,7 +1,6 @@
 package net.querz.nbt.custom;
 
 import net.querz.nbt.*;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;

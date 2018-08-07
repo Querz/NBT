@@ -1,7 +1,6 @@
 package net.querz.nbt;
 
 import net.querz.nbt.util.Array;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
