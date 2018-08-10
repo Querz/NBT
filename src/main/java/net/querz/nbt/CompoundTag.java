@@ -22,17 +22,8 @@ public class CompoundTag extends Tag<Map<String, Tag>> {
 		return null;
 	}
 
-	@Override
-	protected void update(String oldName, String newName) {
-		getValue().put(newName, remove(oldName));
-	}
-
 	public Tag remove(String key) {
-		Tag removed = getValue().remove(key);
-		if (removed != null) {
-			removed.setParent(null);
-		}
-		return removed;
+		return getValue().remove(key);
 	}
 
 	public Tag get(String key) {
@@ -173,14 +164,11 @@ public class CompoundTag extends Tag<Map<String, Tag>> {
 	}
 
 	public Tag putLongArray(String key, long[] value) {
-		LongArrayTag t = new LongArrayTag(key, checkNull(value));
 		return put(new LongArrayTag(key, checkNull(value)));
 	}
 
 	public Tag put(Tag tag) {
-		Tag t = checkNull(tag);
-		t.setParent(this);
-		return getValue().put(tag.getName(), t);
+		return getValue().put(tag.getName(), checkNull(tag));
 	}
 
 	public int size() {
@@ -188,9 +176,6 @@ public class CompoundTag extends Tag<Map<String, Tag>> {
 	}
 
 	public void clear() {
-		for (Tag t : getValue().values()) {
-			t.setParent(null);
-		}
 		getValue().clear();
 	}
 

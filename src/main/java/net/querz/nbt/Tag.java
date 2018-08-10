@@ -55,29 +55,7 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 		return name;
 	}
 
-	protected void setParent(Tag parent) {
-		if (parents == null) {
-			parents = new HashSet<>();
-		}
-		parents.add(parent);
-	}
-
-	protected void removeParent(Tag parent) {
-		if (parents != null) {
-			parents.remove(parent);
-		}
-	}
-
-	protected void updateParent(String oldName, String newName) {
-		if (parents != null) {
-			parents.forEach(p -> p.update(oldName, newName));
-		}
-	}
-
-	protected void update(String oldName, String newName) {}
-
 	public void setName(String name) {
-		updateParent(this.name, name);
 		this.name = name;
 	}
 

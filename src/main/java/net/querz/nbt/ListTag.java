@@ -37,10 +37,8 @@ public class ListTag<T extends Tag> extends Tag<List<T>> {
 		add(size(), t);
 	}
 
-	@SuppressWarnings("unchecked")
 	public void add(int index, T t) {
 		checkValue(t);
-		t.setParent(this);
 		getValue().add(index, t);
 		typeID = t.getID();
 	}
@@ -61,7 +59,6 @@ public class ListTag<T extends Tag> extends Tag<List<T>> {
 
 	public T remove(int index) {
 		T removed = getValue().remove(index);
-		removed.setParent(null);
 		checkEmpty();
 		return removed;
 	}
@@ -70,7 +67,7 @@ public class ListTag<T extends Tag> extends Tag<List<T>> {
 		return getValue().contains(t);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "unused"})
 	public <L extends Tag> ListTag<L> asTypedList(ListTag<?> listTag, Class<L> type) {
 		return (ListTag<L>) listTag;
 	}

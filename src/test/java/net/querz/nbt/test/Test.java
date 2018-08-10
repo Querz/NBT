@@ -145,22 +145,4 @@ public class Test extends TestCase {
 		//126263161ns
 
 	}
-
-	public void testCompoundKeyReference() {
-		CompoundTag c = new CompoundTag("compound");
-		ByteTag b = new ByteTag("byte", (byte) 1);
-		c.put(b);
-
-		System.out.println(c);
-
-		System.out.println(c.get("byte"));
-
-		b.setName("test");
-
-		System.out.println(c);
-
-		System.out.println(c.get("test"));
-
-
-	}
 }
