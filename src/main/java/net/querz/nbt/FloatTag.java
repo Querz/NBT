@@ -1,60 +1,63 @@
 package net.querz.nbt;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class FloatTag extends NumberTag {
-	private float value;
-	
-	protected FloatTag() {
-		this(0F);
+public class FloatTag extends NumberTag<Float> {
+
+	public FloatTag() {}
+
+	public FloatTag(String name) {
+		super(name);
 	}
-	
-	public FloatTag(float value) {
-		this("", value);
-	}
-	
+
 	public FloatTag(String name, float value) {
-		super(TagType.FLOAT, name);
-		setValue(value);
+		super(name, value);
 	}
-	
+
+	@Override
+	public byte getID() {
+		return 5;
+	}
+
+	@Override
+	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+		dos.writeFloat(getValue());
+	}
+
+	@Override
+	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+		setValue(dis.readFloat());
+	}
+
+	@Override
+	public String valueToString(int depth) {
+		return getValue() + "f";
+	}
+
+	@Override
+	protected Float getEmptyValue() {
+		return 0.0f;
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		return super.equals(other) && getValue().equals(((FloatTag) other).getValue());
+	}
+
+	//use primitive type to disallow null value
 	public void setValue(float value) {
-		this.value = value;
-	}
-	
-	@Override
-	public Float getValue() {
-		return value;
+		super.setValue(value);
 	}
 
-	@Override
-	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
-		nbtOut.dos.writeFloat(value);
-	}
-
-	@Override
-	protected FloatTag deserialize(NBTInputStream nbtIn, int depth) throws IOException {
-		value = nbtIn.dis.readFloat();
-		return this;
-	}
-
-	@Override
-	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + valueToTagString(0);
-	}
-	
-	@Override
-	protected String valueToTagString(int depth) {
-		return value + "f";
-	}
-	
-	@Override
-	public String toString() {
-		return "<float:" + getName() + ":" + value + ">";
-	}
-	
 	@Override
 	public FloatTag clone() {
-		return new FloatTag(getName(), value);
+		return new FloatTag(getName(), getValue());
+	}
+
+	@Override
+	public boolean valueEquals(Float value) {
+		return asFloat() == value;
 	}
 }

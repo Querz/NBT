@@ -1,60 +1,63 @@
 package net.querz.nbt;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class ShortTag extends NumberTag {
-	private short value;
-	
-	protected ShortTag() {
-		this((short) 0);
+public class ShortTag extends NumberTag<Short> {
+
+	public ShortTag() {}
+
+	public ShortTag(String name) {
+		super(name);
 	}
-	
-	public ShortTag(short value) {
-		this("", value);
-	}
-	
+
 	public ShortTag(String name, short value) {
-		super(TagType.SHORT, name);
-		setValue(value);
+		super(name, value);
 	}
-	
+
+	@Override
+	public byte getID() {
+		return 2;
+	}
+
+	@Override
+	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+		dos.writeShort(getValue());
+	}
+
+	@Override
+	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+		setValue(dis.readShort());
+	}
+
+	@Override
+	public String valueToString(int depth) {
+		return getValue() + "s";
+	}
+
+	@Override
+	protected Short getEmptyValue() {
+		return 0;
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		return super.equals(other) && getValue().equals(((ShortTag) other).getValue());
+	}
+
+	//use primitive type to disallow null value
 	public void setValue(short value) {
-		this.value = value;
-	}
-	
-	@Override
-	public Short getValue() {
-		return value;
+		super.setValue(value);
 	}
 
-	@Override
-	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
-		nbtOut.dos.writeShort(value);
-	}
-
-	@Override
-	protected ShortTag deserialize(NBTInputStream nbtIn, int depth) throws IOException {
-		value = nbtIn.dis.readShort();
-		return this;
-	}
-
-	@Override
-	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + valueToTagString(0);
-	}
-	
-	@Override
-	protected String valueToTagString(int depth) {
-		return value + "s";
-	}
-	
-	@Override
-	public String toString() {
-		return "<short:" + getName() + ":" + value + ">";
-	}
-	
 	@Override
 	public ShortTag clone() {
-		return new ShortTag(getName(), value);
+		return new ShortTag(getName(), getValue());
+	}
+
+	@Override
+	public boolean valueEquals(Short value) {
+		return asShort() == value;
 	}
 }

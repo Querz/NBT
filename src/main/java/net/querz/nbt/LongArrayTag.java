@@ -1,55 +1,68 @@
 package net.querz.nbt;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 
-public class LongArrayTag extends ArrayTag {
-	private long[] value;
+public class LongArrayTag extends ArrayTag<long[]> {
 
-	protected LongArrayTag() {
-		this(new long[0]);
-	}
+	public LongArrayTag() {}
 
-	public LongArrayTag(long[] value) {
-		this("", value);
+	public LongArrayTag(String name) {
+		super(name);
 	}
 
 	public LongArrayTag(String name, long[] value) {
-		super(TagType.LONG_ARRAY, name, "L", "l");
-		setValue(value);
-	}
-	
-	public void setValue(long[] value) {
-		this.value = value;
-	}
-	
-	@Override
-	public long[] getValue() {
-		return value;
+		super(name, value);
 	}
 
 	@Override
-	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
-		nbtOut.dos.writeInt(value.length);
-		for (long l : value)
-			nbtOut.dos.writeLong(l);
+	public byte getID() {
+		return 12;
 	}
-	
+
 	@Override
-	protected LongArrayTag deserialize(NBTInputStream nbtIn, int depth) throws IOException {
-		int length = nbtIn.dis.readInt();
-		value = new long[length];
-		for (int i = 0; i < length; i++)
-			value[i] = nbtIn.dis.readLong();
-		return this;
+	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+		dos.writeInt(length());
+		for (long i : getValue()) {
+			dos.writeLong(i);
+		}
 	}
-	
+
 	@Override
-	public String toString() {
-		return "<long[]:" + getName() + ":[" + NBTUtil.joinArray(",", value) + "]>";
+	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+		int length = dis.readInt();
+		setValue(new long[length]);
+		for (int i = 0; i < length; i++) {
+			getValue()[i] = dis.readLong();
+		}
+	}
+
+	@Override
+	public String valueToString(int depth) {
+		return arrayToString(getValue(), "L", "l");
+	}
+
+	@Override
+	protected long[] getEmptyValue() {
+		return new long[0];
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		return super.equals(other)
+				&& (getValue() == ((LongArrayTag) other).getValue()
+				|| Arrays.equals(getValue(), ((LongArrayTag) other).getValue()));
 	}
 
 	@Override
 	public LongArrayTag clone() {
-		return new LongArrayTag(getName(), value.clone());
+		return new LongArrayTag(getName(), Arrays.copyOf(getValue(), length()));
+	}
+
+	@Override
+	public boolean valueEquals(long[] value) {
+		return getValue() == value || getValue().length == value.length && Arrays.equals(getValue(), value);
 	}
 }

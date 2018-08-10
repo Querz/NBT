@@ -1,60 +1,63 @@
 package net.querz.nbt;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class LongTag extends NumberTag {
-	private long value;
-	
-	protected LongTag() {
-		this(0);
+public class LongTag extends NumberTag<Long> {
+
+	public LongTag() {}
+
+	public LongTag(String name) {
+		super(name);
 	}
-	
-	public LongTag(long value) {
-		this("", value);
-	}
-	
+
 	public LongTag(String name, long value) {
-		super(TagType.LONG, name);
-		setValue(value);
+		super(name, value);
 	}
-	
+
+	@Override
+	public byte getID() {
+		return 4;
+	}
+
+	@Override
+	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+		dos.writeLong(getValue());
+	}
+
+	@Override
+	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+		setValue(dis.readLong());
+	}
+
+	@Override
+	public String valueToString(int depth) {
+		return getValue() + "l";
+	}
+
+	@Override
+	protected Long getEmptyValue() {
+		return 0L;
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		return super.equals(other) && getValue().equals(((LongTag) other).getValue());
+	}
+
+	//use primitive type to disallow null value
 	public void setValue(long value) {
-		this.value = value;
-	}
-	
-	@Override
-	public Long getValue() {
-		return value;
+		super.setValue(value);
 	}
 
-	@Override
-	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
-		nbtOut.dos.writeLong(value);
-	}
-
-	@Override
-	protected LongTag deserialize(NBTInputStream nbtIn, int depth) throws IOException {
-		value = nbtIn.dis.readLong();
-		return this;
-	}
-
-	@Override
-	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + valueToTagString(0);
-	}
-	
-	@Override
-	protected String valueToTagString(int depth) {
-		return value + "l";
-	}
-	
-	@Override
-	public String toString() {
-		return "<long:" + getName() + ":" + value + ">";
-	}
-	
 	@Override
 	public LongTag clone() {
-		return new LongTag(getName(), value);
+		return new LongTag(getName(), getValue());
+	}
+
+	@Override
+	public boolean valueEquals(Long value) {
+		return asLong() == value;
 	}
 }

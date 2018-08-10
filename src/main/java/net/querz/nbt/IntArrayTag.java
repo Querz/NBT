@@ -1,55 +1,61 @@
 package net.querz.nbt;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 
-public class IntArrayTag extends ArrayTag {
-	private int[] value;
-	
-	protected IntArrayTag() {
-		this(new int[0]);
+public class IntArrayTag extends ArrayTag<int[]> {
+
+	public IntArrayTag() {}
+
+	public IntArrayTag(String name) {
+		super(name);
 	}
-	
-	public IntArrayTag(int[] value) {
-		this("", value);
-	}
-	
+
 	public IntArrayTag(String name, int[] value) {
-		super(TagType.INT_ARRAY, name, "I");
-		setValue(value);
-	}
-	
-	public void setValue(int[] value) {
-		this.value = value;
-	}
-	
-	@Override
-	public int[] getValue() {
-		return value;
+		super(name, value);
 	}
 
 	@Override
-	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
-		nbtOut.dos.writeInt(value.length);
-		for (int i : value)
-			nbtOut.dos.writeInt(i);
+	public byte getID() {
+		return 11;
 	}
-	
+
 	@Override
-	protected IntArrayTag deserialize(NBTInputStream nbtIn, int depth) throws IOException {
-		int length = nbtIn.dis.readInt();
-		value = new int[length];
-		for (int i = 0; i < length; i++)
-			value[i] = nbtIn.dis.readInt();
-		return this;
+	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+		dos.writeInt(length());
+		for (int i : getValue()) {
+			dos.writeInt(i);
+		}
 	}
-	
+
 	@Override
-	public String toString() {
-		return "<int[]:" + getName() + ":[" + NBTUtil.joinArray(",", value) + "]>";
+	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+		int length = dis.readInt();
+		setValue(new int[length]);
+		for (int i = 0; i < length; i++) {
+			getValue()[i] = dis.readInt();
+		}
+	}
+
+	@Override
+	public String valueToString(int depth) {
+		return arrayToString(getValue(), "I", "");
+	}
+
+	@Override
+	protected int[] getEmptyValue() {
+		return new int[0];
 	}
 
 	@Override
 	public IntArrayTag clone() {
-		return new IntArrayTag(getName(), value.clone());
+		return new IntArrayTag(getName(), Arrays.copyOf(getValue(), length()));
+	}
+
+	@Override
+	public boolean valueEquals(int[] value) {
+		return getValue() == value || getValue().length == value.length && Arrays.equals(getValue(), value);
 	}
 }

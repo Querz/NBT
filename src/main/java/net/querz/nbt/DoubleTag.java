@@ -1,60 +1,63 @@
 package net.querz.nbt;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class DoubleTag extends NumberTag {
-	private double value;
-	
-	protected DoubleTag() {
-		this(0D);
+public class DoubleTag extends NumberTag<Double> {
+
+	public DoubleTag() {}
+
+	public DoubleTag(String name) {
+		super(name);
 	}
-	
-	public DoubleTag(double value) {
-		this("", value);
-	}
-	
+
 	public DoubleTag(String name, double value) {
-		super(TagType.DOUBLE, name);
-		setValue(value);
+		super(name, value);
 	}
-	
+
+	@Override
+	public byte getID() {
+		return 6;
+	}
+
+	@Override
+	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+		dos.writeDouble(getValue());
+	}
+
+	@Override
+	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+		setValue(dis.readDouble());
+	}
+
+	@Override
+	public String valueToString(int depth) {
+		return getValue() + "d";
+	}
+
+	@Override
+	protected Double getEmptyValue() {
+		return 0.0d;
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		return super.equals(other) && getValue().equals(((DoubleTag) other).getValue());
+	}
+
+	//use primitive type to disallow null value
 	public void setValue(double value) {
-		this.value = value;
-	}
-	
-	@Override
-	public Double getValue() {
-		return value;
+		super.setValue(value);
 	}
 
-	@Override
-	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
-		nbtOut.dos.writeDouble(value);
-	}
-	
-	@Override
-	protected DoubleTag deserialize(NBTInputStream nbtIn, int depth) throws IOException {
-		value = nbtIn.dis.readDouble();
-		return this;
-	}
-
-	@Override
-	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + valueToTagString(0);
-	}
-	
-	@Override
-	protected String valueToTagString(int depth) {
-		return value + "d";
-	}
-	
-	@Override
-	public String toString() {
-		return "<double:" + getName() + ":" + value + ">";
-	}
-	
 	@Override
 	public DoubleTag clone() {
-		return new DoubleTag(getName(), value);
+		return new DoubleTag(getName(), getValue());
+	}
+
+	@Override
+	public boolean valueEquals(Double value) {
+		return asDouble() == value;
 	}
 }

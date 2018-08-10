@@ -1,77 +1,68 @@
 package net.querz.nbt;
 
-import net.querz.nbt.util.Array;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.EOFException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PushbackInputStream;
+import java.util.Arrays;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 public class NBTUtil {
 
-    public static Pattern noNeedToEscapePattern = Pattern.compile("[a-zA-Z0-9_\\-+]+");
+	private static final byte[] GZIP_MAGIC_NUMBERS = {(byte) 0x1F, (byte) 0x8B};
 
-	/**
-	 * gets the {@code Number} value of any tag
-	 * @param tag The tag to get the {@code Number} value from
-	 * @return the value of {@code tag} or 0 if {@code} tag is not an instance of {@code NumberTag}
-	 */
-	public static Number toNumber(Tag tag) {
-		if (tag != null && tag instanceof NumberTag)
-			return (Number) tag.getValue();
-		return 0;
+	private NBTUtil() {}
+
+	public static void writeTag(Tag tag, String file) throws IOException {
+		writeTag(tag, new File(file), true);
 	}
 
-	/**
-	 * checks if tag is a {@code Number} and interprets it as a boolean.
-	 * @param tag the Tag instance to be turned into a boolean
-	 * @return true if the Number is &gt; 0
-	 */
-	public static boolean toBoolean(Tag tag) {
-		return toNumber(tag).byteValue() > 0;
+	public static void writeTag(Tag tag, File file) throws IOException {
+		writeTag(tag, file, true);
 	}
 
-	public static String joinArray(String delimiter, Object array) {
-		return NBTUtil.joinArray(delimiter, array, "", 0, true);
+	public static void writeTag(Tag tag, String file, boolean compressed) throws IOException {
+		writeTag(tag, new File(file), compressed);
 	}
 
-	public static String joinArray(String delimiter, Object array, int depth) {
-		return NBTUtil.joinArray(delimiter, array, "", depth, true);
-	}
-
-	public static String joinArray(String delimiter, Object array, String typeSuffix) {
-		return NBTUtil.joinArray(delimiter, array, typeSuffix, 0, true);
-	}
-
-	public static String joinArray(String delimiter, Object array, String typeSuffix, int depth, boolean useToTagString) {
-		boolean first = true;
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < Array.getLength(array); i++) {
-			if (Array.get(array, i) instanceof Tag) {
-				if (useToTagString) {
-					sb.append(first ? "" : delimiter).append(((Tag) Array.get(array, i)).toTagString(depth));
-				} else {
-					sb.append(first ? "" : delimiter).append(((Tag) Array.get(array, i)).toString(depth));
-				}
-			} else {
-				sb.append(first ? "" : delimiter).append(Array.get(array, i)).append(typeSuffix);
-			}
-			first = false;
+	public static void writeTag(Tag tag, File file, boolean compressed) throws IOException {
+		try (
+				DataOutputStream dos = new DataOutputStream(
+						compressed ? new GZIPOutputStream(new FileOutputStream(file)) : new FileOutputStream(file))
+		) {
+			tag.serialize(dos, 0);
 		}
-		return sb.toString();
 	}
 
-	public static String createNamePrefix(Tag tag) {
-		return tag.getName().equals("") ? "" : (createPossiblyEscapedString(tag.getName()) + ":");
+	public static Tag readTag(String file) throws IOException {
+		return readTag(new File(file));
 	}
 
-	public static String createPossiblyEscapedString(String input) {
-		Matcher matcher = noNeedToEscapePattern.matcher(input);
-
-		if (matcher.matches()) {
-			return input;
+	public static Tag readTag(File file) throws IOException {
+		try (
+				DataInputStream dis = new DataInputStream(applyDecompression(new FileInputStream(file)))
+		) {
+			return Tag.deserialize(dis, 0);
 		}
+	}
 
-		return "\"" + input
-				.replace("\\", "\\\\")
-				.replace("\"", "\\\"")
-				.replace("\n", "\\n") + "\"";
+	private static InputStream applyDecompression(InputStream is) throws IOException {
+		PushbackInputStream pbis = new PushbackInputStream(is, 2);
+		byte[] signature = new byte[2];
+		int r = pbis.read(signature);
+		if (r == -1) {
+			throw new EOFException("reached EOF before reading compression type");
+		}
+		pbis.unread(signature);
+		if (Arrays.equals(signature, GZIP_MAGIC_NUMBERS)) {
+			return new GZIPInputStream(pbis);
+		}
+		return pbis;
 	}
 }

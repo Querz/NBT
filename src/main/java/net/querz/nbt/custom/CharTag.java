@@ -1,76 +1,59 @@
 package net.querz.nbt.custom;
 
-import net.querz.nbt.*;
+import net.querz.nbt.Tag;
+import net.querz.nbt.TagFactory;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class CharTag extends Tag implements CustomTag {
-	public static final int TAG_ID = 110;
+public class CharTag extends Tag<Character> {
 
 	public static void register() {
-		TagType.registerCustomTag(TAG_ID, CharTag.class);
+		TagFactory.registerCustomTag(110, CharTag.class);
 	}
 
-	private char value;
+	public CharTag() {}
 
 	public CharTag(String name) {
-		this(name, (char) 0);
-	}
-
-	public CharTag() {
-		this((char) 0);
-	}
-
-	public CharTag(char value) {
-		this("", value);
+		super(name);
 	}
 
 	public CharTag(String name, char value) {
-		super(TagType.CUSTOM, name);
-		setValue(value);
-	}
-
-	public void setValue(char value) {
-		this.value = value;
+		super(name, value);
 	}
 
 	@Override
-	public int getId() {
-		return TAG_ID;
+	public byte getID() {
+		return 110;
 	}
 
 	@Override
-	protected String valueToTagString(int depth) {
-		return value + "";
+	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+		dos.writeChar(getValue());
 	}
 
 	@Override
-	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
-		nbtOut.getDataOutputStream().writeChar(value);
+	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+		setValue(dis.readChar());
 	}
 
 	@Override
-	protected Tag deserialize(NBTInputStream nbtIn, int depth) throws IOException {
-		value = nbtIn.getDataInputStream().readChar();
-		return this;
+	public String valueToString(int depth) {
+		return getValue() + "";
 	}
 
 	@Override
-	public Character getValue() {
-		return value;
+	protected Character getEmptyValue() {
+		return 0;
 	}
 
 	@Override
-	public String toString() {
-		return "<char:" + getName() + ":" + value + ">";
+	public CharTag clone() {
+		return new CharTag(getName(), getValue());
 	}
 
 	@Override
-	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + valueToTagString(0);
-	}
-
-	@Override
-	public Tag clone() {
-		return new CharTag();
+	public boolean valueEquals(Character value) {
+		return getValue() == value;
 	}
 }

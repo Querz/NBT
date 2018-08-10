@@ -1,77 +1,71 @@
 package net.querz.nbt;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class ByteTag extends NumberTag {
-	private byte value;
-	
-	protected ByteTag() {
-		this((byte) 0);
+public class ByteTag extends NumberTag<Byte> {
+
+	public ByteTag() {}
+
+	public ByteTag(String name) {
+		super(name);
 	}
-	
-	public ByteTag(byte value) {
-		this("", value);
-	}
-	
-	public ByteTag(boolean value) {
-		this("", value);
-	}
-	
+
 	public ByteTag(String name, byte value) {
-		super(TagType.BYTE, name);
-		setValue(value);
+		super(name, value);
 	}
-	
+
 	public ByteTag(String name, boolean value) {
-		super(TagType.BYTE, name);
-		setValue(value);
+		super(name, (byte) (value ? 1 : 0));
 	}
-	
+
+	@Override
+	public byte getID() {
+		return 1;
+	}
+
+	@Override
+	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+		dos.writeByte(getValue());
+	}
+
+	@Override
+	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+		setValue(dis.readByte());
+	}
+
+	@Override
+	public String valueToString(int depth) {
+		return getValue() + "b";
+	}
+
+	@Override
+	protected Byte getEmptyValue() {
+		return 0;
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		return super.equals(other) && getValue().equals(((ByteTag) other).getValue());
+	}
+
+	//use primitive type to disallow null value
 	public void setValue(byte value) {
-		this.value = value;
-	}
-	
-	public void setValue(boolean value) {
-		this.value = value ? (byte) 1 : 0;
-	}
-	
-	public boolean getBoolean() {
-		return value != 0;
-	}
-	
-	@Override
-	public Byte getValue() {
-		return value;
+		super.setValue(value);
 	}
 
-	@Override
-	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
-		nbtOut.dos.writeByte(value);
-	}
-	
-	@Override
-	protected ByteTag deserialize(NBTInputStream nbtIn, int depth) throws IOException {
-		value = nbtIn.dis.readByte();
-		return this;
+	public boolean asBoolean() {
+		return getValue() > 0;
 	}
 
-	@Override
-	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + valueToTagString(0);
-	}
-	
-	@Override
-	protected String valueToTagString(int depth) {
-		return value + "b";
-	}
-	
-	@Override
-	public String toString() {
-		return "<byte:" + getName() + ":" + value + ">";
-	}
-	
 	@Override
 	public ByteTag clone() {
-		return new ByteTag(getName(), value);
+		return new ByteTag(getName(), getValue());
+	}
+
+	@Override
+	public boolean valueEquals(Byte value) {
+		return asByte() == value;
 	}
 }
