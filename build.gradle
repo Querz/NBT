@@ -28,3 +28,8 @@ javadoc {
 	options.linkSource true
 	options.links 'https://docs.oracle.com/javase/8/docs/api/'
 }
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+	classifier = 'sources'
+	from sourceSets.main.allSource
+}
