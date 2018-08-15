@@ -32,7 +32,7 @@ public class LongTag extends NumberTag<Long> {
 	}
 
 	@Override
-	public String valueToString(int depth) {
+	public String valueToTagString(int depth) {
 		return getValue() + "l";
 	}
 

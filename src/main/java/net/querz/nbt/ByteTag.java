@@ -36,7 +36,7 @@ public class ByteTag extends NumberTag<Byte> {
 	}
 
 	@Override
-	public String valueToString(int depth) {
+	public String valueToTagString(int depth) {
 		return getValue() + "b";
 	}
 
@@ -47,7 +47,10 @@ public class ByteTag extends NumberTag<Byte> {
 
 	@Override
 	public boolean equals(Object other) {
-		return super.equals(other) && getValue().equals(((ByteTag) other).getValue());
+		return super.equals(other)
+				&& getValue()
+				.equals(((ByteTag) other)
+						.getValue());
 	}
 
 	//use primitive type to disallow null value

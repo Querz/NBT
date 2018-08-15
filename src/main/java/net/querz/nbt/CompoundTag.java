@@ -14,16 +14,16 @@ public class CompoundTag extends Tag<Map<String, Tag>> {
 		super(name);
 	}
 
+	public Tag remove(String key) {
+		return getValue().remove(key);
+	}
+
 	public <C extends Tag> C get(String key, Class<C> type) {
 		Tag t = getValue().get(key);
 		if (t != null) {
 			return type.cast(t);
 		}
 		return null;
-	}
-
-	public Tag remove(String key) {
-		return getValue().remove(key);
 	}
 
 	public Tag get(String key) {
@@ -186,8 +186,11 @@ public class CompoundTag extends Tag<Map<String, Tag>> {
 
 	@Override
 	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
-		for (Tag tag : getValue().values()) {
-			tag.serialize(dos, incrementDepth(depth));
+		for (Map.Entry<String, Tag> e : getValue().entrySet()) {
+			dos.writeByte(e.getValue().getID());
+			//must use the actual key, not the current tag's name, because they might differ
+			serializeName(e.getKey(), dos);
+			e.getValue().serializeValue(dos, incrementDepth(depth));
 		}
 		new EndTag().serialize(dos, depth);
 	}
@@ -204,11 +207,27 @@ public class CompoundTag extends Tag<Map<String, Tag>> {
 	}
 
 	@Override
+	public String valueToTagString(int depth) {
+		StringBuilder sb = new StringBuilder("{");
+		boolean first = true;
+		for (Map.Entry<String, Tag> e : getValue().entrySet()) {
+			sb.append(first ? "" : ",")
+					.append(escapeString(e.getKey(), true)).append(":")
+					.append(e.getValue().valueToTagString(incrementDepth(depth)));
+			first = false;
+		}
+		sb.append("}");
+		return sb.toString();
+	}
+
+	@Override
 	public String valueToString(int depth) {
 		StringBuilder sb = new StringBuilder("{");
 		boolean first = true;
-		for (Tag t : getValue().values()) {
-			sb.append(first ? "" : ",").append(t.toString(incrementDepth(depth)));
+		for (Map.Entry<String, Tag> e : getValue().entrySet()) {
+			sb.append(first ? "" : ",")
+					.append(escapeString(e.getKey(), false)).append(":")
+					.append(e.getValue().toString(incrementDepth(depth)));
 			first = false;
 		}
 		sb.append("}");
@@ -217,7 +236,7 @@ public class CompoundTag extends Tag<Map<String, Tag>> {
 
 	@Override
 	protected Map<String, Tag> getEmptyValue() {
-		return new HashMap<>(1);
+		return new HashMap<>(8);
 	}
 
 	@Override

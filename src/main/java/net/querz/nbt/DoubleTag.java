@@ -32,7 +32,7 @@ public class DoubleTag extends NumberTag<Double> {
 	}
 
 	@Override
-	public String valueToString(int depth) {
+	public String valueToTagString(int depth) {
 		return getValue() + "d";
 	}
 

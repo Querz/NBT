@@ -46,8 +46,13 @@ public class ShortArrayTag extends ArrayTag<short[]> {
 	}
 
 	@Override
-	public String valueToString(int depth) {
+	public String valueToTagString(int depth) {
 		return arrayToString(getValue(), "S", "s");
+	}
+
+	@Override
+	public String valueToString(int depth) {
+		return Arrays.toString(getValue());
 	}
 
 	@Override

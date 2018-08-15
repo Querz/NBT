@@ -53,8 +53,13 @@ public class ObjectTag<T extends Serializable> extends Tag<T> {
 	}
 
 	@Override
+	public String valueToTagString(int depth) {
+		return escapeString(getValue().toString(), true);
+	}
+
+	@Override
 	public String valueToString(int depth) {
-		return getValue().toString();
+		return escapeString(getValue().toString(), false);
 	}
 
 	@Override

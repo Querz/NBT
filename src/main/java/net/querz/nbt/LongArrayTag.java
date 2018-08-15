@@ -40,8 +40,13 @@ public class LongArrayTag extends ArrayTag<long[]> {
 	}
 
 	@Override
-	public String valueToString(int depth) {
+	public String valueToTagString(int depth) {
 		return arrayToString(getValue(), "L", "l");
+	}
+
+	@Override
+	public String valueToString(int depth) {
+		return arrayToString(getValue(), "", "");
 	}
 
 	@Override

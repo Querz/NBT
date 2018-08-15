@@ -36,8 +36,13 @@ public class ByteArrayTag extends ArrayTag<byte[]> {
 	}
 
 	@Override
-	public String valueToString(int depth) {
+	public String valueToTagString(int depth) {
 		return arrayToString(getValue(), "B", "b");
+	}
+
+	@Override
+	public String valueToString(int depth) {
+		return arrayToString(getValue(), "", "");
 	}
 
 	@Override

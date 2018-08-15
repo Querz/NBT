@@ -32,7 +32,7 @@ public class FloatTag extends NumberTag<Float> {
 	}
 
 	@Override
-	public String valueToString(int depth) {
+	public String valueToTagString(int depth) {
 		return getValue() + "f";
 	}
 

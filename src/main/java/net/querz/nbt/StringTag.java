@@ -37,18 +37,18 @@ public class StringTag extends Tag<String> {
 	}
 
 	@Override
+	public String valueToTagString(int depth) {
+		return escapeString(getValue(), true);
+	}
+
+	@Override
 	public String valueToString(int depth) {
-		return escapeString(getValue());
+		return escapeString(getValue(), false);
 	}
 
 	@Override
 	protected String getEmptyValue() {
 		return "";
-	}
-
-	@Override
-	public boolean equals(Object other) {
-		return super.equals(other) && getValue().equals(((StringTag) other).getValue());
 	}
 
 	@Override

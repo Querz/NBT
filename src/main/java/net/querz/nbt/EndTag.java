@@ -22,8 +22,13 @@ class EndTag extends Tag<Void> {
 	}
 
 	@Override
-	public String valueToString(int depth) {
+	public String valueToTagString(int depth) {
 		throw new UnsupportedOperationException("EndTag cannot be turned into a String");
+	}
+
+	@Override
+	public String valueToString(int depth) {
+		return "null";
 	}
 
 	@Override

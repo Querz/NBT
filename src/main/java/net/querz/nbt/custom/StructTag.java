@@ -236,13 +236,19 @@ public class StructTag extends Tag<List<Tag>> {
 	}
 
 	@Override
-	public String valueToString(int depth) {
+	public String valueToTagString(int depth) {
 		StringBuilder sb = new StringBuilder("[");
 		for (int i = 0; i < size(); i++) {
-			sb.append(i > 0 ? "," : "").append(get(i).valueToString(incrementDepth(depth)));
+			sb.append(i > 0 ? "," : "").append(get(i).valueToTagString(incrementDepth(depth)));
 		}
 		sb.append("]");
 		return sb.toString();
+	}
+
+	//TODO:
+	@Override
+	public String valueToString(int depth) {
+		return getValue() + "";
 	}
 
 	@Override

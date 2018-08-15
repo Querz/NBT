@@ -32,7 +32,7 @@ public class IntTag extends NumberTag<Integer> {
 	}
 
 	@Override
-	public String valueToString(int depth) {
+	public String valueToTagString(int depth) {
 		return getValue() + "";
 	}
 

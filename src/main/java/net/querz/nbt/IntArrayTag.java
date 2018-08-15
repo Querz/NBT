@@ -40,8 +40,13 @@ public class IntArrayTag extends ArrayTag<int[]> {
 	}
 
 	@Override
-	public String valueToString(int depth) {
+	public String valueToTagString(int depth) {
 		return arrayToString(getValue(), "I", "");
+	}
+
+	@Override
+	public String valueToString(int depth) {
+		return arrayToString(getValue(), "", "");
 	}
 
 	@Override

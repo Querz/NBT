@@ -8,6 +8,7 @@ import net.querz.nbt.DoubleTag;
 import net.querz.nbt.FloatTag;
 import net.querz.nbt.IntArrayTag;
 import net.querz.nbt.ListTag;
+import net.querz.nbt.StringTag;
 import net.querz.nbt.Tag;
 
 import java.io.ByteArrayInputStream;
@@ -15,7 +16,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.Random;
 
 public class Test extends TestCase {
@@ -78,22 +82,27 @@ public class Test extends TestCase {
 		System.out.println(bat.equals(bat2));
 	}
 
-	public void testEscapeFunction() {
-		String f = "a#";
-		System.out.println(Arrays.toString(f.toCharArray()));
-		Tag tag = new ByteTag();
-		System.out.println("abc");
-		long start = System.nanoTime();
-		String e = Tag.escapeString(f);
-		System.out.println(System.nanoTime() - start + "ns");
-		System.out.println(e);
+	public void testMutableName() {
+		ByteTag b1 = new ByteTag("b1", (byte) 1);
+		StringTag s1 = new StringTag("s1", "string");
+		DoubleTag d1 = new DoubleTag("d1", Math.PI);
 
-		//1219762ns --> 0.0012 sec
-		//1469632ns
-		//1282345ns
-		//1722046ns --> 0.0017 sec
-		//1832131ns
-		//1627042ns
+		CompoundTag c = new CompoundTag("compound");
+		initCompoundTagWithLinkedHashMap(c);
+		c.put(b1);
+		c.put(s1);
+		c.put(d1);
+		System.out.println(c);
+	}
+
+	private void initCompoundTagWithLinkedHashMap(CompoundTag tag) {
+		try {
+			Method m = Tag.class.getDeclaredMethod("setValue", Object.class);
+			m.setAccessible(true);
+			m.invoke(tag, new LinkedHashMap<String, Tag>());
+		} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+			fail(e.getMessage());
+		}
 	}
 
 	public void testEscape() {
@@ -118,7 +127,7 @@ public class Test extends TestCase {
 				s = first + invalidChars[random.nextInt(invalidChars.length)] + last;
 			}
 			long start = System.nanoTime();
-			String escaped = Tag.escapeString(s);
+//			String escaped = Tag.escapeString(s);
 			t += System.nanoTime() - start;
 //			System.out.println(escaped);
 		}

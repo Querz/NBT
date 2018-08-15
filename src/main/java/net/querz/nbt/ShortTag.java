@@ -32,7 +32,7 @@ public class ShortTag extends NumberTag<Short> {
 	}
 
 	@Override
-	public String valueToString(int depth) {
+	public String valueToTagString(int depth) {
 		return getValue() + "s";
 	}
 

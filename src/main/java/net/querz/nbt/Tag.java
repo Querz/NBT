@@ -5,7 +5,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -39,14 +38,14 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	}
 
 	public Tag(String name, T value) {
-		this.name = name;
+		this.name = name == null ? "" : name;
 		//the value of a tag can never be null
 		this.value = value == null ? getEmptyValue() : value;
 	}
 
 	protected <V> V checkNull(V v) {
 		if (v == null) {
-			throw new NullPointerException(getClass().getSimpleName() + " does not allow null values");
+			throw new NullPointerException(getClass().getSimpleName() + " does not allow setting null");
 		}
 		return v;
 	}
@@ -56,7 +55,7 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	}
 
 	public void setName(String name) {
-		this.name = name;
+		this.name = checkNull(name);
 	}
 
 	protected T getValue() {
@@ -70,11 +69,15 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	public final void serialize(DataOutputStream dos, int depth) throws IOException {
 		dos.writeByte(getID());
 		if (getID() != 0) { // EndTag
-			byte[] nameBytes = name.getBytes(CHARSET);
-			dos.writeShort(nameBytes.length);
-			dos.write(nameBytes);
+			serializeName(name, dos);
 			serializeValue(dos, depth);
 		}
+	}
+
+	protected void serializeName(String name, DataOutputStream dos) throws IOException {
+		byte[] nameBytes = name.getBytes(CHARSET);
+		dos.writeShort(nameBytes.length);
+		dos.write(nameBytes);
 	}
 
 	public static Tag deserialize(DataInputStream dis, int depth) throws IOException {
@@ -98,7 +101,7 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean equals(Object other) {
-		return other.getClass() == getClass() && getName().equals(((Tag) other).getName()) && valueEquals((T) other);
+		return other.getClass() == getClass() && getName().equals(((Tag) other).getName()) && valueEquals((T) ((Tag) other).getValue());
 	}
 
 	@Override
@@ -107,7 +110,17 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	}
 
 	protected String toString(int depth) {
-		return (name + ":") + valueToString(depth);
+		return "{\"name\":\"" + name + "\"," +
+				"\"type\":\""+ getClass().getSimpleName() + "\"," +
+				"\"value\":" + valueToString(depth) + "}";
+	}
+
+	public String toTagString() {
+		return toTagString(0);
+	}
+
+	protected String toTagString(int depth) {
+		return (escapeString(name, true) + ":") + valueToTagString(depth);
 	}
 
 	protected int incrementDepth(int depth) {
@@ -121,7 +134,7 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	}
 
 
-	public static String escapeString(String s) {
+	protected static String escapeString(String s, boolean lenient) {
 		StringBuffer sb = new StringBuffer();
 		Matcher m = ESCAPE_PATTERN.matcher(s);
 		while (m.find()) {
@@ -129,7 +142,7 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 		}
 		m.appendTail(sb);
 		m = NON_QUOTE_PATTERN.matcher(s);
-		if (!m.matches()) {
+		if (!lenient || !m.matches()) {
 			sb.insert(0, "\"").append("\"");
 		}
 		return sb.toString();
@@ -138,6 +151,7 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	public abstract byte getID();
 	public abstract void serializeValue(DataOutputStream dos, int depth) throws IOException;
 	public abstract void deserializeValue(DataInputStream dis, int depth) throws IOException;
+	public abstract String valueToTagString(int depth);
 	public abstract String valueToString(int depth);
 	public abstract boolean valueEquals(T value);
 	protected abstract T getEmptyValue();

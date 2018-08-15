@@ -38,6 +38,11 @@ public class CharTag extends Tag<Character> {
 	}
 
 	@Override
+	public String valueToTagString(int depth) {
+		return getValue() + "";
+	}
+
+	@Override
 	public String valueToString(int depth) {
 		return getValue() + "";
 	}

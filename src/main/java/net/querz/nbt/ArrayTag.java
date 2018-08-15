@@ -19,7 +19,7 @@ public abstract class ArrayTag<T> extends Tag<T> {
 			throw new UnsupportedOperationException("cannot convert non-array Object to String");
 		}
 
-		StringBuilder sb = new StringBuilder("[").append(prefix).append(";");
+		StringBuilder sb = new StringBuilder("[").append(prefix).append("".equals(prefix) ? "" : ";");
 		for (int i = 0; i < length(); i++) {
 			sb.append(i == 0 ? "" : ",").append(Array.get(array, i)).append(suffix);
 		}
