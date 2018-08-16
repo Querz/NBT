@@ -12,7 +12,7 @@ public class TagFactory {
 	public static Tag fromID(int id) {
 		switch (id) {
 			case 0:
-				return new EndTag();
+				return EndTag.INSTANCE;
 			case 1:
 				return new ByteTag();
 			case 2:

@@ -3,7 +3,6 @@ package net.querz.nbt;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -11,7 +10,6 @@ import java.util.regex.Pattern;
 
 public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 
-	public static final Charset CHARSET = Charset.forName("UTF-8");
 	public static final int MAX_DEPTH = 512;
 	private static final Map<String, String> ESCAPE_CHARACTERS = new HashMap<String, String>() {{
 		put("\\", "\\\\\\\\");

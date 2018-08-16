@@ -11,6 +11,7 @@ import java.util.List;
 public class ListTag<T extends Tag> extends Tag<List<T>> {
 
 	private byte typeID = 0;
+	private Class<? extends Tag> typeClass = EndTag.class;
 
 	public ListTag() {}
 
@@ -18,17 +19,31 @@ public class ListTag<T extends Tag> extends Tag<List<T>> {
 		checkNull(t);
 		if (typeID != 0 && t.getID() != typeID) {
 			throw new IllegalArgumentException(String.format(
-					"invalid element of type %d in ListTag: ListTag already has elements of type %d",
-					t.getID(), typeID));
+					"cannot add %s to ListTag<%s>",
+					t.getClass().getSimpleName(), typeClass.getSimpleName()));
+		}
+	}
+
+	private void checkTypeClass(Class<?> clazz) {
+		if (typeClass != EndTag.class && clazz != typeClass) {
+			throw new ClassCastException(String.format(
+					"cannot cast ListTag<%s> to ListTag<%s>",
+					typeClass.getSimpleName(), clazz.getSimpleName()));
 		}
 	}
 
 	private void checkEmpty() {
 		if (size() == 0) {
 			typeID = 0;
+			typeClass = EndTag.class;
 		}
 	}
 
+	/**
+	 * Adds a Tag to this ListTag.
+	 * @param t The element to be added.
+	 * @throws IllegalArgumentException if this ListTag already contains a Tag of another type.
+	 * */
 	public void add(T t) {
 		add(size(), t);
 	}
@@ -37,6 +52,7 @@ public class ListTag<T extends Tag> extends Tag<List<T>> {
 		checkValue(t);
 		getValue().add(index, t);
 		typeID = t.getID();
+		typeClass = t.getClass();
 	}
 
 	public void addAll(Collection<T> t) {
@@ -64,67 +80,80 @@ public class ListTag<T extends Tag> extends Tag<List<T>> {
 	}
 
 	@SuppressWarnings({"unchecked", "unused"})
-	public <L extends Tag> ListTag<L> asTypedList(ListTag<?> listTag, Class<L> type) {
-		return (ListTag<L>) listTag;
+	public <L extends Tag> ListTag<L> asTypedList(Class<L> type) {
+		checkTypeClass(type);
+		return (ListTag<L>) this;
 	}
 
 	@SuppressWarnings("unchecked")
 	public ListTag<ByteTag> asByteTagList() {
+		checkTypeClass(ByteTag.class);
 		return (ListTag<ByteTag>) this;
 	}
 
 	@SuppressWarnings("unchecked")
 	public ListTag<ShortTag> asShortTagList() {
+		checkTypeClass(ShortTag.class);
 		return (ListTag<ShortTag>) this;
 	}
 
 	@SuppressWarnings("unchecked")
 	public ListTag<IntTag> asIntTagList() {
+		checkTypeClass(IntTag.class);
 		return (ListTag<IntTag>) this;
 	}
 
 	@SuppressWarnings("unchecked")
 	public ListTag<LongTag> asLongTagList() {
+		checkTypeClass(LongTag.class);
 		return (ListTag<LongTag>) this;
 	}
 
 	@SuppressWarnings("unchecked")
 	public ListTag<FloatTag> asFloatTagList() {
+		checkTypeClass(FloatTag.class);
 		return (ListTag<FloatTag>) this;
 	}
 
 	@SuppressWarnings("unchecked")
 	public ListTag<DoubleTag> asDoubleTagList() {
+		checkTypeClass(DoubleTag.class);
 		return (ListTag<DoubleTag>) this;
 	}
 
 	@SuppressWarnings("unchecked")
 	public ListTag<StringTag> asStringTagList() {
+		checkTypeClass(StringTag.class);
 		return (ListTag<StringTag>) this;
 	}
 
 	@SuppressWarnings("unchecked")
 	public ListTag<ByteArrayTag> asByteArrayTagList() {
+		checkTypeClass(ByteArrayTag.class);
 		return (ListTag<ByteArrayTag>) this;
 	}
 
 	@SuppressWarnings("unchecked")
 	public ListTag<IntArrayTag> asIntArrayTagList() {
+		checkTypeClass(IntArrayTag.class);
 		return (ListTag<IntArrayTag>) this;
 	}
 
 	@SuppressWarnings("unchecked")
 	public ListTag<LongArrayTag> asLongArrayTagList() {
+		checkTypeClass(LongArrayTag.class);
 		return (ListTag<LongArrayTag>) this;
 	}
 
 	@SuppressWarnings("unchecked")
 	public ListTag<ListTag<?>> asListTagList() {
+		checkTypeClass(ListTag.class);
 		return (ListTag<ListTag<?>>) this;
 	}
 
 	@SuppressWarnings("unchecked")
 	public ListTag<CompoundTag> asCompoundTagList() {
+		checkTypeClass(CompoundTag.class);
 		return (ListTag<CompoundTag>) this;
 	}
 
@@ -209,6 +238,10 @@ public class ListTag<T extends Tag> extends Tag<List<T>> {
 		return typeID;
 	}
 
+	public Class<? extends Tag> getTypeClass() {
+		return typeClass;
+	}
+
 	@Override
 	public byte getID() {
 		return 9;
@@ -252,11 +285,11 @@ public class ListTag<T extends Tag> extends Tag<List<T>> {
 
 	@Override
 	public String valueToString(int depth) {
-		StringBuilder sb = new StringBuilder("[");
+		StringBuilder sb = new StringBuilder("{\"type\":\"").append(typeClass.getSimpleName()).append("\",\"list\":[");
 		for (int i = 0; i < size(); i++) {
 			sb.append(i > 0 ? "," : "").append(get(i).toString(incrementDepth(depth)));
 		}
-		sb.append("]");
+		sb.append("]}");
 		return sb.toString();
 	}
 

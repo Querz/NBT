@@ -167,6 +167,14 @@ public class CompoundTag extends Tag<Map<String, Tag>> {
 		return getValue().put(key, checkNull(tag));
 	}
 
+	public boolean containsKey(String key) {
+		return getValue().containsKey(key);
+	}
+
+	public boolean containsValue(Tag value) {
+		return getValue().containsValue(value);
+	}
+
 	public int size() {
 		return getValue().size();
 	}
@@ -187,14 +195,15 @@ public class CompoundTag extends Tag<Map<String, Tag>> {
 			dos.writeUTF(e.getKey());
 			e.getValue().serializeValue(dos, incrementDepth(depth));
 		}
-		new EndTag().serialize(dos, depth);
+		EndTag.INSTANCE.serialize(dos, depth);
 	}
 
 	@Override
 	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
-		for (;;) {
+		for (int id = dis.readByte() & 0xFF; id != 0; id = dis.readByte() & 0xFF) {
+			Tag tag = TagFactory.fromID(id);
 			String name = dis.readUTF();
-			Tag tag = Tag.deserialize(dis, incrementDepth(depth));
+			tag.deserializeValue(dis, incrementDepth(depth));
 			put(name, tag);
 		}
 	}

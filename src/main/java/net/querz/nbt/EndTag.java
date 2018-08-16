@@ -4,7 +4,11 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-class EndTag extends Tag<Void> {
+public class EndTag extends Tag<Void> {
+
+	public static final EndTag INSTANCE = new EndTag();
+
+	private EndTag() {}
 
 	@Override
 	public byte getID() {
