@@ -29,10 +29,6 @@ public class StructTag extends Tag<List<Tag>> {
 
 	public StructTag() {}
 
-	public StructTag(String name) {
-		super(name);
-	}
-
 	@Override
 	public byte getID() {
 		return 120;
@@ -59,47 +55,47 @@ public class StructTag extends Tag<List<Tag>> {
 	}
 
 	public void addBoolean(boolean value) {
-		add(new ByteTag("", (byte) (value ? 1 : 0)));
+		add(new ByteTag(value));
 	}
 	
 	public void addByte(byte value) {
-		add(new ByteTag("", value));
+		add(new ByteTag(value));
 	}
 
 	public void addShort(short value) {
-		add(new ShortTag("", value));
+		add(new ShortTag(value));
 	}
 
 	public void addInt(int value) {
-		add(new IntTag("", value));
+		add(new IntTag(value));
 	}
 
 	public void addLong(long value) {
-		add(new LongTag("", value));
+		add(new LongTag(value));
 	}
 
 	public void addFloat(float value) {
-		add(new FloatTag("", value));
+		add(new FloatTag(value));
 	}
 
 	public void addDouble(double value) {
-		add(new DoubleTag("", value));
+		add(new DoubleTag(value));
 	}
 
 	public void addString(String value) {
-		add(new StringTag("", checkNull(value)));
+		add(new StringTag(checkNull(value)));
 	}
 
 	public void addByteArray(byte[] value) {
-		add(new ByteArrayTag("", checkNull(value)));
+		add(new ByteArrayTag(checkNull(value)));
 	}
 
 	public void addIntArray(int[] value) {
-		add(new IntArrayTag("", checkNull(value)));
+		add(new IntArrayTag(checkNull(value)));
 	}
 
 	public void addLongArray(long[] value) {
-		add(new LongArrayTag("", checkNull(value)));
+		add(new LongArrayTag(checkNull(value)));
 	}
 
 	public <S extends Tag> S get(int index, Class<S> type) {
@@ -258,7 +254,7 @@ public class StructTag extends Tag<List<Tag>> {
 
 	@Override
 	public Tag clone() {
-		StructTag copy = new StructTag(getName());
+		StructTag copy = new StructTag();
 		for (Tag tag : getValue()) {
 			copy.add(tag);
 		}
@@ -269,5 +265,10 @@ public class StructTag extends Tag<List<Tag>> {
 	@Override
 	public boolean valueEquals(List<Tag> value) {
 		return false;
+	}
+
+	@Override
+	public int compareTo(Tag<List<Tag>> o) {
+		return Integer.compare(size(), ((StructTag) o).size());
 	}
 }

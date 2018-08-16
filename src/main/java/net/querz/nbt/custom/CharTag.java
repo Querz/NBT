@@ -14,12 +14,8 @@ public class CharTag extends Tag<Character> {
 
 	public CharTag() {}
 
-	public CharTag(String name) {
-		super(name);
-	}
-
-	public CharTag(String name, char value) {
-		super(name, value);
+	public CharTag(char value) {
+		super(value);
 	}
 
 	@Override
@@ -54,11 +50,16 @@ public class CharTag extends Tag<Character> {
 
 	@Override
 	public CharTag clone() {
-		return new CharTag(getName(), getValue());
+		return new CharTag(getValue());
 	}
 
 	@Override
 	public boolean valueEquals(Character value) {
 		return getValue() == value;
+	}
+
+	@Override
+	public int compareTo(Tag<Character> o) {
+		return Character.compare(getValue(), ((CharTag) o).getValue());
 	}
 }

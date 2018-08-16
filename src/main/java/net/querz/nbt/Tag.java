@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,20 +24,13 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	private static final Pattern ESCAPE_PATTERN = Pattern.compile("[\\\\\n\t\r\"]");
 	private static final Pattern NON_QUOTE_PATTERN = Pattern.compile("[a-zA-Z0-9_\\-+]+");
 
-	private Set<Tag> parents;
-	private String name;
 	private T value;
 
 	public Tag() {
-		this("", null);
+		this(null);
 	}
 
-	public Tag(String name) {
-		this(name, null);
-	}
-
-	public Tag(String name, T value) {
-		this.name = name == null ? "" : name;
+	public Tag(T value) {
 		//the value of a tag can never be null
 		this.value = value == null ? getEmptyValue() : value;
 	}
@@ -48,14 +40,6 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 			throw new NullPointerException(getClass().getSimpleName() + " does not allow setting null");
 		}
 		return v;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = checkNull(name);
 	}
 
 	protected T getValue() {
@@ -68,40 +52,26 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 
 	public final void serialize(DataOutputStream dos, int depth) throws IOException {
 		dos.writeByte(getID());
-		if (getID() != 0) { // EndTag
-			serializeName(name, dos);
-			serializeValue(dos, depth);
+		if (getID() != 0) {
+			dos.writeUTF("");
 		}
-	}
-
-	protected void serializeName(String name, DataOutputStream dos) throws IOException {
-		byte[] nameBytes = name.getBytes(CHARSET);
-		dos.writeShort(nameBytes.length);
-		dos.write(nameBytes);
+		serializeValue(dos, depth);
 	}
 
 	public static Tag deserialize(DataInputStream dis, int depth) throws IOException {
 		int id = dis.readByte() & 0xFF;
 		Tag tag = TagFactory.fromID(id);
 		if (id != 0) {
-			int nameLength = dis.readShort() & 0xFFFF;
-			byte[] nameBytes = new byte[nameLength];
-			dis.readFully(nameBytes);
-			tag.setName(new String(nameBytes, CHARSET));
+			dis.readUTF();
 			tag.deserializeValue(dis, depth);
 		}
 		return tag;
 	}
 
-	@Override
-	public int compareTo(Tag<T> other) {
-		return getName().compareTo(other.getName());
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean equals(Object other) {
-		return other.getClass() == getClass() && getName().equals(((Tag) other).getName()) && valueEquals((T) ((Tag) other).getValue());
+		return other.getClass() == getClass() && valueEquals((T) ((Tag) other).getValue());
 	}
 
 	@Override
@@ -110,8 +80,7 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	}
 
 	protected String toString(int depth) {
-		return "{\"name\":\"" + name + "\"," +
-				"\"type\":\""+ getClass().getSimpleName() + "\"," +
+		return "{\"type\":\""+ getClass().getSimpleName() + "\"," +
 				"\"value\":" + valueToString(depth) + "}";
 	}
 
@@ -120,7 +89,7 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	}
 
 	protected String toTagString(int depth) {
-		return (escapeString(name, true) + ":") + valueToTagString(depth);
+		return valueToTagString(depth);
 	}
 
 	protected int incrementDepth(int depth) {

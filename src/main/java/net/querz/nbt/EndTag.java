@@ -45,4 +45,9 @@ class EndTag extends Tag<Void> {
 	public boolean valueEquals(Void value) {
 		return getValue() == value;
 	}
+
+	@Override
+	public int compareTo(Tag<Void> o) {
+		return 0;
+	}
 }

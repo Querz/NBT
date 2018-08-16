@@ -9,12 +9,8 @@ public class IntArrayTag extends ArrayTag<int[]> {
 
 	public IntArrayTag() {}
 
-	public IntArrayTag(String name) {
-		super(name);
-	}
-
-	public IntArrayTag(String name, int[] value) {
-		super(name, value);
+	public IntArrayTag(int[] value) {
+		super(value);
 	}
 
 	@Override
@@ -56,7 +52,7 @@ public class IntArrayTag extends ArrayTag<int[]> {
 
 	@Override
 	public IntArrayTag clone() {
-		return new IntArrayTag(getName(), Arrays.copyOf(getValue(), length()));
+		return new IntArrayTag(Arrays.copyOf(getValue(), length()));
 	}
 
 	@Override

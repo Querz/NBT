@@ -9,12 +9,8 @@ public class LongArrayTag extends ArrayTag<long[]> {
 
 	public LongArrayTag() {}
 
-	public LongArrayTag(String name) {
-		super(name);
-	}
-
-	public LongArrayTag(String name, long[] value) {
-		super(name, value);
+	public LongArrayTag(long[] value) {
+		super(value);
 	}
 
 	@Override
@@ -63,7 +59,7 @@ public class LongArrayTag extends ArrayTag<long[]> {
 
 	@Override
 	public LongArrayTag clone() {
-		return new LongArrayTag(getName(), Arrays.copyOf(getValue(), length()));
+		return new LongArrayTag(Arrays.copyOf(getValue(), length()));
 	}
 
 	@Override

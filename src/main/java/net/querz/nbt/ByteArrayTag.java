@@ -9,12 +9,8 @@ public class ByteArrayTag extends ArrayTag<byte[]> {
 
 	public ByteArrayTag() {}
 
-	public ByteArrayTag(String name) {
-		super(name);
-	}
-
-	public ByteArrayTag(String name, byte[] value) {
-		super(name, value);
+	public ByteArrayTag(byte[] value) {
+		super(value);
 	}
 
 	@Override
@@ -59,7 +55,7 @@ public class ByteArrayTag extends ArrayTag<byte[]> {
 
 	@Override
 	public ByteArrayTag clone() {
-		return new ByteArrayTag(getName(), Arrays.copyOf(getValue(), length()));
+		return new ByteArrayTag(Arrays.copyOf(getValue(), length()));
 	}
 
 	@Override

@@ -8,12 +8,8 @@ public class IntTag extends NumberTag<Integer> {
 
 	public IntTag() {}
 
-	public IntTag(String name) {
-		super(name);
-	}
-
-	public IntTag(String name, int value) {
-		super(name, value);
+	public IntTag(int value) {
+		super(value);
 	}
 
 	@Override
@@ -53,7 +49,7 @@ public class IntTag extends NumberTag<Integer> {
 
 	@Override
 	public IntTag clone() {
-		return new IntTag(getName(), getValue());
+		return new IntTag(getValue());
 	}
 
 	@Override

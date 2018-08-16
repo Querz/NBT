@@ -10,10 +10,6 @@ public class CompoundTag extends Tag<Map<String, Tag>> {
 
 	public CompoundTag() {}
 
-	public CompoundTag(String name) {
-		super(name);
-	}
-
 	public Tag remove(String key) {
 		return getValue().remove(key);
 	}
@@ -124,51 +120,51 @@ public class CompoundTag extends Tag<Map<String, Tag>> {
 	}
 
 	public Tag putBoolean(String key, boolean value) {
-		return put(new ByteTag(key, (byte) (value ? 1 : 0)));
+		return put(key, new ByteTag(value));
 	}
 
 	public Tag putByte(String key, byte value) {
-		return put(new ByteTag(key, value));
+		return put(key, new ByteTag(value));
 	}
 
 	public Tag putShort(String key, short value) {
-		return put(new ShortTag(key, value));
+		return put(key, new ShortTag(value));
 	}
 
 	public Tag putInt(String key, int value) {
-		return put(new IntTag(key, value));
+		return put(key, new IntTag(value));
 	}
 
 	public Tag putLong(String key, long value) {
-		return put(new LongTag(key, value));
+		return put(key, new LongTag(value));
 	}
 
 	public Tag putFloat(String key, float value) {
-		return put(new FloatTag(key, value));
+		return put(key, new FloatTag(value));
 	}
 
 	public Tag putDouble(String key, double value) {
-		return put(new DoubleTag(key, value));
+		return put(key, new DoubleTag(value));
 	}
 
 	public Tag putString(String key, String value) {
-		return put(new StringTag(key, checkNull(value)));
+		return put(key, new StringTag(checkNull(value)));
 	}
 
 	public Tag putByteArray(String key, byte[] value) {
-		return put(new ByteArrayTag(key, checkNull(value)));
+		return put(key, new ByteArrayTag(checkNull(value)));
 	}
 
 	public Tag putIntArray(String key, int[] value) {
-		return put(new IntArrayTag(key, checkNull(value)));
+		return put(key, new IntArrayTag(checkNull(value)));
 	}
 
 	public Tag putLongArray(String key, long[] value) {
-		return put(new LongArrayTag(key, checkNull(value)));
+		return put(key, new LongArrayTag(checkNull(value)));
 	}
 
-	public Tag put(Tag tag) {
-		return getValue().put(tag.getName(), checkNull(tag));
+	public Tag put(String key, Tag tag) {
+		return getValue().put(key, checkNull(tag));
 	}
 
 	public int size() {
@@ -188,8 +184,7 @@ public class CompoundTag extends Tag<Map<String, Tag>> {
 	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
 		for (Map.Entry<String, Tag> e : getValue().entrySet()) {
 			dos.writeByte(e.getValue().getID());
-			//must use the actual key, not the current tag's name, because they might differ
-			serializeName(e.getKey(), dos);
+			dos.writeUTF(e.getKey());
 			e.getValue().serializeValue(dos, incrementDepth(depth));
 		}
 		new EndTag().serialize(dos, depth);
@@ -198,11 +193,9 @@ public class CompoundTag extends Tag<Map<String, Tag>> {
 	@Override
 	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
 		for (;;) {
+			String name = dis.readUTF();
 			Tag tag = Tag.deserialize(dis, incrementDepth(depth));
-			if (tag instanceof EndTag) {
-				break;
-			}
-			put(tag);
+			put(name, tag);
 		}
 	}
 
@@ -241,9 +234,9 @@ public class CompoundTag extends Tag<Map<String, Tag>> {
 
 	@Override
 	public CompoundTag clone() {
-		CompoundTag copy = new CompoundTag(getName());
-		for (Tag t : getValue().values()) {
-			copy.put(t.clone());
+		CompoundTag copy = new CompoundTag();
+		for (Map.Entry<String, Tag> e : getValue().entrySet()) {
+			copy.put(e.getKey(), e.getValue().clone());
 		}
 		return copy;
 	}
@@ -260,5 +253,10 @@ public class CompoundTag extends Tag<Map<String, Tag>> {
 			}
 		}
 		return true;
+	}
+
+	@Override
+	public int compareTo(Tag<Map<String, Tag>> o) {
+		return Integer.compare(size(), o.getValue().size());
 	}
 }

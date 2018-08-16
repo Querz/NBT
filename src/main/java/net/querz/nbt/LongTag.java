@@ -8,12 +8,8 @@ public class LongTag extends NumberTag<Long> {
 
 	public LongTag() {}
 
-	public LongTag(String name) {
-		super(name);
-	}
-
-	public LongTag(String name, long value) {
-		super(name, value);
+	public LongTag(long value) {
+		super(value);
 	}
 
 	@Override
@@ -53,7 +49,7 @@ public class LongTag extends NumberTag<Long> {
 
 	@Override
 	public LongTag clone() {
-		return new LongTag(getName(), getValue());
+		return new LongTag(getValue());
 	}
 
 	@Override

@@ -6,12 +6,8 @@ public abstract class ArrayTag<T> extends Tag<T> {
 
 	public ArrayTag() {}
 
-	public ArrayTag(String name) {
-		super(name);
-	}
-
-	public ArrayTag(String name, T value) {
-		super(name, value);
+	public ArrayTag(T value) {
+		super(value);
 	}
 
 	protected String arrayToString(T array, String prefix, String suffix) {
@@ -39,5 +35,10 @@ public abstract class ArrayTag<T> extends Tag<T> {
 	@Override
 	public T getValue() {
 		return super.getValue();
+	}
+
+	@Override
+	public int compareTo(Tag<T> other) {
+		return Integer.compare(Array.getLength(getValue()), Array.getLength(other));
 	}
 }

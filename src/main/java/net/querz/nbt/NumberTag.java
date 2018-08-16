@@ -4,12 +4,8 @@ public abstract class NumberTag<T extends Number & Comparable<T>> extends Tag<T>
 
 	public NumberTag() {}
 
-	public NumberTag(String name) {
-		super(name);
-	}
-
-	public NumberTag(String name, T value) {
-		super(name, value);
+	public NumberTag(T value) {
+		super(value);
 	}
 
 	public byte asByte() {
@@ -46,7 +42,6 @@ public abstract class NumberTag<T extends Number & Comparable<T>> extends Tag<T>
 		if (!(other instanceof NumberTag) || this.getClass() != other.getClass()) {
 			return 0;
 		}
-		int nameComparison = super.compareTo(other);
-		return nameComparison == 0 ? getValue().compareTo(other.getValue()) : nameComparison;
+		return getValue().compareTo(other.getValue());
 	}
 }

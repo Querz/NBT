@@ -15,12 +15,8 @@ public class ShortArrayTag extends ArrayTag<short[]> {
 
 	public ShortArrayTag() {}
 
-	public ShortArrayTag(String name) {
-		super(name);
-	}
-
-	public ShortArrayTag(String name, short[] value) {
-		super(name, value);
+	public ShortArrayTag(short[] value) {
+		super(value);
 	}
 
 	@Override
@@ -62,7 +58,7 @@ public class ShortArrayTag extends ArrayTag<short[]> {
 
 	@Override
 	public ShortArrayTag clone() {
-		return new ShortArrayTag(getName(), Arrays.copyOf(getValue(), length()));
+		return new ShortArrayTag(Arrays.copyOf(getValue(), length()));
 	}
 
 	@Override

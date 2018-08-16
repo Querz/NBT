@@ -8,12 +8,8 @@ public class ShortTag extends NumberTag<Short> {
 
 	public ShortTag() {}
 
-	public ShortTag(String name) {
-		super(name);
-	}
-
-	public ShortTag(String name, short value) {
-		super(name, value);
+	public ShortTag(short value) {
+		super(value);
 	}
 
 	@Override
@@ -53,7 +49,7 @@ public class ShortTag extends NumberTag<Short> {
 
 	@Override
 	public ShortTag clone() {
-		return new ShortTag(getName(), getValue());
+		return new ShortTag(getValue());
 	}
 
 	@Override

@@ -14,10 +14,6 @@ public class ListTag<T extends Tag> extends Tag<List<T>> {
 
 	public ListTag() {}
 
-	public ListTag(String name) {
-		super(name);
-	}
-
 	private void checkValue(T t) {
 		checkNull(t);
 		if (typeID != 0 && t.getID() != typeID) {
@@ -134,57 +130,57 @@ public class ListTag<T extends Tag> extends Tag<List<T>> {
 
 	@SuppressWarnings("unchecked")
 	public void addBoolean(boolean value) {
-		add((T) new ByteTag("", (byte) (value ? 1 : 0)));
+		add((T) new ByteTag(value));
 	}
 
 	@SuppressWarnings("unchecked")
 	public void addByte(byte value) {
-		add((T) new ByteTag("", value));
+		add((T) new ByteTag(value));
 	}
 
 	@SuppressWarnings("unchecked")
 	public void addShort(short value) {
-		add((T) new ShortTag("", value));
+		add((T) new ShortTag(value));
 	}
 
 	@SuppressWarnings("unchecked")
 	public void addInt(int value) {
-		add((T) new IntTag("", value));
+		add((T) new IntTag(value));
 	}
 
 	@SuppressWarnings("unchecked")
 	public void addLong(long value) {
-		add((T) new LongTag("", value));
+		add((T) new LongTag(value));
 	}
 
 	@SuppressWarnings("unchecked")
 	public void addFloat(float value) {
-		add((T) new FloatTag("", value));
+		add((T) new FloatTag(value));
 	}
 
 	@SuppressWarnings("unchecked")
 	public void addDouble(byte value) {
-		add((T) new DoubleTag("", value));
+		add((T) new DoubleTag(value));
 	}
 
 	@SuppressWarnings("unchecked")
 	public void addString(String value) {
-		add((T) new StringTag("", checkNull(value)));
+		add((T) new StringTag(checkNull(value)));
 	}
 
 	@SuppressWarnings("unchecked")
 	public void addByteArray(byte[] value) {
-		add((T) new ByteArrayTag("", checkNull(value)));
+		add((T) new ByteArrayTag(checkNull(value)));
 	}
 
 	@SuppressWarnings("unchecked")
 	public void addIntArray(int[] value) {
-		add((T) new IntArrayTag("", checkNull(value)));
+		add((T) new IntArrayTag(checkNull(value)));
 	}
 
 	@SuppressWarnings("unchecked")
 	public void addLongArray(long[] value) {
-		add((T) new LongArrayTag("", checkNull(value)));
+		add((T) new LongArrayTag(checkNull(value)));
 	}
 
 	public T get(int index) {
@@ -272,7 +268,7 @@ public class ListTag<T extends Tag> extends Tag<List<T>> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public ListTag<T> clone() {
-		ListTag<T> copy = new ListTag<>(getName());
+		ListTag<T> copy = new ListTag<>();
 		for (T t : getValue()) {
 			copy.add((T) t.clone());
 		}
@@ -290,5 +286,10 @@ public class ListTag<T extends Tag> extends Tag<List<T>> {
 			}
 		}
 		return true;
+	}
+
+	@Override
+	public int compareTo(Tag<List<T>> o) {
+		return Integer.compare(size(), o.getValue().size());
 	}
 }

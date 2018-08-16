@@ -8,12 +8,8 @@ public class FloatTag extends NumberTag<Float> {
 
 	public FloatTag() {}
 
-	public FloatTag(String name) {
-		super(name);
-	}
-
-	public FloatTag(String name, float value) {
-		super(name, value);
+	public FloatTag(float value) {
+		super(value);
 	}
 
 	@Override
@@ -53,7 +49,7 @@ public class FloatTag extends NumberTag<Float> {
 
 	@Override
 	public FloatTag clone() {
-		return new FloatTag(getName(), getValue());
+		return new FloatTag(getValue());
 	}
 
 	@Override

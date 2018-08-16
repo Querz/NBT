@@ -8,12 +8,8 @@ public class DoubleTag extends NumberTag<Double> {
 
 	public DoubleTag() {}
 
-	public DoubleTag(String name) {
-		super(name);
-	}
-
-	public DoubleTag(String name, double value) {
-		super(name, value);
+	public DoubleTag(double value) {
+		super(value);
 	}
 
 	@Override
@@ -53,7 +49,7 @@ public class DoubleTag extends NumberTag<Double> {
 
 	@Override
 	public DoubleTag clone() {
-		return new DoubleTag(getName(), getValue());
+		return new DoubleTag(getValue());
 	}
 
 	@Override

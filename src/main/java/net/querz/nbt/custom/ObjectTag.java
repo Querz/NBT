@@ -19,12 +19,8 @@ public class ObjectTag<T extends Serializable> extends Tag<T> {
 
 	public ObjectTag() {}
 
-	public ObjectTag(String name) {
-		super(name);
-	}
-
-	public ObjectTag(String name, T value) {
-		super(name, value);
+	public ObjectTag(T value) {
+		super(value);
 	}
 
 	@Override
@@ -71,14 +67,24 @@ public class ObjectTag<T extends Serializable> extends Tag<T> {
 	@Override
 	public ObjectTag clone() {
 		try {
-			return new ObjectTag(getName(), (T) getValue().getClass().getMethod("clone").invoke(getValue()));
+			return new ObjectTag((T) getValue().getClass().getMethod("clone").invoke(getValue()));
 		} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-			return new ObjectTag(getName(), getValue());
+			return new ObjectTag(getValue());
 		}
 	}
 
 	@Override
 	public boolean valueEquals(T value) {
 		return getValue().equals(value);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public int compareTo(Tag<T> o) {
+		ObjectTag oo = (ObjectTag) o;
+		if (oo.getValue() instanceof Comparable) {
+			return ((Comparable) getValue()).compareTo(oo.getValue());
+		}
+		return 0;
 	}
 }

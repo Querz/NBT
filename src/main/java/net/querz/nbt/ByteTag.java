@@ -8,16 +8,12 @@ public class ByteTag extends NumberTag<Byte> {
 
 	public ByteTag() {}
 
-	public ByteTag(String name) {
-		super(name);
+	public ByteTag(byte value) {
+		super(value);
 	}
 
-	public ByteTag(String name, byte value) {
-		super(name, value);
-	}
-
-	public ByteTag(String name, boolean value) {
-		super(name, (byte) (value ? 1 : 0));
+	public ByteTag(boolean value) {
+		super((byte) (value ? 1 : 0));
 	}
 
 	@Override
@@ -64,7 +60,7 @@ public class ByteTag extends NumberTag<Byte> {
 
 	@Override
 	public ByteTag clone() {
-		return new ByteTag(getName(), getValue());
+		return new ByteTag(getValue());
 	}
 
 	@Override

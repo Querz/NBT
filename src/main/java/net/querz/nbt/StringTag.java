@@ -8,12 +8,8 @@ public class StringTag extends Tag<String> {
 
 	public StringTag() {}
 
-	public StringTag(String name) {
-		super(name);
-	}
-
-	public StringTag(String name, String value) {
-		super(name, value);
+	public StringTag(String value) {
+		super(value);
 	}
 
 	@Override
@@ -23,17 +19,12 @@ public class StringTag extends Tag<String> {
 
 	@Override
 	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
-		byte[] data = getValue().getBytes(CHARSET);
-		dos.writeShort(data.length);
-		dos.write(data);
+		dos.writeUTF(getValue());
 	}
 
 	@Override
 	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
-		int length = dis.readShort() & 0xFFFF;
-		byte[] bytes = new byte[length];
-		dis.readFully(bytes);
-		setValue(new String(bytes, CHARSET));
+		setValue(dis.readUTF());
 	}
 
 	@Override
@@ -63,11 +54,16 @@ public class StringTag extends Tag<String> {
 
 	@Override
 	public StringTag clone() {
-		return new StringTag(getName(), getValue());
+		return new StringTag(getValue());
 	}
 
 	@Override
 	public boolean valueEquals(String value) {
 		return getValue().equals(value);
+	}
+
+	@Override
+	public int compareTo(Tag<String> o) {
+		return getValue().compareTo(o.getValue());
 	}
 }
