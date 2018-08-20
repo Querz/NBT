@@ -49,9 +49,13 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	}
 
 	public final void serialize(DataOutputStream dos, int depth) throws IOException {
+		serialize(dos, "", depth);
+	}
+
+	public final void serialize(DataOutputStream dos, String name, int depth) throws IOException {
 		dos.writeByte(getID());
 		if (getID() != 0) {
-			dos.writeUTF("");
+			dos.writeUTF(name);
 		}
 		serializeValue(dos, depth);
 	}
@@ -77,7 +81,7 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 		return toString(0);
 	}
 
-	protected String toString(int depth) {
+	public String toString(int depth) {
 		return "{\"type\":\""+ getClass().getSimpleName() + "\"," +
 				"\"value\":" + valueToString(depth) + "}";
 	}
@@ -86,7 +90,7 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 		return toTagString(0);
 	}
 
-	protected String toTagString(int depth) {
+	public String toTagString(int depth) {
 		return valueToTagString(depth);
 	}
 

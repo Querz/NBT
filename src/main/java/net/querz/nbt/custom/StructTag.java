@@ -228,6 +228,7 @@ public class StructTag extends Tag<List<Tag>> {
 		for (int i = 0; i < size; i++) {
 			Tag tag = TagFactory.fromID(dis.readByte());
 			tag.deserializeValue(dis, incrementDepth(depth));
+			add(tag);
 		}
 	}
 
@@ -241,10 +242,14 @@ public class StructTag extends Tag<List<Tag>> {
 		return sb.toString();
 	}
 
-	//TODO:
 	@Override
 	public String valueToString(int depth) {
-		return getValue() + "";
+		StringBuilder sb = new StringBuilder("[");
+		for (int i = 0; i < size(); i++) {
+			sb.append(i > 0 ? "," : "").append(get(i).toString(incrementDepth(depth)));
+		}
+		sb.append("]");
+		return sb.toString();
 	}
 
 	@Override
@@ -253,7 +258,7 @@ public class StructTag extends Tag<List<Tag>> {
 	}
 
 	@Override
-	public Tag clone() {
+	public StructTag clone() {
 		StructTag copy = new StructTag();
 		for (Tag tag : getValue()) {
 			copy.add(tag);
@@ -261,10 +266,17 @@ public class StructTag extends Tag<List<Tag>> {
 		return copy;
 	}
 
-	//TODO:
 	@Override
 	public boolean valueEquals(List<Tag> value) {
-		return false;
+		if (size() != value.size()) {
+			return false;
+		}
+		for (int i = 0; i < size(); i++) {
+			if (get(i).getClass() != value.get(i).getClass() || !get(i).equals(value.get(i))) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	@Override

@@ -48,12 +48,19 @@ public class ShortArrayTag extends ArrayTag<short[]> {
 
 	@Override
 	public String valueToString(int depth) {
-		return Arrays.toString(getValue());
+		return arrayToString(getValue(), "", "");
 	}
 
 	@Override
 	protected short[] getEmptyValue() {
 		return new short[0];
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		return super.equals(other)
+				&& (getValue() == ((ShortArrayTag) other).getValue()
+				|| Arrays.equals(getValue(), ((ShortArrayTag) other).getValue()));
 	}
 
 	@Override

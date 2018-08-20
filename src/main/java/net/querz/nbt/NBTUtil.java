@@ -20,23 +20,39 @@ public class NBTUtil {
 	private NBTUtil() {}
 
 	public static void writeTag(Tag tag, String file) throws IOException {
-		writeTag(tag, new File(file), true);
+		writeTag(tag, "", new File(file), true);
 	}
 
 	public static void writeTag(Tag tag, File file) throws IOException {
-		writeTag(tag, file, true);
+		writeTag(tag, "", file, true);
 	}
 
 	public static void writeTag(Tag tag, String file, boolean compressed) throws IOException {
-		writeTag(tag, new File(file), compressed);
+		writeTag(tag, "", new File(file), compressed);
 	}
 
 	public static void writeTag(Tag tag, File file, boolean compressed) throws IOException {
+		writeTag(tag, "", file, compressed);
+	}
+
+	public static void writeTag(Tag tag, String name, String file) throws IOException {
+		writeTag(tag, name, new File(file), true);
+	}
+
+	public static void writeTag(Tag tag, String name, File file) throws IOException {
+		writeTag(tag, name, file, true);
+	}
+
+	public static void writeTag(Tag tag, String name, String file, boolean compressed) throws IOException {
+		writeTag(tag, name, new File(file), compressed);
+	}
+
+	public static void writeTag(Tag tag, String name, File file, boolean compressed) throws IOException {
 		try (
 				DataOutputStream dos = new DataOutputStream(
 						compressed ? new GZIPOutputStream(new FileOutputStream(file)) : new FileOutputStream(file))
 		) {
-			tag.serialize(dos, 0);
+			tag.serialize(dos, name, 0);
 		}
 	}
 

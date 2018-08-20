@@ -2,7 +2,6 @@ package net.querz.nbt.custom;
 
 import net.querz.nbt.Tag;
 import net.querz.nbt.TagFactory;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -43,39 +42,58 @@ public class ObjectTag<T extends Serializable> extends Tag<T> {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	public <L extends Serializable> ObjectTag<L> asTypedObjectTag(Class<L> type) {
+		checkTypeClass(type);
+		return (ObjectTag<L>) this;
+	}
+
+	private void checkTypeClass(Class<?> clazz) {
+		if (getValue() != null && (!clazz.isAssignableFrom(getValue().getClass()))) {
+			throw new ClassCastException(String.format(
+					"cannot cast ObjectTag<%s> to ObjectTag<%s>",
+					getValue().getClass().getSimpleName(), clazz.getSimpleName()));
+		}
+	}
+
 	@Override
 	public void setValue(T value) {
 		super.setValue(value);
 	}
 
 	@Override
+	public T getValue() {
+		return super.getValue();
+	}
+
+	@Override
 	public String valueToTagString(int depth) {
-		return escapeString(getValue().toString(), true);
+		return getValue() == null ? "null" : escapeString(getValue().toString(), true);
 	}
 
 	@Override
 	public String valueToString(int depth) {
-		return escapeString(getValue().toString(), false);
+		return getValue() == null ? "null" : escapeString(getValue().toString(), false);
 	}
 
 	@Override
 	protected T getEmptyValue() {
-		throw new NullPointerException("ObjectTag does not support a null value");
+		return null;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public ObjectTag clone() {
+	public ObjectTag<T> clone() {
 		try {
 			return new ObjectTag((T) getValue().getClass().getMethod("clone").invoke(getValue()));
-		} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+		} catch (NullPointerException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
 			return new ObjectTag(getValue());
 		}
 	}
 
 	@Override
 	public boolean valueEquals(T value) {
-		return getValue().equals(value);
+		return getValue() == value || getValue() != null && getValue().equals(value);
 	}
 
 	@SuppressWarnings("unchecked")

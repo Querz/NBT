@@ -1,30 +1,20 @@
 package net.querz.nbt.test;
 
 import junit.framework.TestCase;
-import net.querz.nbt.ByteArrayTag;
-import net.querz.nbt.ByteTag;
-import net.querz.nbt.CompoundTag;
-import net.querz.nbt.DoubleTag;
-import net.querz.nbt.EndTag;
-import net.querz.nbt.FloatTag;
-import net.querz.nbt.IntArrayTag;
-import net.querz.nbt.IntTag;
-import net.querz.nbt.ListTag;
-import net.querz.nbt.LongArrayTag;
-import net.querz.nbt.LongTag;
-import net.querz.nbt.ShortTag;
-import net.querz.nbt.StringTag;
-import net.querz.nbt.Tag;
+import net.querz.nbt.*;
+import net.querz.nbt.custom.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.Map;
 import static net.querz.nbt.test.TestUtil.*;
 
 public class TagTest extends TestCase {
@@ -351,8 +341,10 @@ public class TagTest extends TestCase {
 		//test serialization / deserialization
 		byte[] data = serialize(bl);
 		assertTrue(Arrays.equals(new byte[]{9, 0, 0, 1, 0, 0, 0, 3, -128, 0, 127}, data));
-		ListTag<ByteTag> tt = ((ListTag<?>) deserialize(data)).asByteTagList();
-		assertTrue(bl.equals(tt));
+		ListTag<?> tt = (ListTag<?>) deserialize(data);
+		assertNotNull(tt);
+		ListTag<ByteTag> ttt = tt.asByteTagList();
+		assertTrue(bl.equals(ttt));
 
 		//test casting and type consistency
 		ListTag<ByteTag> b = new ListTag<>();
@@ -372,6 +364,42 @@ public class TagTest extends TestCase {
 
 		b.remove(0);
 		assertEquals(EndTag.class, b.getTypeClass());
+
+		//test compareTo
+		ListTag<IntTag> li = new ListTag<>();
+		li.addInt(1);
+		li.addInt(2);
+		ListTag<IntTag> lo = new ListTag<>();
+		lo.addInt(3);
+		lo.addInt(4);
+		assertEquals(0, li.compareTo(lo));
+		lo.addInt(5);
+		assertEquals(-1, li.compareTo(lo));
+		lo.remove(2);
+		lo.remove(1);
+		assertEquals(1, li.compareTo(lo));
+
+		//test max depth
+		ListTag<ListTag<?>> root = new ListTag<>();
+		ListTag<ListTag<?>> rec = root;
+		for (int i = 0; i < Tag.MAX_DEPTH + 1; i++) {
+			ListTag<ListTag<?>> l = new ListTag<>();
+			rec.add(l);
+			rec = l;
+		}
+		assertThrowsException(() -> serialize(root), MaxDepthReachedException.class);
+		assertThrowsException(() -> deserializeFromFile("max_depth_reached.dat"), MaxDepthReachedException.class);
+		assertThrowsException(root::toString, MaxDepthReachedException.class);
+		assertThrowsException(root::toTagString, MaxDepthReachedException.class);
+		assertThrowsException(() -> root.valueToString(-1), IllegalArgumentException.class);
+		assertThrowsException(() -> root.valueToTagString(-1), IllegalArgumentException.class);
+
+		//test recursion
+		ListTag<ListTag<?>> recursive = new ListTag<>();
+		recursive.add(recursive);
+		assertThrowsException(() -> serialize(recursive), MaxDepthReachedException.class);
+		assertThrowsException(recursive::toString, MaxDepthReachedException.class);
+		assertThrowsException(recursive::toTagString, MaxDepthReachedException.class);
 	}
 
 	public void testCompoundTag() {
@@ -418,15 +446,211 @@ public class TagTest extends TestCase {
 		CompoundTag tt = (CompoundTag) deserialize(data);
 		assertTrue(ct.equals(tt));
 
+		//casting
+		CompoundTag cc = new CompoundTag();
+		cc.putInt("one", 1);
+		assertThrowsException(() -> cc.getLong("one"), ClassCastException.class);
+
+		//test compareTo
+		CompoundTag ci = new CompoundTag();
+		ci.putInt("one", 1);
+		ci.putInt("two", 2);
+		CompoundTag co = new CompoundTag();
+		co.putInt("three", 3);
+		co.putInt("four", 4);
+		assertEquals(0, ci.compareTo(co));
+		co.putInt("five", 5);
+		assertEquals(-1, ci.compareTo(co));
+		co.remove("five");
+		co.remove("four");
+		assertEquals(1, ci.compareTo(co));
+
+		//test max depth
+		CompoundTag root = new CompoundTag();
+		CompoundTag rec = root;
+		for (int i = 0; i < Tag.MAX_DEPTH + 1; i++) {
+			CompoundTag c = new CompoundTag();
+			rec.put("c" + i, c);
+			rec = c;
+		}
+		assertThrowsException(() -> serialize(root), MaxDepthReachedException.class);
+		assertThrowsException(() -> deserializeFromFile("max_depth_reached.dat"), MaxDepthReachedException.class);
+		assertThrowsException(root::toString, MaxDepthReachedException.class);
+		assertThrowsException(root::toTagString, MaxDepthReachedException.class);
+		assertThrowsException(() -> root.valueToString(-1), IllegalArgumentException.class);
+		assertThrowsException(() -> root.valueToTagString(-1), IllegalArgumentException.class);
+
+		//test recursion
+		CompoundTag recursive = new CompoundTag();
+		recursive.put("recursive", recursive);
+		assertThrowsException(() -> serialize(recursive), MaxDepthReachedException.class);
+		assertThrowsException(recursive::toString, MaxDepthReachedException.class);
+		assertThrowsException(recursive::toTagString, MaxDepthReachedException.class);
 	}
 
-	//TODO: test compoundtag, custom tags, writing to file, reading from file, recursion
+	public void testCustomCharTag() {
+		CharTag.register();
+		CharTag t = new CharTag('a');
+		assertEquals('a', (char) t.getValue());
+		assertEquals(110, t.getID());
+		assertEquals("a", t.toTagString());
+		assertEquals("{\"type\":\"" + t.getClass().getSimpleName() + "\",\"value\":\"a\"}", t.toString());
 
-//	public void tearDown() throws Exception {
-//		super.tearDown();
-//		Files.deleteIfExists(Paths.get(TestUtil.RESOURCES_PATH + "test_NBTFileWriter.dat"));
-//		TagType.unregisterAllCustomTags();
-//	}
+		CharTag t2 = new CharTag('a');
+		assertTrue(t.equals(t2));
+
+		CharTag t3 = new CharTag('b');
+		assertFalse(t.equals(t3));
+
+		//test cloning
+		CharTag tc = t.clone();
+		assertTrue(t.equals(tc));
+		assertFalse(t == tc);
+
+		//test serialization
+		byte[] data = serialize(t);
+		assertTrue(Arrays.equals(new byte[]{110, 0, 0, 0, 97}, data));
+		CharTag tt = (CharTag) deserialize(data);
+		assertTrue(t.equals(tt));
+	}
+
+	public void testCustomShortArrayTag() {
+		ShortArrayTag.register();
+		ShortArrayTag t = new ShortArrayTag(new short[]{Short.MIN_VALUE, 0, Short.MAX_VALUE});
+		assertTrue(Arrays.equals(new short[]{Short.MIN_VALUE, 0, Short.MAX_VALUE}, t.getValue()));
+		assertEquals(100, t.getID());
+		assertEquals("[S;-32768s,0s,32767s]", t.toTagString());
+		assertEquals("{\"type\":\"" + t.getClass().getSimpleName() + "\",\"value\":[-32768,0,32767]}", t.toString());
+
+		ShortArrayTag t2 = new ShortArrayTag(new short[]{Short.MIN_VALUE, 0, Short.MAX_VALUE});
+		assertTrue(t.equals(t2));
+
+		ShortArrayTag t3 = new ShortArrayTag(new short[]{Short.MAX_VALUE, 0, Short.MIN_VALUE});
+		assertFalse(t.equals(t3));
+
+		//test cloning
+		ShortArrayTag tc = t.clone();
+		assertTrue(t.equals(tc));
+		assertFalse(t == tc);
+		assertFalse(t.getValue() == tc.getValue());
+
+		//test serialization
+		byte[] data = serialize(t);
+		assertTrue(Arrays.equals(new byte[]{100, 0, 0, 0, 0, 0, 3, -128, 0, 0, 0, 127, -1}, data));
+		ShortArrayTag tt = (ShortArrayTag) deserialize(data);
+		assertTrue(t.equals(tt));
+	}
+
+	public void testCustomObjectTag() {
+		ObjectTag.register();
+		DummyObject d = new DummyObject();
+		ObjectTag<DummyObject> o = new ObjectTag<>(d);
+		assertEquals(90, o.getID());
+		assertEquals("{\"type\":\"ObjectTag\",\"value\":\"" + d + "\"}", o.toString());
+		assertEquals("\"" + d + "\"", o.toTagString());
+
+		//test equality
+		ObjectTag<DummyObject> o2 = new ObjectTag<>(d);
+		assertTrue(o.equals(o2));
+
+		ObjectTag<DummyObject> o3 = new ObjectTag<>(new DummyObject());
+		assertFalse(o.equals(o3));
+
+		ObjectTag<DummyObject> o4 = new ObjectTag<>(d.clone());
+		assertTrue(o.equals(o4));
+
+		//test cloning
+		ObjectTag<DummyObject> c = o.clone();
+		assertTrue(o.equals(c));
+		assertFalse(o == c);
+		assertFalse(o.getValue() == c.getValue());
+
+		ObjectTag<String> s = new ObjectTag<>("string");
+		ObjectTag<String> cs = s.clone();
+		assertTrue(s.equals(cs));
+		assertFalse(s == cs);
+		//String is immutable and not cloneable, so it still has the same reference
+		//noinspection StringEquality
+		assertTrue(s.getValue() == cs.getValue());
+
+		//test serialization
+		byte[] data = serialize(o);
+		ObjectTag<?> oo = ((ObjectTag<?>) deserialize(data));
+		assertNotNull(oo);
+		assertThrowsNoException(() -> oo.asTypedObjectTag(AbstractDummyObject.class));
+		assertThrowsException(() -> oo.asTypedObjectTag(String.class), ClassCastException.class);
+		ObjectTag<AbstractDummyObject> ooo = oo.asTypedObjectTag(AbstractDummyObject.class);
+		assertTrue(o.equals(ooo));
+
+		//test null value
+		ObjectTag<DummyObject> n = new ObjectTag<>();
+		assertNull(n.getValue());
+		assertEquals("{\"type\":\"ObjectTag\",\"value\":null}", n.toString());
+		assertEquals("null", n.toTagString());
+
+		ObjectTag<DummyObject> n2 = new ObjectTag<>(null);
+		assertTrue(n.equals(n2));
+
+		//null is equals to null, no matter the type
+		ObjectTag<String> n3 = new ObjectTag<>(null);
+		assertTrue(n.equals(n3));
+
+		ObjectTag<DummyObject> nc = n.clone();
+		assertTrue(n.equals(nc));
+		assertFalse(n == nc);
+		assertTrue(n.getValue() == nc.getValue());
+
+		data = serialize(n);
+		ObjectTag<?> nn = ((ObjectTag<?>) deserialize(data));
+		assertNotNull(nn);
+		ObjectTag<AbstractDummyObject> nnn = nn.asTypedObjectTag(AbstractDummyObject.class);
+		assertTrue(n.equals(nnn));
+	}
+
+	public void testCustomStructTag() {
+		StructTag.register();
+		StructTag s = new StructTag();
+		s.add(new ByteTag(Byte.MAX_VALUE));
+		s.add(new IntTag(Integer.MAX_VALUE));
+		assertEquals(120, s.getID());
+		assertEquals("[127b,2147483647]", s.toTagString());
+		assertEquals("{\"type\":\"StructTag\",\"value\":[{\"type\":\"ByteTag\",\"value\":127},{\"type\":\"IntTag\",\"value\":2147483647}]}", s.toString());
+
+		//test equality
+		StructTag s2 = new StructTag();
+		s2.add(new ByteTag(Byte.MAX_VALUE));
+		s2.add(new IntTag(Integer.MAX_VALUE));
+		assertTrue(s.equals(s2));
+
+		StructTag s3 = new StructTag();
+		s3.add(new IntTag(Integer.MAX_VALUE));
+		s3.add(new ByteTag(Byte.MAX_VALUE));
+		assertFalse(s.equals(s3));
+
+		StructTag s4 = new StructTag();
+		s4.add(new ByteTag(Byte.MAX_VALUE));
+		assertFalse(s.equals(s4));
+
+		//test cloning
+		StructTag c = s.clone();
+		assertTrue(s.equals(c));
+		assertFalse(s == c);
+		assertFalse(invokeGetValue(s) == invokeGetValue(c));
+
+		//test serialization
+		byte[] data = serialize(s);
+		assertTrue(Arrays.equals(new byte[]{120, 0, 0, 0, 0, 0, 2, 1, 127, 3, 127, -1, -1, -1}, data));
+		StructTag ss = (StructTag) deserialize(data);
+		assertTrue(s.equals(ss));
+	}
+
+	public void tearDown() throws Exception {
+		super.tearDown();
+		TagFactory.unregisterCustomTag(90);
+		TagFactory.unregisterCustomTag(100);
+		TagFactory.unregisterCustomTag(110);
+		TagFactory.unregisterCustomTag(120);
+	}
 
 
 	private byte[] serialize(Tag tag) {
@@ -441,6 +665,19 @@ public class TagTest extends TestCase {
 
 	private Tag deserialize(byte[] data) {
 		try (DataInputStream dis = new DataInputStream(new ByteArrayInputStream(data))) {
+			return Tag.deserialize(dis, 0);
+		} catch (IOException ex) {
+			ex.printStackTrace();
+			fail(ex.getMessage());
+			return null;
+		}
+	}
+
+	private Tag deserializeFromFile(String f) {
+		URL resource = getClass().getClassLoader().getResource(f);
+		assertNotNull(resource);
+		File file = new File(resource.getFile());
+		try (DataInputStream dis = new DataInputStream(new FileInputStream(file))) {
 			return Tag.deserialize(dis, 0);
 		} catch (IOException ex) {
 			ex.printStackTrace();

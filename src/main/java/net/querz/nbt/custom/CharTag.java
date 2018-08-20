@@ -35,17 +35,26 @@ public class CharTag extends Tag<Character> {
 
 	@Override
 	public String valueToTagString(int depth) {
-		return getValue() + "";
+		return escapeString(getValue() + "", true);
 	}
 
 	@Override
 	public String valueToString(int depth) {
-		return getValue() + "";
+		return escapeString(getValue() + "", false);
 	}
 
 	@Override
 	protected Character getEmptyValue() {
 		return 0;
+	}
+
+	@Override
+	public Character getValue() {
+		return super.getValue();
+	}
+
+	public void setValue(char value) {
+		super.setValue(value);
 	}
 
 	@Override
