@@ -42,8 +42,8 @@ public class FloatTag extends NumberTag<Float> {
 	}
 
 	@Override
-	public boolean valueEquals(Float value) {
-		return asFloat() == value;
+	public boolean equals(Object other) {
+		return super.equals(other) && asFloat() == ((FloatTag) other).asFloat();
 	}
 
 	@Override

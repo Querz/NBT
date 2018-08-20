@@ -19,6 +19,29 @@ import static net.querz.nbt.test.TestUtil.*;
 
 public class TagTest extends TestCase {
 
+	//method order
+	/*
+	* constructors ordered by number of arguments
+	* getID()
+	* getEmptyValue()
+	* size()
+	* remove()
+	* clear()
+	* contains()
+	* methods for getting the value
+	* methods for setting the value
+	* other public convenience methods
+	* serializeValue()
+	* deserializeValue()
+	* valueToString()
+	* valueToTagString()
+	* equals()
+	* compareTo()
+	* clone()
+	* other protected convenience methods
+	* other private convenience methods
+	* */
+
 	public void testByteTag() {
 		ByteTag t = new ByteTag(Byte.MAX_VALUE);
 		assertEquals(Byte.MAX_VALUE, t.asByte());

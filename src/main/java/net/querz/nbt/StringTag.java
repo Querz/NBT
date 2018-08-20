@@ -53,8 +53,8 @@ public class StringTag extends Tag<String> {
 	}
 
 	@Override
-	public boolean valueEquals(String value) {
-		return getValue().equals(value);
+	public boolean equals(Object other) {
+		return super.equals(other) && getValue().equals(((StringTag) other).getValue());
 	}
 
 	@Override

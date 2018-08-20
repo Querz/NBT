@@ -50,8 +50,8 @@ public class ByteTag extends NumberTag<Byte> {
 	}
 
 	@Override
-	public boolean valueEquals(Byte value) {
-		return asByte() == value;
+	public boolean equals(Object other) {
+		return super.equals(other) && asByte() == ((ByteTag) other).asByte();
 	}
 
 	@Override

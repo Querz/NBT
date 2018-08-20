@@ -42,8 +42,8 @@ public class IntTag extends NumberTag<Integer> {
 	}
 
 	@Override
-	public boolean valueEquals(Integer value) {
-		return asInt() == value;
+	public boolean equals(Object other) {
+		return super.equals(other) && asInt() == ((IntTag) other).asInt();
 	}
 
 	@Override

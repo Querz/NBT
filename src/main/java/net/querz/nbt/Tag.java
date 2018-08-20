@@ -71,12 +71,6 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 
 	public abstract void deserializeValue(DataInputStream dis, int depth) throws IOException;
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public boolean equals(Object other) {
-		return other.getClass() == getClass() && valueEquals((T) ((Tag) other).getValue());
-	}
-
 	@Override
 	public String toString() {
 		return toString(0);
@@ -99,7 +93,10 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 
 	public abstract String valueToTagString(int depth);
 
-	public abstract boolean valueEquals(T value);
+	@Override
+	public boolean equals(Object other) {
+		return  other != null && getClass() == other.getClass();
+	}
 
 	@SuppressWarnings("CloneDoesntDeclareCloneNotSupportedException")
 	protected abstract Tag clone();

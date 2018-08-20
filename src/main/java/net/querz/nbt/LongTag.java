@@ -42,8 +42,8 @@ public class LongTag extends NumberTag<Long> {
 	}
 
 	@Override
-	public boolean valueEquals(Long value) {
-		return asLong() == value;
+	public boolean equals(Object other) {
+		return super.equals(other) && asLong() == ((LongTag) other).asLong();
 	}
 
 	@Override

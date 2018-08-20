@@ -279,12 +279,12 @@ public class ListTag<T extends Tag> extends Tag<List<T>> {
 	}
 
 	@Override
-	public boolean valueEquals(List<T> value) {
-		if (size() != value.size()) {
+	public boolean equals(Object other) {
+		if (!super.equals(other) || size() != ((ListTag<?>) other).size() || typeID != ((ListTag<?>) other).getTypeID()) {
 			return false;
 		}
 		for (int i = 0; i < size(); i++) {
-			if (!get(i).equals(value.get(i))) {
+			if (!get(i).equals(((ListTag<?>) other).get(i))) {
 				return false;
 			}
 		}

@@ -52,8 +52,11 @@ public class ShortArrayTag extends ArrayTag<short[]> {
 	}
 
 	@Override
-	public boolean valueEquals(short[] value) {
-		return getValue() == value || getValue().length == value.length && Arrays.equals(getValue(), value);
+	public boolean equals(Object other) {
+		return super.equals(other)
+				&& (getValue() == ((ShortArrayTag) other).getValue()
+				|| getValue().length == (((ShortArrayTag) other).length())
+				&& Arrays.equals(getValue(), ((ShortArrayTag) other).getValue()));
 	}
 
 	@Override

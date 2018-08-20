@@ -42,8 +42,8 @@ public class ShortTag extends NumberTag<Short> {
 	}
 
 	@Override
-	public boolean valueEquals(Short value) {
-		return asShort() == value;
+	public boolean equals(Object other) {
+		return super.equals(other) && asShort() == ((ShortTag) other).asShort();
 	}
 
 	@Override

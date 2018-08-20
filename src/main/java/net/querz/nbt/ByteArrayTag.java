@@ -42,8 +42,11 @@ public class ByteArrayTag extends ArrayTag<byte[]> {
 	}
 
 	@Override
-	public boolean valueEquals(byte[] value) {
-		return getValue() == value || getValue().length == value.length && Arrays.equals(getValue(), value);
+	public boolean equals(Object other) {
+		return super.equals(other)
+				&& (getValue() == ((ByteArrayTag) other).getValue()
+				|| getValue().length == (((ByteArrayTag) other).length())
+				&& Arrays.equals(getValue(), ((ByteArrayTag) other).getValue()));
 	}
 
 	@Override

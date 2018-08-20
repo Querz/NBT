@@ -242,13 +242,13 @@ public class CompoundTag extends Tag<Map<String, Tag>> {
 	}
 
 	@Override
-	public boolean valueEquals(Map<String, Tag> value) {
-		if (size() != value.size()) {
+	public boolean equals(Object other) {
+		if (!super.equals(other) || size() != ((CompoundTag) other).size()) {
 			return false;
 		}
 		for (Map.Entry<String, Tag> e : getValue().entrySet()) {
 			Tag v;
-			if ((v = value.get(e.getKey())) == null || !e.getValue().equals(v)) {
+			if ((v = ((CompoundTag) other).get(e.getKey())) == null || !e.getValue().equals(v)) {
 				return false;
 			}
 		}

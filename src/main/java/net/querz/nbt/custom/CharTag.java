@@ -58,8 +58,8 @@ public class CharTag extends Tag<Character> {
 	}
 
 	@Override
-	public boolean valueEquals(Character value) {
-		return getValue() == value;
+	public boolean equals(Object other) {
+		return super.equals(other) && getValue() == ((CharTag) other).getValue();
 	}
 
 	@Override

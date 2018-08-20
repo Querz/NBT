@@ -74,8 +74,11 @@ public class ObjectTag<T extends Serializable> extends Tag<T> {
 	}
 
 	@Override
-	public boolean valueEquals(T value) {
-		return getValue() == value || getValue() != null && getValue().equals(value);
+	public boolean equals(Object other) {
+		return super.equals(other)
+				&& (getValue() == ((ObjectTag) other).getValue()
+				|| getValue() != null
+				&& getValue().equals(((ObjectTag<?>) other).getValue()));
 	}
 
 	@SuppressWarnings("unchecked")

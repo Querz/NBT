@@ -262,12 +262,12 @@ public class StructTag extends Tag<List<Tag>> {
 	}
 
 	@Override
-	public boolean valueEquals(List<Tag> value) {
-		if (size() != value.size()) {
+	public boolean equals(Object other) {
+		if (!super.equals(other) || size() != ((StructTag) other).size()) {
 			return false;
 		}
 		for (int i = 0; i < size(); i++) {
-			if (get(i).getClass() != value.get(i).getClass() || !get(i).equals(value.get(i))) {
+			if (!get(i).equals(((StructTag) other).get(i))) {
 				return false;
 			}
 		}
