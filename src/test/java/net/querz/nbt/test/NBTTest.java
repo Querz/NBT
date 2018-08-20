@@ -17,30 +17,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import static net.querz.nbt.test.TestUtil.*;
 
-public class TagTest extends TestCase {
-
-	//method order
-	/*
-	* constructors ordered by number of arguments
-	* getID()
-	* getEmptyValue()
-	* size()
-	* remove()
-	* clear()
-	* contains()
-	* methods for getting the value
-	* methods for setting the value
-	* other public convenience methods
-	* serializeValue()
-	* deserializeValue()
-	* valueToString()
-	* valueToTagString()
-	* equals()
-	* compareTo()
-	* clone()
-	* other protected convenience methods
-	* other private convenience methods
-	* */
+public class NBTTest extends TestCase {
 
 	public void testByteTag() {
 		ByteTag t = new ByteTag(Byte.MAX_VALUE);
@@ -667,12 +644,35 @@ public class TagTest extends TestCase {
 		assertTrue(s.equals(ss));
 	}
 
+	public void testWriteReadTag() {
+		CompoundTag t = new CompoundTag();
+		invokeSetValue(t, new LinkedHashMap<>());
+		t.putByte("byte", Byte.MAX_VALUE);
+		t.putShort("short", Short.MAX_VALUE);
+		File file = getNewTmpFile("compressed.dat");
+		try {
+			NBTUtil.writeTag(t, "name", file, true);
+		} catch (IOException ex) {
+			fail(ex.getMessage());
+		}
+
+		assertEquals("E8F7B55F81FADB8A5657461D9188DE73", calculateFileMD5(file));
+
+		try {
+			CompoundTag tt = (CompoundTag) NBTUtil.readTag(file);
+			assertTrue(t.equals(tt));
+		} catch (IOException ex) {
+			fail(ex.getMessage());
+		}
+	}
+
 	public void tearDown() throws Exception {
 		super.tearDown();
 		TagFactory.unregisterCustomTag(90);
 		TagFactory.unregisterCustomTag(100);
 		TagFactory.unregisterCustomTag(110);
 		TagFactory.unregisterCustomTag(120);
+		cleanupTmpDir();
 	}
 
 
