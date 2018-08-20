@@ -19,6 +19,11 @@ public class LongArrayTag extends ArrayTag<long[]> {
 	}
 
 	@Override
+	protected long[] getEmptyValue() {
+		return new long[0];
+	}
+
+	@Override
 	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
 		dos.writeInt(length());
 		for (long i : getValue()) {
@@ -41,29 +46,12 @@ public class LongArrayTag extends ArrayTag<long[]> {
 	}
 
 	@Override
-	public String valueToString(int depth) {
-		return arrayToString(getValue(), "", "");
-	}
-
-	@Override
-	protected long[] getEmptyValue() {
-		return new long[0];
-	}
-
-	@Override
-	public boolean equals(Object other) {
-		return super.equals(other)
-				&& (getValue() == ((LongArrayTag) other).getValue()
-				|| Arrays.equals(getValue(), ((LongArrayTag) other).getValue()));
+	public boolean valueEquals(long[] value) {
+		return getValue() == value || getValue().length == value.length && Arrays.equals(getValue(), value);
 	}
 
 	@Override
 	public LongArrayTag clone() {
 		return new LongArrayTag(Arrays.copyOf(getValue(), length()));
-	}
-
-	@Override
-	public boolean valueEquals(long[] value) {
-		return getValue() == value || getValue().length == value.length && Arrays.equals(getValue(), value);
 	}
 }

@@ -10,8 +10,34 @@ public class CompoundTag extends Tag<Map<String, Tag>> {
 
 	public CompoundTag() {}
 
+	@Override
+	public byte getID() {
+		return 10;
+	}
+
+	@Override
+	protected Map<String, Tag> getEmptyValue() {
+		return new HashMap<>(8);
+	}
+
+	public int size() {
+		return getValue().size();
+	}
+
 	public Tag remove(String key) {
 		return getValue().remove(key);
+	}
+
+	public void clear() {
+		getValue().clear();
+	}
+
+	public boolean containsKey(String key) {
+		return getValue().containsKey(key);
+	}
+
+	public boolean containsValue(Tag value) {
+		return getValue().containsValue(value);
 	}
 
 	public <C extends Tag> C get(String key, Class<C> type) {
@@ -119,6 +145,10 @@ public class CompoundTag extends Tag<Map<String, Tag>> {
 		return getLongArrayTag(key).getValue();
 	}
 
+	public Tag put(String key, Tag tag) {
+		return getValue().put(key, checkNull(tag));
+	}
+
 	public Tag putBoolean(String key, boolean value) {
 		return put(key, new ByteTag(value));
 	}
@@ -163,31 +193,6 @@ public class CompoundTag extends Tag<Map<String, Tag>> {
 		return put(key, new LongArrayTag(checkNull(value)));
 	}
 
-	public Tag put(String key, Tag tag) {
-		return getValue().put(key, checkNull(tag));
-	}
-
-	public boolean containsKey(String key) {
-		return getValue().containsKey(key);
-	}
-
-	public boolean containsValue(Tag value) {
-		return getValue().containsValue(value);
-	}
-
-	public int size() {
-		return getValue().size();
-	}
-
-	public void clear() {
-		getValue().clear();
-	}
-
-	@Override
-	public byte getID() {
-		return 10;
-	}
-
 	@Override
 	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
 		for (Map.Entry<String, Tag> e : getValue().entrySet()) {
@@ -209,20 +214,6 @@ public class CompoundTag extends Tag<Map<String, Tag>> {
 	}
 
 	@Override
-	public String valueToTagString(int depth) {
-		StringBuilder sb = new StringBuilder("{");
-		boolean first = true;
-		for (Map.Entry<String, Tag> e : getValue().entrySet()) {
-			sb.append(first ? "" : ",")
-					.append(escapeString(e.getKey(), true)).append(":")
-					.append(e.getValue().valueToTagString(incrementDepth(depth)));
-			first = false;
-		}
-		sb.append("}");
-		return sb.toString();
-	}
-
-	@Override
 	public String valueToString(int depth) {
 		StringBuilder sb = new StringBuilder("{");
 		boolean first = true;
@@ -237,17 +228,17 @@ public class CompoundTag extends Tag<Map<String, Tag>> {
 	}
 
 	@Override
-	protected Map<String, Tag> getEmptyValue() {
-		return new HashMap<>(8);
-	}
-
-	@Override
-	public CompoundTag clone() {
-		CompoundTag copy = new CompoundTag();
+	public String valueToTagString(int depth) {
+		StringBuilder sb = new StringBuilder("{");
+		boolean first = true;
 		for (Map.Entry<String, Tag> e : getValue().entrySet()) {
-			copy.put(e.getKey(), e.getValue().clone());
+			sb.append(first ? "" : ",")
+					.append(escapeString(e.getKey(), true)).append(":")
+					.append(e.getValue().valueToTagString(incrementDepth(depth)));
+			first = false;
 		}
-		return copy;
+		sb.append("}");
+		return sb.toString();
 	}
 
 	@Override
@@ -267,5 +258,14 @@ public class CompoundTag extends Tag<Map<String, Tag>> {
 	@Override
 	public int compareTo(Tag<Map<String, Tag>> o) {
 		return Integer.compare(size(), o.getValue().size());
+	}
+
+	@Override
+	public CompoundTag clone() {
+		CompoundTag copy = new CompoundTag();
+		for (Map.Entry<String, Tag> e : getValue().entrySet()) {
+			copy.put(e.getKey(), e.getValue().clone());
+		}
+		return copy;
 	}
 }

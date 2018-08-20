@@ -18,6 +18,21 @@ public class StringTag extends Tag<String> {
 	}
 
 	@Override
+	protected String getEmptyValue() {
+		return "";
+	}
+
+	@Override
+	public String getValue() {
+		return super.getValue();
+	}
+
+	@Override
+	public void setValue(String value) {
+		super.setValue(checkNull(value));
+	}
+
+	@Override
 	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
 		dos.writeUTF(getValue());
 	}
@@ -28,33 +43,13 @@ public class StringTag extends Tag<String> {
 	}
 
 	@Override
-	public String valueToTagString(int depth) {
-		return escapeString(getValue(), true);
-	}
-
-	@Override
 	public String valueToString(int depth) {
 		return escapeString(getValue(), false);
 	}
 
 	@Override
-	protected String getEmptyValue() {
-		return "";
-	}
-
-	@Override
-	public void setValue(String value) {
-		super.setValue(checkNull(value));
-	}
-
-	@Override
-	public String getValue() {
-		return super.getValue();
-	}
-
-	@Override
-	public StringTag clone() {
-		return new StringTag(getValue());
+	public String valueToTagString(int depth) {
+		return escapeString(getValue(), true);
 	}
 
 	@Override
@@ -65,5 +60,10 @@ public class StringTag extends Tag<String> {
 	@Override
 	public int compareTo(Tag<String> o) {
 		return getValue().compareTo(o.getValue());
+	}
+
+	@Override
+	public StringTag clone() {
+		return new StringTag(getValue());
 	}
 }

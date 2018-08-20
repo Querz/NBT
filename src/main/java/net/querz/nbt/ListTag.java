@@ -15,32 +15,58 @@ public class ListTag<T extends Tag> extends Tag<List<T>> {
 
 	public ListTag() {}
 
-	private void checkValue(T t) {
-		checkNull(t);
-		if (typeID != 0 && t.getID() != typeID) {
-			throw new IllegalArgumentException(String.format(
-					"cannot add %s to ListTag<%s>",
-					t.getClass().getSimpleName(), typeClass.getSimpleName()));
-		}
+	@Override
+	public byte getID() {
+		return 9;
 	}
 
-	private void checkTypeClass(Class<?> clazz) {
-		if (typeClass != EndTag.class && clazz != typeClass) {
-			throw new ClassCastException(String.format(
-					"cannot cast ListTag<%s> to ListTag<%s>",
-					typeClass.getSimpleName(), clazz.getSimpleName()));
-		}
+	public byte getTypeID() {
+		return typeID;
 	}
 
-	private void checkEmpty() {
-		if (size() == 0) {
-			typeID = 0;
-			typeClass = EndTag.class;
-		}
+	public Class<? extends Tag> getTypeClass() {
+		return typeClass;
+	}
+
+	@Override
+	protected List<T> getEmptyValue() {
+		return new ArrayList<>(3);
+	}
+
+	public int size() {
+		return getValue().size();
+	}
+
+	public T remove(int index) {
+		T removed = getValue().remove(index);
+		checkEmpty();
+		return removed;
+	}
+
+	public void clear() {
+		getValue().clear();
+		checkEmpty();
+	}
+
+	public boolean contains(T t) {
+		return getValue().contains(t);
+	}
+
+	public boolean containsAll(Collection<Tag> tags) {
+		return getValue().containsAll(tags);
+	}
+
+	public void sort(Comparator<T> comparator) {
+		getValue().sort(comparator);
+	}
+
+	public T set(int index, T t) {
+		checkValue(t);
+		return getValue().set(index, t);
 	}
 
 	/**
-	 * Adds a Tag to this ListTag.
+	 * Adds a Tag to this ListTag after the last index.
 	 * @param t The element to be added.
 	 * @throws IllegalArgumentException if this ListTag already contains a Tag of another type.
 	 * */
@@ -69,14 +95,63 @@ public class ListTag<T extends Tag> extends Tag<List<T>> {
 		}
 	}
 
-	public T remove(int index) {
-		T removed = getValue().remove(index);
-		checkEmpty();
-		return removed;
+	@SuppressWarnings("unchecked")
+	public void addBoolean(boolean value) {
+		add((T) new ByteTag(value));
 	}
 
-	public boolean contains(T t) {
-		return getValue().contains(t);
+	@SuppressWarnings("unchecked")
+	public void addByte(byte value) {
+		add((T) new ByteTag(value));
+	}
+
+	@SuppressWarnings("unchecked")
+	public void addShort(short value) {
+		add((T) new ShortTag(value));
+	}
+
+	@SuppressWarnings("unchecked")
+	public void addInt(int value) {
+		add((T) new IntTag(value));
+	}
+
+	@SuppressWarnings("unchecked")
+	public void addLong(long value) {
+		add((T) new LongTag(value));
+	}
+
+	@SuppressWarnings("unchecked")
+	public void addFloat(float value) {
+		add((T) new FloatTag(value));
+	}
+
+	@SuppressWarnings("unchecked")
+	public void addDouble(byte value) {
+		add((T) new DoubleTag(value));
+	}
+
+	@SuppressWarnings("unchecked")
+	public void addString(String value) {
+		add((T) new StringTag(checkNull(value)));
+	}
+
+	@SuppressWarnings("unchecked")
+	public void addByteArray(byte[] value) {
+		add((T) new ByteArrayTag(checkNull(value)));
+	}
+
+	@SuppressWarnings("unchecked")
+	public void addIntArray(int[] value) {
+		add((T) new IntArrayTag(checkNull(value)));
+	}
+
+	@SuppressWarnings("unchecked")
+	public void addLongArray(long[] value) {
+		add((T) new LongArrayTag(checkNull(value)));
+	}
+
+	public T get(int index) {
+		return getValue().get(index);
 	}
 
 	@SuppressWarnings({"unchecked", "unused"})
@@ -157,96 +232,6 @@ public class ListTag<T extends Tag> extends Tag<List<T>> {
 		return (ListTag<CompoundTag>) this;
 	}
 
-	@SuppressWarnings("unchecked")
-	public void addBoolean(boolean value) {
-		add((T) new ByteTag(value));
-	}
-
-	@SuppressWarnings("unchecked")
-	public void addByte(byte value) {
-		add((T) new ByteTag(value));
-	}
-
-	@SuppressWarnings("unchecked")
-	public void addShort(short value) {
-		add((T) new ShortTag(value));
-	}
-
-	@SuppressWarnings("unchecked")
-	public void addInt(int value) {
-		add((T) new IntTag(value));
-	}
-
-	@SuppressWarnings("unchecked")
-	public void addLong(long value) {
-		add((T) new LongTag(value));
-	}
-
-	@SuppressWarnings("unchecked")
-	public void addFloat(float value) {
-		add((T) new FloatTag(value));
-	}
-
-	@SuppressWarnings("unchecked")
-	public void addDouble(byte value) {
-		add((T) new DoubleTag(value));
-	}
-
-	@SuppressWarnings("unchecked")
-	public void addString(String value) {
-		add((T) new StringTag(checkNull(value)));
-	}
-
-	@SuppressWarnings("unchecked")
-	public void addByteArray(byte[] value) {
-		add((T) new ByteArrayTag(checkNull(value)));
-	}
-
-	@SuppressWarnings("unchecked")
-	public void addIntArray(int[] value) {
-		add((T) new IntArrayTag(checkNull(value)));
-	}
-
-	@SuppressWarnings("unchecked")
-	public void addLongArray(long[] value) {
-		add((T) new LongArrayTag(checkNull(value)));
-	}
-
-	public T get(int index) {
-		return getValue().get(index);
-	}
-
-	public T set(int index, T t) {
-		checkValue(t);
-		return getValue().set(index, t);
-	}
-
-	public void clear() {
-		getValue().clear();
-		checkEmpty();
-	}
-
-	public void sort(Comparator<T> comparator) {
-		getValue().sort(comparator);
-	}
-
-	public int size() {
-		return getValue().size();
-	}
-
-	public byte getTypeID() {
-		return typeID;
-	}
-
-	public Class<? extends Tag> getTypeClass() {
-		return typeClass;
-	}
-
-	@Override
-	public byte getID() {
-		return 9;
-	}
-
 	@Override
 	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
 		dos.writeByte(typeID);
@@ -274,16 +259,6 @@ public class ListTag<T extends Tag> extends Tag<List<T>> {
 	}
 
 	@Override
-	public String valueToTagString(int depth) {
-		StringBuilder sb = new StringBuilder("[");
-		for (int i = 0; i < size(); i++) {
-			sb.append(i > 0 ? "," : "").append(get(i).valueToTagString(incrementDepth(depth)));
-		}
-		sb.append("]");
-		return sb.toString();
-	}
-
-	@Override
 	public String valueToString(int depth) {
 		StringBuilder sb = new StringBuilder("{\"type\":\"").append(typeClass.getSimpleName()).append("\",\"list\":[");
 		for (int i = 0; i < size(); i++) {
@@ -294,18 +269,13 @@ public class ListTag<T extends Tag> extends Tag<List<T>> {
 	}
 
 	@Override
-	protected List<T> getEmptyValue() {
-		return new ArrayList<>(3);
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public ListTag<T> clone() {
-		ListTag<T> copy = new ListTag<>();
-		for (T t : getValue()) {
-			copy.add((T) t.clone());
+	public String valueToTagString(int depth) {
+		StringBuilder sb = new StringBuilder("[");
+		for (int i = 0; i < size(); i++) {
+			sb.append(i > 0 ? "," : "").append(get(i).valueToTagString(incrementDepth(depth)));
 		}
-		return copy;
+		sb.append("]");
+		return sb.toString();
 	}
 
 	@Override
@@ -324,5 +294,39 @@ public class ListTag<T extends Tag> extends Tag<List<T>> {
 	@Override
 	public int compareTo(Tag<List<T>> o) {
 		return Integer.compare(size(), o.getValue().size());
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public ListTag<T> clone() {
+		ListTag<T> copy = new ListTag<>();
+		for (T t : getValue()) {
+			copy.add((T) t.clone());
+		}
+		return copy;
+	}
+
+	private void checkValue(T t) {
+		checkNull(t);
+		if (typeID != 0 && t.getID() != typeID) {
+			throw new IllegalArgumentException(String.format(
+					"cannot add %s to ListTag<%s>",
+					t.getClass().getSimpleName(), typeClass.getSimpleName()));
+		}
+	}
+
+	private void checkTypeClass(Class<?> clazz) {
+		if (typeClass != EndTag.class && clazz != typeClass) {
+			throw new ClassCastException(String.format(
+					"cannot cast ListTag<%s> to ListTag<%s>",
+					typeClass.getSimpleName(), clazz.getSimpleName()));
+		}
+	}
+
+	private void checkEmpty() {
+		if (size() == 0) {
+			typeID = 0;
+			typeClass = EndTag.class;
+		}
 	}
 }

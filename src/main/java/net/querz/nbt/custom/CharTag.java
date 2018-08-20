@@ -24,26 +24,6 @@ public class CharTag extends Tag<Character> {
 	}
 
 	@Override
-	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
-		dos.writeChar(getValue());
-	}
-
-	@Override
-	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
-		setValue(dis.readChar());
-	}
-
-	@Override
-	public String valueToTagString(int depth) {
-		return escapeString(getValue() + "", true);
-	}
-
-	@Override
-	public String valueToString(int depth) {
-		return escapeString(getValue() + "", false);
-	}
-
-	@Override
 	protected Character getEmptyValue() {
 		return 0;
 	}
@@ -58,8 +38,23 @@ public class CharTag extends Tag<Character> {
 	}
 
 	@Override
-	public CharTag clone() {
-		return new CharTag(getValue());
+	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+		dos.writeChar(getValue());
+	}
+
+	@Override
+	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+		setValue(dis.readChar());
+	}
+
+	@Override
+	public String valueToString(int depth) {
+		return escapeString(getValue() + "", false);
+	}
+
+	@Override
+	public String valueToTagString(int depth) {
+		return escapeString(getValue() + "", true);
 	}
 
 	@Override
@@ -70,5 +65,10 @@ public class CharTag extends Tag<Character> {
 	@Override
 	public int compareTo(Tag<Character> o) {
 		return Character.compare(getValue(), ((CharTag) o).getValue());
+	}
+
+	@Override
+	public CharTag clone() {
+		return new CharTag(getValue());
 	}
 }

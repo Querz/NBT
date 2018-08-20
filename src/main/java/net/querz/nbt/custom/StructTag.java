@@ -34,6 +34,15 @@ public class StructTag extends Tag<List<Tag>> {
 		return 120;
 	}
 
+	@Override
+	protected List<Tag> getEmptyValue() {
+		return new ArrayList<>(3);
+	}
+
+	public int size() {
+		return getValue().size();
+	}
+
 	public Tag remove(int index) {
 		return getValue().remove(index);
 	}
@@ -46,56 +55,12 @@ public class StructTag extends Tag<List<Tag>> {
 		getValue().clear();
 	}
 
-	public void add(Tag tag) {
-		getValue().add(checkNull(tag));
+	public boolean contains(Tag tag) {
+		return getValue().contains(tag);
 	}
 
-	public void add(int index, Tag tag) {
-		getValue().add(index, checkNull(tag));
-	}
-
-	public void addBoolean(boolean value) {
-		add(new ByteTag(value));
-	}
-	
-	public void addByte(byte value) {
-		add(new ByteTag(value));
-	}
-
-	public void addShort(short value) {
-		add(new ShortTag(value));
-	}
-
-	public void addInt(int value) {
-		add(new IntTag(value));
-	}
-
-	public void addLong(long value) {
-		add(new LongTag(value));
-	}
-
-	public void addFloat(float value) {
-		add(new FloatTag(value));
-	}
-
-	public void addDouble(double value) {
-		add(new DoubleTag(value));
-	}
-
-	public void addString(String value) {
-		add(new StringTag(checkNull(value)));
-	}
-
-	public void addByteArray(byte[] value) {
-		add(new ByteArrayTag(checkNull(value)));
-	}
-
-	public void addIntArray(int[] value) {
-		add(new IntArrayTag(checkNull(value)));
-	}
-
-	public void addLongArray(long[] value) {
-		add(new LongArrayTag(checkNull(value)));
+	public boolean containsAll(Collection<Tag> tags) {
+		return getValue().containsAll(tags);
 	}
 
 	public <S extends Tag> S get(int index, Class<S> type) {
@@ -200,16 +165,60 @@ public class StructTag extends Tag<List<Tag>> {
 		return getLongArrayTag(index).getValue();
 	}
 
-	public boolean contains(Tag tag) {
-		return getValue().contains(tag);
+	public Tag set(int index, Tag tag) {
+		return getValue().set(index, checkNull(tag));
 	}
 
-	public boolean containsAll(Collection<Tag> tags) {
-		return getValue().containsAll(tags);
+	public void add(Tag tag) {
+		getValue().add(checkNull(tag));
 	}
 
-	public int size() {
-		return getValue().size();
+	public void add(int index, Tag tag) {
+		getValue().add(index, checkNull(tag));
+	}
+
+	public void addBoolean(boolean value) {
+		add(new ByteTag(value));
+	}
+	
+	public void addByte(byte value) {
+		add(new ByteTag(value));
+	}
+
+	public void addShort(short value) {
+		add(new ShortTag(value));
+	}
+
+	public void addInt(int value) {
+		add(new IntTag(value));
+	}
+
+	public void addLong(long value) {
+		add(new LongTag(value));
+	}
+
+	public void addFloat(float value) {
+		add(new FloatTag(value));
+	}
+
+	public void addDouble(double value) {
+		add(new DoubleTag(value));
+	}
+
+	public void addString(String value) {
+		add(new StringTag(checkNull(value)));
+	}
+
+	public void addByteArray(byte[] value) {
+		add(new ByteArrayTag(checkNull(value)));
+	}
+
+	public void addIntArray(int[] value) {
+		add(new IntArrayTag(checkNull(value)));
+	}
+
+	public void addLongArray(long[] value) {
+		add(new LongArrayTag(checkNull(value)));
 	}
 
 	@Override
@@ -233,16 +242,6 @@ public class StructTag extends Tag<List<Tag>> {
 	}
 
 	@Override
-	public String valueToTagString(int depth) {
-		StringBuilder sb = new StringBuilder("[");
-		for (int i = 0; i < size(); i++) {
-			sb.append(i > 0 ? "," : "").append(get(i).valueToTagString(incrementDepth(depth)));
-		}
-		sb.append("]");
-		return sb.toString();
-	}
-
-	@Override
 	public String valueToString(int depth) {
 		StringBuilder sb = new StringBuilder("[");
 		for (int i = 0; i < size(); i++) {
@@ -253,17 +252,13 @@ public class StructTag extends Tag<List<Tag>> {
 	}
 
 	@Override
-	protected List<Tag> getEmptyValue() {
-		return new ArrayList<>(3);
-	}
-
-	@Override
-	public StructTag clone() {
-		StructTag copy = new StructTag();
-		for (Tag tag : getValue()) {
-			copy.add(tag);
+	public String valueToTagString(int depth) {
+		StringBuilder sb = new StringBuilder("[");
+		for (int i = 0; i < size(); i++) {
+			sb.append(i > 0 ? "," : "").append(get(i).valueToTagString(incrementDepth(depth)));
 		}
-		return copy;
+		sb.append("]");
+		return sb.toString();
 	}
 
 	@Override
@@ -282,5 +277,14 @@ public class StructTag extends Tag<List<Tag>> {
 	@Override
 	public int compareTo(Tag<List<Tag>> o) {
 		return Integer.compare(size(), ((StructTag) o).size());
+	}
+
+	@Override
+	public StructTag clone() {
+		StructTag copy = new StructTag();
+		for (Tag tag : getValue()) {
+			copy.add(tag);
+		}
+		return copy;
 	}
 }

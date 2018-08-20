@@ -28,6 +28,27 @@ public class ObjectTag<T extends Serializable> extends Tag<T> {
 	}
 
 	@Override
+	protected T getEmptyValue() {
+		return null;
+	}
+
+	@Override
+	public T getValue() {
+		return super.getValue();
+	}
+
+	@Override
+	public void setValue(T value) {
+		super.setValue(value);
+	}
+
+	@SuppressWarnings("unchecked")
+	public <L extends Serializable> ObjectTag<L> asTypedObjectTag(Class<L> type) {
+		checkTypeClass(type);
+		return (ObjectTag<L>) this;
+	}
+
+	@Override
 	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
 		new ObjectOutputStream(dos).writeObject(getValue());
 	}
@@ -42,53 +63,14 @@ public class ObjectTag<T extends Serializable> extends Tag<T> {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	public <L extends Serializable> ObjectTag<L> asTypedObjectTag(Class<L> type) {
-		checkTypeClass(type);
-		return (ObjectTag<L>) this;
-	}
-
-	private void checkTypeClass(Class<?> clazz) {
-		if (getValue() != null && (!clazz.isAssignableFrom(getValue().getClass()))) {
-			throw new ClassCastException(String.format(
-					"cannot cast ObjectTag<%s> to ObjectTag<%s>",
-					getValue().getClass().getSimpleName(), clazz.getSimpleName()));
-		}
-	}
-
-	@Override
-	public void setValue(T value) {
-		super.setValue(value);
-	}
-
-	@Override
-	public T getValue() {
-		return super.getValue();
-	}
-
-	@Override
-	public String valueToTagString(int depth) {
-		return getValue() == null ? "null" : escapeString(getValue().toString(), true);
-	}
-
 	@Override
 	public String valueToString(int depth) {
 		return getValue() == null ? "null" : escapeString(getValue().toString(), false);
 	}
 
 	@Override
-	protected T getEmptyValue() {
-		return null;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public ObjectTag<T> clone() {
-		try {
-			return new ObjectTag((T) getValue().getClass().getMethod("clone").invoke(getValue()));
-		} catch (NullPointerException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-			return new ObjectTag(getValue());
-		}
+	public String valueToTagString(int depth) {
+		return getValue() == null ? "null" : escapeString(getValue().toString(), true);
 	}
 
 	@Override
@@ -104,5 +86,23 @@ public class ObjectTag<T extends Serializable> extends Tag<T> {
 			return ((Comparable) getValue()).compareTo(oo.getValue());
 		}
 		return 0;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public ObjectTag<T> clone() {
+		try {
+			return new ObjectTag((T) getValue().getClass().getMethod("clone").invoke(getValue()));
+		} catch (NullPointerException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+			return new ObjectTag(getValue());
+		}
+	}
+
+	private void checkTypeClass(Class<?> clazz) {
+		if (getValue() != null && (!clazz.isAssignableFrom(getValue().getClass()))) {
+			throw new ClassCastException(String.format(
+					"cannot cast ObjectTag<%s> to ObjectTag<%s>",
+					getValue().getClass().getSimpleName(), clazz.getSimpleName()));
+		}
 	}
 }

@@ -19,6 +19,11 @@ public class ByteArrayTag extends ArrayTag<byte[]> {
 	}
 
 	@Override
+	protected byte[] getEmptyValue() {
+		return new byte[0];
+	}
+
+	@Override
 	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
 		dos.writeInt(length());
 		dos.write(getValue());
@@ -37,29 +42,12 @@ public class ByteArrayTag extends ArrayTag<byte[]> {
 	}
 
 	@Override
-	public String valueToString(int depth) {
-		return arrayToString(getValue(), "", "");
-	}
-
-	@Override
-	protected byte[] getEmptyValue() {
-		return new byte[0];
-	}
-
-	@Override
-	public boolean equals(Object other) {
-		return super.equals(other)
-				&& (getValue() == ((ByteArrayTag) other).getValue()
-				|| Arrays.equals(getValue(), ((ByteArrayTag) other).getValue()));
+	public boolean valueEquals(byte[] value) {
+		return getValue() == value || getValue().length == value.length && Arrays.equals(getValue(), value);
 	}
 
 	@Override
 	public ByteArrayTag clone() {
 		return new ByteArrayTag(Arrays.copyOf(getValue(), length()));
-	}
-
-	@Override
-	public boolean valueEquals(byte[] value) {
-		return getValue() == value || getValue().length == value.length && Arrays.equals(getValue(), value);
 	}
 }

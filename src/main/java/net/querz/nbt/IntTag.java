@@ -18,6 +18,15 @@ public class IntTag extends NumberTag<Integer> {
 	}
 
 	@Override
+	protected Integer getEmptyValue() {
+		return 0;
+	}
+
+	public void setValue(int value) {
+		super.setValue(value);
+	}
+
+	@Override
 	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
 		dos.writeInt(getValue());
 	}
@@ -33,27 +42,12 @@ public class IntTag extends NumberTag<Integer> {
 	}
 
 	@Override
-	protected Integer getEmptyValue() {
-		return 0;
-	}
-
-	@Override
-	public boolean equals(Object other) {
-		return super.equals(other) && getValue().equals(((IntTag) other).getValue());
-	}
-
-	//use primitive type to disallow null value
-	public void setValue(int value) {
-		super.setValue(value);
+	public boolean valueEquals(Integer value) {
+		return asInt() == value;
 	}
 
 	@Override
 	public IntTag clone() {
 		return new IntTag(getValue());
-	}
-
-	@Override
-	public boolean valueEquals(Integer value) {
-		return asInt() == value;
 	}
 }

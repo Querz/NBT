@@ -25,6 +25,11 @@ public class ShortArrayTag extends ArrayTag<short[]> {
 	}
 
 	@Override
+	protected short[] getEmptyValue() {
+		return new short[0];
+	}
+
+	@Override
 	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
 		dos.writeInt(length());
 		for (int i : getValue()) {
@@ -47,29 +52,12 @@ public class ShortArrayTag extends ArrayTag<short[]> {
 	}
 
 	@Override
-	public String valueToString(int depth) {
-		return arrayToString(getValue(), "", "");
-	}
-
-	@Override
-	protected short[] getEmptyValue() {
-		return new short[0];
-	}
-
-	@Override
-	public boolean equals(Object other) {
-		return super.equals(other)
-				&& (getValue() == ((ShortArrayTag) other).getValue()
-				|| Arrays.equals(getValue(), ((ShortArrayTag) other).getValue()));
+	public boolean valueEquals(short[] value) {
+		return getValue() == value || getValue().length == value.length && Arrays.equals(getValue(), value);
 	}
 
 	@Override
 	public ShortArrayTag clone() {
 		return new ShortArrayTag(Arrays.copyOf(getValue(), length()));
-	}
-
-	@Override
-	public boolean valueEquals(short[] value) {
-		return getValue() == value || getValue().length == value.length && Arrays.equals(getValue(), value);
 	}
 }

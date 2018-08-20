@@ -16,6 +16,11 @@ public final class EndTag extends Tag<Void> {
 	}
 
 	@Override
+	protected Void getEmptyValue() {
+		return null;
+	}
+
+	@Override
 	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
 		//nothing to do
 	}
@@ -26,23 +31,13 @@ public final class EndTag extends Tag<Void> {
 	}
 
 	@Override
+	public String valueToString(int depth) {
+		return "\"end\"";
+	}
+
+	@Override
 	public String valueToTagString(int depth) {
 		throw new UnsupportedOperationException("EndTag cannot be turned into a String");
-	}
-
-	@Override
-	public String valueToString(int depth) {
-		return "null";
-	}
-
-	@Override
-	protected Void getEmptyValue() {
-		return null;
-	}
-
-	@Override
-	protected Tag clone() {
-		return new EndTag();
 	}
 
 	@Override
@@ -53,5 +48,10 @@ public final class EndTag extends Tag<Void> {
 	@Override
 	public int compareTo(Tag<Void> o) {
 		return 0;
+	}
+
+	@Override
+	protected Tag clone() {
+		return INSTANCE;
 	}
 }

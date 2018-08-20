@@ -19,6 +19,11 @@ public class IntArrayTag extends ArrayTag<int[]> {
 	}
 
 	@Override
+	protected int[] getEmptyValue() {
+		return new int[0];
+	}
+
+	@Override
 	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
 		dos.writeInt(length());
 		for (int i : getValue()) {
@@ -41,22 +46,12 @@ public class IntArrayTag extends ArrayTag<int[]> {
 	}
 
 	@Override
-	public String valueToString(int depth) {
-		return arrayToString(getValue(), "", "");
-	}
-
-	@Override
-	protected int[] getEmptyValue() {
-		return new int[0];
+	public boolean valueEquals(int[] value) {
+		return getValue() == value || getValue().length == value.length && Arrays.equals(getValue(), value);
 	}
 
 	@Override
 	public IntArrayTag clone() {
 		return new IntArrayTag(Arrays.copyOf(getValue(), length()));
-	}
-
-	@Override
-	public boolean valueEquals(int[] value) {
-		return getValue() == value || getValue().length == value.length && Arrays.equals(getValue(), value);
 	}
 }

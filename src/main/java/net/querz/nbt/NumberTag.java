@@ -34,7 +34,7 @@ public abstract class NumberTag<T extends Number & Comparable<T>> extends Tag<T>
 
 	@Override
 	public String valueToString(int depth) {
-		return getValue() + "";
+		return getValue().toString();
 	}
 
 	@Override

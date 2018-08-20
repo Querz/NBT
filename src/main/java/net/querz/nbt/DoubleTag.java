@@ -18,6 +18,15 @@ public class DoubleTag extends NumberTag<Double> {
 	}
 
 	@Override
+	protected Double getEmptyValue() {
+		return 0.0d;
+	}
+
+	public void setValue(double value) {
+		super.setValue(value);
+	}
+
+	@Override
 	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
 		dos.writeDouble(getValue());
 	}
@@ -33,27 +42,12 @@ public class DoubleTag extends NumberTag<Double> {
 	}
 
 	@Override
-	protected Double getEmptyValue() {
-		return 0.0d;
-	}
-
-	@Override
-	public boolean equals(Object other) {
-		return super.equals(other) && getValue().equals(((DoubleTag) other).getValue());
-	}
-
-	//use primitive type to disallow null value
-	public void setValue(double value) {
-		super.setValue(value);
+	public boolean valueEquals(Double value) {
+		return asDouble() == value;
 	}
 
 	@Override
 	public DoubleTag clone() {
 		return new DoubleTag(getValue());
-	}
-
-	@Override
-	public boolean valueEquals(Double value) {
-		return asDouble() == value;
 	}
 }

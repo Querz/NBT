@@ -33,12 +33,9 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 		this.value = value == null ? getEmptyValue() : value;
 	}
 
-	protected <V> V checkNull(V v) {
-		if (v == null) {
-			throw new NullPointerException(getClass().getSimpleName() + " does not allow setting null");
-		}
-		return v;
-	}
+	public abstract byte getID();
+
+	protected abstract T getEmptyValue();
 
 	protected T getValue() {
 		return value;
@@ -70,6 +67,10 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 		return tag;
 	}
 
+	public abstract void serializeValue(DataOutputStream dos, int depth) throws IOException;
+
+	public abstract void deserializeValue(DataInputStream dis, int depth) throws IOException;
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean equals(Object other) {
@@ -86,12 +87,28 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 				"\"value\":" + valueToString(depth) + "}";
 	}
 
+	public abstract String valueToString(int depth);
+
 	public String toTagString() {
 		return toTagString(0);
 	}
 
 	public String toTagString(int depth) {
 		return valueToTagString(depth);
+	}
+
+	public abstract String valueToTagString(int depth);
+
+	public abstract boolean valueEquals(T value);
+
+	@SuppressWarnings("CloneDoesntDeclareCloneNotSupportedException")
+	protected abstract Tag clone();
+
+	protected <V> V checkNull(V v) {
+		if (v == null) {
+			throw new NullPointerException(getClass().getSimpleName() + " does not allow setting null");
+		}
+		return v;
 	}
 
 	protected int incrementDepth(int depth) {
@@ -103,7 +120,6 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 		}
 		return ++depth;
 	}
-
 
 	protected static String escapeString(String s, boolean lenient) {
 		StringBuffer sb = new StringBuffer();
@@ -118,13 +134,4 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 		}
 		return sb.toString();
 	}
-
-	public abstract byte getID();
-	public abstract void serializeValue(DataOutputStream dos, int depth) throws IOException;
-	public abstract void deserializeValue(DataInputStream dis, int depth) throws IOException;
-	public abstract String valueToTagString(int depth);
-	public abstract String valueToString(int depth);
-	public abstract boolean valueEquals(T value);
-	protected abstract T getEmptyValue();
-	protected abstract Tag clone();
 }

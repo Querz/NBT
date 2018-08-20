@@ -18,6 +18,15 @@ public class ShortTag extends NumberTag<Short> {
 	}
 
 	@Override
+	protected Short getEmptyValue() {
+		return 0;
+	}
+
+	public void setValue(short value) {
+		super.setValue(value);
+	}
+
+	@Override
 	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
 		dos.writeShort(getValue());
 	}
@@ -33,27 +42,12 @@ public class ShortTag extends NumberTag<Short> {
 	}
 
 	@Override
-	protected Short getEmptyValue() {
-		return 0;
-	}
-
-	@Override
-	public boolean equals(Object other) {
-		return super.equals(other) && getValue().equals(((ShortTag) other).getValue());
-	}
-
-	//use primitive type to disallow null value
-	public void setValue(short value) {
-		super.setValue(value);
+	public boolean valueEquals(Short value) {
+		return asShort() == value;
 	}
 
 	@Override
 	public ShortTag clone() {
 		return new ShortTag(getValue());
-	}
-
-	@Override
-	public boolean valueEquals(Short value) {
-		return asShort() == value;
 	}
 }
