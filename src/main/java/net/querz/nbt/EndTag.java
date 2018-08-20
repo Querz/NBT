@@ -1,44 +1,52 @@
 package net.querz.nbt;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class EndTag extends Tag {
-	public EndTag() {
-		super();
-	}
-	
+public final class EndTag extends Tag<Void> {
+
+	static final EndTag INSTANCE = new EndTag();
+
+	private EndTag() {}
+
 	@Override
-	public Object getValue() {
+	public byte getID() {
+		return 0;
+	}
+
+	@Override
+	protected Void getEmptyValue() {
 		return null;
 	}
 
 	@Override
-	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
-		//already writes (byte) 0 as the tag type in superclass
+	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+		//nothing to do
 	}
 
 	@Override
-	protected Tag deserialize(NBTInputStream nbtIn, int depth) throws IOException {
-		return this;
+	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+		//nothing to do
 	}
 
 	@Override
-	public String toTagString() {
-		return "";
+	public String valueToString(int depth) {
+		return "\"end\"";
 	}
-	
+
 	@Override
-	protected String valueToTagString(int depth) {
-		return "";
+	public String valueToTagString(int depth) {
+		throw new UnsupportedOperationException("EndTag cannot be turned into a String");
 	}
-	
+
 	@Override
-	public String toString() {
-		return "<end>";
+	public int compareTo(Tag<Void> o) {
+		return 0;
 	}
-	
+
 	@Override
-	public EndTag clone() {
-		return new EndTag();
+	protected Tag clone() {
+		return INSTANCE;
 	}
 }

@@ -1,81 +1,111 @@
 package net.querz.nbt.custom;
 
-import net.querz.nbt.*;
+import net.querz.nbt.Tag;
+import net.querz.nbt.TagFactory;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 
-public class ObjectTag<T extends Serializable & Cloneable> extends Tag implements CustomTag {
-	private static final int TAG_ID = 90;
+public class ObjectTag<T extends Serializable> extends Tag<T> {
 
 	public static void register() {
-		TagType.registerCustomTag(TAG_ID, ObjectTag.class);
+		TagFactory.registerCustomTag(90, ObjectTag.class);
 	}
 
-	private T value;
+	public ObjectTag() {}
 
-	public ObjectTag() {
-		this("", null);
-	}
-
-	public ObjectTag(String name, T value) {
-		super(TagType.CUSTOM, name);
-		setValue(value);
-	}
-
-	public void setValue(T value) {
-		this.value = value;
+	public ObjectTag(T value) {
+		super(value);
 	}
 
 	@Override
-	public int getId() {
-		return TAG_ID;
+	public byte getID() {
+		return 90;
 	}
 
 	@Override
-	protected String valueToTagString(int depth) {
-		return "<" + value.toString().replace("\"", "\\\"") + ">";
-	}
-
-	@Override
-	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
-		ObjectOutputStream o = new ObjectOutputStream(nbtOut.getDataOutputStream());
-		o.writeObject(value);
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	protected Tag deserialize(NBTInputStream nbtIn, int depth) throws Exception {
-		ObjectInputStream o = new ObjectInputStream(nbtIn.getDataInputStream());
-		value = (T) o.readObject();
-		return this;
+	protected T getEmptyValue() {
+		return null;
 	}
 
 	@Override
 	public T getValue() {
-		return value;
+		return super.getValue();
 	}
 
 	@Override
-	public String toString() {
-		return "<object:" + getName() + ":" + value + ">";
+	public void setValue(T value) {
+		super.setValue(value);
 	}
 
-	@Override
-	public String toTagString() {
-		return getName() + ":\"" + valueToTagString(0) + "\"";
-	}
-
-	@Override
 	@SuppressWarnings("unchecked")
-	public ObjectTag<T> clone() {
-		ObjectTag<T> clone = new ObjectTag<>(getName(), null);
+	public <L extends Serializable> ObjectTag<L> asTypedObjectTag(Class<L> type) {
+		checkTypeClass(type);
+		return (ObjectTag<L>) this;
+	}
+
+	@Override
+	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+		new ObjectOutputStream(dos).writeObject(getValue());
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
 		try {
-			clone.value = (T) value.getClass().getMethod("clone").invoke(value);
-		} catch (Exception ex) {
-			ex.printStackTrace();
+			setValue((T) new ObjectInputStream(dis).readObject());
+		} catch (ClassNotFoundException e) {
+			throw new IOException(e.getCause());
 		}
-		return clone;
+	}
+
+	@Override
+	public String valueToString(int depth) {
+		return getValue() == null ? "null" : escapeString(getValue().toString(), false);
+	}
+
+	@Override
+	public String valueToTagString(int depth) {
+		return getValue() == null ? "null" : escapeString(getValue().toString(), true);
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		return super.equals(other)
+				&& (getValue() == ((ObjectTag) other).getValue()
+				|| getValue() != null
+				&& getValue().equals(((ObjectTag<?>) other).getValue()));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public int compareTo(Tag<T> o) {
+		ObjectTag oo = (ObjectTag) o;
+		if (oo.getValue() instanceof Comparable) {
+			return ((Comparable) getValue()).compareTo(oo.getValue());
+		}
+		return 0;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public ObjectTag<T> clone() {
+		try {
+			return new ObjectTag((T) getValue().getClass().getMethod("clone").invoke(getValue()));
+		} catch (NullPointerException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+			return new ObjectTag(getValue());
+		}
+	}
+
+	private void checkTypeClass(Class<?> clazz) {
+		if (getValue() != null && (!clazz.isAssignableFrom(getValue().getClass()))) {
+			throw new ClassCastException(String.format(
+					"cannot cast ObjectTag<%s> to ObjectTag<%s>",
+					getValue().getClass().getSimpleName(), clazz.getSimpleName()));
+		}
 	}
 }

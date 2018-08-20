@@ -1,60 +1,53 @@
 package net.querz.nbt;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class DoubleTag extends NumberTag {
-	private double value;
-	
-	protected DoubleTag() {
-		this(0D);
-	}
-	
+public class DoubleTag extends NumberTag<Double> {
+
+	public DoubleTag() {}
+
 	public DoubleTag(double value) {
-		this("", value);
+		super(value);
 	}
-	
-	public DoubleTag(String name, double value) {
-		super(TagType.DOUBLE, name);
-		setValue(value);
+
+	@Override
+	public byte getID() {
+		return 6;
 	}
-	
+
+	@Override
+	protected Double getEmptyValue() {
+		return 0.0d;
+	}
+
 	public void setValue(double value) {
-		this.value = value;
-	}
-	
-	@Override
-	public Double getValue() {
-		return value;
+		super.setValue(value);
 	}
 
 	@Override
-	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
-		nbtOut.dos.writeDouble(value);
-	}
-	
-	@Override
-	protected DoubleTag deserialize(NBTInputStream nbtIn, int depth) throws IOException {
-		value = nbtIn.dis.readDouble();
-		return this;
+	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+		dos.writeDouble(getValue());
 	}
 
 	@Override
-	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + valueToTagString(0);
+	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+		setValue(dis.readDouble());
 	}
-	
+
 	@Override
-	protected String valueToTagString(int depth) {
-		return value + "d";
+	public String valueToTagString(int depth) {
+		return getValue() + "d";
 	}
-	
+
 	@Override
-	public String toString() {
-		return "<double:" + getName() + ":" + value + ">";
+	public boolean equals(Object other) {
+		return super.equals(other) && asDouble() == ((DoubleTag) other).asDouble();
 	}
-	
+
 	@Override
 	public DoubleTag clone() {
-		return new DoubleTag(getName(), value);
+		return new DoubleTag(getValue());
 	}
 }

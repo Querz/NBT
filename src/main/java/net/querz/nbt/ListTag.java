@@ -1,417 +1,332 @@
 package net.querz.nbt;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
-public class ListTag extends Tag {
-	private TagType type;
-	private int typeId;
-	private List<Tag> value;
-	
-	protected ListTag() {
-		this(TagType.END);
+public class ListTag<T extends Tag> extends Tag<List<T>> {
+
+	private byte typeID = 0;
+	private Class<? extends Tag> typeClass = EndTag.class;
+
+	public ListTag() {}
+
+	@Override
+	public byte getID() {
+		return 9;
 	}
-	
-	public ListTag(TagType type) {
-		this("", type, null);
+
+	public byte getTypeID() {
+		return typeID;
 	}
-	
-	public ListTag(TagType type, List<Tag> value) {
-		this("", type, value);
+
+	public Class<? extends Tag> getTypeClass() {
+		return typeClass;
 	}
-	
-	public ListTag(String name, TagType type) {
-		this(name, type, null);
+
+	@Override
+	protected List<T> getEmptyValue() {
+		return new ArrayList<>(3);
 	}
-	
-	public ListTag(String name, TagType type, List<Tag> value) {
-		super(TagType.LIST, name);
-		setType(type);
-		setValue(value);
-	}
-	
-	public void setValue(List<Tag> value) {
-		if (value == null)
-			clear();
-		else
-			this.value = value;
-	}
-	
-	public TagType getListType() {
-		return type;
-	}
-	
+
 	public int size() {
-		return value.size();
-	}
-	
-	public void add(Tag tag) {
-		checkAddType(tag);
-		value.add(tag);
-	}
-	
-	public void addBoolean(boolean b) {
-		add(new ByteTag(b));
-	}
-	
-	public void addByte(byte b) {
-		add(new ByteTag(b));
-	}
-	
-	public void addShort(short s) {
-		add(new ShortTag(s));
-	}
-	
-	public void addInt(int i) {
-		add(new IntTag(i));
-	}
-	
-	public void addLong(long l) {
-		add(new LongTag(l));
-	}
-	
-	public void addFloat(float f) {
-		add(new FloatTag(f));
-	}
-	
-	public void addDouble(double d) {
-		add(new DoubleTag(d));
-	}
-	
-	public void addString(String s) {
-		add(new StringTag(s));
-	}
-	
-	public void addBytes(byte[] b) {
-		add(new ByteArrayTag(b));
-	}
-	
-	public void addInts(int[] i) {
-		add(new IntArrayTag(i));
+		return getValue().size();
 	}
 
-	public void addLongs(long[] l) {
-		add(new LongArrayTag(l));
-	}
-
-	public void addList(TagType type, List<Tag> l) {
-		add(new ListTag(type, l));
-	}
-
-	public void addList(TagType type, Tag... t) {
-		add(new ListTag(type, Arrays.asList(t)));
-	}
-
-	public void addMap(Map<String, Tag> m) {
-		add(new CompoundTag(m));
+	public T remove(int index) {
+		T removed = getValue().remove(index);
+		checkEmpty();
+		return removed;
 	}
 
 	public void clear() {
-		value = new ArrayList<>();
-	}
-	
-	public void clear(int init) {
-		value = new ArrayList<>(init);
-	}
-	
-	protected void setType(TagType type) {
-		this.type = type;
-	}
-	
-	public Tag get(int index) {
-		return value.get(index);
-	}
-	
-	public boolean getBoolean(int index) {
-		return this.type == TagType.BYTE && NBTUtil.toBoolean(get(index));
-	}
-	
-	public byte getByte(int index) {
-		if (this.type == TagType.BYTE)
-			return ((ByteTag) get(index)).getValue();
-		return 0;
-	}
-	
-	public short getShort(int index) {
-		if (this.type == TagType.SHORT)
-			return ((ShortTag) get(index)).getValue();
-		return 0;
-	}
-	
-	public int getInt(int index) {
-		if (this.type == TagType.INT)
-			return ((IntTag) get(index)).getValue();
-		return 0;
-	}
-	
-	public long getLong(int index) {
-		if (this.type == TagType.LONG)
-			return ((LongTag) get(index)).getValue();
-		return 0;
-	}
-	
-	public float getFloat(int index) {
-		if (this.type == TagType.FLOAT)
-			return ((FloatTag) get(index)).getValue();
-		return 0;
-	}
-	
-	public double getDouble(int index) {
-		if (this.type == TagType.DOUBLE)
-			return ((DoubleTag) get(index)).getValue();
-		return 0;
+		getValue().clear();
+		checkEmpty();
 	}
 
-	public byte[] getBytes(int index) {
-		if (this.type == TagType.BYTE_ARRAY)
-			return ((ByteArrayTag) get(index)).getValue();
-		return new byte[0];
+	public boolean contains(T t) {
+		return getValue().contains(t);
 	}
 
-	public int[] getInts(int index) {
-		if (this.type == TagType.INT_ARRAY)
-			return ((IntArrayTag) get(index)).getValue();
-		return new int[0];
+	public boolean containsAll(Collection<Tag> tags) {
+		return getValue().containsAll(tags);
 	}
 
-	public long[] getLongs(int index) {
-		if (this.type == TagType.LONG_ARRAY)
-			return ((LongArrayTag) get(index)).getValue();
-		return new long[0];
-	}
-	
-	public String getString(int index) {
-		if (this.type == TagType.STRING)
-			return ((StringTag) get(index)).getValue();
-		return "";
+	public void sort(Comparator<T> comparator) {
+		getValue().sort(comparator);
 	}
 
-	public List<Tag> getList(int index) {
-		if (this.type == TagType.LIST)
-			return ((ListTag) get(index)).getValue();
-		return new ArrayList<>(0);
+	public T set(int index, T t) {
+		checkValue(t);
+		return getValue().set(index, t);
 	}
 
-	public Map<String, Tag> getMap(int index) {
-		if (this.type == TagType.COMPOUND)
-			return ((CompoundTag) get(index)).getValue();
-		return new HashMap<>(0);
+	/**
+	 * Adds a Tag to this ListTag after the last index.
+	 * @param t The element to be added.
+	 * @throws IllegalArgumentException if this ListTag already contains a Tag of another type.
+	 * */
+	public void add(T t) {
+		add(size(), t);
 	}
 
-	public ByteTag getByteTag(int index) {
-		if (this.type == TagType.BYTE)
-			return (ByteTag) get(index);
-		return null;
+	public void add(int index, T t) {
+		checkValue(t);
+		getValue().add(index, t);
+		typeID = t.getID();
+		typeClass = t.getClass();
 	}
 
-	public ShortTag getShortTag(int index) {
-		if (this.type == TagType.SHORT)
-			return (ShortTag) get(index);
-		return null;
-	}
-
-	public IntTag getIntTag(int index) {
-		if (this.type == TagType.INT)
-			return (IntTag) get(index);
-		return null;
-	}
-
-	public LongTag getLongTag(int index) {
-		if (this.type == TagType.LONG)
-			return (LongTag) get(index);
-		return null;
-	}
-
-	public FloatTag getFloatTag(int index) {
-		if (this.type == TagType.FLOAT)
-			return (FloatTag) get(index);
-		return null;
-	}
-
-	public DoubleTag getDoubleTag(int index) {
-		if (this.type == TagType.DOUBLE)
-			return (DoubleTag) get(index);
-		return null;
-	}
-
-	public StringTag getStringTag(int index) {
-		if (this.type == TagType.STRING)
-			return (StringTag) get(index);
-		return null;
-	}
-
-	public ByteArrayTag getByteArrayTag(int index) {
-		if (this.type == TagType.BYTE_ARRAY)
-			return (ByteArrayTag) get(index);
-		return null;
-	}
-
-	public IntArrayTag getIntArrayTag(int index) {
-		if (this.type == TagType.INT_ARRAY)
-			return (IntArrayTag) get(index);
-		return null;
-	}
-
-	public LongArrayTag getLongArrayTag(int index) {
-		if (this.type == TagType.LONG_ARRAY)
-			return (LongArrayTag) get(index);
-		return null;
-	}
-
-	public ListTag getListTag(int index) {
-		if (this.type == TagType.LIST)
-			return (ListTag) get(index);
-		return null;
-	}
-
-	public CompoundTag getCompoundTag(int index) {
-		if (this.type == TagType.COMPOUND)
-			return (CompoundTag) get(index);
-		return null;
-	}
-	
-	public byte asByte(int index) {
-		return NBTUtil.toNumber(get(index)).byteValue();
-	}
-	
-	public short asShort(int index) {
-		return NBTUtil.toNumber(get(index)).shortValue();
-	}
-	
-	public int asInt(int index) {
-		return NBTUtil.toNumber(get(index)).intValue();
-	}
-	
-	public long asLong(int index) {
-		return NBTUtil.toNumber(get(index)).longValue();
-	}
-	
-	public float asFloat(int index) {
-		return NBTUtil.toNumber(get(index)).floatValue();
-	}
-	
-	public double asDouble(int index) {
-		return NBTUtil.toNumber(get(index)).doubleValue();
-	}
-	
-	private void checkAddType(Tag tag) {
-		if (this.type != tag.getType()
-				|| (tag.getType() == TagType.CUSTOM && value.size() != 0 && typeId != tag.getType().getId(tag))) {
-
-			throw new IllegalArgumentException(
-					String.format(
-							"A list does not support multiple tag types: %s (%d) != %s (%d)",
-							type,
-							typeId,
-							tag.getType(),
-							tag.getType().getId(tag)
-					)
-			);
-		} else if (tag.getType() == TagType.CUSTOM && value.size() == 0) {
-			typeId = tag.getType().getId(tag);
+	public void addAll(Collection<T> t) {
+		for (T tt : t) {
+			add(tt);
 		}
 	}
-	
-	@Override
-	public List<Tag> getValue() {
-		return value;
+
+	public void addAll(int index, Collection<T> t) {
+		int i = 0;
+		for (T tt : t) {
+			add(index + i, tt);
+			i++;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public void addBoolean(boolean value) {
+		add((T) new ByteTag(value));
+	}
+
+	@SuppressWarnings("unchecked")
+	public void addByte(byte value) {
+		add((T) new ByteTag(value));
+	}
+
+	@SuppressWarnings("unchecked")
+	public void addShort(short value) {
+		add((T) new ShortTag(value));
+	}
+
+	@SuppressWarnings("unchecked")
+	public void addInt(int value) {
+		add((T) new IntTag(value));
+	}
+
+	@SuppressWarnings("unchecked")
+	public void addLong(long value) {
+		add((T) new LongTag(value));
+	}
+
+	@SuppressWarnings("unchecked")
+	public void addFloat(float value) {
+		add((T) new FloatTag(value));
+	}
+
+	@SuppressWarnings("unchecked")
+	public void addDouble(byte value) {
+		add((T) new DoubleTag(value));
+	}
+
+	@SuppressWarnings("unchecked")
+	public void addString(String value) {
+		add((T) new StringTag(checkNull(value)));
+	}
+
+	@SuppressWarnings("unchecked")
+	public void addByteArray(byte[] value) {
+		add((T) new ByteArrayTag(checkNull(value)));
+	}
+
+	@SuppressWarnings("unchecked")
+	public void addIntArray(int[] value) {
+		add((T) new IntArrayTag(checkNull(value)));
+	}
+
+	@SuppressWarnings("unchecked")
+	public void addLongArray(long[] value) {
+		add((T) new LongArrayTag(checkNull(value)));
+	}
+
+	public T get(int index) {
+		return getValue().get(index);
+	}
+
+	@SuppressWarnings({"unchecked", "unused"})
+	public <L extends Tag> ListTag<L> asTypedList(Class<L> type) {
+		checkTypeClass(type);
+		return (ListTag<L>) this;
+	}
+
+	@SuppressWarnings("unchecked")
+	public ListTag<ByteTag> asByteTagList() {
+		checkTypeClass(ByteTag.class);
+		return (ListTag<ByteTag>) this;
+	}
+
+	@SuppressWarnings("unchecked")
+	public ListTag<ShortTag> asShortTagList() {
+		checkTypeClass(ShortTag.class);
+		return (ListTag<ShortTag>) this;
+	}
+
+	@SuppressWarnings("unchecked")
+	public ListTag<IntTag> asIntTagList() {
+		checkTypeClass(IntTag.class);
+		return (ListTag<IntTag>) this;
+	}
+
+	@SuppressWarnings("unchecked")
+	public ListTag<LongTag> asLongTagList() {
+		checkTypeClass(LongTag.class);
+		return (ListTag<LongTag>) this;
+	}
+
+	@SuppressWarnings("unchecked")
+	public ListTag<FloatTag> asFloatTagList() {
+		checkTypeClass(FloatTag.class);
+		return (ListTag<FloatTag>) this;
+	}
+
+	@SuppressWarnings("unchecked")
+	public ListTag<DoubleTag> asDoubleTagList() {
+		checkTypeClass(DoubleTag.class);
+		return (ListTag<DoubleTag>) this;
+	}
+
+	@SuppressWarnings("unchecked")
+	public ListTag<StringTag> asStringTagList() {
+		checkTypeClass(StringTag.class);
+		return (ListTag<StringTag>) this;
+	}
+
+	@SuppressWarnings("unchecked")
+	public ListTag<ByteArrayTag> asByteArrayTagList() {
+		checkTypeClass(ByteArrayTag.class);
+		return (ListTag<ByteArrayTag>) this;
+	}
+
+	@SuppressWarnings("unchecked")
+	public ListTag<IntArrayTag> asIntArrayTagList() {
+		checkTypeClass(IntArrayTag.class);
+		return (ListTag<IntArrayTag>) this;
+	}
+
+	@SuppressWarnings("unchecked")
+	public ListTag<LongArrayTag> asLongArrayTagList() {
+		checkTypeClass(LongArrayTag.class);
+		return (ListTag<LongArrayTag>) this;
+	}
+
+	@SuppressWarnings("unchecked")
+	public ListTag<ListTag<?>> asListTagList() {
+		checkTypeClass(ListTag.class);
+		return (ListTag<ListTag<?>>) this;
+	}
+
+	@SuppressWarnings("unchecked")
+	public ListTag<CompoundTag> asCompoundTagList() {
+		checkTypeClass(CompoundTag.class);
+		return (ListTag<CompoundTag>) this;
 	}
 
 	@Override
-	protected void serialize(NBTOutputStream nbtOut, int depth) throws Exception {
-		int size = value.size();
-		if (type == TagType.CUSTOM) {
-			nbtOut.dos.writeByte(typeId);
-		} else {
-			nbtOut.dos.writeByte(type.getId());
-		}
-		nbtOut.dos.writeInt(size);
-		for (Tag t : value)
-			t.serialize(nbtOut, incrementDepth(depth));
-	}
-	
-	@Override
-	protected ListTag deserialize(NBTInputStream nbtIn, int depth) throws Exception {
-		int typeId = nbtIn.dis.readByte();
-		setType(TagType.match(typeId));
-		int size = nbtIn.dis.readInt();
-		clear(size);
-		for (int i = 0; i < size; i++) {
-			Tag typeTag = TagType.getTag(typeId);
-			if (typeTag != null) {
-				Tag tag = typeTag.deserialize(nbtIn, incrementDepth(depth));
-				if (tag instanceof EndTag) {
-					throw new IOException("EndTag not permitted in a list.");
-				}
-				add(tag);
+	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+		dos.writeByte(typeID);
+		if (typeID != 0) {
+			dos.writeInt(size());
+			for (T t : getValue()) {
+				t.serializeValue(dos, incrementDepth(depth));
 			}
 		}
-		return this;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+		typeID = dis.readByte();
+		if (typeID != 0) {
+			int size = dis.readInt();
+			setValue(new ArrayList<>(size));
+			for (int i = 0; i < size; i++) {
+				Tag tag = TagFactory.fromID(typeID);
+				tag.deserializeValue(dis, incrementDepth(depth));
+				add((T) tag);
+			}
+		}
 	}
 
 	@Override
-	public String toTagString() {
-		return toTagString(0);
-	}
-	
-	@Override
-	protected String toTagString(int depth) {
-		return NBTUtil.createNamePrefix(this) + valueToTagString(depth);
-	}
-	
-	@Override
-	protected String valueToTagString(int depth) {
-		StringBuilder sb = new StringBuilder();
-		boolean first = true;
-		for (Tag tag : value) {
-			sb.append(first ? "" : ",").append(tag.valueToTagString(incrementDepth(depth)));
-			first = false;
+	public String valueToString(int depth) {
+		StringBuilder sb = new StringBuilder("{\"type\":\"").append(typeClass.getSimpleName()).append("\",\"list\":[");
+		for (int i = 0; i < size(); i++) {
+			sb.append(i > 0 ? "," : "").append(get(i).toString(incrementDepth(depth)));
 		}
-		return "[" + sb.toString() + "]";
+		sb.append("]}");
+		return sb.toString();
 	}
-	
+
 	@Override
-	public String toString() {
-		return toString(0);
+	public String valueToTagString(int depth) {
+		StringBuilder sb = new StringBuilder("[");
+		for (int i = 0; i < size(); i++) {
+			sb.append(i > 0 ? "," : "").append(get(i).valueToTagString(incrementDepth(depth)));
+		}
+		sb.append("]");
+		return sb.toString();
 	}
-	
-	@Override
-	protected String toString(int depth) {
-		depth = incrementDepth(depth);
-		return "<list:" + getName() + ":[" + NBTUtil.joinArray(",", value.toArray(), "", depth,  false) + "]>";
-	}
-	
+
 	@Override
 	public boolean equals(Object other) {
-		if (!(other instanceof ListTag)) {
+		if (!super.equals(other) || size() != ((ListTag<?>) other).size() || typeID != ((ListTag<?>) other).getTypeID()) {
 			return false;
 		}
-		ListTag list = (ListTag) other;
-		return getName().equals(list.getName()) && valueEquals(list);
-	}
-	
-	@Override
-	public boolean valueEquals(Tag other) {
-		if (!(other instanceof ListTag) || ((ListTag) other).size() != size())
-			return false;
 		for (int i = 0; i < size(); i++) {
-			if (!((ListTag) other).get(i).valueEquals(get(i))) {
+			if (!get(i).equals(((ListTag<?>) other).get(i))) {
 				return false;
 			}
 		}
 		return true;
 	}
-	
+
 	@Override
-	public ListTag clone() {
-		List<Tag> clone = new ArrayList<>(value.size());
-		for (Tag t : value) {
-			clone.add(t.clone());
+	public int compareTo(Tag<List<T>> o) {
+		return Integer.compare(size(), o.getValue().size());
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public ListTag<T> clone() {
+		ListTag<T> copy = new ListTag<>();
+		for (T t : getValue()) {
+			copy.add((T) t.clone());
 		}
-		return new ListTag(getName(), type, clone);
+		return copy;
+	}
+
+	private void checkValue(T t) {
+		checkNull(t);
+		if (typeID != 0 && t.getID() != typeID) {
+			throw new IllegalArgumentException(String.format(
+					"cannot add %s to ListTag<%s>",
+					t.getClass().getSimpleName(), typeClass.getSimpleName()));
+		}
+	}
+
+	private void checkTypeClass(Class<?> clazz) {
+		if (typeClass != EndTag.class && clazz != typeClass) {
+			throw new ClassCastException(String.format(
+					"cannot cast ListTag<%s> to ListTag<%s>",
+					typeClass.getSimpleName(), clazz.getSimpleName()));
+		}
+	}
+
+	private void checkEmpty() {
+		if (size() == 0) {
+			typeID = 0;
+			typeClass = EndTag.class;
+		}
 	}
 }

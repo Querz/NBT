@@ -1,54 +1,56 @@
 package net.querz.nbt;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
-public class ByteArrayTag extends ArrayTag {
-	private byte[] value;
-	
-	protected ByteArrayTag() {
-		this(new byte[0]);
-	}
-	
+public class ByteArrayTag extends ArrayTag<byte[]> {
+
+	public ByteArrayTag() {}
+
 	public ByteArrayTag(byte[] value) {
-		this("", value);
-	}
-	
-	public ByteArrayTag(String name, byte[] value) {
-		super(TagType.BYTE_ARRAY, name, "B", "b");
-		setValue(value);
-	}
-	
-	public void setValue(byte[] value) {
-		this.value = value;
-	}
-	
-	@Override
-	public byte[] getValue() {
-		return value;
+		super(value);
 	}
 
 	@Override
-	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
-		nbtOut.dos.writeInt(value.length);
-		nbtOut.dos.write(value);
+	public byte getID() {
+		return 7;
 	}
-	
+
 	@Override
-	protected ByteArrayTag deserialize(NBTInputStream nbtIn, int depth) throws IOException {
-		int length = nbtIn.dis.readInt();
-		value = new byte[length];
-		nbtIn.dis.readFully(value);
-		return this;
+	protected byte[] getEmptyValue() {
+		return new byte[0];
 	}
-	
+
 	@Override
-	public String toString() {
-		return "<byte[]:" + getName() + ":[" + NBTUtil.joinArray(",", value) + "]>";
+	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+		dos.writeInt(length());
+		dos.write(getValue());
 	}
-	
+
+	@Override
+	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+		int length = dis.readInt();
+		setValue(new byte[length]);
+		dis.readFully(getValue());
+	}
+
+	@Override
+	public String valueToTagString(int depth) {
+		return arrayToString(getValue(), "B", "b");
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		return super.equals(other)
+				&& (getValue() == ((ByteArrayTag) other).getValue()
+				|| getValue().length == (((ByteArrayTag) other).length())
+				&& Arrays.equals(getValue(), ((ByteArrayTag) other).getValue()));
+	}
+
 	@Override
 	public ByteArrayTag clone() {
-		return new ByteArrayTag(getName(), value.clone());
+		return new ByteArrayTag(Arrays.copyOf(getValue(), length()));
 	}
 }

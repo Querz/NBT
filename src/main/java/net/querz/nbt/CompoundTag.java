@@ -1,391 +1,271 @@
 package net.querz.nbt;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
-public class CompoundTag extends Tag {
-	private Map<String, Tag> value;
-	
-	protected CompoundTag() {
-		this("", null);
-	}
-	
-	public CompoundTag(Map<String, Tag> value) {
-		this("", value);
-	}
-	
-	public CompoundTag(String name) {
-		this(name, null);
-	}
-	
-	public CompoundTag(String name, Map<String, Tag> value) {
-		super(TagType.COMPOUND, name);
-		setValue(value);
-	}
-	
-	public Tag remove(String key) {
-		return value.remove(key);
-	}
-	
-	public boolean containsKey(String key) {
-		return value.containsKey(key);
-	}
-	
-	public void set(Tag tag) {
-		value.put(tag.getName(), tag);
-	}
-	
-	public void setBoolean(String key, boolean b) {
-		set(new ByteTag(key, b));
-	}
-	
-	public void setByte(String key, byte b) {
-		set(new ByteTag(key, b));
-	}
-	
-	public void setShort(String key, short s) {
-		set(new ShortTag(key, s));
-	}
-	
-	public void setInt(String key, int i) {
-		set(new IntTag(key, i));
-	}
-	
-	public void setLong(String key, long l) {
-		set(new LongTag(key, l));
-	}
-	
-	public void setFloat(String key, float f) {
-		set(new FloatTag(key, f));
-	}
-	
-	public void setDouble(String key, double d) {
-		set(new DoubleTag(key, d));
-	}
-	
-	public void setString(String key, String s) {
-		set(new StringTag(key, s));
-	}
-	
-	public void setBytes(String key, byte[] b) {
-		set(new ByteArrayTag(key, b));
-	}
-	
-	public void setInts(String key, int[] i) {
-		set(new IntArrayTag(key, i));
+public class CompoundTag extends Tag<Map<String, Tag>> {
+
+	public CompoundTag() {}
+
+	@Override
+	public byte getID() {
+		return 10;
 	}
 
-	public void setLongs(String key, long[] l) {
-		set(new LongArrayTag(key, l));
-	}
-
-	public void setList(String key, TagType type, List<Tag> l) {
-		set(new ListTag(key, type, l));
-	}
-
-	public void setList(String key, TagType type, Tag... t) {
-		set(new ListTag(key, type, Arrays.asList(t)));
-	}
-
-	public void setMap(String key, Map<String, Tag> m) {
-		set(new CompoundTag(key, m));
-	}
-	
-	public Tag get(String key) {
-		return value.get(key);
-	}
-	
-	private boolean isType(Tag tag, TagType type) {
-		return tag != null && tag.getType() == type;
-	}
-	
-	public boolean getBoolean(String key) {
-		Tag tag = get(key);
-		return isType(tag, TagType.BYTE) && ((ByteTag) tag).getBoolean();
-	}
-	
-	public byte getByte(String key) {
-		Tag tag = get(key);
-		if (isType(tag, TagType.BYTE))
-			return (byte) tag.getValue();
-		return 0;
-	}
-	
-	public short getShort(String key) {
-		Tag tag = get(key);
-		if (isType(tag, TagType.SHORT))
-			return (short) tag.getValue();
-		return 0;
-	}
-	
-	public int getInt(String key) {
-		Tag tag = get(key);
-		if (isType(tag, TagType.INT))
-			return (int) tag.getValue();
-		return 0;
-	}
-	
-	public long getLong(String key) {
-		Tag tag = get(key);
-		if (isType(tag, TagType.LONG))
-			return (long) tag.getValue();
-		return 0;
-	}
-	
-	public float getFloat(String key) {
-		Tag tag = get(key);
-		if (isType(tag, TagType.FLOAT))
-			return (float) tag.getValue();
-		return 0;
-	}
-	
-	public double getDouble(String key) {
-		Tag tag = get(key);
-		if (isType(tag, TagType.DOUBLE))
-			return (double) tag.getValue();
-		return 0;
-	}
-	
-	public boolean asBoolean(String key) {
-		return NBTUtil.toBoolean(get(key));
-	}
-	
-	public byte asByte(String key) {
-		return NBTUtil.toNumber(get(key)).byteValue();
-	}
-	
-	public short asShort(String key) {
-		return NBTUtil.toNumber(get(key)).shortValue();
-	}
-	
-	public int asInt(String key) {
-		return NBTUtil.toNumber(get(key)).intValue();
-	}
-	
-	public long asLong(String key) {
-		return NBTUtil.toNumber(get(key)).longValue();
-	}
-	
-	public float asFloat(String key) {
-		return NBTUtil.toNumber(get(key)).floatValue();
-	}
-	
-	public double asDouble(String key) {
-		return NBTUtil.toNumber(get(key)).doubleValue();
-	}
-	
-	public String getString(String key) {
-		Tag tag = get(key);
-		if (isType(tag, TagType.STRING))
-			return (String) tag.getValue();
-		return "";
-	}
-	
-	public byte[] getBytes(String key) {
-		Tag tag = get(key);
-		if (isType(tag, TagType.BYTE_ARRAY))
-			return ((byte[]) tag.getValue());
-		return new byte[0];
-	}
-	
-	public int[] getInts(String key) {
-		Tag tag = get(key);
-		if (isType(tag, TagType.INT_ARRAY))
-			return ((int[]) tag.getValue());
-		return new int[0];
-	}
-
-	public long[] getLongs(String key) {
-		Tag tag = get(key);
-		if (isType(tag, TagType.LONG_ARRAY))
-			return ((long[]) tag.getValue());
-		return new long[0];
-	}
-
-	public List<Tag> getList(String key) {
-		Tag tag = get(key);
-		if (isType(tag, TagType.LIST))
-			return ((ListTag) tag).getValue();
-		return new ArrayList<>(0);
-	}
-
-	public Map<String, Tag> getMap(String key) {
-		Tag tag = get(key);
-		if (isType(tag, TagType.COMPOUND))
-			return ((CompoundTag) tag).getValue();
-		return new HashMap<>(0);
-	}
-
-	public ByteTag getByteTag(String key) {
-		Tag tag = get(key);
-		if (isType(tag, TagType.BYTE))
-			return (ByteTag) tag;
-		return null;
-	}
-
-	public ShortTag getShortTag(String key) {
-		Tag tag = get(key);
-		if (isType(tag, TagType.SHORT))
-			return (ShortTag) tag;
-		return null;
-	}
-
-	public IntTag getIntTag(String key) {
-		Tag tag = get(key);
-		if (isType(tag, TagType.INT))
-			return (IntTag) tag;
-		return null;
-	}
-
-	public LongTag getLongTag(String key) {
-		Tag tag = get(key);
-		if (isType(tag, TagType.LONG))
-			return (LongTag) tag;
-		return null;
-	}
-
-	public FloatTag getFloatTag(String key) {
-		Tag tag = get(key);
-		if (isType(tag, TagType.FLOAT))
-			return (FloatTag) tag;
-		return null;
-	}
-
-	public DoubleTag getDoubleTag(String key) {
-		Tag tag = get(key);
-		if (isType(tag, TagType.DOUBLE))
-			return (DoubleTag) tag;
-		return null;
-	}
-
-	public StringTag getStringTag(String key) {
-		Tag tag = get(key);
-		if (isType(tag, TagType.STRING))
-			return (StringTag) tag;
-		return null;
-	}
-
-	public ByteArrayTag getByteArrayTag(String key) {
-		Tag tag = get(key);
-		if (isType(tag, TagType.BYTE_ARRAY))
-			return (ByteArrayTag) tag;
-		return null;
-	}
-
-	public IntArrayTag getIntArrayTag(String key) {
-		Tag tag = get(key);
-		if (isType(tag, TagType.INT_ARRAY))
-			return (IntArrayTag) tag;
-		return null;
-	}
-
-	public LongArrayTag getLongArrayTag(String key) {
-		Tag tag = get(key);
-		if (isType(tag, TagType.LONG_ARRAY))
-			return (LongArrayTag) tag;
-		return null;
-	}
-
-	public ListTag getListTag(String key) {
-		Tag tag = get(key);
-		if (isType(tag, TagType.LIST))
-			return (ListTag) tag;
-		return null;
-	}
-
-	public CompoundTag getCompoundTag(String key) {
-		Tag tag = get(key);
-		if (isType(tag, TagType.COMPOUND))
-			return (CompoundTag) tag;
-		return null;
+	@Override
+	protected Map<String, Tag> getEmptyValue() {
+		return new HashMap<>(8);
 	}
 
 	public int size() {
-		return value.size();
+		return getValue().size();
 	}
-	
+
+	public Tag remove(String key) {
+		return getValue().remove(key);
+	}
+
 	public void clear() {
-		value = new HashMap<>();
-	}
-	
-	public void clearOrdered() {
-		value = new LinkedHashMap<>();
-	}
-	
-	public void setValue(Map<String, Tag> value) {
-		if (value == null)
-			clear();
-		else
-			this.value = value;
-	}
-	
-	@Override
-	public Map<String, Tag> getValue() {
-		return value;
+		getValue().clear();
 	}
 
-	@Override
-	protected void serialize(NBTOutputStream nbtOut, int depth) throws Exception {
-		for (Tag tag : value.values()) {
-			tag.serializeTag(nbtOut, incrementDepth(depth));
+	public boolean containsKey(String key) {
+		return getValue().containsKey(key);
+	}
+
+	public boolean containsValue(Tag value) {
+		return getValue().containsValue(value);
+	}
+
+	public <C extends Tag> C get(String key, Class<C> type) {
+		Tag t = getValue().get(key);
+		if (t != null) {
+			return type.cast(t);
 		}
-		new EndTag().serializeTag(nbtOut, depth);
+		return null;
+	}
+
+	public Tag get(String key) {
+		return getValue().get(key);
+	}
+
+	public ByteTag getByteTag(String key) {
+		return get(key, ByteTag.class);
+	}
+
+	public ShortTag getShortTag(String key) {
+		return get(key, ShortTag.class);
+	}
+
+	public IntTag getIntTag(String key) {
+		return get(key, IntTag.class);
+	}
+
+	public LongTag getLongTag(String key) {
+		return get(key, LongTag.class);
+	}
+
+	public FloatTag getFloatTag(String key) {
+		return get(key, FloatTag.class);
+	}
+
+	public DoubleTag getDoubleTag(String key) {
+		return get(key, DoubleTag.class);
+	}
+
+	public StringTag getStringTag(String key) {
+		return get(key, StringTag.class);
+	}
+
+	public ByteArrayTag getByteArrayTag(String key) {
+		return get(key, ByteArrayTag.class);
+	}
+
+	public IntArrayTag getIntArrayTag(String key) {
+		return get(key, IntArrayTag.class);
+	}
+
+	public LongArrayTag getLongArrayTag(String key) {
+		return get(key, LongArrayTag.class);
+	}
+
+	public ListTag<?> getListTag(String key) {
+		return get(key, ListTag.class);
+	}
+
+	public CompoundTag getCompoundTag(String key) {
+		return get(key, CompoundTag.class);
+	}
+
+	public boolean getBoolean(String key) {
+		Tag t = get(key);
+		return t instanceof ByteTag && ((ByteTag) t).asByte() > 0;
+	}
+
+	public byte getByte(String key) {
+		return getByteTag(key).asByte();
+	}
+
+	public short getShort(String key) {
+		return getShortTag(key).asShort();
+	}
+
+	public int getInt(String key) {
+		return getIntTag(key).asInt();
+	}
+
+	public long getLong(String key) {
+		return getLongTag(key).asLong();
+	}
+
+	public float getFloat(String key) {
+		return getFloatTag(key).asFloat();
+	}
+
+	public double getDouble(String key) {
+		return getDoubleTag(key).asDouble();
+	}
+
+	public String getString(String key) {
+		return getStringTag(key).getValue();
+	}
+
+	public byte[] getByteArray(String key) {
+		return getByteArrayTag(key).getValue();
+	}
+
+	public int[] getIntArray(String key) {
+		return getIntArrayTag(key).getValue();
+	}
+
+	public long[] getLongArray(String key) {
+		return getLongArrayTag(key).getValue();
+	}
+
+	public Tag put(String key, Tag tag) {
+		return getValue().put(key, checkNull(tag));
+	}
+
+	public Tag putBoolean(String key, boolean value) {
+		return put(key, new ByteTag(value));
+	}
+
+	public Tag putByte(String key, byte value) {
+		return put(key, new ByteTag(value));
+	}
+
+	public Tag putShort(String key, short value) {
+		return put(key, new ShortTag(value));
+	}
+
+	public Tag putInt(String key, int value) {
+		return put(key, new IntTag(value));
+	}
+
+	public Tag putLong(String key, long value) {
+		return put(key, new LongTag(value));
+	}
+
+	public Tag putFloat(String key, float value) {
+		return put(key, new FloatTag(value));
+	}
+
+	public Tag putDouble(String key, double value) {
+		return put(key, new DoubleTag(value));
+	}
+
+	public Tag putString(String key, String value) {
+		return put(key, new StringTag(checkNull(value)));
+	}
+
+	public Tag putByteArray(String key, byte[] value) {
+		return put(key, new ByteArrayTag(checkNull(value)));
+	}
+
+	public Tag putIntArray(String key, int[] value) {
+		return put(key, new IntArrayTag(checkNull(value)));
+	}
+
+	public Tag putLongArray(String key, long[] value) {
+		return put(key, new LongArrayTag(checkNull(value)));
 	}
 
 	@Override
-	protected Tag deserialize(NBTInputStream nbtIn, int depth) throws Exception {
-		clear();
-		for (;;) {
-			Tag tag = Tag.deserializeTag(nbtIn, incrementDepth(depth));
-			if (tag.getType() == TagType.END) {
-				break;
+	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+		for (Map.Entry<String, Tag> e : getValue().entrySet()) {
+			dos.writeByte(e.getValue().getID());
+			dos.writeUTF(e.getKey());
+			e.getValue().serializeValue(dos, incrementDepth(depth));
+		}
+		EndTag.INSTANCE.serialize(dos, depth);
+	}
+
+	@Override
+	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+		for (int id = dis.readByte() & 0xFF; id != 0; id = dis.readByte() & 0xFF) {
+			Tag tag = TagFactory.fromID(id);
+			String name = dis.readUTF();
+			tag.deserializeValue(dis, incrementDepth(depth));
+			put(name, tag);
+		}
+	}
+
+	@Override
+	public String valueToString(int depth) {
+		StringBuilder sb = new StringBuilder("{");
+		boolean first = true;
+		for (Map.Entry<String, Tag> e : getValue().entrySet()) {
+			sb.append(first ? "" : ",")
+					.append(escapeString(e.getKey(), false)).append(":")
+					.append(e.getValue().toString(incrementDepth(depth)));
+			first = false;
+		}
+		sb.append("}");
+		return sb.toString();
+	}
+
+	@Override
+	public String valueToTagString(int depth) {
+		StringBuilder sb = new StringBuilder("{");
+		boolean first = true;
+		for (Map.Entry<String, Tag> e : getValue().entrySet()) {
+			sb.append(first ? "" : ",")
+					.append(escapeString(e.getKey(), true)).append(":")
+					.append(e.getValue().valueToTagString(incrementDepth(depth)));
+			first = false;
+		}
+		sb.append("}");
+		return sb.toString();
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (!super.equals(other) || size() != ((CompoundTag) other).size()) {
+			return false;
+		}
+		for (Map.Entry<String, Tag> e : getValue().entrySet()) {
+			Tag v;
+			if ((v = ((CompoundTag) other).get(e.getKey())) == null || !e.getValue().equals(v)) {
+				return false;
 			}
-			set(tag);
 		}
-		return this;
+		return true;
 	}
 
 	@Override
-	public String toTagString() {
-		return toTagString(0);
+	public int compareTo(Tag<Map<String, Tag>> o) {
+		return Integer.compare(size(), o.getValue().size());
 	}
-	
-	@Override
-	protected String toTagString(int depth) {
-		depth = incrementDepth(depth);
-		return NBTUtil.createNamePrefix(this) + valueToTagString(depth);
-	}
-	
-	@Override
-	protected String valueToTagString(int depth) {
-		return "{" + NBTUtil.joinArray(",", value.values().toArray(new Tag[0]), depth) + "}";
-	}
-	
-	@Override
-	public String toString() {
-		return toString(0);
-	}
-	
-	@Override
-	protected String toString(int depth) {
-		depth = incrementDepth(depth);
-		return "<compound:" + getName() + ":{" + NBTUtil.joinArray(",", value.values().toArray(), "", depth, false) + "}>";
-	}
-	
+
 	@Override
 	public CompoundTag clone() {
-		CompoundTag clone = new CompoundTag(getName());
-		if (value instanceof LinkedHashMap) {
-			clone.clearOrdered();
+		CompoundTag copy = new CompoundTag();
+		for (Map.Entry<String, Tag> e : getValue().entrySet()) {
+			copy.put(e.getKey(), e.getValue().clone());
 		}
-		for (Entry<String, Tag> entry : value.entrySet()) {
-			clone.set(entry.getValue().clone());
-		}
-		return clone;
+		return copy;
 	}
 }

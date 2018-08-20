@@ -1,69 +1,69 @@
 package net.querz.nbt;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class StringTag extends Tag {
-	private String value;
-	
-	protected StringTag() {
-		this("");
-	}
-	
+public class StringTag extends Tag<String> {
+
+	public StringTag() {}
+
 	public StringTag(String value) {
-		this("", value);
+		super(value);
 	}
-	
-	public StringTag(String name, String value) {
-		super(TagType.STRING, name);
-		setValue(value);
+
+	@Override
+	public byte getID() {
+		return 8;
 	}
-	
-	public void setValue(String value) {
-		this.value = value == null ? "" : value;
+
+	@Override
+	protected String getEmptyValue() {
+		return "";
 	}
-	
-	public int length() {
-		return value.length();
-	}
-	
+
 	@Override
 	public String getValue() {
-		return value;
+		return super.getValue();
 	}
 
 	@Override
-	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
-		byte[] bytes = value.getBytes(CHARSET);
-		nbtOut.dos.writeShort(bytes.length);
-		nbtOut.dos.write(bytes);
-	}
-	
-	@Override
-	protected StringTag deserialize(NBTInputStream nbtIn, int depth) throws IOException {
-		int length = nbtIn.dis.readShort();
-		byte[] bytes = new byte[length];
-		nbtIn.dis.readFully(bytes);
-		value = new String(bytes, CHARSET);
-		return this;
+	public void setValue(String value) {
+		super.setValue(checkNull(value));
 	}
 
 	@Override
-	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + valueToTagString(0);
+	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+		dos.writeUTF(getValue());
 	}
-	
+
 	@Override
-	protected String valueToTagString(int depth) {
-		return NBTUtil.createPossiblyEscapedString(value);
+	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+		setValue(dis.readUTF());
 	}
-	
+
 	@Override
-	public String toString() {
-		return "<string:" + getName() + ":" + value + ">";
+	public String valueToString(int depth) {
+		return escapeString(getValue(), false);
 	}
-	
+
+	@Override
+	public String valueToTagString(int depth) {
+		return escapeString(getValue(), true);
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		return super.equals(other) && getValue().equals(((StringTag) other).getValue());
+	}
+
+	@Override
+	public int compareTo(Tag<String> o) {
+		return getValue().compareTo(o.getValue());
+	}
+
 	@Override
 	public StringTag clone() {
-		return new StringTag(getName(), value);
+		return new StringTag(getValue());
 	}
 }

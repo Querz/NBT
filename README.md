@@ -3,76 +3,80 @@
 #### A java implementation of the [NBT protocol](http://minecraft.gamepedia.com/NBT_format), including a way to implement custom tags.
 ---
 ### Specification
-According to the [specification](http://minecraft.gamepedia.com/NBT_format), there are currently 12 different types of tags:
+According to the [specification](http://minecraft.gamepedia.com/NBT_format), there are currently 13 different types of tags:
 
 | Tag class    | Superclass | ID | Payload |
 | ---------    | ---------- | -- | ----------- |
-| EndTag       | Tag        | 0  | None |
-| ByteTag      | NumberTag  | 1  | 1 byte / 8 bits, signed |
-| ShortTag     | NumberTag  | 2  | 2 bytes / 16 bits, signed, big endian |
-| IntTag       | NumberTag  | 3  | 4 bytes / 32 bits, signed, big endian |
-| LongTag      | NumberTag  | 4  | 8 bytes / 64 bits, signed, big endian |
-| FloatTag     | NumberTag  | 5  | 4 bytes / 32 bits, signed, big endian, IEEE 754-2008, binary32 |
-| DoubleTag    | NumberTag  | 6  | 8 bytes / 64 bits, signed, big endian, IEEE 754-2008, binary64 |
-| ByteArrayTag | ArrayTag   | 7  | IntTag's payload *size*, then *size* ByteTag's payloads |
-| StringTag    | Tag        | 8  | ShortTag's payload *length*, then a UTF-8 string with size *length* |
-| ListTag      | Tag        | 9  | ByteTag's payload *tagId*, then IntTag's payload *size*, then *size* tags' payloads, all of type *tagId* |
-| CompoundTag  | Tag        | 10 | Fully formed tags, followed by an EndTag |
-| IntArrayTag  | ArrayTag   | 11 | IntTag's payload *size*, then *size* IntTag's payloads |
-| LongArrayTag | ArrayTag   | 12 | IntTag's payload *size*, then *size* LongTag's payloads |
+| [EndTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/EndTag.java)       | [Tag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/Tag.java)        | 0  | None |
+| [ByteTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/ByteTag.java)      | [NumberTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/NumberTag.java)  | 1  | 1 byte / 8 bits, signed |
+| [ShortTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/ShortTag.java)     | [NumberTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/NumberTag.java)  | 2  | 2 bytes / 16 bits, signed, big endian |
+| [IntTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/IntTag.java)       | [NumberTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/NumberTag.java)  | 3  | 4 bytes / 32 bits, signed, big endian |
+| [LongTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/LongTag.java)      | [NumberTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/NumberTag.java)  | 4  | 8 bytes / 64 bits, signed, big endian |
+| [FloatTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/FloatTag.java)     | [NumberTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/NumberTag.java)  | 5  | 4 bytes / 32 bits, signed, big endian, IEEE 754-2008, binary32 |
+| [DoubleTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/DoubleTag.java)    | [NumberTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/NumberTag.java)  | 6  | 8 bytes / 64 bits, signed, big endian, IEEE 754-2008, binary64 |
+| [ByteArrayTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/ByteArrayTag.java) | [ArrayTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/ArrayTag.java)   | 7  | `IntTag`'s payload *size*, then *size* `ByteTag`'s payloads |
+| [StringTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/StringTag.java)    | [Tag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/Tag.java)        | 8  | `ShortTag`'s payload *length*, then a UTF-8 string with size *length* |
+| [ListTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/ListTag.java)      | [Tag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/Tag.java)        | 9  | `ByteTag`'s payload *tagId*, then `IntTag`'s payload *size*, then *size* tags' payloads, all of type *tagId* |
+| [CompoundTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/CompoundTag.java)  | [Tag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/Tag.java)        | 10 | Fully formed tags, followed by an `EndTag` |
+| [IntArrayTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/IntArrayTag.java)  | [ArrayTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/ArrayTag.java)   | 11 | `IntTag`'s payload *size*, then *size* `IntTag`'s payloads |
+| [LongArrayTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/LongArrayTag.java) | [ArrayTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/ArrayTag.java)   | 12 | `IntTag`'s payload *size*, then *size* `LongTag`'s payloads |
 
-* The [EndTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/EndTag.java) is only used to mark the end of a [CompoundTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/CompoundTag.java) in its serialized state or an empty [ListTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/ListTag.java).
+* The `EndTag` is only used to mark the end of a `CompoundTag` in its serialized state or an empty `ListTag`.
 
-* The maximum depth of the NBT structure is 512. If the depth exceeds this restriction during serialization, deserialization or String conversion, a [MaxDepthReachedException](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/MaxDepthReachedException.java) is thrown. This usually happens when a circular reference exists in the NBT structure. The NBT specification does not allow circular references, as there is no tag to represent this.
+* The maximum depth of the NBT structure is 512. If the depth exceeds this restriction during serialization, deserialization or String conversion, a `MaxDepthReachedException` is thrown. This usually happens when a circular reference exists in the NBT structure. The NBT specification does not allow circular references, as there is no tag to represent this.
 
 ---
 ### Example usage:
+The following code snippet shows how to create a `CompoundTag`:
 ```java
-ByteTag bt = new ByteTag("8bitNumber", (byte) 1);
-DoubleTag dt = new DoubleTag("64bitFloatingPointNumber", 1.234);
+CompoundTag ct = new CompoundTag();
 
-CompoundTag ct = new CompoundTag("compound");
+ct.put("byte", new ByteTag((byte) 1));
+ct.put("double", new DoubleTag(1.234));
+ct.putString("string", "stringValue");
+```
+An example on how to use `ListTag`:
+```java
+ListTag<FloatTag> fl = new ListTag<>();
 
-ct.set(bt);
-ct.set(dt);
-ct.setString("string", "stringValue");
+fl.add(new FloatTag(1.234f);
+fl.addFloat(5.678f);
 ```
 ---
 ### Utility
-There are several utility classes that make your life easier using this library.
-#### NBTFileWriter
-The NBTFileWriter lets you write a Tag into a gzip compressed or uncompressed file in one line. Files are gzip compressed by default.
+There are several utility methods to make your life easier if you use this library.
+#### NBTUtil
+`NBTUtil.writeTag()` lets you write a Tag into a gzip compressed or uncompressed file in one line (not counting exception handling). Files are gzip compressed by default.
 Example usage:
 ```java
-new NBTFileWriter("filename.dat").write(tag);
+NBTUtil.writeTag(tag, "filename.dat");
 ```
-#### NBTFileReader
-The NBTFileReader reads any file containing NBT data. No worry about compression, it will automatically uncompress gzip compressed files.
+`NBTUtil.readTag()` reads any file containing NBT data. No worry about compression, it will automatically uncompress gzip compressed files.
 Example usage:
 ```java
-Tag tag = new NBTFileReader("filename.dat").read();
+Tag tag = NBTUtil.readTag("filename.dat");
 ```
 #### Playing Minecraft?
 Each tag can be converted into a JSON-like NBT String used in Minecraft commands.
 Example usage:
 ```java
-CompoundTag c = new CompoundTag("compound");
-c.setByte("byte", (byte) 5);
-c.setString("string", "test");
+CompoundTag c = new CompoundTag();
+c.putByte("blah", (byte) 5);
+c.putString("foo", "bär");
 String s = c.toTagString();
 
-//output: compound:{byte:5b,string:"test"}
+//output: {blah:5b,foo:"bär"}
 ```
 ---
 ### Custom tags
 Interested in more advanced features, and the default NBT protocol just isn't enough? Simply create your own tags!
-There are 4 example classes in net.querz.nbt.custom that show how to implement custom tags:
+There are 4 example classes in `net.querz.nbt.custom` that show how to implement custom tags:
 
 | Class         | ID  | Description |
 | ------------- | :-: | ----------- |
-| ObjectTag     | 90  | A Wrapper Tag that serializes and deserializes any object using the default java serialization. |
-| ShortArrayTag | 100 | In addition to the already existing ByteArrayTag, IntArrayTag and LongArrayTag. |
-| CharTag       | 110 | Character (char) tag. |
-| StructTag     | 120 | Similar to the ListTag, but with the ability to store multiple types. |
+| [ObjectTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/custom/ObjectTag.java)     | 90  | A wrapper tag that serializes and deserializes any object using the default java serialization. |
+| [ShortArrayTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/custom/ShortArrayTag.java) | 100 | In addition to the already existing `ByteArrayTag`, `IntArrayTag` and `LongArrayTag`. |
+| [CharTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/custom/CharTag.java)       | 110 | `Character` (char) tag. |
+| [StructTag](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/custom/StructTag.java)     | 120 | Similar to the `ListTag`, but with the ability to store multiple types. |
 
-To be able to use a custom tag, it must be registered during runtime with [TagType](https://github.com/Querz/NBT/blob/master/src/main/java/net/querz/nbt/TagType.java)#registerCustomTag(int, Class).
+To be able to use a custom tag with deserialization, it needs to have a public no-args constructor and its id and class must be registered during runtime with `TagFactory.registerCustomTag()`.

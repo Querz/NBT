@@ -1,67 +1,66 @@
 package net.querz.nbt.custom;
 
+import net.querz.nbt.ArrayTag;
+import net.querz.nbt.TagFactory;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import net.querz.nbt.*;
+import java.util.Arrays;
 
-public class ShortArrayTag extends ArrayTag implements CustomTag {
-	public static final int TAG_ID = 100;
-	
+public class ShortArrayTag extends ArrayTag<short[]> {
+
 	public static void register() {
-		TagType.registerCustomTag(TAG_ID, ShortArrayTag.class);
+		TagFactory.registerCustomTag(100, ShortArrayTag.class);
 	}
-	
-	private short[] value;
-	
-	public ShortArrayTag() {
-		this(new short[0]);
-	}
-	
+
+	public ShortArrayTag() {}
+
 	public ShortArrayTag(short[] value) {
-		this("", value);
-	}
-	
-	public ShortArrayTag(String name, short[] value) {
-		super(TagType.CUSTOM, name, "S", "s");
-		setValue(value);
-	}
-	
-	public void setValue(short[] value) {
-		this.value = value;
+		super(value);
 	}
 
 	@Override
-	public int getId() {
-		return TAG_ID;
-	}
-	
-	@Override
-	public short[] getValue() {
-		return value;
+	public byte getID() {
+		return 100;
 	}
 
 	@Override
-	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
-		nbtOut.getDataOutputStream().writeInt(value.length);
-		for (short s : value)
-			nbtOut.getDataOutputStream().writeShort(s);
+	protected short[] getEmptyValue() {
+		return new short[0];
 	}
-	
+
 	@Override
-	protected ShortArrayTag deserialize(NBTInputStream nbtIn, int depth) throws IOException {
-		int length = nbtIn.getDataInputStream().readInt();
-		value = new short[length];
-		for (int i = 0; i < length; i++)
-			value[i] = nbtIn.getDataInputStream().readShort();
-		return this;
+	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+		dos.writeInt(length());
+		for (int i : getValue()) {
+			dos.writeShort(i);
+		}
 	}
-	
+
 	@Override
-	public String toString() {
-		return "<short[]:" + getName() + ":[" + NBTUtil.joinArray(",", value) + "]>";
+	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+		int length = dis.readInt();
+		setValue(new short[length]);
+		for (int i = 0; i < length; i++) {
+			getValue()[i] = dis.readShort();
+		}
 	}
-	
+
+	@Override
+	public String valueToTagString(int depth) {
+		return arrayToString(getValue(), "S", "s");
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		return super.equals(other)
+				&& (getValue() == ((ShortArrayTag) other).getValue()
+				|| getValue().length == (((ShortArrayTag) other).length())
+				&& Arrays.equals(getValue(), ((ShortArrayTag) other).getValue()));
+	}
+
 	@Override
 	public ShortArrayTag clone() {
-		return new ShortArrayTag(getName(), value.clone());
+		return new ShortArrayTag(Arrays.copyOf(getValue(), length()));
 	}
 }

@@ -1,60 +1,53 @@
 package net.querz.nbt;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class IntTag extends NumberTag {
-	private int value;
-	
-	protected IntTag() {
-		this(0);
-	}
-	
+public class IntTag extends NumberTag<Integer> {
+
+	public IntTag() {}
+
 	public IntTag(int value) {
-		this("", value);
+		super(value);
 	}
-	
-	public IntTag(String name, int value) {
-		super(TagType.INT, name);
-		setValue(value);
+
+	@Override
+	public byte getID() {
+		return 3;
 	}
-	
+
+	@Override
+	protected Integer getEmptyValue() {
+		return 0;
+	}
+
 	public void setValue(int value) {
-		this.value = value;
-	}
-	
-	@Override
-	public Integer getValue() {
-		return value;
+		super.setValue(value);
 	}
 
 	@Override
-	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
-		nbtOut.dos.writeInt(value);
+	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+		dos.writeInt(getValue());
 	}
 
 	@Override
-	protected IntTag deserialize(NBTInputStream nbtIn, int depth) throws IOException {
-		value = nbtIn.dis.readInt();
-		return this;
+	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+		setValue(dis.readInt());
 	}
 
 	@Override
-	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + valueToTagString(0);
+	public String valueToTagString(int depth) {
+		return getValue() + "";
 	}
-	
+
 	@Override
-	protected String valueToTagString(int depth) {
-		return value + "";
+	public boolean equals(Object other) {
+		return super.equals(other) && asInt() == ((IntTag) other).asInt();
 	}
-	
-	@Override
-	public String toString() {
-		return "<int:" + getName() + ":" + value + ">";
-	}
-	
+
 	@Override
 	public IntTag clone() {
-		return new IntTag(getName(), value);
+		return new IntTag(getValue());
 	}
 }

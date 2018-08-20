@@ -1,60 +1,53 @@
 package net.querz.nbt;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class ShortTag extends NumberTag {
-	private short value;
-	
-	protected ShortTag() {
-		this((short) 0);
-	}
-	
+public class ShortTag extends NumberTag<Short> {
+
+	public ShortTag() {}
+
 	public ShortTag(short value) {
-		this("", value);
+		super(value);
 	}
-	
-	public ShortTag(String name, short value) {
-		super(TagType.SHORT, name);
-		setValue(value);
+
+	@Override
+	public byte getID() {
+		return 2;
 	}
-	
+
+	@Override
+	protected Short getEmptyValue() {
+		return 0;
+	}
+
 	public void setValue(short value) {
-		this.value = value;
-	}
-	
-	@Override
-	public Short getValue() {
-		return value;
+		super.setValue(value);
 	}
 
 	@Override
-	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
-		nbtOut.dos.writeShort(value);
+	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+		dos.writeShort(getValue());
 	}
 
 	@Override
-	protected ShortTag deserialize(NBTInputStream nbtIn, int depth) throws IOException {
-		value = nbtIn.dis.readShort();
-		return this;
+	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+		setValue(dis.readShort());
 	}
 
 	@Override
-	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + valueToTagString(0);
+	public String valueToTagString(int depth) {
+		return getValue() + "s";
 	}
-	
+
 	@Override
-	protected String valueToTagString(int depth) {
-		return value + "s";
+	public boolean equals(Object other) {
+		return super.equals(other) && asShort() == ((ShortTag) other).asShort();
 	}
-	
-	@Override
-	public String toString() {
-		return "<short:" + getName() + ":" + value + ">";
-	}
-	
+
 	@Override
 	public ShortTag clone() {
-		return new ShortTag(getName(), value);
+		return new ShortTag(getValue());
 	}
 }

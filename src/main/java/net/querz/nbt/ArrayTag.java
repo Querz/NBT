@@ -1,20 +1,13 @@
 package net.querz.nbt;
 
-import net.querz.nbt.util.Array;
+import java.lang.reflect.Array;
 
-public abstract class ArrayTag extends Tag {
+public abstract class ArrayTag<T> extends Tag<T> {
 
-	private String typeIdentifier;
-	private String typeSuffix;
+	public ArrayTag() {}
 
-	public ArrayTag(TagType type, String name, String typeIdentifier) {
-		this(type, name, typeIdentifier, "");
-	}
-
-	public ArrayTag(TagType type, String name, String typeIdentifier, String typeSuffix) {
-		super(type, name);
-		this.typeIdentifier = typeIdentifier;
-		this.typeSuffix = typeSuffix;
+	public ArrayTag(T value) {
+		super(value);
 	}
 
 	public int length() {
@@ -22,26 +15,35 @@ public abstract class ArrayTag extends Tag {
 	}
 
 	@Override
-	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + valueToTagString(0);
+	public T getValue() {
+		return super.getValue();
 	}
 
 	@Override
-	protected String valueToTagString(int depth) {
-		return "[" + typeIdentifier + ";" + NBTUtil.joinArray(",", getValue(), typeSuffix) + "]";
+	public void setValue(T value) {
+		super.setValue(checkNull(value));
 	}
 
 	@Override
-	public boolean equals(Object other) {
-		if (this.getClass().equals(other.getClass())) {
-			Tag tag = (Tag) other;
-			return getName() != null && getName().equals(tag.getName()) && Array.equals(getValue(), tag.getValue());
+	public String valueToString(int depth) {
+		return arrayToString(getValue(), "", "");
+	}
+
+	@Override
+	public int compareTo(Tag<T> other) {
+		return Integer.compare(Array.getLength(getValue()), Array.getLength(other));
+	}
+
+	protected String arrayToString(T array, String prefix, String suffix) {
+		if (!array.getClass().isArray()) {
+			throw new UnsupportedOperationException("cannot convert non-array Object to String");
 		}
-		return false;
-	}
 
-	@Override
-	protected boolean valueEquals(Tag other) {
-		return this.getClass().equals(other.getClass()) && Array.equals(getValue(), other.getValue());
+		StringBuilder sb = new StringBuilder("[").append(prefix).append("".equals(prefix) ? "" : ";");
+		for (int i = 0; i < length(); i++) {
+			sb.append(i == 0 ? "" : ",").append(Array.get(array, i)).append(suffix);
+		}
+		sb.append("]");
+		return sb.toString();
 	}
 }

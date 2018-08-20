@@ -1,77 +1,61 @@
 package net.querz.nbt;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class ByteTag extends NumberTag {
-	private byte value;
-	
-	protected ByteTag() {
-		this((byte) 0);
-	}
-	
+public class ByteTag extends NumberTag<Byte> {
+
+	public ByteTag() {}
+
 	public ByteTag(byte value) {
-		this("", value);
+		super(value);
 	}
-	
+
 	public ByteTag(boolean value) {
-		this("", value);
+		super((byte) (value ? 1 : 0));
 	}
-	
-	public ByteTag(String name, byte value) {
-		super(TagType.BYTE, name);
-		setValue(value);
+
+	@Override
+	public byte getID() {
+		return 1;
 	}
-	
-	public ByteTag(String name, boolean value) {
-		super(TagType.BYTE, name);
-		setValue(value);
+
+	@Override
+	protected Byte getEmptyValue() {
+		return 0;
 	}
-	
+
+	public boolean asBoolean() {
+		return getValue() > 0;
+	}
+
 	public void setValue(byte value) {
-		this.value = value;
-	}
-	
-	public void setValue(boolean value) {
-		this.value = value ? (byte) 1 : 0;
-	}
-	
-	public boolean getBoolean() {
-		return value != 0;
-	}
-	
-	@Override
-	public Byte getValue() {
-		return value;
+		super.setValue(value);
 	}
 
 	@Override
-	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
-		nbtOut.dos.writeByte(value);
-	}
-	
-	@Override
-	protected ByteTag deserialize(NBTInputStream nbtIn, int depth) throws IOException {
-		value = nbtIn.dis.readByte();
-		return this;
+	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+		dos.writeByte(getValue());
 	}
 
 	@Override
-	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + valueToTagString(0);
+	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+		setValue(dis.readByte());
 	}
-	
+
 	@Override
-	protected String valueToTagString(int depth) {
-		return value + "b";
+	public String valueToTagString(int depth) {
+		return getValue() + "b";
 	}
-	
+
 	@Override
-	public String toString() {
-		return "<byte:" + getName() + ":" + value + ">";
+	public boolean equals(Object other) {
+		return super.equals(other) && asByte() == ((ByteTag) other).asByte();
 	}
-	
+
 	@Override
 	public ByteTag clone() {
-		return new ByteTag(getName(), value);
+		return new ByteTag(getValue());
 	}
 }

@@ -1,60 +1,53 @@
 package net.querz.nbt;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class LongTag extends NumberTag {
-	private long value;
-	
-	protected LongTag() {
-		this(0);
-	}
-	
+public class LongTag extends NumberTag<Long> {
+
+	public LongTag() {}
+
 	public LongTag(long value) {
-		this("", value);
+		super(value);
 	}
-	
-	public LongTag(String name, long value) {
-		super(TagType.LONG, name);
-		setValue(value);
+
+	@Override
+	public byte getID() {
+		return 4;
 	}
-	
+
+	@Override
+	protected Long getEmptyValue() {
+		return 0L;
+	}
+
 	public void setValue(long value) {
-		this.value = value;
-	}
-	
-	@Override
-	public Long getValue() {
-		return value;
+		super.setValue(value);
 	}
 
 	@Override
-	protected void serialize(NBTOutputStream nbtOut, int depth) throws IOException {
-		nbtOut.dos.writeLong(value);
+	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+		dos.writeLong(getValue());
 	}
 
 	@Override
-	protected LongTag deserialize(NBTInputStream nbtIn, int depth) throws IOException {
-		value = nbtIn.dis.readLong();
-		return this;
+	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+		setValue(dis.readLong());
 	}
 
 	@Override
-	public String toTagString() {
-		return NBTUtil.createNamePrefix(this) + valueToTagString(0);
+	public String valueToTagString(int depth) {
+		return getValue() + "l";
 	}
-	
+
 	@Override
-	protected String valueToTagString(int depth) {
-		return value + "l";
+	public boolean equals(Object other) {
+		return super.equals(other) && asLong() == ((LongTag) other).asLong();
 	}
-	
-	@Override
-	public String toString() {
-		return "<long:" + getName() + ":" + value + ">";
-	}
-	
+
 	@Override
 	public LongTag clone() {
-		return new LongTag(getName(), value);
+		return new LongTag(getValue());
 	}
 }

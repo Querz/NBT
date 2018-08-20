@@ -1,62 +1,47 @@
 package net.querz.nbt;
 
-public abstract class NumberTag extends Tag {
-	protected NumberTag(TagType type, String name) {
-		super(type, name);
-	}
+public abstract class NumberTag<T extends Number & Comparable<T>> extends Tag<T> {
 
-	private RuntimeException badState() {
-		return new IllegalStateException(
-				"Cannot cast value of " + getClass().getName() + " to a number with a lower resolution.");
+	public NumberTag() {}
+
+	public NumberTag(T value) {
+		super(value);
 	}
 
 	public byte asByte() {
-		if (getValue() instanceof Byte)
-			return (byte) getValue();
-		throw badState();
+		return getValue().byteValue();
 	}
 
 	public short asShort() {
-		if (getValue() instanceof Byte
-				|| getValue() instanceof Short)
-			return ((Number) getValue()).shortValue();
-		throw badState();
+		return getValue().shortValue();
 	}
 
 	public int asInt() {
-		if (getValue() instanceof Byte
-				|| getValue() instanceof Short
-				|| getValue() instanceof Integer)
-			return ((Number) getValue()).intValue();
-		throw badState();
+		return getValue().intValue();
 	}
 
 	public long asLong() {
-		if (getValue() instanceof Byte
-				|| getValue() instanceof Short
-				|| getValue() instanceof Integer
-				|| getValue() instanceof Long)
-			return ((Number) getValue()).longValue();
-		throw badState();
+		return getValue().longValue();
 	}
 
 	public float asFloat() {
-		if (getValue() instanceof Byte
-				|| getValue() instanceof Short
-				|| getValue() instanceof Integer
-				|| getValue() instanceof Float)
-			return ((Number) getValue()).floatValue();
-		throw badState();
+		return getValue().floatValue();
 	}
 
 	public double asDouble() {
-		if (getValue() instanceof Byte
-				|| getValue() instanceof Short
-				|| getValue() instanceof Integer
-				|| getValue() instanceof Long
-				|| getValue() instanceof Float
-				|| getValue() instanceof Double)
-			return ((Number) getValue()).doubleValue();
-		throw badState();
+		return getValue().doubleValue();
+	}
+
+	@Override
+	public String valueToString(int depth) {
+		return getValue().toString();
+	}
+
+	@Override
+	public int compareTo(Tag<T> other) {
+		if (!(other instanceof NumberTag) || this.getClass() != other.getClass()) {
+			return 0;
+		}
+		return getValue().compareTo(other.getValue());
 	}
 }

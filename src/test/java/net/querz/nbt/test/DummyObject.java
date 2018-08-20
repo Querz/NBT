@@ -1,9 +1,8 @@
 package net.querz.nbt.test;
 
-import java.io.Serializable;
 import java.util.Random;
 
-public class DummyObject implements Serializable, Cloneable {
+public class DummyObject extends AbstractDummyObject implements Cloneable {
 	private static final Random RANDOM = new Random();
 
 	public byte a = (byte) RANDOM.nextInt(Byte.MAX_VALUE);
@@ -14,14 +13,18 @@ public class DummyObject implements Serializable, Cloneable {
 	public double f = RANDOM.nextDouble();
 
 	@Override
-	public Object clone() throws CloneNotSupportedException {
-		return super.clone();
+	public DummyObject clone() {
+		try {
+			return (DummyObject) super.clone();
+		} catch (CloneNotSupportedException ex) {
+			ex.printStackTrace();
+			return null;
+		}
 	}
 
-	public String getAsString() {
-		return String.format("%d/%d/%d/%d/%f/%f",
-				a, b, c, d, e, f
-		);
+	@Override
+	public String toString() {
+		return String.format("%d/%d/%d/%d/%f/%f", a, b, c, d, e, f);
 	}
 
 	@Override
