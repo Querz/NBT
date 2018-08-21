@@ -1,15 +1,11 @@
 package net.querz.nbt.test;
 
 import junit.framework.TestCase;
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -24,8 +20,9 @@ public class TestUtil {
 			r.run();
 			TestCase.fail();
 		} catch (Exception ex) {
-			if (printStackTrace)
+			if (printStackTrace) {
 				ex.printStackTrace();
+			}
 			TestCase.assertEquals(ex.getClass(), e);
 		}
 	}
@@ -35,8 +32,9 @@ public class TestUtil {
 			r.run();
 			TestCase.fail();
 		} catch (Exception ex) {
-			if (printStackTrace)
+			if (printStackTrace) {
 				ex.printStackTrace();
+			}
 		}
 	}
 	
@@ -80,8 +78,7 @@ public class TestUtil {
 		} catch (NoSuchAlgorithmException ex) {
 			TestCase.fail(ex.getMessage());
 		}
-		try (BufferedInputStream bis = new BufferedInputStream(Files.newInputStream(file.toPath())))
-		{
+		try (BufferedInputStream bis = new BufferedInputStream(Files.newInputStream(file.toPath()))) {
 			byte[] buffer = new byte[8192];
 			int numRead;
 			do {
