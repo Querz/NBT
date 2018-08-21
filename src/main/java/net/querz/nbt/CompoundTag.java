@@ -125,43 +125,53 @@ public class CompoundTag extends Tag<Map<String, Tag>> {
 	}
 
 	public byte getByte(String key) {
-		return getByteTag(key).asByte();
+		ByteTag t = getByteTag(key);
+		return t == null ? 0 : t.asByte();
 	}
 
 	public short getShort(String key) {
-		return getShortTag(key).asShort();
+		ShortTag t = getShortTag(key);
+		return t == null ? 0 : t.asShort();
 	}
 
 	public int getInt(String key) {
-		return getIntTag(key).asInt();
+		IntTag t = getIntTag(key);
+		return t == null ? 0 : t.asInt();
 	}
 
 	public long getLong(String key) {
-		return getLongTag(key).asLong();
+		LongTag t = getLongTag(key);
+		return t == null ? 0 : t.asLong();
 	}
 
 	public float getFloat(String key) {
-		return getFloatTag(key).asFloat();
+		FloatTag t = getFloatTag(key);
+		return t == null ? 0 : t.asFloat();
 	}
 
 	public double getDouble(String key) {
-		return getDoubleTag(key).asDouble();
+		DoubleTag t = getDoubleTag(key);
+		return t == null ? 0 : t.asDouble();
 	}
 
 	public String getString(String key) {
-		return getStringTag(key).getValue();
+		StringTag t = getStringTag(key);
+		return t == null ? "" : t.getValue();
 	}
 
 	public byte[] getByteArray(String key) {
-		return getByteArrayTag(key).getValue();
+		ByteArrayTag t = getByteArrayTag(key);
+		return t == null ? new byte[0] : t.getValue();
 	}
 
 	public int[] getIntArray(String key) {
-		return getIntArrayTag(key).getValue();
+		IntArrayTag t = getIntArrayTag(key);
+		return t == null ? new int[0] : t.getValue();
 	}
 
 	public long[] getLongArray(String key) {
-		return getLongArrayTag(key).getValue();
+		LongArrayTag t = getLongArrayTag(key);
+		return t == null ? new long[0] : t.getValue();
 	}
 
 	public Tag put(String key, Tag tag) {
