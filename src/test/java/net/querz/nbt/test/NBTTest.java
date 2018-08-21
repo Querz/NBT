@@ -14,7 +14,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Map;
+
 import static net.querz.nbt.test.TestUtil.*;
 
 public class NBTTest extends TestCase {
@@ -486,6 +489,16 @@ public class NBTTest extends TestCase {
 		assertThrowsException(() -> serialize(recursive), MaxDepthReachedException.class);
 		assertThrowsException(recursive::toString, MaxDepthReachedException.class);
 		assertThrowsException(recursive::toTagString, MaxDepthReachedException.class);
+
+		//test entrySet setValue
+		CompoundTag e = new CompoundTag();
+		e.putInt("int", 123);
+		for (Map.Entry<String, Tag> en : e.entrySet()) {
+			assertThrowsException(() -> en.setValue(null), NullPointerException.class);
+			assertThrowsNoException(() -> en.setValue(new IntTag(321)));
+		}
+		assertEquals(1, e.size());
+		assertEquals(321, e.getInt("int"));
 	}
 
 	public void testCustomCharTag() {

@@ -19,9 +19,11 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.function.Consumer;
 
-public class StructTag extends Tag<List<Tag>> {
+public class StructTag extends Tag<List<Tag>> implements Iterable<Tag> {
 
 	public static void register() {
 		TagFactory.registerCustomTag(120, StructTag.class);
@@ -61,6 +63,16 @@ public class StructTag extends Tag<List<Tag>> {
 
 	public boolean containsAll(Collection<Tag> tags) {
 		return getValue().containsAll(tags);
+	}
+
+	@Override
+	public Iterator<Tag> iterator() {
+		return getValue().iterator();
+	}
+
+	@Override
+	public void forEach(Consumer<? super Tag> action) {
+		getValue().forEach(action);
 	}
 
 	public <S extends Tag> S get(int index, Class<S> type) {

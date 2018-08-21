@@ -6,9 +6,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
+import java.util.function.Consumer;
 
-public class ListTag<T extends Tag> extends Tag<List<T>> {
+public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> {
 
 	private byte typeID = 0;
 	private Class<? extends Tag> typeClass = EndTag.class;
@@ -58,6 +60,16 @@ public class ListTag<T extends Tag> extends Tag<List<T>> {
 
 	public void sort(Comparator<T> comparator) {
 		getValue().sort(comparator);
+	}
+
+	@Override
+	public Iterator<T> iterator() {
+		return getValue().iterator();
+	}
+
+	@Override
+	public void forEach(Consumer<? super T> action) {
+		getValue().forEach(action);
 	}
 
 	public T set(int index, T t) {

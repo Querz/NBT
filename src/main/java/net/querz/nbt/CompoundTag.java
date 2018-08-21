@@ -3,8 +3,11 @@ package net.querz.nbt;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.BiConsumer;
 
 public class CompoundTag extends Tag<Map<String, Tag>> {
 
@@ -38,6 +41,22 @@ public class CompoundTag extends Tag<Map<String, Tag>> {
 
 	public boolean containsValue(Tag value) {
 		return getValue().containsValue(value);
+	}
+
+	public Collection<Tag> values() {
+		return getValue().values();
+	}
+
+	public Set<String> keySet() {
+		return getValue().keySet();
+	}
+
+	public Set<Map.Entry<String, Tag>> entrySet() {
+		return new NonNullEntrySet<>(getValue().entrySet());
+	}
+
+	public void forEach(BiConsumer<String, Tag> action) {
+		getValue().forEach(action);
 	}
 
 	public <C extends Tag> C get(String key, Class<C> type) {
@@ -146,7 +165,7 @@ public class CompoundTag extends Tag<Map<String, Tag>> {
 	}
 
 	public Tag put(String key, Tag tag) {
-		return getValue().put(key, checkNull(tag));
+		return getValue().put(checkNull(key), checkNull(tag));
 	}
 
 	public Tag putBoolean(String key, boolean value) {
