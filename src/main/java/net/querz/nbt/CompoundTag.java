@@ -5,11 +5,12 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
-public class CompoundTag extends Tag<Map<String, Tag>> {
+public class CompoundTag extends Tag<Map<String, Tag>> implements Iterable<Map.Entry<String, Tag>> {
 
 	public CompoundTag() {}
 
@@ -53,6 +54,11 @@ public class CompoundTag extends Tag<Map<String, Tag>> {
 
 	public Set<Map.Entry<String, Tag>> entrySet() {
 		return new NonNullEntrySet<>(getValue().entrySet());
+	}
+
+	@Override
+	public Iterator<Map.Entry<String, Tag>> iterator() {
+		return entrySet().iterator();
 	}
 
 	public void forEach(BiConsumer<String, Tag> action) {
