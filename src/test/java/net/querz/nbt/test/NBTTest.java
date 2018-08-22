@@ -349,6 +349,15 @@ public class NBTTest extends TestCase {
 		ListTag<ByteTag> ttt = tt.asByteTagList();
 		assertTrue(bl.equals(ttt));
 
+		//test serialization / deserialization of empty list
+		ListTag<IntTag> empty = new ListTag<>();
+		data = serialize(empty);
+		assertTrue(Arrays.equals(new byte[]{9, 0, 0, 0, 0, 0, 0, 0}, data));
+		ListTag<?> et = (ListTag<?>) deserialize(data);
+		assertNotNull(et);
+		ListTag<ByteTag> ett = et.asByteTagList();
+		assertTrue(empty.equals(ett));
+
 		//test casting and type consistency
 		ListTag<ByteTag> b = new ListTag<>();
 		b.addByte((byte) 123);

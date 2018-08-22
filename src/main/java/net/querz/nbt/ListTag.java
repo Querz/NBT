@@ -247,8 +247,8 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 	@Override
 	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
 		dos.writeByte(typeID);
+		dos.writeInt(size());
 		if (typeID != 0) {
-			dos.writeInt(size());
 			for (T t : getValue()) {
 				t.serializeValue(dos, incrementDepth(depth));
 			}
@@ -259,8 +259,8 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 	@Override
 	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
 		typeID = dis.readByte();
+		int size = dis.readInt();
 		if (typeID != 0) {
-			int size = dis.readInt();
 			setValue(new ArrayList<>(size));
 			for (int i = 0; i < size; i++) {
 				Tag tag = TagFactory.fromID(typeID);
@@ -268,6 +268,7 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 				add((T) tag);
 			}
 		}
+		checkEmpty();
 	}
 
 	@Override
