@@ -132,52 +132,52 @@ public class CompoundTag extends Tag<Map<String, Tag>> implements Iterable<Map.E
 
 	public byte getByte(String key) {
 		ByteTag t = getByteTag(key);
-		return t == null ? 0 : t.asByte();
+		return t == null ? new ByteTag().getEmptyValue() : t.asByte();
 	}
 
 	public short getShort(String key) {
 		ShortTag t = getShortTag(key);
-		return t == null ? 0 : t.asShort();
+		return t == null ? new ShortTag().getEmptyValue() : t.asShort();
 	}
 
 	public int getInt(String key) {
 		IntTag t = getIntTag(key);
-		return t == null ? 0 : t.asInt();
+		return t == null ? new IntTag().getEmptyValue() : t.asInt();
 	}
 
 	public long getLong(String key) {
 		LongTag t = getLongTag(key);
-		return t == null ? 0 : t.asLong();
+		return t == null ? new LongTag().getEmptyValue() : t.asLong();
 	}
 
 	public float getFloat(String key) {
 		FloatTag t = getFloatTag(key);
-		return t == null ? 0 : t.asFloat();
+		return t == null ? new FloatTag().getEmptyValue() : t.asFloat();
 	}
 
 	public double getDouble(String key) {
 		DoubleTag t = getDoubleTag(key);
-		return t == null ? 0 : t.asDouble();
+		return t == null ? new DoubleTag().getEmptyValue() : t.asDouble();
 	}
 
 	public String getString(String key) {
 		StringTag t = getStringTag(key);
-		return t == null ? "" : t.getValue();
+		return t == null ? new StringTag().getEmptyValue() : t.getValue();
 	}
 
 	public byte[] getByteArray(String key) {
 		ByteArrayTag t = getByteArrayTag(key);
-		return t == null ? new byte[0] : t.getValue();
+		return t == null ? new ByteArrayTag().getEmptyValue() : t.getValue();
 	}
 
 	public int[] getIntArray(String key) {
 		IntArrayTag t = getIntArrayTag(key);
-		return t == null ? new int[0] : t.getValue();
+		return t == null ? new IntArrayTag().getEmptyValue() : t.getValue();
 	}
 
 	public long[] getLongArray(String key) {
 		LongArrayTag t = getLongArrayTag(key);
-		return t == null ? new long[0] : t.getValue();
+		return t == null ? new LongArrayTag().getEmptyValue() : t.getValue();
 	}
 
 	public Tag put(String key, Tag tag) {
