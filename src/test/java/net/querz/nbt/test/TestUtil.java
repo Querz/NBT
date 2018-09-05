@@ -5,17 +5,44 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.net.URL;
 import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.UUID;
 
 public class TestUtil {
 
-	public static void assertThrowsException(Runnable r, Class<? extends Exception> e) {
+	public static void assertThrowsException(ExceptionRunnable r, Class<? extends Exception> e) {
 		assertThrowsException(r, e, false);
 	}
 
-	public static void assertThrowsException(Runnable r, Class<? extends Exception> e, boolean printStackTrace) {
+	public static void assertThrowsException(ExceptionRunnable r, Class<? extends Exception> e, boolean printStackTrace) {
+		try {
+			r.run();
+			TestCase.fail();
+		} catch (Exception ex) {
+			if (printStackTrace) {
+				ex.printStackTrace();
+			}
+			TestCase.assertEquals(ex.getClass(), e);
+		}
+	}
+
+	public static void assertThrowsNoException(ExceptionRunnable r) {
+		try {
+			r.run();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			TestCase.fail("Threw exception " + ex.getClass().getName() + " with message \"" + ex.getMessage() + "\"");
+		}
+	}
+
+	public static void assertThrowsRuntimeException(Runnable r, Class<? extends Exception> e) {
+		assertThrowsRuntimeException(r, e, false);
+	}
+
+	public static void assertThrowsRuntimeException(Runnable r, Class<? extends Exception> e, boolean printStackTrace) {
 		try {
 			r.run();
 			TestCase.fail();
@@ -27,7 +54,7 @@ public class TestUtil {
 		}
 	}
 	
-	public static void assertThrowsException(Runnable r, boolean printStackTrace) {
+	public static void assertThrowsRuntimeException(Runnable r, boolean printStackTrace) {
 		try {
 			r.run();
 			TestCase.fail();
@@ -38,7 +65,7 @@ public class TestUtil {
 		}
 	}
 	
-	public static void assertThrowsNoException(Runnable r) {
+	public static void assertThrowsNoRuntimeException(Runnable r) {
 		try {
 			r.run();
 		} catch (Exception ex) {
@@ -55,8 +82,17 @@ public class TestUtil {
 		}
 		File tmpFile = new File(tmpDir, name);
 		if (tmpFile.exists()) {
-			tmpFile = new File(tmpDir, System.currentTimeMillis() + name);
+			tmpFile = new File(tmpDir, UUID.randomUUID() + name);
 		}
+		return tmpFile;
+	}
+
+	public static File copyResourceToTmp(String resource) {
+		URL resFileURL = TestUtil.class.getClassLoader().getResource(resource);
+		TestCase.assertNotNull(resFileURL);
+		File resFile = new File(resFileURL.getFile());
+		File tmpFile = getNewTmpFile(resource);
+		assertThrowsNoException(() -> Files.copy(resFile.toPath(), tmpFile.toPath()));
 		return tmpFile;
 	}
 

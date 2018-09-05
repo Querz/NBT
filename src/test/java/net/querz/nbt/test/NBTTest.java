@@ -14,10 +14,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
 import static net.querz.nbt.test.TestUtil.*;
 
 public class NBTTest extends TestCase {
@@ -218,7 +216,7 @@ public class NBTTest extends TestCase {
 		assertEquals("\"\"", escapeEmpty.toTagString());
 
 		//no null values allowed
-		assertThrowsException(() -> new StringTag().setValue(null), NullPointerException.class);
+		assertThrowsRuntimeException(() -> new StringTag().setValue(null), NullPointerException.class);
 	}
 
 	public void testByteArrayTag() {
@@ -361,18 +359,18 @@ public class NBTTest extends TestCase {
 		//test casting and type consistency
 		ListTag<ByteTag> b = new ListTag<>();
 		b.addByte((byte) 123);
-		assertThrowsException(() -> b.addShort((short) 123), IllegalArgumentException.class);
-		assertThrowsException(b::asShortTagList, ClassCastException.class);
+		assertThrowsRuntimeException(() -> b.addShort((short) 123), IllegalArgumentException.class);
+		assertThrowsRuntimeException(b::asShortTagList, ClassCastException.class);
 		assertEquals(ByteTag.class, b.getTypeClass());
 		assertEquals(1, b.getTypeID());
 
 		b.clear();
-		assertThrowsNoException(() -> b.addShort((short) 123));
-		assertThrowsException(() -> b.addByte((byte) 123), IllegalArgumentException.class);
-		assertThrowsNoException(b::asShortTagList);
-		assertThrowsException(b::asByteTagList, ClassCastException.class);
-		assertThrowsNoException(() -> b.asTypedList(ShortTag.class));
-		assertThrowsException(() -> b.asTypedList(ByteTag.class), ClassCastException.class);
+		assertThrowsNoRuntimeException(() -> b.addShort((short) 123));
+		assertThrowsRuntimeException(() -> b.addByte((byte) 123), IllegalArgumentException.class);
+		assertThrowsNoRuntimeException(b::asShortTagList);
+		assertThrowsRuntimeException(b::asByteTagList, ClassCastException.class);
+		assertThrowsNoRuntimeException(() -> b.asTypedList(ShortTag.class));
+		assertThrowsRuntimeException(() -> b.asTypedList(ByteTag.class), ClassCastException.class);
 
 		b.remove(0);
 		assertEquals(EndTag.class, b.getTypeClass());
@@ -399,19 +397,19 @@ public class NBTTest extends TestCase {
 			rec.add(l);
 			rec = l;
 		}
-		assertThrowsException(() -> serialize(root), MaxDepthReachedException.class);
-		assertThrowsException(() -> deserializeFromFile("max_depth_reached.dat"), MaxDepthReachedException.class);
-		assertThrowsException(root::toString, MaxDepthReachedException.class);
-		assertThrowsException(root::toTagString, MaxDepthReachedException.class);
-		assertThrowsException(() -> root.valueToString(-1), IllegalArgumentException.class);
-		assertThrowsException(() -> root.valueToTagString(-1), IllegalArgumentException.class);
+		assertThrowsRuntimeException(() -> serialize(root), MaxDepthReachedException.class);
+		assertThrowsRuntimeException(() -> deserializeFromFile("max_depth_reached.dat"), MaxDepthReachedException.class);
+		assertThrowsRuntimeException(root::toString, MaxDepthReachedException.class);
+		assertThrowsRuntimeException(root::toTagString, MaxDepthReachedException.class);
+		assertThrowsRuntimeException(() -> root.valueToString(-1), IllegalArgumentException.class);
+		assertThrowsRuntimeException(() -> root.valueToTagString(-1), IllegalArgumentException.class);
 
 		//test recursion
 		ListTag<ListTag<?>> recursive = new ListTag<>();
 		recursive.add(recursive);
-		assertThrowsException(() -> serialize(recursive), MaxDepthReachedException.class);
-		assertThrowsException(recursive::toString, MaxDepthReachedException.class);
-		assertThrowsException(recursive::toTagString, MaxDepthReachedException.class);
+		assertThrowsRuntimeException(() -> serialize(recursive), MaxDepthReachedException.class);
+		assertThrowsRuntimeException(recursive::toString, MaxDepthReachedException.class);
+		assertThrowsRuntimeException(recursive::toTagString, MaxDepthReachedException.class);
 	}
 
 	public void testCompoundTag() {
@@ -461,7 +459,7 @@ public class NBTTest extends TestCase {
 		//casting
 		CompoundTag cc = new CompoundTag();
 		cc.putInt("one", 1);
-		assertThrowsException(() -> cc.getLong("one"), ClassCastException.class);
+		assertThrowsRuntimeException(() -> cc.getLong("one"), ClassCastException.class);
 
 		//test compareTo
 		CompoundTag ci = new CompoundTag();
@@ -485,26 +483,26 @@ public class NBTTest extends TestCase {
 			rec.put("c" + i, c);
 			rec = c;
 		}
-		assertThrowsException(() -> serialize(root), MaxDepthReachedException.class);
-		assertThrowsException(() -> deserializeFromFile("max_depth_reached.dat"), MaxDepthReachedException.class);
-		assertThrowsException(root::toString, MaxDepthReachedException.class);
-		assertThrowsException(root::toTagString, MaxDepthReachedException.class);
-		assertThrowsException(() -> root.valueToString(-1), IllegalArgumentException.class);
-		assertThrowsException(() -> root.valueToTagString(-1), IllegalArgumentException.class);
+		assertThrowsRuntimeException(() -> serialize(root), MaxDepthReachedException.class);
+		assertThrowsRuntimeException(() -> deserializeFromFile("max_depth_reached.dat"), MaxDepthReachedException.class);
+		assertThrowsRuntimeException(root::toString, MaxDepthReachedException.class);
+		assertThrowsRuntimeException(root::toTagString, MaxDepthReachedException.class);
+		assertThrowsRuntimeException(() -> root.valueToString(-1), IllegalArgumentException.class);
+		assertThrowsRuntimeException(() -> root.valueToTagString(-1), IllegalArgumentException.class);
 
 		//test recursion
 		CompoundTag recursive = new CompoundTag();
 		recursive.put("recursive", recursive);
-		assertThrowsException(() -> serialize(recursive), MaxDepthReachedException.class);
-		assertThrowsException(recursive::toString, MaxDepthReachedException.class);
-		assertThrowsException(recursive::toTagString, MaxDepthReachedException.class);
+		assertThrowsRuntimeException(() -> serialize(recursive), MaxDepthReachedException.class);
+		assertThrowsRuntimeException(recursive::toString, MaxDepthReachedException.class);
+		assertThrowsRuntimeException(recursive::toTagString, MaxDepthReachedException.class);
 
 		//test entrySet setValue
 		CompoundTag e = new CompoundTag();
 		e.putInt("int", 123);
 		for (Map.Entry<String, Tag> en : e.entrySet()) {
-			assertThrowsException(() -> en.setValue(null), NullPointerException.class);
-			assertThrowsNoException(() -> en.setValue(new IntTag(321)));
+			assertThrowsRuntimeException(() -> en.setValue(null), NullPointerException.class);
+			assertThrowsNoRuntimeException(() -> en.setValue(new IntTag(321)));
 		}
 		assertEquals(1, e.size());
 		assertEquals(321, e.getInt("int"));
@@ -599,8 +597,8 @@ public class NBTTest extends TestCase {
 		byte[] data = serialize(o);
 		ObjectTag<?> oo = ((ObjectTag<?>) deserialize(data));
 		assertNotNull(oo);
-		assertThrowsNoException(() -> oo.asTypedObjectTag(AbstractDummyObject.class));
-		assertThrowsException(() -> oo.asTypedObjectTag(String.class), ClassCastException.class);
+		assertThrowsNoRuntimeException(() -> oo.asTypedObjectTag(AbstractDummyObject.class));
+		assertThrowsRuntimeException(() -> oo.asTypedObjectTag(String.class), ClassCastException.class);
 		ObjectTag<AbstractDummyObject> ooo = oo.asTypedObjectTag(AbstractDummyObject.class);
 		assertTrue(o.equals(ooo));
 
