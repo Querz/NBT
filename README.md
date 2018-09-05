@@ -67,6 +67,17 @@ String s = c.toTagString();
 
 //output: {blah:5b,foo:"bär"}
 ```
+There are also some tools to read, change and write MCA files:
+For example:
+```java
+//This changes the InhabitedTime field of the chunk at x=68, z=81 to 0
+
+MCAFile mcaFile = MCAUtil.readMCAFile("r.2.2.mca");
+CompoundTag tag = mcaFile.getChunkData(68, 81);
+tag.getCompoundTag("Level").setLong("InhabitedTime", 0L);
+MCAUtil.writeMCAFile(mcaFile);
+```
+
 ---
 ### Custom tags
 Interested in more advanced features, and the default NBT protocol just isn't enough? Simply create your own tags!
