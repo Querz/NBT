@@ -3,6 +3,8 @@ package net.querz.nbt.mca;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 public final class MCAUtil {
 
@@ -21,10 +23,21 @@ public final class MCAUtil {
 		return readMCAFile(new File(file));
 	}
 
+	//if file already exists, this will completely overwrite it.
 	public static int writeMCAFile(File file, MCAFile mcaFile, boolean changeLastUpdate) throws IOException {
-		try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
-			return mcaFile.serialize(raf, changeLastUpdate);
+		File to = file;
+		if (file.exists()) {
+			to = File.createTempFile(to.getName(), null);
 		}
+		int chunks;
+		try (RandomAccessFile raf = new RandomAccessFile(to, "rw")) {
+			chunks = mcaFile.serialize(raf, changeLastUpdate);
+		}
+
+		if (chunks > 0 && to != file) {
+			Files.move(to.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		}
+		return chunks;
 	}
 
 	public static int writeMCAFile(File file, MCAFile mcaFile) throws IOException {
