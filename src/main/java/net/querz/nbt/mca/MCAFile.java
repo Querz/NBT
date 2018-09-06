@@ -19,11 +19,11 @@ import java.util.zip.InflaterInputStream;
  * */
 public class MCAFile {
 
-	int[] offsets;
-	byte[] sectors;
-	int[] lengths;
-	int[] timestamps = new int[1024];
-	CompoundTag[] data = new CompoundTag[1024];
+	private int[] offsets;
+	private byte[] sectors;
+	private int[] lengths;
+	private int[] timestamps;
+	private CompoundTag[] data;
 
 	public MCAFile() {}
 
@@ -31,6 +31,8 @@ public class MCAFile {
 		offsets = new int[1024];
 		sectors = new byte[1024];
 		lengths = new int[1024];
+		timestamps = new int[1024];
+		data = new CompoundTag[1024];
 		for (int i = 0; i < offsets.length; i++) {
 			raf.seek(i * 4);
 			int offset = raf.read() << 16;
@@ -130,6 +132,10 @@ public class MCAFile {
 	}
 
 	public int getOffset(int index) {
+		checkIndex(index);
+		if (offsets == null) {
+			return 0;
+		}
 		return offsets[index];
 	}
 
@@ -138,6 +144,10 @@ public class MCAFile {
 	}
 
 	public byte getSizeInSectors(int index) {
+		checkIndex(index);
+		if (sectors == null) {
+			return 0;
+		}
 		return sectors[index];
 	}
 
@@ -146,6 +156,10 @@ public class MCAFile {
 	}
 
 	public int getLastUpdate(int index) {
+		checkIndex(index);
+		if (timestamps == null) {
+			return 0;
+		}
 		return timestamps[index];
 	}
 
@@ -154,6 +168,10 @@ public class MCAFile {
 	}
 
 	public int getRawDataLength(int index) {
+		checkIndex(index);
+		if (lengths == null) {
+			return 0;
+		}
 		return lengths[index];
 	}
 
@@ -162,6 +180,10 @@ public class MCAFile {
 	}
 
 	public void setLastUpdate(int index, int lastUpdate) {
+		checkIndex(index);
+		if (timestamps == null) {
+			timestamps = new int[1024];
+		}
 		timestamps[index] = lastUpdate;
 	}
 
@@ -170,6 +192,10 @@ public class MCAFile {
 	}
 
 	public CompoundTag getChunkData(int index) {
+		checkIndex(index);
+		if (data == null) {
+			return null;
+		}
 		return data[index];
 	}
 
@@ -178,6 +204,10 @@ public class MCAFile {
 	}
 
 	public void setChunkData(int index, CompoundTag data) {
+		checkIndex(index);
+		if (this.data == null) {
+			this.data = new CompoundTag[1024];
+		}
 		this.data[index] = data;
 	}
 
@@ -187,5 +217,12 @@ public class MCAFile {
 
 	public static int getChunkIndex(int chunkX, int chunkZ) {
 		return (chunkX & 31) + (chunkZ & 31) * 32;
+	}
+
+	private int checkIndex(int index) {
+		if (index < 0 || index > 1023) {
+			throw new IndexOutOfBoundsException();
+		}
+		return index;
 	}
 }
