@@ -2,6 +2,7 @@ package net.querz.nbt.mca;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 
 public final class MCAUtil {
 
@@ -9,21 +10,33 @@ public final class MCAUtil {
 
 	//convenience methods to be consistent with NBTUtil
 	public static MCAFile readMCAFile(File file) throws IOException {
-		MCAFile mcaFile = new MCAFile(file);
-		mcaFile.deserialize();
-		return mcaFile;
+		try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
+			MCAFile mcaFile = new MCAFile();
+			mcaFile.deserialize(raf);
+			return mcaFile;
+		}
 	}
 
 	public static MCAFile readMCAFile(String file) throws IOException {
 		return readMCAFile(new File(file));
 	}
 
-	public static int writeMCAFile(MCAFile mcaFile, boolean changeLastUpdate) throws IOException {
-		return mcaFile.serialize(changeLastUpdate);
+	public static int writeMCAFile(File file, MCAFile mcaFile, boolean changeLastUpdate) throws IOException {
+		try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
+			return mcaFile.serialize(raf, changeLastUpdate);
+		}
 	}
 
-	public static int writeMCAFile(MCAFile mcaFile) throws IOException {
-		return mcaFile.serialize();
+	public static int writeMCAFile(File file, MCAFile mcaFile) throws IOException {
+		return writeMCAFile(file, mcaFile, false);
+	}
+
+	public static int writeMCAFile(String file, MCAFile mcaFile, boolean changeLastUpdate) throws IOException {
+		return writeMCAFile(new File(file), mcaFile, changeLastUpdate);
+	}
+
+	public static int writeMCAFile(String file, MCAFile mcaFile) throws IOException {
+		return writeMCAFile(new File(file), mcaFile, false);
 	}
 
 	public static String createNameFromChunkLocation(int chunkX, int chunkZ) {

@@ -2,6 +2,8 @@ package net.querz.nbt.test;
 
 import junit.framework.TestCase;
 import net.querz.nbt.mca.MCAFile;
+import net.querz.nbt.mca.MCAUtil;
+
 import java.io.File;
 import static net.querz.nbt.test.TestUtil.*;
 
@@ -26,17 +28,15 @@ public class MCATest extends TestCase {
 	}
 
 	public void testChangeData() {
-		MCAFile mcaFile = new MCAFile(copyResourceToTmp("r.2.2.mca"));
-		assertThrowsNoException(mcaFile::deserialize);
+		MCAFile mcaFile = assertThrowsNoException(() -> MCAUtil.readMCAFile(copyResourceToTmp("r.2.2.mca")));
+		assertNotNull(mcaFile);
 		mcaFile.setChunkData(512, null);
 		File tmpFile = getNewTmpFile("r.2.2.mca");
-		mcaFile.setFile(tmpFile);
-		assertThrowsNoException(() -> {
-			int x = mcaFile.serialize(true);
-			assertEquals(2, x);
-		});
-		MCAFile again = new MCAFile(tmpFile);
-		assertThrowsNoException(again::deserialize);
+		Integer x = assertThrowsNoException(() -> MCAUtil.writeMCAFile(tmpFile, mcaFile, true));
+		assertNotNull(x);
+		assertEquals(2, x.intValue());
+		MCAFile again = assertThrowsNoException(() -> MCAUtil.readMCAFile(tmpFile));
+		assertNotNull(again);
 		for (int i = 0; i < 1024; i++) {
 			if (i != 0 && i != 1023) {
 				assertNull(again.getChunkData(i));
@@ -47,12 +47,12 @@ public class MCATest extends TestCase {
 	}
 
 	public void testChangeLastUpdate() {
-		MCAFile from = new MCAFile(copyResourceToTmp("r.2.2.mca"));
-		assertThrowsNoException(from::deserialize);
-		from.setFile(getNewTmpFile("r.2.2.mca"));
-		assertThrowsNoException(() -> from.serialize(true));
-		MCAFile to = new MCAFile(from.getFile());
-		assertThrowsNoException(to::deserialize);
+		MCAFile from = assertThrowsNoException(() -> MCAUtil.readMCAFile(copyResourceToTmp("r.2.2.mca")));
+		assertNotNull(from);
+		File tmpFile = getNewTmpFile("r.2.2.mca");
+		assertThrowsNoException(() -> MCAUtil.writeMCAFile(tmpFile, from, true));
+		MCAFile to = assertThrowsNoException(() -> MCAUtil.readMCAFile(tmpFile));
+		assertNotNull(to);
 		assertFalse(from.getLastUpdate(0) == to.getLastUpdate(0));
 		assertFalse(from.getLastUpdate(512) == to.getLastUpdate(512));
 		assertFalse(from.getLastUpdate(1023) == to.getLastUpdate(1023));

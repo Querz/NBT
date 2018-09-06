@@ -29,13 +29,14 @@ public class TestUtil {
 		}
 	}
 
-	public static void assertThrowsNoException(ExceptionRunnable r) {
+	public static <T, E extends Exception> T assertThrowsNoException(ExceptionRunnable<T, E> r) {
 		try {
-			r.run();
+			return r.run();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			TestCase.fail("Threw exception " + ex.getClass().getName() + " with message \"" + ex.getMessage() + "\"");
 		}
+		return null;
 	}
 
 	public static void assertThrowsRuntimeException(Runnable r, Class<? extends Exception> e) {
