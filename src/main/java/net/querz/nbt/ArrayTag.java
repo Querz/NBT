@@ -31,12 +31,15 @@ public abstract class ArrayTag<T> extends Tag<T> {
 
 	@Override
 	public int compareTo(Tag<T> other) {
-		return Integer.compare(Array.getLength(getValue()), Array.getLength(other));
+		if (!(other instanceof ArrayTag) || this.getClass() != other.getClass()) {
+			throw new IllegalArgumentException("array types are incompatible");
+		}
+		return Integer.compare(Array.getLength(getValue()), Array.getLength(other.getValue()));
 	}
 
 	protected String arrayToString(T array, String prefix, String suffix) {
-		if (!array.getClass().isArray()) {
-			throw new UnsupportedOperationException("cannot convert non-array Object to String");
+		if (array == null || !array.getClass().isArray()) {
+			throw new UnsupportedOperationException("cannot convert non-array to String");
 		}
 
 		StringBuilder sb = new StringBuilder("[").append(prefix).append("".equals(prefix) ? "" : ";");

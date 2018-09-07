@@ -1,4 +1,4 @@
-package net.querz.nbt.test;
+package net.querz.nbt;
 
 @FunctionalInterface
 public interface ExceptionRunnable<T, E extends Exception> {

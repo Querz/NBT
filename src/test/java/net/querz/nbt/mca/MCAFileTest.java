@@ -1,13 +1,9 @@
-package net.querz.nbt.test;
+package net.querz.nbt.mca;
 
-import junit.framework.TestCase;
-import net.querz.nbt.mca.MCAFile;
-import net.querz.nbt.mca.MCAUtil;
-
+import net.querz.nbt.NBTTestCase;
 import java.io.File;
-import static net.querz.nbt.test.TestUtil.*;
 
-public class MCATest extends TestCase {
+public class MCAFileTest extends NBTTestCase {
 
 	public void testGetChunkIndex() {
 		assertEquals(0, MCAFile.getChunkIndex(0, 0));
@@ -58,10 +54,5 @@ public class MCATest extends TestCase {
 		assertFalse(from.getLastUpdate(1023) == to.getLastUpdate(1023));
 		assertTrue(to.getLastUpdate(0) == to.getLastUpdate(512));
 		assertTrue(to.getLastUpdate(0) == to.getLastUpdate(1023));
-	}
-
-	public void tearDown() throws Exception {
-		super.tearDown();
-		cleanupTmpDir();
 	}
 }

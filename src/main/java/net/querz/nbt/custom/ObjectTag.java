@@ -84,8 +84,8 @@ public class ObjectTag<T extends Serializable> extends Tag<T> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public int compareTo(Tag<T> o) {
-		ObjectTag oo = (ObjectTag) o;
-		if (oo.getValue() instanceof Comparable) {
+		ObjectTag<?> oo = (ObjectTag<?>) o;
+		if (oo.getValue() instanceof Comparable && getValue() instanceof Comparable) {
 			return ((Comparable) getValue()).compareTo(oo.getValue());
 		}
 		return 0;

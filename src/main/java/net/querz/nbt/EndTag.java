@@ -45,7 +45,7 @@ public final class EndTag extends Tag<Void> {
 	}
 
 	@Override
-	protected Tag clone() {
+	protected EndTag clone() {
 		return INSTANCE;
 	}
 }

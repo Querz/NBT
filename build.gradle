@@ -2,6 +2,7 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
+apply plugin: 'jacoco'
 
 group                        = 'net.querz.nbt'
 archivesBaseName             = 'nbt'
@@ -37,6 +38,14 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 task javadocJar(type: Jar, dependsOn: javadoc) {
 	classifier = 'javadoc'
 	from javadoc.destinationDir
+}
+
+jacocoTestReport {
+	reports {
+		xml.enabled = false
+		csv.enabled = true
+		html.enabled = true
+	}
 }
 
 artifacts {

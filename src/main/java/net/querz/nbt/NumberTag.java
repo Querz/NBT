@@ -40,7 +40,7 @@ public abstract class NumberTag<T extends Number & Comparable<T>> extends Tag<T>
 	@Override
 	public int compareTo(Tag<T> other) {
 		if (!(other instanceof NumberTag) || this.getClass() != other.getClass()) {
-			return 0;
+			throw new IllegalArgumentException("number types are incompatible");
 		}
 		return getValue().compareTo(other.getValue());
 	}

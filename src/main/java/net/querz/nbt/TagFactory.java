@@ -43,7 +43,7 @@ public class TagFactory {
 					try {
 						return (Tag) clazz.newInstance();
 					} catch (InstantiationException | IllegalAccessException e) {
-						e.printStackTrace();
+						throw new RuntimeException("error instantiating custom tag: " + e.getMessage());
 					}
 				}
 				throw new IllegalArgumentException("unknown Tag id: " + id);
@@ -56,6 +56,9 @@ public class TagFactory {
 		}
 		if (id <= 12) {
 			throw new IllegalArgumentException("cannot overwrite default tags");
+		}
+		if (id > Byte.MAX_VALUE) {
+			throw new IllegalArgumentException("id out of bounds: " + id);
 		}
 		if (customTags.containsKey(id)) {
 			throw new IllegalArgumentException("custom tag already registered");

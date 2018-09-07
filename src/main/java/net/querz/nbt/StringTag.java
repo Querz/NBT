@@ -59,6 +59,9 @@ public class StringTag extends Tag<String> {
 
 	@Override
 	public int compareTo(Tag<String> o) {
+		if (o == null || o.getClass() != getClass()) {
+			throw new IllegalArgumentException("incompatible string types");
+		}
 		return getValue().compareTo(o.getValue());
 	}
 
