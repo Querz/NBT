@@ -75,7 +75,7 @@ For example:
 MCAFile mcaFile = MCAUtil.readMCAFile("r.2.2.mca");
 CompoundTag tag = mcaFile.getChunkData(68, 81);
 tag.getCompoundTag("Level").setLong("InhabitedTime", 0L);
-MCAUtil.writeMCAFile(mcaFile);
+MCAUtil.writeMCAFile("r.2.2.mca", mcaFile);
 ```
 
 ---
