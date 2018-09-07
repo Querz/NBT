@@ -1,7 +1,6 @@
 package net.querz.nbt;
 
 import junit.framework.TestCase;
-
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -18,6 +17,7 @@ import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 public abstract class NBTTestCase extends TestCase {
 
@@ -52,11 +52,14 @@ public abstract class NBTTestCase extends TestCase {
 		}
 	}
 
-	protected Tag deserializeFromFile(String f) {
-		URL resource = getClass().getClassLoader().getResource(f);
+	protected File getResourceFile(String name) {
+		URL resource = getClass().getClassLoader().getResource(name);
 		assertNotNull(resource);
-		File file = new File(resource.getFile());
-		try (DataInputStream dis = new DataInputStream(new FileInputStream(file))) {
+		return new File(resource.getFile());
+	}
+
+	protected Tag deserializeFromFile(String f) {
+		try (DataInputStream dis = new DataInputStream(new FileInputStream(getResourceFile(f)))) {
 			return Tag.deserialize(dis, 0);
 		} catch (IOException ex) {
 			ex.printStackTrace();
@@ -146,7 +149,7 @@ public abstract class NBTTestCase extends TestCase {
 			if (printStackTrace) {
 				ex.printStackTrace();
 			}
-			TestCase.assertEquals(ex.getClass(), e);
+			TestCase.assertEquals(e, ex.getClass());
 		}
 	}
 
@@ -161,13 +164,22 @@ public abstract class NBTTestCase extends TestCase {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	protected void assertThrowsNoRuntimeException(Runnable r) {
-		try {
+		Void v = assertThrowsNoRuntimeException(() -> {
 			r.run();
+			return null;
+		});
+	}
+
+	protected <T> T assertThrowsNoRuntimeException(Supplier<T> r) {
+		try {
+			return r.get();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			TestCase.fail("Threw exception " + ex.getClass().getName() + " with message \"" + ex.getMessage() + "\"");
 		}
+		return null;
 	}
 
 	protected File getNewTmpFile(String name) {

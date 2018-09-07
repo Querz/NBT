@@ -1,6 +1,9 @@
 package net.querz.nbt;
 
+import junit.framework.TestCase;
+
 import java.util.Arrays;
+import java.util.Comparator;
 
 public class ListTagTest extends NBTTestCase {
 
@@ -80,22 +83,82 @@ public class ListTagTest extends NBTTestCase {
 
 	public void testCasting() {
 		ListTag<ByteTag> b = new ListTag<>();
-		b.addByte((byte) 123);
-		assertThrowsRuntimeException(() -> b.addShort((short) 123), IllegalArgumentException.class);
-		assertThrowsRuntimeException(b::asShortTagList, ClassCastException.class);
-		assertEquals(ByteTag.class, b.getTypeClass());
-		assertEquals(1, b.getTypeID());
-
-		b.clear();
 		assertThrowsNoRuntimeException(() -> b.addShort((short) 123));
 		assertThrowsRuntimeException(() -> b.addByte((byte) 123), IllegalArgumentException.class);
 		assertThrowsNoRuntimeException(b::asShortTagList);
 		assertThrowsRuntimeException(b::asByteTagList, ClassCastException.class);
 		assertThrowsNoRuntimeException(() -> b.asTypedList(ShortTag.class));
 		assertThrowsRuntimeException(() -> b.asTypedList(ByteTag.class), ClassCastException.class);
-
 		b.remove(0);
+		assertEquals(0, b.getTypeID());
 		assertEquals(EndTag.class, b.getTypeClass());
+		b.addByte((byte) 1);
+		assertEquals(1, b.getTypeID());
+		assertEquals(ByteTag.class, b.getTypeClass());
+		b.clear();
+		assertEquals(0, b.getTypeID());
+		assertEquals(EndTag.class, b.getTypeClass());
+
+		ListTag<?> l = new ListTag<>();
+		assertThrowsNoRuntimeException(l::asByteTagList);
+		l.addByte(Byte.MAX_VALUE);
+		assertThrowsNoRuntimeException(l::asByteTagList);
+		assertThrowsRuntimeException(l::asShortTagList, ClassCastException.class);
+
+		l = new ListTag<>();
+		l.addShort(Short.MAX_VALUE);
+		assertThrowsNoRuntimeException(l::asShortTagList);
+		assertThrowsRuntimeException(l::asIntTagList, ClassCastException.class);
+
+		l = new ListTag<>();
+		l.addInt(Integer.MAX_VALUE);
+		assertThrowsNoRuntimeException(l::asIntTagList);
+		assertThrowsRuntimeException(l::asLongTagList, ClassCastException.class);
+
+		l = new ListTag<>();
+		l.addLong(Long.MAX_VALUE);
+		assertThrowsNoRuntimeException(l::asLongTagList);
+		assertThrowsRuntimeException(l::asFloatTagList, ClassCastException.class);
+
+		l = new ListTag<>();
+		l.addFloat(Float.MAX_VALUE);
+		assertThrowsNoRuntimeException(l::asFloatTagList);
+		assertThrowsRuntimeException(l::asDoubleTagList, ClassCastException.class);
+
+		l = new ListTag<>();
+		l.addDouble(Double.MAX_VALUE);
+		assertThrowsNoRuntimeException(l::asDoubleTagList);
+		assertThrowsRuntimeException(l::asStringTagList, ClassCastException.class);
+
+		l = new ListTag<>();
+		l.addString("foo");
+		assertThrowsNoRuntimeException(l::asStringTagList);
+		assertThrowsRuntimeException(l::asByteArrayTagList, ClassCastException.class);
+
+		l = new ListTag<>();
+		l.addByteArray(new byte[]{Byte.MIN_VALUE, 0, Byte.MAX_VALUE});
+		assertThrowsNoRuntimeException(l::asByteArrayTagList);
+		assertThrowsRuntimeException(l::asIntArrayTagList, ClassCastException.class);
+
+		l = new ListTag<>();
+		l.addIntArray(new int[]{Integer.MIN_VALUE, 0, Integer.MAX_VALUE});
+		assertThrowsNoRuntimeException(l::asIntArrayTagList);
+		assertThrowsRuntimeException(l::asLongArrayTagList, ClassCastException.class);
+
+		l = new ListTag<>();
+		l.addLongArray(new long[]{Long.MIN_VALUE, 0, Long.MAX_VALUE});
+		assertThrowsNoRuntimeException(l::asLongArrayTagList);
+		assertThrowsRuntimeException(l::asListTagList, ClassCastException.class);
+
+		ListTag<ListTag<?>> lis = new ListTag<>();
+		lis.add(new ListTag<>());
+		assertThrowsNoRuntimeException(lis::asListTagList);
+		assertThrowsRuntimeException(lis::asCompoundTagList, ClassCastException.class);
+
+		ListTag<CompoundTag> lco = new ListTag<>();
+		lco.add(new CompoundTag());
+		assertThrowsNoRuntimeException(lco::asCompoundTagList);
+		assertThrowsRuntimeException(lco::asByteTagList, ClassCastException.class);
 	}
 
 	public void testCompareTo() {
@@ -111,6 +174,7 @@ public class ListTagTest extends NBTTestCase {
 		lo.remove(2);
 		lo.remove(1);
 		assertEquals(1, li.compareTo(lo));
+		assertEquals(0, li.compareTo(null));
 	}
 
 	public void testMaxDepth() {
@@ -135,5 +199,101 @@ public class ListTagTest extends NBTTestCase {
 		assertThrowsRuntimeException(() -> serialize(recursive), MaxDepthReachedException.class);
 		assertThrowsRuntimeException(recursive::toString, MaxDepthReachedException.class);
 		assertThrowsRuntimeException(recursive::toTagString, MaxDepthReachedException.class);
+	}
+
+	public void testContains() {
+		ListTag<IntTag> l = new ListTag<>();
+		l.addInt(1);
+		l.addInt(2);
+		assertTrue(l.contains(new IntTag(1)));
+		assertFalse(l.contains(new IntTag(3)));
+		assertTrue(l.containsAll(Arrays.asList(new IntTag(1), new IntTag(2))));
+		assertFalse(l.containsAll(Arrays.asList(new IntTag(1), new IntTag(3))));
+	}
+
+	public void testSort() {
+		ListTag<IntTag> l = new ListTag<>();
+		l.addInt(2);
+		l.addInt(1);
+		l.sort(Comparator.comparingInt(NumberTag::asInt));
+		assertEquals(1, l.get(0).asInt());
+		assertEquals(2, l.get(1).asInt());
+	}
+
+	public void testIterator() {
+		ListTag<IntTag> l = new ListTag<>();
+		l.addInt(1);
+		l.addInt(2);
+		for (IntTag i : l) {
+			assertNotNull(i);
+		}
+		l.forEach(TestCase::assertNotNull);
+	}
+
+	public void testSet() {
+		ListTag<ByteTag> l = createListTag();
+		l.set(1, new ByteTag((byte) 5));
+		assertEquals(3, l.size());
+		assertEquals(5, l.get(1).asByte());
+		assertThrowsRuntimeException(() -> l.set(0, null), NullPointerException.class);
+	}
+
+	public void testAddAll() {
+		ListTag<ByteTag> l = createListTag();
+		l.addAll(Arrays.asList(new ByteTag((byte) 5), new ByteTag((byte) 7)));
+		assertEquals(5, l.size());
+		assertEquals(5, l.get(3).asByte());
+		assertEquals(7, l.get(4).asByte());
+		l.addAll(1, Arrays.asList(new ByteTag((byte) 9), new ByteTag((byte) 11)));
+		assertEquals(7, l.size());
+		assertEquals(9, l.get(1).asByte());
+		assertEquals(11, l.get(2).asByte());
+	}
+
+	public void testAdd() {
+		ListTag<ByteTag> l = new ListTag<>();
+		l.addBoolean(true);
+		assertThrowsRuntimeException(() -> l.addShort((short) 5), IllegalArgumentException.class);
+		assertEquals(1, l.size());
+		assertEquals(1, l.get(0).asByte());
+		l.addByte(Byte.MAX_VALUE);
+		assertEquals(2, l.size());
+		assertEquals(Byte.MAX_VALUE, l.get(1).asByte());
+		ListTag<ShortTag> s = new ListTag<>();
+		s.addShort(Short.MAX_VALUE);
+		assertEquals(1, s.size());
+		assertEquals(Short.MAX_VALUE, s.get(0).asShort());
+		ListTag<IntTag> i = new ListTag<>();
+		i.addInt(Integer.MAX_VALUE);
+		assertEquals(1, i.size());
+		assertEquals(Integer.MAX_VALUE, i.get(0).asInt());
+		ListTag<LongTag> lo = new ListTag<>();
+		lo.addLong(Long.MAX_VALUE);
+		assertEquals(1, lo.size());
+		assertEquals(Long.MAX_VALUE, lo.get(0).asLong());
+		ListTag<FloatTag> f = new ListTag<>();
+		f.addFloat(Float.MAX_VALUE);
+		assertEquals(1, f.size());
+		assertEquals(Float.MAX_VALUE, f.get(0).asFloat());
+		ListTag<DoubleTag> d = new ListTag<>();
+		d.addDouble(Double.MAX_VALUE);
+		assertEquals(1, d.size());
+		assertEquals(Double.MAX_VALUE, d.get(0).asDouble());
+		ListTag<StringTag> st = new ListTag<>();
+		st.addString("foo");
+		assertEquals(1, st.size());
+		assertEquals("foo", st.get(0).getValue());
+		ListTag<ByteArrayTag> ba = new ListTag<>();
+		ba.addByteArray(new byte[] {Byte.MIN_VALUE, 0, Byte.MAX_VALUE});
+		assertEquals(1, ba.size());
+		assertTrue(Arrays.equals(new byte[] {Byte.MIN_VALUE, 0, Byte.MAX_VALUE}, ba.get(0).getValue()));
+		ListTag<IntArrayTag> ia = new ListTag<>();
+		ia.addIntArray(new int[] {Integer.MIN_VALUE, 0, Integer.MAX_VALUE});
+		assertEquals(1, ia.size());
+		assertTrue(Arrays.equals(new int[] {Integer.MIN_VALUE, 0, Integer.MAX_VALUE}, ia.get(0).getValue()));
+		ListTag<LongArrayTag> la = new ListTag<>();
+		la.addLongArray(new long[] {Long.MIN_VALUE, 0, Long.MAX_VALUE});
+		assertEquals(1, la.size());
+		assertTrue(Arrays.equals(new long[] {Long.MIN_VALUE, 0, Long.MAX_VALUE}, la.get(0).getValue()));
 	}
 }

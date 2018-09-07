@@ -292,6 +292,9 @@ public class CompoundTag extends Tag<Map<String, Tag>> implements Iterable<Map.E
 
 	@Override
 	public int compareTo(Tag<Map<String, Tag>> o) {
+		if (!(o instanceof CompoundTag)) {
+			return 0;
+		}
 		return Integer.compare(size(), o.getValue().size());
 	}
 

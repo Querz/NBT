@@ -288,6 +288,9 @@ public class StructTag extends Tag<List<Tag>> implements Iterable<Tag> {
 
 	@Override
 	public int compareTo(Tag<List<Tag>> o) {
+		if (!(o instanceof StructTag)) {
+			return 0;
+		}
 		return Integer.compare(size(), ((StructTag) o).size());
 	}
 

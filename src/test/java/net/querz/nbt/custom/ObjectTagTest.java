@@ -1,7 +1,13 @@
 package net.querz.nbt.custom;
 
 import net.querz.nbt.NBTTestCase;
+import net.querz.nbt.NBTUtil;
+import net.querz.nbt.TagFactory;
+
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Random;
 
 public class ObjectTagTest extends NBTTestCase implements Serializable {
@@ -97,6 +103,11 @@ public class ObjectTagTest extends NBTTestCase implements Serializable {
 		ObjectTag<String> d4 = new ObjectTag<>("abd");
 		assertTrue(0 > d3.compareTo(d4));
 		assertTrue(0 < d4.compareTo(d3));
+	}
+
+	public void testUnknownObject() {
+		TagFactory.registerCustomTag(90, ObjectTag.class);
+		assertThrowsException(() -> NBTUtil.readTag(getResourceFile("unknown_object_tag.dat")), IOException.class);
 	}
 
 	public abstract class AbstractDummyObject implements Serializable {

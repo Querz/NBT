@@ -138,7 +138,7 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 	}
 
 	@SuppressWarnings("unchecked")
-	public void addDouble(byte value) {
+	public void addDouble(double value) {
 		add((T) new DoubleTag(value));
 	}
 
@@ -306,6 +306,9 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 
 	@Override
 	public int compareTo(Tag<List<T>> o) {
+		if (!(o instanceof ListTag)) {
+			return 0;
+		}
 		return Integer.compare(size(), o.getValue().size());
 	}
 

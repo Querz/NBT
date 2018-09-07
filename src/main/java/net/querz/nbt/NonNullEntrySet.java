@@ -82,7 +82,7 @@ class NonNullEntrySet<K, V> implements Set<Map.Entry<K, V>> {
 		set.clear();
 	}
 
-	private class NonNullEntrySetIterator implements Iterator<Map.Entry<K, V>> {
+	class NonNullEntrySetIterator implements Iterator<Map.Entry<K, V>> {
 
 		private Iterator<Map.Entry<K, V>> iterator;
 
@@ -101,7 +101,7 @@ class NonNullEntrySet<K, V> implements Set<Map.Entry<K, V>> {
 		}
 	}
 
-	private class NonNullEntry<K, V> implements Map.Entry<K, V> {
+	class NonNullEntry<K, V> implements Map.Entry<K, V> {
 
 		private Map.Entry<K, V> entry;
 

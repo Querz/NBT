@@ -68,7 +68,7 @@ public class NBTUtil {
 		}
 	}
 
-	private static InputStream applyDecompression(InputStream is) throws IOException {
+	static InputStream applyDecompression(InputStream is) throws IOException {
 		PushbackInputStream pbis = new PushbackInputStream(is, 2);
 		byte[] signature = new byte[2];
 		int r = pbis.read(signature);

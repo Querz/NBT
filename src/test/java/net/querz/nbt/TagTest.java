@@ -1,8 +1,12 @@
 package net.querz.nbt;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.LinkedHashMap;
+import java.util.zip.GZIPInputStream;
 
 public class TagTest extends NBTTestCase {
 
@@ -27,4 +31,14 @@ public class TagTest extends NBTTestCase {
 			fail(ex.getMessage());
 		}
 	}
+
+//	public void testApplyDecompression() {
+//		ByteArrayInputStream baisComp = new ByteArrayInputStream(new byte[]{(byte) 0x1F, (byte) 0x8B, 0});
+//		try (DataInputStream in = new DataInputStream(baisComp)) {
+//			assertTrue(NBTUtil.applyDecompression(in) instanceof GZIPInputStream);
+//		} catch (IOException ex) {
+//			ex.printStackTrace();
+//			fail(ex.getMessage());
+//		}
+//	}
 }
