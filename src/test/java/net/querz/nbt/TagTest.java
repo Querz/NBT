@@ -1,10 +1,6 @@
 package net.querz.nbt;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.LinkedHashMap;
 import java.util.zip.GZIPInputStream;
 
@@ -26,19 +22,27 @@ public class TagTest extends NBTTestCase {
 
 		try {
 			CompoundTag tt = (CompoundTag) NBTUtil.readTag(file);
-			assertTrue(t.equals(tt));
+			assertEquals(t, tt);
 		} catch (IOException ex) {
 			fail(ex.getMessage());
 		}
 	}
 
-//	public void testApplyDecompression() {
-//		ByteArrayInputStream baisComp = new ByteArrayInputStream(new byte[]{(byte) 0x1F, (byte) 0x8B, 0});
-//		try (DataInputStream in = new DataInputStream(baisComp)) {
-//			assertTrue(NBTUtil.applyDecompression(in) instanceof GZIPInputStream);
-//		} catch (IOException ex) {
-//			ex.printStackTrace();
-//			fail(ex.getMessage());
-//		}
-//	}
+	public void testApplyDecompression() {
+		ByteArrayInputStream baisComp = new ByteArrayInputStream(new byte[]{31, -117, 8, 0, 0, 0, 0, 0, 0, 0});
+		try (DataInputStream in = new DataInputStream(baisComp)) {
+			assertTrue(NBTUtil.applyDecompression(in) instanceof GZIPInputStream);
+		} catch (IOException ex) {
+			ex.printStackTrace();
+			fail(ex.getMessage());
+		}
+
+		ByteArrayInputStream baisUncomp = new ByteArrayInputStream(new byte[]{0, 0});
+		try (DataInputStream in = new DataInputStream(baisUncomp)) {
+			assertTrue(NBTUtil.applyDecompression(in) instanceof PushbackInputStream);
+		} catch (IOException ex) {
+			ex.printStackTrace();
+			fail(ex.getMessage());
+		}
+	}
 }
