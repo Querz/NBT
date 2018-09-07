@@ -1,4 +1,7 @@
-// Apply the java plugin to add support for Java
+plugins {
+	id 'com.github.kt3k.coveralls' version '2.4.0'
+}
+
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
@@ -10,7 +13,6 @@ version                      = '2.3'
 sourceCompatibility          = '1.8'
 targetCompatibility          = '1.8'
 compileJava.options.encoding = 'UTF-8'
-
 
 repositories {
 	jcenter()
@@ -42,8 +44,7 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 
 jacocoTestReport {
 	reports {
-		xml.enabled = false
-		csv.enabled = true
+		xml.enabled = true
 		html.enabled = true
 	}
 }
