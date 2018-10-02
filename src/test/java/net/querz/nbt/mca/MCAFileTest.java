@@ -86,25 +86,25 @@ public class MCAFileTest extends NBTTestCase {
 
 		assertThrowsRuntimeException(() -> f.getLastUpdate(-1), IndexOutOfBoundsException.class);
 		assertThrowsRuntimeException(() -> f.getLastUpdate(1024), IndexOutOfBoundsException.class);
-		assertEquals(1536157024, assertThrowsNoRuntimeException(() -> f.getLastUpdate(0)).intValue());
-		assertEquals(1536157024, assertThrowsNoRuntimeException(() -> f.getLastUpdate(1023)).intValue());
-		assertEquals(1536157024, assertThrowsNoRuntimeException(() -> f.getLastUpdate(32, 0)).intValue());
-		assertEquals(1536157024, assertThrowsNoRuntimeException(() -> f.getLastUpdate(31, 31)).intValue());
+		assertEquals(1538048269, assertThrowsNoRuntimeException(() -> f.getLastUpdate(0)).intValue());
+		assertEquals(1538048282, assertThrowsNoRuntimeException(() -> f.getLastUpdate(1023)).intValue());
+		assertEquals(1538048269, assertThrowsNoRuntimeException(() -> f.getLastUpdate(32, 0)).intValue());
+		assertEquals(1538048282, assertThrowsNoRuntimeException(() -> f.getLastUpdate(31, 31)).intValue());
 		assertEquals(0, assertThrowsNoRuntimeException(() -> f.getLastUpdate(-1, 0)).intValue());
 		assertEquals(0, assertThrowsNoRuntimeException(() -> f.getLastUpdate(31, 0)).intValue());
-		assertEquals(1536157024, assertThrowsNoRuntimeException(() -> f.getLastUpdate(0, 32)).intValue());
+		assertEquals(1538048269, assertThrowsNoRuntimeException(() -> f.getLastUpdate(0, 32)).intValue());
 		assertEquals(0, assertThrowsNoRuntimeException(() -> f.getLastUpdate(0, -1)).intValue());
 		assertEquals(0, assertThrowsNoRuntimeException(() -> f.getLastUpdate(0, 31)).intValue());
 
 		assertThrowsRuntimeException(() -> f.getRawDataLength(-1), IndexOutOfBoundsException.class);
 		assertThrowsRuntimeException(() -> f.getRawDataLength(1024), IndexOutOfBoundsException.class);
-		assertEquals(5277, assertThrowsNoRuntimeException(() -> f.getRawDataLength(0)).intValue());
-		assertEquals(4276, assertThrowsNoRuntimeException(() -> f.getRawDataLength(1023)).intValue());
-		assertEquals(5277, assertThrowsNoRuntimeException(() -> f.getRawDataLength(32, 0)).intValue());
-		assertEquals(4276, assertThrowsNoRuntimeException(() -> f.getRawDataLength(31, 31)).intValue());
+		assertEquals(6159, assertThrowsNoRuntimeException(() -> f.getRawDataLength(0)).intValue());
+		assertEquals(4933, assertThrowsNoRuntimeException(() -> f.getRawDataLength(1023)).intValue());
+		assertEquals(6159, assertThrowsNoRuntimeException(() -> f.getRawDataLength(32, 0)).intValue());
+		assertEquals(4933, assertThrowsNoRuntimeException(() -> f.getRawDataLength(31, 31)).intValue());
 		assertEquals(0, assertThrowsNoRuntimeException(() -> f.getRawDataLength(-1, 0)).intValue());
 		assertEquals(0, assertThrowsNoRuntimeException(() -> f.getRawDataLength(31, 0)).intValue());
-		assertEquals(5277, assertThrowsNoRuntimeException(() -> f.getRawDataLength(0, 32)).intValue());
+		assertEquals(6159, assertThrowsNoRuntimeException(() -> f.getRawDataLength(0, 32)).intValue());
 		assertEquals(0, assertThrowsNoRuntimeException(() -> f.getRawDataLength(0, -1)).intValue());
 		assertEquals(0, assertThrowsNoRuntimeException(() -> f.getRawDataLength(0, 31)).intValue());
 		
@@ -168,5 +168,21 @@ public class MCAFileTest extends NBTTestCase {
 		assertNull(f.getChunkData(0));
 		assertThrowsNoRuntimeException(() -> f.setChunkData(32, -1, new CompoundTag()));
 		assertThrowsNoRuntimeException(() -> f.setChunkData(31, 31, new CompoundTag()));
+	}
+
+	public static String longToBinaryString(long n) {
+		StringBuilder s = new StringBuilder(Long.toBinaryString(n));
+		for (int i = s.length(); i < 64; i++) {
+			s.insert(0, "0");
+		}
+		return s.toString();
+	}
+
+	public static String intToBinaryString(int n) {
+		StringBuilder s = new StringBuilder(Integer.toBinaryString(n));
+		for (int i = s.length(); i < 32; i++) {
+			s.insert(0, "0");
+		}
+		return s.toString();
 	}
 }

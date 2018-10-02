@@ -1,7 +1,6 @@
 package net.querz.nbt.mca;
 
 import net.querz.nbt.CompoundTag;
-import net.querz.nbt.EndTag;
 import net.querz.nbt.ListTag;
 import net.querz.nbt.Tag;
 import java.io.BufferedInputStream;
@@ -19,7 +18,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 
 /**
- * a complete representation of an .mca file, capable of reading and saving.
+ * A complete representation of an .mca file, capable of reading and saving.
  * */
 public class MCAFile {
 
@@ -209,6 +208,12 @@ public class MCAFile {
 		return getChunkData(getChunkIndex(chunkX, chunkZ));
 	}
 
+	/**
+	 * Returns the biome id at a specific location.
+	 * @param blockX The x-coordinate of the block.
+	 * @param blockZ The z-coordinate of the block.
+	 * @return The biome id or -1 if there is no chunk or no biome data.
+	 * */
 	public int getBiomeAt(int blockX, int blockZ) {
 		CompoundTag chunkData = getChunkData(MCAUtil.blockToChunk(blockX), MCAUtil.blockToChunk(blockZ));
 		if (chunkData == null) {
@@ -221,6 +226,47 @@ public class MCAFile {
 		return biomes[getSectionIndex(blockX, 0, blockZ)];
 	}
 
+	/**
+	 * Searches for redundant blocks in the palette in the section of the provided block coordinates,
+	 * removes them and updates the palette indices in the BlockStates accordingly.
+	 * Changes nothing if there is no chunk or no section at the coordinates.
+	 * @param blockX The x-coordinate of the block.
+	 * @param blockY The y-coordinate of the block.
+	 * @param blockZ The z-coordinate of the block.
+	 * */
+	public void cleanupPaletteAndBlockStates(int blockX, int blockY, int blockZ) {
+		CompoundTag chunkData = getChunkData(MCAUtil.blockToChunk(blockX), MCAUtil.blockToChunk(blockZ));
+		if (chunkData == null) {
+			return;
+		}
+		int blockSection = MCAUtil.blockToChunk(blockY);
+		for (CompoundTag section : chunkData.getCompoundTag("Level").getListTag("Sections").asCompoundTagList()) {
+			if (section.getByte("Y") == blockSection) {
+				long[] blockStates = section.getLongArray("BlockStates");
+				ListTag<CompoundTag> palette = section.getListTag("Palette").asCompoundTagList();
+				Map<Integer, Integer> oldToNewMapping = cleanupPalette(blockStates, palette);
+				blockStates = adjustBlockStateBits(blockStates, palette, oldToNewMapping);
+				section.putLongArray("BlockStates", blockStates);
+			}
+		}
+	}
+
+	/**
+	 * Sets block data at specific block coordinates. If there is no chunk data or no section data
+	 * at the provided location, it will create default data ({@link MCAFile#createDefaultChunk(int, int)},
+	 * {@link MCAFile#createDefaultSection(int)}).
+	 * If the size of the palette reaches a number that is a power of 2, it will automatically increase
+	 * the size of the BlockStates. This cleanup procedure ONLY occurs in this case, EXCEPT if {@param cleanup}
+	 * is set to {@code true}. The reason for this is a rather high performance impact of the cleanup process.
+	 * This may lead to unused block states in the palette, but never to an unnecessarily large number of bits
+	 * used per block state in the BlockStates array.
+	 * A manual cleanup can be performed using {@link MCAFile#cleanupPaletteAndBlockStates(int, int, int)}.
+	 * @param blockX The x-coordinate of the block.
+	 * @param blockY The y-coordinate of the block.
+	 * @param blockZ The z-coordinate of the block.
+	 * @param data The block data.
+	 * @param cleanup If the cleanup procedure should be forced.
+	 * */
 	public void setBlockDataAt(int blockX, int blockY, int blockZ, CompoundTag data, boolean cleanup) {
 		CompoundTag chunkData = getChunkData(MCAUtil.blockToChunk(blockX), MCAUtil.blockToChunk(blockZ));
 		if (chunkData == null) {
@@ -245,7 +291,7 @@ public class MCAFile {
 
 					long[] newBlockStates = blockStates;
 
-					//power of 2 --> if bits are increasing
+					//power of 2 --> bits must increase
 					if ((palette.size() & (palette.size() - 1)) == 0) {
 						newBlockStates = adjustBlockStateBits(blockStates, palette, null);
 						setPaletteIndex(getSectionIndex(blockX, blockY, blockZ), paletteIndex, newBlockStates);
@@ -277,36 +323,48 @@ public class MCAFile {
 		chunkData.getCompoundTag("Level").getListTag("Sections").asCompoundTagList().add(section);
 	}
 
-	private CompoundTag createDefaultSection(int y) {
-		CompoundTag section = new CompoundTag();
-		section.putByte("Y", (byte) y);
-		ListTag<CompoundTag> palette = new ListTag<>();
-		CompoundTag air = new CompoundTag();
-		air.putString("Name", "minecraft:air");
-		palette.add(air);
-		section.put("Palette", palette);
-		section.putLongArray("BlockStates", new long[256]);
-		return section;
+	/**
+	 * Sets the index of the block data in the BlockStates. Does not adjust the size of the BlockStates array.
+	 * @param index The index of the block in this section, ranging from 0-4095.
+	 * @param state The block state to be set (index of block data in the palette).
+	 * @param blockStates  The BlockStates that store the palette indices.
+	 * */
+	void setPaletteIndex(int index, int state, long[] blockStates) {
+		int bits = blockStates.length / 64;
+		double blockStatesIndex = index / (4096D / blockStates.length);
+		int longIndex = (int) blockStatesIndex;
+		int startBit = (int) ((blockStatesIndex - Math.floor(longIndex)) * 64D);
+		if (startBit + bits > 64) {
+			blockStates[longIndex] = updateBits(blockStates[longIndex], state, startBit, 64);
+			blockStates[longIndex + 1] = updateBits(blockStates[longIndex + 1], state, startBit - 64, startBit + bits - 64);
+		} else {
+			blockStates[longIndex] = updateBits(blockStates[longIndex], state, startBit, startBit + bits);
+		}
 	}
 
-	private CompoundTag createDefaultChunk(int xPos, int zPos) {
-		CompoundTag chunk = new CompoundTag();
-		chunk.putInt("DataVersion", DEFAULT_DATA_VERSION);
-		CompoundTag level = new CompoundTag();
-		level.putInt("xPos", xPos);
-		level.putInt("zPos", zPos);
-		level.put("Entities", new ListTag());
-		level.put("Sections", new ListTag());
-		level.putString("Status", "base");
-		chunk.put("Level", level);
-		return chunk;
+	long[] adjustBlockStateBits(long[] blockStates, ListTag<CompoundTag> palette, Map<Integer, Integer> oldToNewMapping) {
+		//increases or decreases the amount of bits used per BlockState
+		//based on the size of the palette. oldToNewMapping can be used to update indices
+		//if the palette had been cleaned up before using MCAFile#cleanupPalette().
+
+		int newBits = 32 - Integer.numberOfLeadingZeros(palette.size());
+		newBits = newBits < 4 ? 4 : newBits;
+
+		long[] newBlockStates = newBits == blockStates.length / 64 ? blockStates : new long[newBits * 64];
+		if (oldToNewMapping != null) {
+			for (int i = 0; i < 4096; i++) {
+				setPaletteIndex(i, oldToNewMapping.get(getPaletteIndex(i, blockStates)), newBlockStates);
+			}
+		} else {
+			for (int i = 0; i < 4096; i++) {
+				setPaletteIndex(i, getPaletteIndex(i, blockStates), newBlockStates);
+			}
+		}
+
+		return newBlockStates;
 	}
 
-	private int getSectionIndex(int blockX, int blockY, int blockZ) {
-		return (blockY & 15) * 256 + (blockZ & 15) * 16 + (blockX & 15);
-	}
-
-	private Map<Integer, Integer> cleanupPalette(long[] blockStates, ListTag<CompoundTag> palette) {
+	Map<Integer, Integer> cleanupPalette(long[] blockStates, ListTag<CompoundTag> palette) {
 		//create index - palette mapping
 		Map<Integer, Integer> allIndices = new HashMap<>();
 		for (int i = 0; i < 4096; i++) {
@@ -328,46 +386,14 @@ public class MCAFile {
 		return allIndices;
 	}
 
-	//increases or decreases the amount of bits used per BlockState
-	//based on the size of the palette. oldToNewMapping can be used to update indices
-	//if the palette had been cleaned up before using MCAFile#cleanupPalette().
-	private long[] adjustBlockStateBits(long[] blockStates, ListTag<CompoundTag> palette, Map<Integer, Integer> oldToNewMapping) {
-		int newBits = 32 - Integer.numberOfLeadingZeros(palette.size());
-		newBits = newBits < 4 ? 4 : newBits;
-
-		long[] newBlockStates = newBits == blockStates.length / 64 ? blockStates : new long[newBits * 64];
-		if (oldToNewMapping != null) {
-			for (int i = 0; i < 4096; i++) {
-				setPaletteIndex(i, oldToNewMapping.get(getPaletteIndex(i, blockStates)), newBlockStates);
-			}
-		} else {
-			for (int i = 0; i < 4096; i++) {
-				setPaletteIndex(i, getPaletteIndex(i, blockStates), newBlockStates);
-			}
-		}
-
-		return newBlockStates;
-	}
-
-	private void setPaletteIndex(int index, int state, long[] blockStates) {
-		int bits = blockStates.length / 64;
-		double blockStatesIndex = index / (4096D / blockStates.length);
-		int longIndex = (int) blockStatesIndex;
-		int startBit = (int) ((blockStatesIndex - Math.floor(longIndex)) * 64D);
-		if (startBit + bits > 64) {
-			blockStates[longIndex] = updateBits(blockStates[longIndex], state, startBit, 64);
-			blockStates[longIndex + 1] = updateBits(blockStates[longIndex + 1], state, startBit - 64, startBit + bits - 64);
-		} else {
-			blockStates[longIndex] = updateBits(blockStates[longIndex], state, startBit, startBit + bits);
-		}
-	}
-
-	private long updateBits(long n, long m, int i, int j) {
-        //replace i to j in n with j - i bits of m
-		long mShifted = i > 0 ? (m & ((1L << j - i) - 1)) << i : (m & ((1L << j - i) - 1)) >>> -i;
-		return ((n & ((j > 63 ? 0 : (~0L << j)) | (i < 0 ? 0 : ((1L << i) - 1L)))) | mShifted);
-	}
-
+	/**
+	 * Returns the block data at the provided block coordinates.
+	 * @param blockX The x-coordinate of the block.
+	 * @param blockY The y-coordinate of the block.
+	 * @param blockZ The z-coordinate of the block.
+	 * @return The block data at the specific block coordinates from the palette in this section.
+	 * Returns {@code null} if there is no chunk data or no section.
+	 * */
 	public CompoundTag getBlockDataAt(int blockX, int blockY, int blockZ) {
 		//get chunk in this region
 		CompoundTag chunkData = getChunkData(MCAUtil.blockToChunk(blockX), MCAUtil.blockToChunk(blockZ));
@@ -395,26 +421,23 @@ public class MCAFile {
 		return null;
 	}
 
-	private int getPaletteIndex(int index, long[] blockStates) {
-		int bits = blockStates.length / 64;
-
+	/**
+	 * Returns the index of the block data in the palette.
+	 * @param index The index of the block in this section, ranging from 0-4095.
+	 * @param blockStates  The BlockStates that store the palette indices.
+	 * @return The index of the block data in the palette.
+	 * */
+	int getPaletteIndex(int index, long[] blockStates) {
+		int bits = blockStates.length >> 6;
 		double blockStatesIndex = index / (4096D / blockStates.length);
-
 		int longIndex = (int) blockStatesIndex;
 		int startBit = (int) ((blockStatesIndex - Math.floor(blockStatesIndex)) * 64D);
-
 		if (startBit + bits > 64) {
-			//get msb from current long, no need to cleanup manually, just fill with 0
-			int previous = (int) (blockStates[longIndex] >>> startBit);
-
-			//cleanup pattern for bits from next long
-			int remainingClean = (1 << startBit + bits - 64) - 1;
-
-			//get lsb from next long
-			int next = ((int) blockStates[longIndex + 1]) & remainingClean;
-			return (next << 64 - startBit) + previous;
+			long prev = bitRange(blockStates[longIndex], startBit, 64);
+			long next = bitRange(blockStates[longIndex + 1], 0, startBit + bits - 64);
+			return (int) ((next << 64 - startBit) + prev);
 		} else {
-			return (int) (blockStates[longIndex] >> startBit) & ((1 << bits) - 1);
+			return (int) bitRange(blockStates[longIndex], startBit, startBit + bits - 1);
 		}
 	}
 
@@ -441,13 +464,43 @@ public class MCAFile {
 		return index;
 	}
 
+	int getSectionIndex(int blockX, int blockY, int blockZ) {
+		return (blockY & 15) * 256 + (blockZ & 15) * 16 + (blockX & 15);
+	}
 
+	long updateBits(long n, long m, int i, int j) {
+		//replace i to j in n with j - i bits of m
+		long mShifted = i > 0 ? (m & ((1L << j - i) - 1)) << i : (m & ((1L << j - i) - 1)) >>> -i;
+		return ((n & ((j > 63 ? 0 : (~0L << j)) | (i < 0 ? 0 : ((1L << i) - 1L)))) | mShifted);
+	}
 
-	public static String longToBinaryString(long n) {
-		StringBuilder s = new StringBuilder(Long.toBinaryString(n));
-		for (int i = s.length(); i < 64; i++) {
-			s.insert(0, "0");
-		}
-		return s.toString();
+	long bitRange(long value, int from, int to) {
+		int waste = 64 - to;
+		return (value << waste) >>> (waste + from);
+	}
+
+	private CompoundTag createDefaultChunk(int xPos, int zPos) {
+		CompoundTag chunk = new CompoundTag();
+		chunk.putInt("DataVersion", DEFAULT_DATA_VERSION);
+		CompoundTag level = new CompoundTag();
+		level.putInt("xPos", xPos);
+		level.putInt("zPos", zPos);
+		level.put("Entities", new ListTag());
+		level.put("Sections", new ListTag());
+		level.putString("Status", "base");
+		chunk.put("Level", level);
+		return chunk;
+	}
+
+	private CompoundTag createDefaultSection(int y) {
+		CompoundTag section = new CompoundTag();
+		section.putByte("Y", (byte) y);
+		ListTag<CompoundTag> palette = new ListTag<>();
+		CompoundTag air = new CompoundTag();
+		air.putString("Name", "minecraft:air");
+		palette.add(air);
+		section.put("Palette", palette);
+		section.putLongArray("BlockStates", new long[256]);
+		return section;
 	}
 }
