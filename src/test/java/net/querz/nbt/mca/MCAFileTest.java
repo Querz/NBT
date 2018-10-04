@@ -3,6 +3,7 @@ package net.querz.nbt.mca;
 import net.querz.nbt.CompoundTag;
 import net.querz.nbt.NBTTestCase;
 import java.io.File;
+import java.util.Arrays;
 
 public class MCAFileTest extends NBTTestCase {
 
@@ -168,6 +169,76 @@ public class MCAFileTest extends NBTTestCase {
 		assertNull(f.getChunkData(0));
 		assertThrowsNoRuntimeException(() -> f.setChunkData(32, -1, new CompoundTag()));
 		assertThrowsNoRuntimeException(() -> f.setChunkData(31, 31, new CompoundTag()));
+	}
+
+	public void testGetBiomeAt() {
+		MCAFile f = assertThrowsNoException(() -> MCAUtil.readMCAFile(copyResourceToTmp("r.2.2.mca")));
+		assertEquals(21, f.getBiomeAt(0, 0));
+		assertEquals(-1, f.getBiomeAt(16, 0));
+		CompoundTag d = f.createDefaultChunk(64, 65);
+		f.setChunkData(64, 65, d);
+		assertEquals(-1, f.getBiomeAt(0, 16));
+	}
+
+	public void testSetBiomeAt() {
+		MCAFile f = assertThrowsNoException(() -> MCAUtil.readMCAFile(copyResourceToTmp("r.2.2.mca")));
+		f.setBiomeAt(0, 0, 20);
+		assertEquals(20, f.getChunkData(0, 0).getCompoundTag("Level").getIntArray("Biomes")[0]);
+		f.setBiomeAt(15, 15, 47);
+		assertEquals(47, f.getChunkData(0, 0).getCompoundTag("Level").getIntArray("Biomes")[255]);
+		f.setBiomeAt(16, 0, 20);
+		int[] biomes = f.getChunkData(1, 0).getCompoundTag("Level").getIntArray("Biomes");
+		assertEquals(256, biomes.length);
+		for (int i = 0; i < 256; i++) {
+			assertTrue(i == 0 ? biomes[i] == 20 : biomes[i] == -1);
+		}
+	}
+
+	public void testCleanupPaletteAndBlockStates() {
+		MCAFile f = assertThrowsNoException(() -> MCAUtil.readMCAFile(copyResourceToTmp("r.2.2.mca")));
+		assertThrowsNoRuntimeException(() -> f.cleanupPaletteAndBlockStates(16, 0, 0));
+		CompoundTag c = f.getChunkData(0, 0);
+		CompoundTag s = c.getCompoundTag("Level").getListTag("Sections").asCompoundTagList().get(0);
+		assertEquals(10, s.getListTag("Palette").size());
+		for (int i = 11; i <= 15; i++) {
+			CompoundTag t = new CompoundTag();
+			t.putString("Name", "minecraft:" + i);
+			s.getListTag("Palette").asCompoundTagList().add(t);
+		}
+		assertEquals(15, s.getListTag("Palette").size());
+		f.cleanupPaletteAndBlockStates(0, 0, 0);
+		assertEquals(10, s.getListTag("Palette").size());
+		assertEquals(256, s.getLongArray("BlockStates").length);
+		int y = 0;
+		for (int i = 11; i <= 16; i++) {
+			CompoundTag t = new CompoundTag();
+			t.putString("Name", "minecraft:" + i);
+			f.setBlockDataAt(0, y++, 0, t, false);
+		}
+		assertEquals(16, s.getListTag("Palette").size());
+		assertEquals(320, s.getLongArray("BlockStates").length);
+		f.cleanupPaletteAndBlockStates(0, 0, 0);
+		assertEquals(16, s.getListTag("Palette").size());
+		assertEquals(320, s.getLongArray("BlockStates").length);
+		f.setBlockDataAt(0, 0, 0, s.getListTag("Palette").asCompoundTagList().get(0), false);
+		assertEquals(16, s.getListTag("Palette").size());
+		assertEquals(320, s.getLongArray("BlockStates").length);
+		f.cleanupPaletteAndBlockStates(0, 0, 0);
+		assertEquals(15, s.getListTag("Palette").size());
+		assertEquals(256, s.getLongArray("BlockStates").length);
+	}
+
+	public void testSetBlockDataAt() {
+		MCAFile f = assertThrowsNoException(() -> MCAUtil.readMCAFile(copyResourceToTmp("r.2.2.mca")));
+		CompoundTag c = new CompoundTag();
+		c.putString("Name", "minecraft:custom");
+		CompoundTag section = f.getChunkData(0, 0).getCompoundTag("Level").getListTag("Sections").asCompoundTagList().get(0);
+		assertEquals(10, section.getListTag("Palette").size());
+		assertEquals(0b0001000100010001000100010001000100010001000100010001000100010001L, section.getLongArray("BlockStates")[0]);
+		f.setBlockDataAt(0, 0, 0, c, false);
+		assertEquals(11, section.getListTag("Palette").size());
+		assertEquals(0b0001000100010001000100010001000100010001000100010001000100011010L, section.getLongArray("BlockStates")[0]);
+		//TODO: more tests
 	}
 
 	public static String longToBinaryString(long n) {

@@ -208,6 +208,23 @@ public class MCAFile {
 		return getChunkData(getChunkIndex(chunkX, chunkZ));
 	}
 
+	public void setBiomeAt(int blockX, int blockZ, int biomeID) {
+		CompoundTag chunkData = getChunkData(MCAUtil.blockToChunk(blockX), MCAUtil.blockToChunk(blockZ));
+		if (chunkData == null) {
+			chunkData = createDefaultChunk(MCAUtil.blockToChunk(blockX), MCAUtil.blockToChunk(blockZ));
+			setChunkData(MCAUtil.blockToChunk(blockX), MCAUtil.blockToChunk(blockZ), chunkData);
+		}
+		int[] biomes = chunkData.getCompoundTag("Level").getIntArray("Biomes");
+		if (biomes.length == 0) {
+			biomes = new int[256];
+			for (int i = 0; i < biomes.length; i++) {
+				biomes[i] = -1;
+			}
+			chunkData.getCompoundTag("Level").putIntArray("Biomes", biomes);
+		}
+		biomes[getSectionIndex(blockX, 0, blockZ)] = biomeID;
+	}
+
 	/**
 	 * Returns the biome id at a specific location.
 	 * @param blockX The x-coordinate of the block.
@@ -284,9 +301,13 @@ public class MCAFile {
 				if ((paletteIndex = palette.indexOf(data)) != -1) {
 					//data already exists in palette, so there's nothing to do
 					setPaletteIndex(getSectionIndex(blockX, blockY, blockZ), paletteIndex, blockStates);
+					if (cleanup) {
+						cleanupPaletteAndBlockStates(blockX, blockY, blockZ);
+					}
 				} else {
 
 					palette.add(data);
+
 
 					paletteIndex = palette.size() - 1;
 
@@ -438,7 +459,7 @@ public class MCAFile {
 			long next = bitRange(blockStates[longIndex + 1], 0, startBit + bits - 64);
 			return (int) ((next << 64 - startBit) + prev);
 		} else {
-			return (int) bitRange(blockStates[longIndex], startBit, startBit + bits - 1);
+			return (int) bitRange(blockStates[longIndex], startBit, startBit + bits);
 		}
 	}
 
@@ -480,7 +501,7 @@ public class MCAFile {
 		return (value << waste) >>> (waste + from);
 	}
 
-	private CompoundTag createDefaultChunk(int xPos, int zPos) {
+	CompoundTag createDefaultChunk(int xPos, int zPos) {
 		CompoundTag chunk = new CompoundTag();
 		chunk.putInt("DataVersion", DEFAULT_DATA_VERSION);
 		CompoundTag level = new CompoundTag();
@@ -493,7 +514,7 @@ public class MCAFile {
 		return chunk;
 	}
 
-	private CompoundTag createDefaultSection(int y) {
+	CompoundTag createDefaultSection(int y) {
 		CompoundTag section = new CompoundTag();
 		section.putByte("Y", (byte) y);
 		ListTag<CompoundTag> palette = new ListTag<>();
