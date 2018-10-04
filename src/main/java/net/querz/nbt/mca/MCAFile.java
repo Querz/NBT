@@ -256,7 +256,7 @@ public class MCAFile {
 	 * at the provided location, it will create default data ({@link MCAFile#createDefaultChunk(int, int)},
 	 * {@link MCAFile#createDefaultSection(int)}).
 	 * If the size of the palette reaches a number that is a power of 2, it will automatically increase
-	 * the size of the BlockStates. This cleanup procedure ONLY occurs in this case, EXCEPT if {@param cleanup}
+	 * the size of the BlockStates. This cleanup procedure ONLY occurs in this case, EXCEPT if {@code cleanup}
 	 * is set to {@code true}. The reason for this is a rather high performance impact of the cleanup process.
 	 * This may lead to unused block states in the palette, but never to an unnecessarily large number of bits
 	 * used per block state in the BlockStates array.
