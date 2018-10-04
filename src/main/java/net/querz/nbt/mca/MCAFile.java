@@ -271,6 +271,7 @@ public class MCAFile {
 		CompoundTag chunkData = getChunkData(MCAUtil.blockToChunk(blockX), MCAUtil.blockToChunk(blockZ));
 		if (chunkData == null) {
 			chunkData = createDefaultChunk(MCAUtil.blockToChunk(blockX), MCAUtil.blockToChunk(blockZ));
+			setChunkData(MCAUtil.blockToChunk(blockX), MCAUtil.blockToChunk(blockZ), chunkData);
 		}
 
 		int blockSection = MCAUtil.blockToChunk(blockY);
@@ -329,7 +330,7 @@ public class MCAFile {
 	 * @param state The block state to be set (index of block data in the palette).
 	 * @param blockStates  The BlockStates that store the palette indices.
 	 * */
-	void setPaletteIndex(int index, int state, long[] blockStates) {
+	public void setPaletteIndex(int index, int state, long[] blockStates) {
 		int bits = blockStates.length / 64;
 		double blockStatesIndex = index / (4096D / blockStates.length);
 		int longIndex = (int) blockStatesIndex;
@@ -427,7 +428,7 @@ public class MCAFile {
 	 * @param blockStates  The BlockStates that store the palette indices.
 	 * @return The index of the block data in the palette.
 	 * */
-	int getPaletteIndex(int index, long[] blockStates) {
+	public int getPaletteIndex(int index, long[] blockStates) {
 		int bits = blockStates.length >> 6;
 		double blockStatesIndex = index / (4096D / blockStates.length);
 		int longIndex = (int) blockStatesIndex;
@@ -487,7 +488,7 @@ public class MCAFile {
 		level.putInt("zPos", zPos);
 		level.put("Entities", new ListTag());
 		level.put("Sections", new ListTag());
-		level.putString("Status", "base");
+		level.putString("Status", "mobs_spawned");
 		chunk.put("Level", level);
 		return chunk;
 	}
