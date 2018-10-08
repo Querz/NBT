@@ -23,7 +23,7 @@ import java.util.zip.InflaterInputStream;
  * absolute values, based on the origin of the Minecraft world, or in relative values,
  * based on the origin of this region. In some cases though the coordinates
  * MUST be in the absolute format, especially for methods that are capable of creating
- * new chunks, for example {@link MCAFile#setBlockDataAt(int, int, int, CompoundTag, boolean)}.
+ * new chunks, for example {@link MCAFile#setBlockStateAt(int, int, int, CompoundTag, boolean)}.
  * */
 public class MCAFile {
 
@@ -93,6 +93,10 @@ public class MCAFile {
 		}
 	}
 
+	/**
+	 * Calls {@link MCAFile#serialize(RandomAccessFile, boolean)} without updating any timestamps.
+	 * @see MCAFile#serialize(RandomAccessFile, boolean)
+	 * */
 	public int serialize(RandomAccessFile raf) throws IOException {
 		return serialize(raf, false);
 	}
@@ -155,6 +159,12 @@ public class MCAFile {
 		return chunksWritten;
 	}
 
+	/**
+	 * Returns the offset of the chunk at a specific index in this region file
+	 * measured in sectors of 4096 bytes.
+	 * @param index The index of the chunk in the file.
+	 * @return The offset in sectors.
+	 * */
 	public int getOffset(int index) {
 		checkIndex(index);
 		if (offsets == null) {
@@ -163,10 +173,23 @@ public class MCAFile {
 		return offsets[index];
 	}
 
+	/**
+	 * Returns the offset of a specific chunk in this region file
+	 * measured in sectors of 4096 bytes.
+	 * @param chunkX The x-ccordinate of the chunk.
+	 * @param chunkZ The z-coordinate of the chunk.
+	 * @return The offset in sectors.
+	 * */
 	public int getOffset(int chunkX, int chunkZ) {
 		return getOffset(getChunkIndex(chunkX, chunkZ));
 	}
 
+	/**
+	 * Returns the size in sectors of 4096 bytes of a
+	 * chunk at a specific index in this region file.
+	 * @param index The index of the chunk in this file.
+	 * @return The size in sectors.
+	 * */
 	public byte getSizeInSectors(int index) {
 		checkIndex(index);
 		if (sectors == null) {
@@ -175,34 +198,23 @@ public class MCAFile {
 		return sectors[index];
 	}
 
+	/**
+	 * Returns the size in sectors of 4096 bytes of a
+	 * chunk in this region file.
+	 * @param chunkX The x-coordinate of the chunk.
+	 * @param chunkZ The z-coordinate of the chunk.
+	 * @return The size in sectors.
+	 * */
 	public byte getSizeInSectors(int chunkX, int chunkZ) {
 		return getSizeInSectors(getChunkIndex(chunkX, chunkZ));
 	}
 
-	public int getLastUpdate(int index) {
-		checkIndex(index);
-		if (timestamps == null) {
-			return 0;
-		}
-		return timestamps[index];
-	}
-
-	public int getLastUpdate(int chunkX, int chunkZ) {
-		return getLastUpdate(getChunkIndex(chunkX, chunkZ));
-	}
-
-	public int getRawDataLength(int index) {
-		checkIndex(index);
-		if (lengths == null) {
-			return 0;
-		}
-		return lengths[index];
-	}
-
-	public int getRawDataLength(int chunkX, int chunkZ) {
-		return getRawDataLength(getChunkIndex(chunkX, chunkZ));
-	}
-
+	/**
+	 * Sets the timestamp when a chunk at a specific index was last updated.
+	 * Only affects the timestamp in the header of this file, not the chunk data.
+	 * @param index The index of the chunk in this file.
+	 * @param lastUpdate The time in seconds since 1970-01-01 when this chunk was last updated.
+	 * */
 	public void setLastUpdate(int index, int lastUpdate) {
 		checkIndex(index);
 		if (timestamps == null) {
@@ -211,10 +223,72 @@ public class MCAFile {
 		timestamps[index] = lastUpdate;
 	}
 
+	/**
+	 * Sets the timestamp when a chunk was last updated.
+	 * Only affects the timestamp in the header of this file, not the chunk data.
+	 * @param chunkX The x-coordinate of the chunk.
+	 * @param chunkZ The z-coordinate of the chunk.
+	 * @param lastUpdate The time in seconds since 1970-01-01 when this chunk was last updated.
+	 * */
 	public void setLastUpdate(int chunkX, int chunkZ, int lastUpdate) {
 		setLastUpdate(getChunkIndex(chunkX, chunkZ), lastUpdate);
 	}
 
+	/**
+	 * Returns a timestamp when a chunk at a specific index was last updated.
+	 * The timestamp is measured in seconds since 1970-01-01.
+	 * @param index The index of the chunk in this file.
+	 * @return The time in seconds since 1970-01-01 when this chunk was last updated.
+	 * */
+	public int getLastUpdate(int index) {
+		checkIndex(index);
+		if (timestamps == null) {
+			return 0;
+		}
+		return timestamps[index];
+	}
+
+	/**
+	 * Returns a timestamp when a specific chunk was last updated.
+	 * The timestamp is measured in seconds since 1970-01-01.
+	 * @param chunkX The x-coordinate of the chunk.
+	 * @param chunkZ The z-coordinate of the chunk.
+	 * @return The time in seconds since 1970-01-01 when this chunk was last updated.
+	 * */
+	public int getLastUpdate(int chunkX, int chunkZ) {
+		return getLastUpdate(getChunkIndex(chunkX, chunkZ));
+	}
+
+	/**
+	 * Returns the actual length in bytes of the raw, compressed data
+	 * of a chunk in the file.
+	 * @param index The index of the chunk in this file.
+	 * @return The length in bytes of the compressed chunk data in the file.
+	 * */
+	public int getRawDataLength(int index) {
+		checkIndex(index);
+		if (lengths == null) {
+			return 0;
+		}
+		return lengths[index];
+	}
+
+	/**
+	 * Returns the actual length in bytes of the raw, compressed data
+	 * of a chunk in the file.
+	 * @param chunkX The x-coordinate of the chunk.
+	 * @param chunkZ The z-coordinate of the chunk.
+	 * @return The length in bytes of the compressed chunk data in the file.
+	 * */
+	public int getRawDataLength(int chunkX, int chunkZ) {
+		return getRawDataLength(getChunkIndex(chunkX, chunkZ));
+	}
+
+	/**
+	 * Sets the chunk data of a chunk at a specific index in this file.
+	 * @param index The index of the chunk in this file.
+	 * @param data The chunk data.
+	 * */
 	public void setChunkData(int index, CompoundTag data) {
 		checkIndex(index);
 		if (this.data == null) {
@@ -223,10 +297,21 @@ public class MCAFile {
 		this.data[index] = data;
 	}
 
+	/**
+	 * Sets the chunk data of a chunk in this file.
+	 * @param chunkX The x-coordinate of the chunk.
+	 * @param chunkZ THe z-coordinate of the chunk.
+	 * @param data The chunk data.
+	 * */
 	public void setChunkData(int chunkX, int chunkZ, CompoundTag data) {
 		setChunkData(getChunkIndex(chunkX, chunkZ), data);
 	}
 
+	/**
+	 * Returns the chunk data of a chunk at a specific index in this file.
+	 * @param index The index of the chunk in this file.
+	 * @return The chunk data.
+	 * */
 	public CompoundTag getChunkData(int index) {
 		checkIndex(index);
 		if (data == null) {
@@ -235,6 +320,12 @@ public class MCAFile {
 		return data[index];
 	}
 
+	/**
+	 * Returns the chunk data of a chunk in this file.
+	 * @param chunkX The x-coordinate of the chunk.
+	 * @param chunkZ The z-coordinate of the chunk.
+	 * @return The chunk data.
+	 * */
 	public CompoundTag getChunkData(int chunkX, int chunkZ) {
 		return getChunkData(getChunkIndex(chunkX, chunkZ));
 	}
@@ -284,17 +375,17 @@ public class MCAFile {
 	 * Searches for redundant blocks in the palette in the section of the provided coordinates,
 	 * removes them and updates the palette indices in the BlockStates accordingly.
 	 * Changes nothing if there is no chunk or no section at the coordinates.
-	 * @param chunkX The x-coordinate of the chunk.
-	 * @param chunkY The y-coordinate of the chunk.
-	 * @param chunkZ The z-coordinate of the chunk.
+	 * @param sectionX The x-coordinate of the chunk.
+	 * @param sectionY The y-coordinate of the section.
+	 * @param sectionZ The z-coordinate of the chunk.
 	 * */
-	public void cleanupPaletteAndBlockStates(int chunkX, int chunkY, int chunkZ) {
-		CompoundTag chunkData = getChunkData(chunkX, chunkZ);
+	public void cleanupPaletteAndBlockStates(int sectionX, int sectionY, int sectionZ) {
+		CompoundTag chunkData = getChunkData(sectionX, sectionZ);
 		if (chunkData == null) {
 			return;
 		}
 		for (CompoundTag section : chunkData.getCompoundTag("Level").getListTag("Sections").asCompoundTagList()) {
-			if (section.getByte("Y") == chunkY) {
+			if (section.getByte("Y") == sectionY) {
 				long[] blockStates = section.getLongArray("BlockStates");
 				ListTag<CompoundTag> palette = section.getListTag("Palette").asCompoundTagList();
 				Map<Integer, Integer> oldToNewMapping = cleanupPalette(blockStates, palette);
@@ -320,7 +411,7 @@ public class MCAFile {
 	 * @param data The block data.
 	 * @param cleanup If the cleanup procedure should be forced.
 	 * */
-	public void setBlockDataAt(int blockX, int blockY, int blockZ, CompoundTag data, boolean cleanup) {
+	public void setBlockStateAt(int blockX, int blockY, int blockZ, CompoundTag data, boolean cleanup) {
 		CompoundTag chunkData = getChunkData(MCAUtil.blockToChunk(blockX), MCAUtil.blockToChunk(blockZ));
 		if (chunkData == null) {
 			chunkData = createDefaultChunk(MCAUtil.blockToChunk(blockX), MCAUtil.blockToChunk(blockZ));
@@ -449,7 +540,7 @@ public class MCAFile {
 	 * @return The block data at the specific block coordinates from the palette in this section.
 	 * Returns {@code null} if there is no chunk data or no section.
 	 * */
-	public CompoundTag getBlockDataAt(int blockX, int blockY, int blockZ) {
+	public CompoundTag getBlockStateAt(int blockX, int blockY, int blockZ) {
 		//get chunk in this region
 		CompoundTag chunkData = getChunkData(MCAUtil.blockToChunk(blockX), MCAUtil.blockToChunk(blockZ));
 
@@ -496,6 +587,12 @@ public class MCAFile {
 		}
 	}
 
+	/**
+	 * Returns the current generation status of the chunk.
+	 * @param chunkX The x-coordinate of the chunk.
+	 * @param chunkZ The z-coordinate of the chunk.
+	 * @return The generation status of the chunk or null if there is no chunk.
+	 * */
 	public String getChunkStatus(int chunkX, int chunkZ) {
 		CompoundTag chunkData = getChunkData(chunkX, chunkZ);
 		if (chunkData == null) {
@@ -504,6 +601,14 @@ public class MCAFile {
 		return chunkData.getCompoundTag("Level").getString("Status");
 	}
 
+	/**
+	 * Sets the generation status of the chunk.
+	 * If no chunk exists at the provided coordinates, it will create an empty default
+	 * chunk and change its status.
+	 * @param chunkX The x-coordinate of the chunk.
+	 * @param chunkZ The z-coordinate of the chunk.
+	 * @param status The generation status of the chunk.
+	 * */
 	public void setChunkStatus(int chunkX, int chunkZ, String status) {
 		CompoundTag chunkData = getChunkData(chunkX, chunkZ);
 		if (chunkData == null) {
@@ -513,6 +618,13 @@ public class MCAFile {
 		chunkData.getCompoundTag("Level").putString("Status", status);
 	}
 
+	/**
+	 * Calculates the index of a chunk from its x- and z-coordinates in this region.
+	 * This works with absolute and relative coordinates.
+	 * @param chunkX The x-coordinate of the chunk.
+	 * @param chunkZ The z-coordinate of the chunk.
+	 * @return The index of this chunk.
+	 * */
 	public static int getChunkIndex(int chunkX, int chunkZ) {
 		return (chunkX & 31) + (chunkZ & 31) * 32;
 	}
