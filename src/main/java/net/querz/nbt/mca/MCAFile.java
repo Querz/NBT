@@ -1,39 +1,14 @@
 package net.querz.nbt.mca;
 
 import net.querz.nbt.CompoundTag;
-import net.querz.nbt.ListTag;
-import net.querz.nbt.Tag;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.zip.DeflaterOutputStream;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.InflaterInputStream;
 
-/**
- * A complete representation of an .mca file, capable of serialization and deserialization.
- * All chunk or block coordinates as method parameters can be provided in
- * absolute values, based on the origin of the Minecraft world, or in relative values,
- * based on the origin of this region. In some cases though the coordinates
- * MUST be in the absolute format, especially for methods that are capable of creating
- * new chunks, for example {@link MCAFile#setBlockStateAt(int, int, int, CompoundTag, boolean)}.
- * */
 public class MCAFile {
 
 	public static final int DEFAULT_DATA_VERSION = 1628;
 
-	private int[] offsets;
-	private byte[] sectors;
-	private int[] lengths;
-	private int[] timestamps;
-	private CompoundTag[] data;
+	private Chunk[] chunks;
 
 	public MCAFile() {}
 
@@ -44,52 +19,24 @@ public class MCAFile {
 	 * @throws IOException If something went wrong during deserialization.
 	 * */
 	public void deserialize(RandomAccessFile raf) throws IOException {
-		offsets = new int[1024];
-		sectors = new byte[1024];
-		lengths = new int[1024];
-		timestamps = new int[1024];
-		data = new CompoundTag[1024];
-		for (int i = 0; i < offsets.length; i++) {
+		chunks = new Chunk[1024];
+		for (int i = 0; i < 1024; i++) {
 			raf.seek(i * 4);
 			int offset = raf.read() << 16;
 			offset |= (raf.read() & 0xFF) << 8;
 			offset |= raf.read() & 0xFF;
-			offsets[i] = offset;
 
-			if ((sectors[i] = raf.readByte()) == 0) {
+			int sectors;
+			if ((sectors = raf.readByte()) == 0) {
 				continue;
 			}
 
-			raf.seek(offset * 4096);
-			lengths[i] = raf.readInt();
+			raf.seek(4096 + i * 4);
+			int timestamp = raf.readInt();
 
-			DataInputStream dis;
-
-			byte ct;
-			switch (ct = raf.readByte()) {
-				case 0:
-					continue; //compression type 0 means no data
-				case 1:
-					dis = new DataInputStream(new BufferedInputStream(new GZIPInputStream(new FileInputStream(raf.getFD()))));
-					break;
-				case 2:
-					dis = new DataInputStream(new BufferedInputStream(new InflaterInputStream(new FileInputStream(raf.getFD()))));
-					break;
-				default:
-					throw new IOException("invalid compression type " + ct);
-			}
-
-			Tag tag = Tag.deserialize(dis, 0);
-
-			if (tag instanceof CompoundTag) {
-				data[i] = (CompoundTag) tag;
-			} else {
-				throw new IOException("invalid data tag at offset " + offset + ": " + (tag == null ? "null" : tag.getClass().getName()));
-			}
-		}
-		raf.seek(4096);
-		for (int i = 0; i < timestamps.length; i++) {
-			timestamps[i] = raf.readInt();
+			Chunk chunk = new Chunk(offset, sectors, timestamp);
+			chunk.deserialize(raf);
+			chunks[i] = chunk;
 		}
 	}
 
@@ -117,22 +64,16 @@ public class MCAFile {
 		int chunksWritten = 0;
 
 		for (int i = 0; i < 1024; i++) {
-			if (data[i] == null) {
+			Chunk chunk = chunks[i];
+			if (chunk == null) {
 				continue;
 			}
 
-			raf.seek(globalOffset * 4096);
+			lastWritten = chunk.serialize(raf, globalOffset);
 
-			//write chunk data
-			ByteArrayOutputStream baos = new ByteArrayOutputStream(4096);
-			try (DataOutputStream nbtOut = new DataOutputStream(new BufferedOutputStream(new DeflaterOutputStream(baos)))) {
-				data[i].serialize(nbtOut, 0);
+			if (lastWritten == 0) {
+				continue;
 			}
-			byte[] rawData = baos.toByteArray();
-			raf.writeInt(rawData.length);
-			raf.writeByte(2);
-			raf.write(rawData);
-			lastWritten = rawData.length + 5;
 
 			chunksWritten++;
 
@@ -146,7 +87,7 @@ public class MCAFile {
 
 			//write timestamp to tmp file
 			raf.seek(i * 4 + 4096);
-			raf.writeInt(changeLastUpdate ? timestamp : timestamps[i]);
+			raf.writeInt(changeLastUpdate ? timestamp : chunk.getLastUpdate());
 
 			globalOffset += sectors;
 		}
@@ -160,151 +101,19 @@ public class MCAFile {
 	}
 
 	/**
-	 * Returns the offset of the chunk at a specific index in this region file
-	 * measured in sectors of 4096 bytes.
-	 * @param index The index of the chunk in the file.
-	 * @return The offset in sectors.
-	 * */
-	public int getOffset(int index) {
-		checkIndex(index);
-		if (offsets == null) {
-			return 0;
-		}
-		return offsets[index];
-	}
-
-	/**
-	 * Returns the offset of a specific chunk in this region file
-	 * measured in sectors of 4096 bytes.
-	 * @param chunkX The x-ccordinate of the chunk.
-	 * @param chunkZ The z-coordinate of the chunk.
-	 * @return The offset in sectors.
-	 * */
-	public int getOffset(int chunkX, int chunkZ) {
-		return getOffset(getChunkIndex(chunkX, chunkZ));
-	}
-
-	/**
-	 * Returns the size in sectors of 4096 bytes of a
-	 * chunk at a specific index in this region file.
-	 * @param index The index of the chunk in this file.
-	 * @return The size in sectors.
-	 * */
-	public byte getSizeInSectors(int index) {
-		checkIndex(index);
-		if (sectors == null) {
-			return 0;
-		}
-		return sectors[index];
-	}
-
-	/**
-	 * Returns the size in sectors of 4096 bytes of a
-	 * chunk in this region file.
-	 * @param chunkX The x-coordinate of the chunk.
-	 * @param chunkZ The z-coordinate of the chunk.
-	 * @return The size in sectors.
-	 * */
-	public byte getSizeInSectors(int chunkX, int chunkZ) {
-		return getSizeInSectors(getChunkIndex(chunkX, chunkZ));
-	}
-
-	/**
-	 * Sets the timestamp when a chunk at a specific index was last updated.
-	 * Only affects the timestamp in the header of this file, not the chunk data.
-	 * @param index The index of the chunk in this file.
-	 * @param lastUpdate The time in seconds since 1970-01-01 when this chunk was last updated.
-	 * */
-	public void setLastUpdate(int index, int lastUpdate) {
-		checkIndex(index);
-		if (timestamps == null) {
-			timestamps = new int[1024];
-		}
-		timestamps[index] = lastUpdate;
-	}
-
-	/**
-	 * Sets the timestamp when a chunk was last updated.
-	 * Only affects the timestamp in the header of this file, not the chunk data.
-	 * @param chunkX The x-coordinate of the chunk.
-	 * @param chunkZ The z-coordinate of the chunk.
-	 * @param lastUpdate The time in seconds since 1970-01-01 when this chunk was last updated.
-	 * */
-	public void setLastUpdate(int chunkX, int chunkZ, int lastUpdate) {
-		setLastUpdate(getChunkIndex(chunkX, chunkZ), lastUpdate);
-	}
-
-	/**
-	 * Returns a timestamp when a chunk at a specific index was last updated.
-	 * The timestamp is measured in seconds since 1970-01-01.
-	 * @param index The index of the chunk in this file.
-	 * @return The time in seconds since 1970-01-01 when this chunk was last updated.
-	 * */
-	public int getLastUpdate(int index) {
-		checkIndex(index);
-		if (timestamps == null) {
-			return 0;
-		}
-		return timestamps[index];
-	}
-
-	/**
-	 * Returns a timestamp when a specific chunk was last updated.
-	 * The timestamp is measured in seconds since 1970-01-01.
-	 * @param chunkX The x-coordinate of the chunk.
-	 * @param chunkZ The z-coordinate of the chunk.
-	 * @return The time in seconds since 1970-01-01 when this chunk was last updated.
-	 * */
-	public int getLastUpdate(int chunkX, int chunkZ) {
-		return getLastUpdate(getChunkIndex(chunkX, chunkZ));
-	}
-
-	/**
-	 * Returns the actual length in bytes of the raw, compressed data
-	 * of a chunk in the file.
-	 * @param index The index of the chunk in this file.
-	 * @return The length in bytes of the compressed chunk data in the file.
-	 * */
-	public int getRawDataLength(int index) {
-		checkIndex(index);
-		if (lengths == null) {
-			return 0;
-		}
-		return lengths[index];
-	}
-
-	/**
-	 * Returns the actual length in bytes of the raw, compressed data
-	 * of a chunk in the file.
-	 * @param chunkX The x-coordinate of the chunk.
-	 * @param chunkZ The z-coordinate of the chunk.
-	 * @return The length in bytes of the compressed chunk data in the file.
-	 * */
-	public int getRawDataLength(int chunkX, int chunkZ) {
-		return getRawDataLength(getChunkIndex(chunkX, chunkZ));
-	}
-
-	/**
 	 * Sets the chunk data of a chunk at a specific index in this file.
-	 * @param index The index of the chunk in this file.
-	 * @param data The chunk data.
+	 * @param chunk The chunk data.
 	 * */
-	public void setChunkData(int index, CompoundTag data) {
-		checkIndex(index);
-		if (this.data == null) {
-			this.data = new CompoundTag[1024];
-		}
-		this.data[index] = data;
+	public void setChunk(Chunk chunk) {
+		setChunk(getChunkIndex(chunk.getPosX(), chunk.getPosZ()), chunk);
 	}
 
-	/**
-	 * Sets the chunk data of a chunk in this file.
-	 * @param chunkX The x-coordinate of the chunk.
-	 * @param chunkZ THe z-coordinate of the chunk.
-	 * @param data The chunk data.
-	 * */
-	public void setChunkData(int chunkX, int chunkZ, CompoundTag data) {
-		setChunkData(getChunkIndex(chunkX, chunkZ), data);
+	public void setChunk(int index, Chunk chunk) {
+		checkIndex(index);
+		if (chunks == null) {
+			chunks = new Chunk[1024];
+		}
+		chunks[index] = chunk;
 	}
 
 	/**
@@ -312,12 +121,12 @@ public class MCAFile {
 	 * @param index The index of the chunk in this file.
 	 * @return The chunk data.
 	 * */
-	public CompoundTag getChunkData(int index) {
+	public Chunk getChunk(int index) {
 		checkIndex(index);
-		if (data == null) {
+		if (chunks == null) {
 			return null;
 		}
-		return data[index];
+		return chunks[index];
 	}
 
 	/**
@@ -326,296 +135,8 @@ public class MCAFile {
 	 * @param chunkZ The z-coordinate of the chunk.
 	 * @return The chunk data.
 	 * */
-	public CompoundTag getChunkData(int chunkX, int chunkZ) {
-		return getChunkData(getChunkIndex(chunkX, chunkZ));
-	}
-
-	/**
-	 * Sets the biome id at the specific location.
-	 * @param blockX The absolute x-coordinate of the block.
-	 * @param blockZ The absolute z-coordinate of the block.
-	 * @param biomeID The biome id.
-	 * */
-	public void setBiomeAt(int blockX, int blockZ, int biomeID) {
-		CompoundTag chunkData = getChunkData(MCAUtil.blockToChunk(blockX), MCAUtil.blockToChunk(blockZ));
-		if (chunkData == null) {
-			chunkData = createDefaultChunk(MCAUtil.blockToChunk(blockX), MCAUtil.blockToChunk(blockZ));
-			setChunkData(MCAUtil.blockToChunk(blockX), MCAUtil.blockToChunk(blockZ), chunkData);
-		}
-		int[] biomes = chunkData.getCompoundTag("Level").getIntArray("Biomes");
-		if (biomes.length == 0) {
-			biomes = new int[256];
-			for (int i = 0; i < biomes.length; i++) {
-				biomes[i] = -1;
-			}
-			chunkData.getCompoundTag("Level").putIntArray("Biomes", biomes);
-		}
-		biomes[getSectionIndex(blockX, 0, blockZ)] = biomeID;
-	}
-
-	/**
-	 * Returns the biome id at a specific location.
-	 * @param blockX The x-coordinate of the block.
-	 * @param blockZ The z-coordinate of the block.
-	 * @return The biome id or -1 if there is no chunk or no biome data.
-	 * */
-	public int getBiomeAt(int blockX, int blockZ) {
-		CompoundTag chunkData = getChunkData(MCAUtil.blockToChunk(blockX), MCAUtil.blockToChunk(blockZ));
-		if (chunkData == null) {
-			return -1;
-		}
-		int[] biomes = chunkData.getCompoundTag("Level").getIntArray("Biomes");
-		if (biomes.length == 0) {
-			return -1;
-		}
-		return biomes[getSectionIndex(blockX, 0, blockZ)];
-	}
-
-	/**
-	 * Searches for redundant blocks in the palette in the section of the provided coordinates,
-	 * removes them and updates the palette indices in the BlockStates accordingly.
-	 * Changes nothing if there is no chunk or no section at the coordinates.
-	 * @param sectionX The x-coordinate of the chunk.
-	 * @param sectionY The y-coordinate of the section.
-	 * @param sectionZ The z-coordinate of the chunk.
-	 * */
-	public void cleanupPaletteAndBlockStates(int sectionX, int sectionY, int sectionZ) {
-		CompoundTag chunkData = getChunkData(sectionX, sectionZ);
-		if (chunkData == null) {
-			return;
-		}
-		for (CompoundTag section : chunkData.getCompoundTag("Level").getListTag("Sections").asCompoundTagList()) {
-			if (section.getByte("Y") == sectionY) {
-				long[] blockStates = section.getLongArray("BlockStates");
-				ListTag<CompoundTag> palette = section.getListTag("Palette").asCompoundTagList();
-				Map<Integer, Integer> oldToNewMapping = cleanupPalette(blockStates, palette);
-				blockStates = adjustBlockStateBits(blockStates, palette, oldToNewMapping);
-				section.putLongArray("BlockStates", blockStates);
-			}
-		}
-	}
-
-	/**
-	 * Sets block data at specific block coordinates. If there is no chunk data or no section data
-	 * at the provided location, it will create default data ({@link MCAFile#createDefaultChunk(int, int)},
-	 * {@link MCAFile#createDefaultSection(int)}).
-	 * If the size of the palette reaches a number that is a power of 2, it will automatically increase
-	 * the size of the BlockStates. This cleanup procedure ONLY occurs in this case, EXCEPT if {@code cleanup}
-	 * is set to {@code true}. The reason for this is a rather high performance impact of the cleanup process.
-	 * This may lead to unused block states in the palette, but never to an unnecessarily large number of bits
-	 * used per block state in the BlockStates array.
-	 * A manual cleanup can be performed using {@link MCAFile#cleanupPaletteAndBlockStates(int, int, int)}.
-	 * @param blockX The absolute x-coordinate of the block.
-	 * @param blockY The absolute y-coordinate of the block.
-	 * @param blockZ The absolute z-coordinate of the block.
-	 * @param data The block data.
-	 * @param cleanup If the cleanup procedure should be forced.
-	 * */
-	public void setBlockStateAt(int blockX, int blockY, int blockZ, CompoundTag data, boolean cleanup) {
-		CompoundTag chunkData = getChunkData(MCAUtil.blockToChunk(blockX), MCAUtil.blockToChunk(blockZ));
-		if (chunkData == null) {
-			chunkData = createDefaultChunk(MCAUtil.blockToChunk(blockX), MCAUtil.blockToChunk(blockZ));
-			setChunkData(MCAUtil.blockToChunk(blockX), MCAUtil.blockToChunk(blockZ), chunkData);
-		}
-
-		int blockSection = MCAUtil.blockToChunk(blockY);
-		for (CompoundTag section : chunkData.getCompoundTag("Level").getListTag("Sections").asCompoundTagList()) {
-			if (section.getByte("Y") == blockSection) {
-				long[] blockStates = section.getLongArray("BlockStates");
-				ListTag<CompoundTag> palette = section.getListTag("Palette").asCompoundTagList();
-
-				int paletteIndex;
-				if ((paletteIndex = palette.indexOf(data)) != -1) {
-					//data already exists in palette, so there's nothing to do
-					setPaletteIndex(getSectionIndex(blockX, blockY, blockZ), paletteIndex, blockStates);
-					if (cleanup) {
-						cleanupPaletteAndBlockStates(MCAUtil.blockToChunk(blockX), MCAUtil.blockToChunk(blockY), MCAUtil.blockToChunk(blockZ));
-					}
-				} else {
-					palette.add(data);
-
-					paletteIndex = palette.size() - 1;
-
-					long[] newBlockStates = blockStates;
-
-					//power of 2 --> bits must increase
-					if ((paletteIndex & (paletteIndex - 1)) == 0) {
-						newBlockStates = adjustBlockStateBits(blockStates, palette, null);
-						setPaletteIndex(getSectionIndex(blockX, blockY, blockZ), paletteIndex, newBlockStates);
-					} else {
-						//bits did not increase, change the index
-						setPaletteIndex(getSectionIndex(blockX, blockY, blockZ), paletteIndex, newBlockStates);
-					}
-
-					if (cleanup || blockStates.length != newBlockStates.length) {
-						Map<Integer, Integer> oldToNewMapping = cleanupPalette(newBlockStates, palette);
-						newBlockStates = adjustBlockStateBits(newBlockStates, palette, oldToNewMapping);
-					}
-					section.putLongArray("BlockStates", newBlockStates);
-				}
-				return;
-			}
-		}
-
-		//create new section
-		CompoundTag section = createDefaultSection(MCAUtil.blockToChunk(blockY));
-		ListTag<CompoundTag> palette = section.getListTag("Palette").asCompoundTagList();
-		if (palette.indexOf(data) == 0) {
-			return;
-		} else {
-			palette.add(data);
-			setPaletteIndex(getSectionIndex(blockX, blockY, blockZ), 1, section.getLongArray("BlockStates"));
-		}
-		chunkData.getCompoundTag("Level").getListTag("Sections").asCompoundTagList().add(section);
-	}
-
-	/**
-	 * Sets the index of the block data in the BlockStates. Does not adjust the size of the BlockStates array.
-	 * @param index The index of the block in this section, ranging from 0-4095.
-	 * @param state The block state to be set (index of block data in the palette).
-	 * @param blockStates  The BlockStates that store the palette indices.
-	 * */
-	public void setPaletteIndex(int index, int state, long[] blockStates) {
-		int bits = blockStates.length / 64;
-		double blockStatesIndex = index / (4096D / blockStates.length);
-		int longIndex = (int) blockStatesIndex;
-		int startBit = (int) ((blockStatesIndex - Math.floor(longIndex)) * 64D);
-		if (startBit + bits > 64) {
-			blockStates[longIndex] = updateBits(blockStates[longIndex], state, startBit, 64);
-			blockStates[longIndex + 1] = updateBits(blockStates[longIndex + 1], state, startBit - 64, startBit + bits - 64);
-		} else {
-			blockStates[longIndex] = updateBits(blockStates[longIndex], state, startBit, startBit + bits);
-		}
-	}
-
-	long[] adjustBlockStateBits(long[] blockStates, ListTag<CompoundTag> palette, Map<Integer, Integer> oldToNewMapping) {
-		//increases or decreases the amount of bits used per BlockState
-		//based on the size of the palette. oldToNewMapping can be used to update indices
-		//if the palette had been cleaned up before using MCAFile#cleanupPalette().
-
-		int newBits = 32 - Integer.numberOfLeadingZeros(palette.size() - 1);
-		newBits = newBits < 4 ? 4 : newBits;
-
-		long[] newBlockStates = newBits == blockStates.length / 64 ? blockStates : new long[newBits * 64];
-		if (oldToNewMapping != null) {
-			for (int i = 0; i < 4096; i++) {
-				setPaletteIndex(i, oldToNewMapping.get(getPaletteIndex(i, blockStates)), newBlockStates);
-			}
-		} else {
-			for (int i = 0; i < 4096; i++) {
-				setPaletteIndex(i, getPaletteIndex(i, blockStates), newBlockStates);
-			}
-		}
-
-		return newBlockStates;
-	}
-
-	Map<Integer, Integer> cleanupPalette(long[] blockStates, ListTag<CompoundTag> palette) {
-		//create index - palette mapping
-		Map<Integer, Integer> allIndices = new HashMap<>();
-		for (int i = 0; i < 4096; i++) {
-			int paletteIndex = getPaletteIndex(i, blockStates);
-			allIndices.put(paletteIndex, paletteIndex);
-		}
-		//delete unused blocks from palette
-		int index = 1;
-		for (int i = 1; i < palette.size(); i++) {
-			if (!allIndices.containsKey(index)) {
-				palette.remove(i);
-				i--;
-			} else {
-				allIndices.put(index, i);
-			}
-			index++;
-		}
-
-		return allIndices;
-	}
-
-	/**
-	 * Returns the block data at the provided block coordinates.
-	 * @param blockX The x-coordinate of the block.
-	 * @param blockY The y-coordinate of the block.
-	 * @param blockZ The z-coordinate of the block.
-	 * @return The block data at the specific block coordinates from the palette in this section.
-	 * Returns {@code null} if there is no chunk data or no section.
-	 * */
-	public CompoundTag getBlockStateAt(int blockX, int blockY, int blockZ) {
-		//get chunk in this region
-		CompoundTag chunkData = getChunkData(MCAUtil.blockToChunk(blockX), MCAUtil.blockToChunk(blockZ));
-
-		if (chunkData == null) {
-			return null;
-		}
-
-		//get section
-		int blockSection = MCAUtil.blockToChunk(blockY);
-		for (CompoundTag section : chunkData.getCompoundTag("Level").getListTag("Sections").asCompoundTagList()) {
-			if (section.getByte("Y") == blockSection) {
-				//get index of long in block index array
-				long[] blockStates = section.getLongArray("BlockStates");
-				ListTag<CompoundTag> palette = section.getListTag("Palette").asCompoundTagList();
-
-				//convert block coordinates into section coordinates
-				int index = getSectionIndex(blockX, blockY, blockZ);
-
-				int paletteIndex = getPaletteIndex(index, blockStates);
-
-				return palette.get(paletteIndex);
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Returns the index of the block data in the palette.
-	 * @param index The index of the block in this section, ranging from 0-4095.
-	 * @param blockStates  The BlockStates that store the palette indices.
-	 * @return The index of the block data in the palette.
-	 * */
-	public int getPaletteIndex(int index, long[] blockStates) {
-		int bits = blockStates.length >> 6;
-		double blockStatesIndex = index / (4096D / blockStates.length);
-		int longIndex = (int) blockStatesIndex;
-		int startBit = (int) ((blockStatesIndex - Math.floor(blockStatesIndex)) * 64D);
-		if (startBit + bits > 64) {
-			long prev = bitRange(blockStates[longIndex], startBit, 64);
-			long next = bitRange(blockStates[longIndex + 1], 0, startBit + bits - 64);
-			return (int) ((next << 64 - startBit) + prev);
-		} else {
-			return (int) bitRange(blockStates[longIndex], startBit, startBit + bits);
-		}
-	}
-
-	/**
-	 * Returns the current generation status of the chunk.
-	 * @param chunkX The x-coordinate of the chunk.
-	 * @param chunkZ The z-coordinate of the chunk.
-	 * @return The generation status of the chunk or null if there is no chunk.
-	 * */
-	public String getChunkStatus(int chunkX, int chunkZ) {
-		CompoundTag chunkData = getChunkData(chunkX, chunkZ);
-		if (chunkData == null) {
-			return null;
-		}
-		return chunkData.getCompoundTag("Level").getString("Status");
-	}
-
-	/**
-	 * Sets the generation status of the chunk.
-	 * If no chunk exists at the provided coordinates, it will create an empty default
-	 * chunk and change its status.
-	 * @param chunkX The x-coordinate of the chunk.
-	 * @param chunkZ The z-coordinate of the chunk.
-	 * @param status The generation status of the chunk.
-	 * */
-	public void setChunkStatus(int chunkX, int chunkZ, String status) {
-		CompoundTag chunkData = getChunkData(chunkX, chunkZ);
-		if (chunkData == null) {
-			chunkData = createDefaultChunk(chunkX, chunkZ);
-			setChunkData(chunkX, chunkZ, chunkData);
-		}
-		chunkData.getCompoundTag("Level").putString("Status", status);
+	public Chunk getChunk(int chunkX, int chunkZ) {
+		return getChunk(getChunkIndex(chunkX, chunkZ));
 	}
 
 	/**
@@ -626,7 +147,7 @@ public class MCAFile {
 	 * @return The index of this chunk.
 	 * */
 	public static int getChunkIndex(int chunkX, int chunkZ) {
-		return (chunkX & 31) + (chunkZ & 31) * 32;
+		return (chunkX & 0x1F) + (chunkZ & 0x1F) * 32;
 	}
 
 	private int checkIndex(int index) {
@@ -636,43 +157,47 @@ public class MCAFile {
 		return index;
 	}
 
-	int getSectionIndex(int blockX, int blockY, int blockZ) {
-		return (blockY & 15) * 256 + (blockZ & 15) * 16 + (blockX & 15);
-	}
-
-	long updateBits(long n, long m, int i, int j) {
-		//replace i to j in n with j - i bits of m
-		long mShifted = i > 0 ? (m & ((1L << j - i) - 1)) << i : (m & ((1L << j - i) - 1)) >>> -i;
-		return ((n & ((j > 63 ? 0 : (~0L << j)) | (i < 0 ? 0 : ((1L << i) - 1L)))) | mShifted);
-	}
-
-	long bitRange(long value, int from, int to) {
-		int waste = 64 - to;
-		return (value << waste) >>> (waste + from);
-	}
-
-	CompoundTag createDefaultChunk(int xPos, int zPos) {
-		CompoundTag chunk = new CompoundTag();
-		chunk.putInt("DataVersion", DEFAULT_DATA_VERSION);
-		CompoundTag level = new CompoundTag();
-		level.putInt("xPos", xPos);
-		level.putInt("zPos", zPos);
-		level.put("Entities", new ListTag());
-		level.put("Sections", new ListTag());
-		level.putString("Status", "mobs_spawned");
-		chunk.put("Level", level);
+	private Chunk createChunkIfMissing(int blockX, int blockZ) {
+		int chunkX = MCAUtil.blockToChunk(blockX), chunkZ = MCAUtil.blockToChunk(blockZ);
+		Chunk chunk = getChunk(chunkX, chunkZ);
+		if (chunk == null) {
+			chunk = Chunk.createDefaultChunk(chunkX, chunkZ);
+			setChunk(chunk);
+		}
 		return chunk;
 	}
 
-	CompoundTag createDefaultSection(int y) {
-		CompoundTag section = new CompoundTag();
-		section.putByte("Y", (byte) y);
-		ListTag<CompoundTag> palette = new ListTag<>();
-		CompoundTag air = new CompoundTag();
-		air.putString("Name", "minecraft:air");
-		palette.add(air);
-		section.put("Palette", palette);
-		section.putLongArray("BlockStates", new long[256]);
-		return section;
+	public void setBiomeAt(int blockX, int blockZ, int biomeID) {
+		createChunkIfMissing(blockX, blockZ).setBiomeAt(blockX, blockZ, biomeID);
+	}
+
+	public int getBiomeAt(int blockX, int blockZ) {
+		int chunkX = MCAUtil.blockToChunk(blockX), chunkZ = MCAUtil.blockToChunk(blockZ);
+		Chunk chunk = getChunk(getChunkIndex(chunkX, chunkZ));
+		if (chunk == null) {
+			return -1;
+		}
+		return chunk.getBiomeAt(blockX, blockZ);
+	}
+
+	public void setBlockStateAt(int blockX, int blockY, int blockZ, CompoundTag state, boolean cleanup) {
+		createChunkIfMissing(blockX, blockZ).setBlockStateAt(blockX, blockY, blockZ, state, cleanup);
+	}
+
+	public CompoundTag getBlockStateAt(int blockX, int blockY, int blockZ) {
+		int chunkX = MCAUtil.blockToChunk(blockX), chunkZ = MCAUtil.blockToChunk(blockZ);
+		Chunk chunk = getChunk(chunkX, chunkZ);
+		if (chunk == null) {
+			return null;
+		}
+		return chunk.getBlockStateAt(blockX, blockY, blockZ);
+	}
+
+	public void cleanupAllPalettesAndBlockStates() {
+		for (Chunk chunk : chunks) {
+			if (chunk != null) {
+				chunk.cleanupAllPalettesAndBlockStates();
+			}
+		}
 	}
 }
