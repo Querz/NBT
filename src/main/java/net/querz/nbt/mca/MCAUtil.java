@@ -27,7 +27,7 @@ public final class MCAUtil {
 	 * */
 	public static MCAFile readMCAFile(File file) throws IOException {
 		try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
-			MCAFile mcaFile = new MCAFile();
+			MCAFile mcaFile = newMCAFile(file);
 			mcaFile.deserialize(raf);
 			return mcaFile;
 		}
@@ -161,5 +161,15 @@ public final class MCAUtil {
 	 * */
 	public static int chunkToBlock(int chunk) {
 		return chunk << 4;
+	}
+
+	private static final Pattern mcaFilePattern = Pattern.compile("^.*r\\.(?<regionX>-?\\d+)\\.(?<regionZ>-?\\d+)\\.mca$");
+
+	private static MCAFile newMCAFile(File file) {
+		Matcher m = mcaFilePattern.matcher(file.getName());
+		if (m.find()) {
+			return new MCAFile(Integer.parseInt(m.group("regionX")), Integer.parseInt(m.group("regionZ")));
+		}
+		throw new IllegalArgumentException("invalid mca file name: " + file.getName());
 	}
 }

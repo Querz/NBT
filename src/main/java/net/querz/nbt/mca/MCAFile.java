@@ -8,9 +8,13 @@ public class MCAFile {
 
 	public static final int DEFAULT_DATA_VERSION = 1628;
 
+	private int regionX, regionZ;
 	private Chunk[] chunks;
 
-	public MCAFile() {}
+	public MCAFile(int regionX, int regionZ) {
+		this.regionX = regionX;
+		this.regionZ = regionZ;
+	}
 
 	/**
 	 * Reads an .mca file from a {@code RandomAccessFile} into this object.
@@ -25,16 +29,13 @@ public class MCAFile {
 			int offset = raf.read() << 16;
 			offset |= (raf.read() & 0xFF) << 8;
 			offset |= raf.read() & 0xFF;
-
-			int sectors;
-			if ((sectors = raf.readByte()) == 0) {
+			if (raf.readByte() == 0) {
 				continue;
 			}
-
 			raf.seek(4096 + i * 4);
 			int timestamp = raf.readInt();
-
-			Chunk chunk = new Chunk(offset, sectors, timestamp);
+			Chunk chunk = new Chunk(timestamp);
+			raf.seek(4096 * offset + 4); //+4: skip data size
 			chunk.deserialize(raf);
 			chunks[i] = chunk;
 		}
@@ -62,34 +63,39 @@ public class MCAFile {
 		int lastWritten = 0;
 		int timestamp = (int) (System.currentTimeMillis() / 1000L);
 		int chunksWritten = 0;
+		int chunkXOffset = MCAUtil.regionToChunk(regionX);
+		int chunkZOffset = MCAUtil.regionToChunk(regionZ);
 
-		for (int i = 0; i < 1024; i++) {
-			Chunk chunk = chunks[i];
-			if (chunk == null) {
-				continue;
+		for (int cx = 0; cx < 32; cx++) {
+			for (int cz = 0; cz < 32; cz++) {
+				int index = getChunkIndex(cx, cz);
+				Chunk chunk = chunks[index];
+				if (chunk == null) {
+					continue;
+				}
+				raf.seek(4096 * globalOffset);
+				lastWritten = chunk.serialize(raf, chunkXOffset + cx, chunkZOffset + cz);
+
+				if (lastWritten == 0) {
+					continue;
+				}
+
+				chunksWritten++;
+
+				int sectors = (lastWritten >> 12) + 1;
+
+				raf.seek(index * 4);
+				raf.writeByte(globalOffset >>> 16);
+				raf.writeByte(globalOffset >> 8 & 0xFF);
+				raf.writeByte(globalOffset & 0xFF);
+				raf.writeByte(sectors);
+
+				//write timestamp to tmp file
+				raf.seek(index * 4 + 4096);
+				raf.writeInt(changeLastUpdate ? timestamp : chunk.getLastMCAUpdate());
+
+				globalOffset += sectors;
 			}
-
-			lastWritten = chunk.serialize(raf, globalOffset);
-
-			if (lastWritten == 0) {
-				continue;
-			}
-
-			chunksWritten++;
-
-			int sectors = (lastWritten >> 12) + 1;
-
-			raf.seek(i * 4);
-			raf.writeByte(globalOffset >>> 16);
-			raf.writeByte(globalOffset >> 8 & 0xFF);
-			raf.writeByte(globalOffset & 0xFF);
-			raf.writeByte(sectors);
-
-			//write timestamp to tmp file
-			raf.seek(i * 4 + 4096);
-			raf.writeInt(changeLastUpdate ? timestamp : chunk.getLastUpdate());
-
-			globalOffset += sectors;
 		}
 
 		//padding
@@ -98,14 +104,6 @@ public class MCAFile {
 			raf.write(0);
 		}
 		return chunksWritten;
-	}
-
-	/**
-	 * Sets the chunk data of a chunk at a specific index in this file.
-	 * @param chunk The chunk data.
-	 * */
-	public void setChunk(Chunk chunk) {
-		setChunk(getChunkIndex(chunk.getPosX(), chunk.getPosZ()), chunk);
 	}
 
 	public void setChunk(int index, Chunk chunk) {
@@ -161,8 +159,8 @@ public class MCAFile {
 		int chunkX = MCAUtil.blockToChunk(blockX), chunkZ = MCAUtil.blockToChunk(blockZ);
 		Chunk chunk = getChunk(chunkX, chunkZ);
 		if (chunk == null) {
-			chunk = Chunk.createDefaultChunk(chunkX, chunkZ);
-			setChunk(chunk);
+			chunk = Chunk.newChunk();
+			setChunk(getChunkIndex(chunkX, chunkZ), chunk);
 		}
 		return chunk;
 	}
@@ -193,10 +191,10 @@ public class MCAFile {
 		return chunk.getBlockStateAt(blockX, blockY, blockZ);
 	}
 
-	public void cleanupAllPalettesAndBlockStates() {
+	public void cleanupPalettesAndBlockStates() {
 		for (Chunk chunk : chunks) {
 			if (chunk != null) {
-				chunk.cleanupAllPalettesAndBlockStates();
+				chunk.cleanupPalettesAndBlockStates();
 			}
 		}
 	}
