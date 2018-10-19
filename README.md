@@ -47,17 +47,20 @@ fl.addFloat(5.678f);
 There are several utility methods to make your life easier if you use this library.
 #### NBTUtil
 `NBTUtil.writeTag()` lets you write a Tag into a gzip compressed or uncompressed file in one line (not counting exception handling). Files are gzip compressed by default.
+
 Example usage:
 ```java
 NBTUtil.writeTag(tag, "filename.dat");
 ```
 `NBTUtil.readTag()` reads any file containing NBT data. No worry about compression, it will automatically uncompress gzip compressed files.
+
 Example usage:
 ```java
 Tag tag = NBTUtil.readTag("filename.dat");
 ```
 #### Playing Minecraft?
 Each tag can be converted into a JSON-like NBT String used in Minecraft commands.
+
 Example usage:
 ```java
 CompoundTag c = new CompoundTag();
@@ -67,15 +70,37 @@ String s = c.toTagString();
 
 //output: {blah:5b,foo:"bär"}
 ```
-There are also some tools to read, change and write MCA files:
-For example:
+There are also some tools to read, change and write MCA files.
+
+Here are some examples:
 ```java
 //This changes the InhabitedTime field of the chunk at x=68, z=81 to 0
-
 MCAFile mcaFile = MCAUtil.readMCAFile("r.2.2.mca");
-CompoundTag tag = mcaFile.getChunkData(68, 81);
-tag.getCompoundTag("Level").setLong("InhabitedTime", 0L);
+Chunk chunk = mcaFile.getChunk(68, 81);
+chunk.setInhabitedTime(0);
 MCAUtil.writeMCAFile("r.2.2.mca", mcaFile);
+```
+There is also an optimized api to retrieve and set block information (BlockStates) in MCA files.
+
+Example:
+```java
+//Retrieves block information from the MCA file
+CompoundTag blockState = mcaFile.getBlockStateAt(1090, 25, 1301);
+
+//Retrieves block information from a single chunk
+CompoundTag blockState = chunk.getBlockStateAt(2, 25, 5);
+
+//Set block information
+CompoundTag stone = new CompoundTag();
+stone.putString("Name", "minecraft:stone");
+mcaFile.setBlockStateAt(1090, 25, 1301, stone, false);
+```
+To ensure good performance even when setting a lot of blocks and / or editing sections with a huge palette of block states, the size of the BlockStates array is only updated when the size of the palette requires it. This means there might be blocks in the palette that are not actually used in the BlockStates array.
+You can trigger a cleanup process by calling one of the folling three methods, depending on the desired depth:
+```java
+mcaFile.cleanupPalettesAndBlockStates();
+chunk.cleanupPalettesAndBlockStates();
+section.cleanupPaletteAndBlockStates();
 ```
 
 ---
