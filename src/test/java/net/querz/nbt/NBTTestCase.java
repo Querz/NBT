@@ -109,8 +109,6 @@ public abstract class NBTTestCase extends TestCase {
 		return null;
 	}
 
-
-
 	protected void assertThrowsException(ExceptionRunnable r, Class<? extends Exception> e) {
 		assertThrowsException(r, e, false);
 	}
@@ -127,7 +125,32 @@ public abstract class NBTTestCase extends TestCase {
 		}
 	}
 
-	protected <T, E extends Exception> T assertThrowsNoException(ExceptionRunnable<T, E> r) {
+	protected void assertThrowsNoException(ExceptionRunnable r) {
+		try {
+			r.run();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			TestCase.fail("Threw exception " + ex.getClass().getName() + " with message \"" + ex.getMessage() + "\"");
+		}
+	}
+
+	protected void assertThrowsException(ExceptionSupplier r, Class<? extends Exception> e) {
+		assertThrowsException(r, e, false);
+	}
+
+	protected void assertThrowsException(ExceptionSupplier r, Class<? extends Exception> e, boolean printStackTrace) {
+		try {
+			r.run();
+			TestCase.fail();
+		} catch (Exception ex) {
+			if (printStackTrace) {
+				ex.printStackTrace();
+			}
+			TestCase.assertEquals(ex.getClass(), e);
+		}
+	}
+
+	protected <T, E extends Exception> T assertThrowsNoException(ExceptionSupplier<T, E> r) {
 		try {
 			return r.run();
 		} catch (Exception ex) {

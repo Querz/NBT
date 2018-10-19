@@ -26,34 +26,34 @@ public final class MCAUtil {
 	 * @throws IOException if something during deserialization goes wrong.
 	 * */
 	public static MCAFile readMCAFile(File file) throws IOException {
+		MCAFile mcaFile = newMCAFile(file);
 		try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
-			MCAFile mcaFile = newMCAFile(file);
 			mcaFile.deserialize(raf);
 			return mcaFile;
 		}
 	}
 
 	/**
-	 * Calls {@link MCAUtil#writeMCAFile(File, MCAFile, boolean)} without changing the timestamps.
-	 * @see MCAUtil#writeMCAFile(File, MCAFile, boolean)
+	 * Calls {@link MCAUtil#writeMCAFile(MCAFile, File, boolean)} without changing the timestamps.
+	 * @see MCAUtil#writeMCAFile(MCAFile, File, boolean)
 	 * */
-	public static int writeMCAFile(String file, MCAFile mcaFile) throws IOException {
-		return writeMCAFile(new File(file), mcaFile, false);
+	public static int writeMCAFile(MCAFile mcaFile, String file) throws IOException {
+		return writeMCAFile(mcaFile, new File(file), false);
 	}
 
 	/**
-	 * Calls {@link MCAUtil#writeMCAFile(File, MCAFile, boolean)} without changing the timestamps.
-	 * @see MCAUtil#writeMCAFile(File, MCAFile, boolean)
+	 * Calls {@link MCAUtil#writeMCAFile(MCAFile, File, boolean)} without changing the timestamps.
+	 * @see MCAUtil#writeMCAFile(MCAFile, File, boolean)
 	 * */
-	public static int writeMCAFile(File file, MCAFile mcaFile) throws IOException {
-		return writeMCAFile(file, mcaFile, false);
+	public static int writeMCAFile(MCAFile mcaFile, File file) throws IOException {
+		return writeMCAFile(mcaFile, file, false);
 	}
 
 	/**
-	 * @see MCAUtil#writeMCAFile(File, MCAFile, boolean)
+	 * @see MCAUtil#writeMCAFile(MCAFile, File, boolean)
 	 * */
-	public static int writeMCAFile(String file, MCAFile mcaFile, boolean changeLastUpdate) throws IOException {
-		return writeMCAFile(new File(file), mcaFile, changeLastUpdate);
+	public static int writeMCAFile(MCAFile mcaFile, String file, boolean changeLastUpdate) throws IOException {
+		return writeMCAFile(mcaFile, new File(file), changeLastUpdate);
 	}
 
 	/**
@@ -67,7 +67,7 @@ public final class MCAUtil {
 	 * @return The amount of chunks written to the file.
 	 * @throws IOException If something goes wrong during serialization.
 	 * */
-	public static int writeMCAFile(File file, MCAFile mcaFile, boolean changeLastUpdate) throws IOException {
+	public static int writeMCAFile(MCAFile mcaFile, File file, boolean changeLastUpdate) throws IOException {
 		File to = file;
 		if (file.exists()) {
 			to = File.createTempFile(to.getName(), null);

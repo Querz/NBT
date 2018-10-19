@@ -81,7 +81,7 @@ public class Chunk {
 	public int serialize(RandomAccessFile raf, int xPos, int zPos) throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream(4096);
 		try (DataOutputStream nbtOut = new DataOutputStream(new BufferedOutputStream(CompressionType.ZLIB.compress(baos)))) {
-			toCompoundTag(xPos, zPos).serialize(nbtOut, 0);
+			updateHandle(xPos, zPos).serialize(nbtOut, 0);
 		}
 		byte[] rawData = baos.toByteArray();
 		raf.writeInt(rawData.length);
@@ -156,6 +156,137 @@ public class Chunk {
 		this.lastMCAUpdate = lastMCAUpdate;
 	}
 
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public Section getSection(int sectionY) {
+		return sections[sectionY];
+	}
+
+	public void setSection(int sectionY, Section section) {
+		sections[sectionY] = section;
+	}
+
+	public long getLastUpdate() {
+		return lastUpdate;
+	}
+
+	public void setLastUpdate(long lastUpdate) {
+		this.lastUpdate = lastUpdate;
+	}
+
+	public long getInhabitedTime() {
+		return inhabitedTime;
+	}
+
+	public void setInhabitedTime(long inhabitedTime) {
+		this.inhabitedTime = inhabitedTime;
+	}
+
+	public int[] getBiomes() {
+		return biomes;
+	}
+
+	public void setBiomes(int[] biomes) {
+		if (biomes != null && biomes.length != 256) {
+			throw new IllegalArgumentException("biomes array must have a length of 256");
+		}
+		this.biomes = biomes;
+	}
+
+	public CompoundTag getHeightMaps() {
+		return heightMaps;
+	}
+
+	public void setHeightMaps(CompoundTag heightMaps) {
+		this.heightMaps = heightMaps;
+	}
+
+	public CompoundTag getCarvingMasks() {
+		return carvingMasks;
+	}
+
+	public void setCarvingMasks(CompoundTag carvingMasks) {
+		this.carvingMasks = carvingMasks;
+	}
+
+	public ListTag<CompoundTag> getEntities() {
+		return entities;
+	}
+
+	public void setEntities(ListTag<CompoundTag> entities) {
+		this.entities = entities;
+	}
+
+	public ListTag<CompoundTag> getTileEntities() {
+		return tileEntities;
+	}
+
+	public void setTileEntities(ListTag<CompoundTag> tileEntities) {
+		this.tileEntities = tileEntities;
+	}
+
+	public ListTag<CompoundTag> getTileTicks() {
+		return tileTicks;
+	}
+
+	public void setTileTicks(ListTag<CompoundTag> tileTicks) {
+		this.tileTicks = tileTicks;
+	}
+
+	public ListTag<CompoundTag> getLiquidTicks() {
+		return liquidTicks;
+	}
+
+	public void setLiquidTicks(ListTag<CompoundTag> liquidTicks) {
+		this.liquidTicks = liquidTicks;
+	}
+
+	public ListTag<ListTag<?>> getLights() {
+		return lights;
+	}
+
+	public void setLights(ListTag<ListTag<?>> lights) {
+		this.lights = lights;
+	}
+
+	public ListTag<ListTag<?>> getLiquidsToBeTicked() {
+		return liquidsToBeTicked;
+	}
+
+	public void setLiquidsToBeTicked(ListTag<ListTag<?>> liquidsToBeTicked) {
+		this.liquidsToBeTicked = liquidsToBeTicked;
+	}
+
+	public ListTag<ListTag<?>> getToBeTicked() {
+		return toBeTicked;
+	}
+
+	public void setToBeTicked(ListTag<ListTag<?>> toBeTicked) {
+		this.toBeTicked = toBeTicked;
+	}
+
+	public ListTag<ListTag<?>> getPostProcessing() {
+		return postProcessing;
+	}
+
+	public void setPostProcessing(ListTag<ListTag<?>> postProcessing) {
+		this.postProcessing = postProcessing;
+	}
+
+	public CompoundTag getStructures() {
+		return structures;
+	}
+
+	public void setStructures(CompoundTag structures) {
+		this.structures = structures;
+	}
+
 	int getBlockIndex(int blockX, int blockZ) {
 		return (blockZ & 0xF) * 16 + (blockX & 0xF);
 	}
@@ -168,10 +299,6 @@ public class Chunk {
 		}
 	}
 
-	public Section getSection(int sectionY) {
-		return sections[sectionY];
-	}
-
 	public static Chunk newChunk() {
 		Chunk c = new Chunk(0);
 		c.dataVersion = DEFAULT_DATA_VERSION;
@@ -181,14 +308,14 @@ public class Chunk {
 		return c;
 	}
 
-	public CompoundTag toCompoundTag(int xPos, int zPos) {
+	public CompoundTag updateHandle(int xPos, int zPos) {
 		data.putInt("DataVersion", dataVersion);
 		CompoundTag level = data.getCompoundTag("Level");
 		level.putInt("xPos", xPos);
 		level.putInt("zPos", zPos);
 		level.putLong("LastUpdate", lastUpdate);
 		level.putLong("InhabitedTime", inhabitedTime);
-		if (biomes.length == 256) level.putIntArray("Biomes", biomes);
+		if (biomes != null && biomes.length == 256) level.putIntArray("Biomes", biomes);
 		if (heightMaps != null) level.put("HeightMaps", heightMaps);
 		if (carvingMasks != null) level.put("CarvingMasks", carvingMasks);
 		if (entities != null) level.put("Entities", entities);
@@ -204,9 +331,10 @@ public class Chunk {
 		ListTag<CompoundTag> sections = new ListTag<>();
 		for (int i = 0; i < this.sections.length; i++) {
 			if (this.sections[i] != null) {
-				sections.add(this.sections[i].toCompoundTag(i));
+				sections.add(this.sections[i].updateHandle(i));
 			}
 		}
+		level.put("Sections", sections);
 		return data;
 	}
 }

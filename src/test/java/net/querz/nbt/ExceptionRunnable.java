@@ -1,7 +1,7 @@
 package net.querz.nbt;
 
 @FunctionalInterface
-public interface ExceptionRunnable<T, E extends Exception> {
+public interface ExceptionRunnable<E extends Exception> {
 
-	T run() throws E;
+	void run() throws E;
 }

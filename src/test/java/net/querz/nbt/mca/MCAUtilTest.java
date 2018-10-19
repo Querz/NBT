@@ -1,8 +1,8 @@
 package net.querz.nbt.mca;
 
-import net.querz.nbt.NBTTestCase;
+import java.io.File;
 
-public class MCAUtilTest extends NBTTestCase {
+public class MCAUtilTest extends MCATestCase {
 
 	public void testLocationConversion() {
 		assertEquals(0, MCAUtil.blockToChunk(0));
@@ -72,5 +72,14 @@ public class MCAUtilTest extends NBTTestCase {
 		assertEquals("r.0.1.mca", MCAUtil.createNameFromRegionLocation(0, 1));
 		assertEquals("r.-1.0.mca", MCAUtil.createNameFromRegionLocation(-1, 0));
 		assertEquals("r.-2.0.mca", MCAUtil.createNameFromRegionLocation(-2, 0));
+	}
+
+	public void testMakeMyCoverageGreatAgain() {
+		assertThrowsException(() -> MCAUtil.readMCAFile((String) null), NullPointerException.class);
+		assertThrowsException(() -> MCAUtil.writeMCAFile(null, (String) null), NullPointerException.class);
+		assertThrowsException(() -> MCAUtil.writeMCAFile(null, (File) null), NullPointerException.class);
+		assertThrowsException(() -> MCAUtil.writeMCAFile(null, (String) null, false), NullPointerException.class);
+		assertThrowsException(() -> MCAUtil.readMCAFile("r.a.b.mca"), IllegalArgumentException.class);
+		assertThrowsException(() -> new MCAFile(0, 0).serialize(null), NullPointerException.class);
 	}
 }

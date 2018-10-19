@@ -9,6 +9,7 @@ import java.util.Map;
 
 public class Section {
 
+	private CompoundTag data;
 	private Map<String, List<PaletteIndex>> valueIndexedPalette = new HashMap<>();
 	private ListTag<CompoundTag> palette;
 	private byte[] blockLight;
@@ -16,6 +17,7 @@ public class Section {
 	private byte[] skyLight;
 
 	public Section(CompoundTag sectionRoot) {
+		data = sectionRoot;
 		palette = sectionRoot.getListTag("Palette").asCompoundTagList();
 		for (int i = 0; i < palette.size(); i++) {
 			CompoundTag data = palette.get(i);
@@ -28,7 +30,7 @@ public class Section {
 
 	Section() {}
 
-	private void putValueIndexedPalette(CompoundTag data, int index) {
+	void putValueIndexedPalette(CompoundTag data, int index) {
 		PaletteIndex leaf = new PaletteIndex(data, index);
 		String name = data.getString("Name");
 		List<PaletteIndex> leaves = valueIndexedPalette.get(name);
@@ -46,7 +48,7 @@ public class Section {
 		}
 	}
 
-	private PaletteIndex getValueIndexedPalette(CompoundTag data) {
+	PaletteIndex getValueIndexedPalette(CompoundTag data) {
 		List<PaletteIndex> leaves = valueIndexedPalette.get(data.getString("Name"));
 		if (leaves == null) {
 			return null;
@@ -60,6 +62,7 @@ public class Section {
 	}
 
 	private class PaletteIndex {
+
 		CompoundTag data;
 		int index;
 
@@ -116,6 +119,7 @@ public class Section {
 	 * Sets the index of the block data in the BlockStates. Does not adjust the size of the BlockStates array.
 	 * @param blockIndex The index of the block in this section, ranging from 0-4095.
 	 * @param paletteIndex The block state to be set (index of block data in the palette).
+	 * @param blockStates The block states to be updated.
 	 * */
 	public void setPaletteIndex(int blockIndex, int paletteIndex, long[] blockStates) {
 		int bits = blockStates.length / 64;
@@ -142,13 +146,6 @@ public class Section {
 		palette.add(data);
 		putValueIndexedPalette(data, palette.size() - 1);
 		return palette.size() - 1;
-	}
-
-	void updatePaletteIndices() {
-		valueIndexedPalette = new HashMap<>(valueIndexedPalette.size());
-		for (int i = 0; i < palette.size(); i++) {
-			putValueIndexedPalette(palette.get(i), i);
-		}
 	}
 
 	int getBlockIndex(int blockX, int blockY, int blockZ) {
@@ -222,12 +219,35 @@ public class Section {
 		return blockLight;
 	}
 
+	public void setBlockLight(byte[] blockLight) {
+		if (blockLight != null && blockLight.length != 2048) {
+			throw new IllegalArgumentException("BlockLight array must have a length of 2048");
+		}
+		this.blockLight = blockLight;
+	}
+
 	public long[] getBlockStates() {
 		return blockStates;
 	}
 
+	public void setBlockStates(long[] blockStates) {
+		if (blockStates == null) {
+			throw new NullPointerException("BlockStates cannot be null");
+		} else if (blockStates.length % 64 != 0 || blockStates.length < 256 || blockStates.length > 4096) {
+			throw new IllegalArgumentException("BlockStates must have a length > 255 and < 4097 and must be divisible by 64");
+		}
+		this.blockStates = blockStates;
+	}
+
 	public byte[] getSkyLight() {
 		return skyLight;
+	}
+
+	public void setSkyLight(byte[] skyLight) {
+		if (skyLight != null && skyLight.length != 2048) {
+			throw new IllegalArgumentException("SkyLight array must have a length of 2048");
+		}
+		this.skyLight = skyLight;
 	}
 
 	public static Section newSection() {
@@ -237,16 +257,16 @@ public class Section {
 		CompoundTag air = new CompoundTag();
 		air.putString("Name", "minecraft:air");
 		s.palette.add(air);
+		s.data = new CompoundTag();
 		return s;
 	}
 
-	public CompoundTag toCompoundTag(int y) {
-		CompoundTag t = new CompoundTag();
-		t.putByte("Y", (byte) y);
-		t.put("Palette", palette);
-		t.putByteArray("BlockLight", blockLight);
-		t.putLongArray("BlockStates", blockStates);
-		t.putByteArray("SkyLight", skyLight);
-		return t;
+	public CompoundTag updateHandle(int y) {
+		data.putByte("Y", (byte) y);
+		data.put("Palette", palette);
+		if (blockLight != null) data.putByteArray("BlockLight", blockLight);
+		data.putLongArray("BlockStates", blockStates);
+		if (skyLight != null) data.putByteArray("SkyLight", skyLight);
+		return data;
 	}
 }

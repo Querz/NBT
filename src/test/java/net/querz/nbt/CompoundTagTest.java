@@ -46,6 +46,8 @@ public class CompoundTagTest extends NBTTestCase {
 
 		assertThrowsNoRuntimeException(() -> ct.equals("blah"));
 		assertFalse(ct.equals("blah"));
+
+		assertEquals(ct, ct);
 	}
 
 	public void testClone() {

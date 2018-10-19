@@ -2,11 +2,10 @@ package net.querz.nbt.mca;
 
 import net.querz.nbt.CompoundTag;
 import net.querz.nbt.ListTag;
-import net.querz.nbt.NBTTestCase;
 import java.io.File;
 import java.util.Arrays;
 
-public class MCAFileTest extends NBTTestCase {
+public class MCAFileTest extends MCATestCase {
 
 	public void testGetChunkIndex() {
 		assertEquals(0, MCAFile.getChunkIndex(0, 0));
@@ -31,7 +30,7 @@ public class MCAFileTest extends NBTTestCase {
 		assertNotNull(mcaFile);
 		mcaFile.setChunk(0, null);
 		File tmpFile = getNewTmpFile("r.2.2.mca");
-		Integer x = assertThrowsNoException(() -> MCAUtil.writeMCAFile(tmpFile, mcaFile, true));
+		Integer x = assertThrowsNoException(() -> MCAUtil.writeMCAFile(mcaFile, tmpFile, true));
 		assertNotNull(x);
 		assertEquals(2, x.intValue());
 		MCAFile again = assertThrowsNoException(() -> MCAUtil.readMCAFile(tmpFile));
@@ -49,7 +48,7 @@ public class MCAFileTest extends NBTTestCase {
 		MCAFile from = assertThrowsNoException(() -> MCAUtil.readMCAFile(copyResourceToTmp("r.2.2.mca")));
 		assertNotNull(from);
 		File tmpFile = getNewTmpFile("r.2.2.mca");
-		assertThrowsNoException(() -> MCAUtil.writeMCAFile(tmpFile, from, true));
+		assertThrowsNoException(() -> MCAUtil.writeMCAFile(from, tmpFile, true));
 		MCAFile to = assertThrowsNoException(() -> MCAUtil.readMCAFile(tmpFile));
 		assertNotNull(to);
 		assertFalse(from.getChunk(0).getLastMCAUpdate() == to.getChunk(0).getLastMCAUpdate());
@@ -81,13 +80,34 @@ public class MCAFileTest extends NBTTestCase {
 		assertThrowsRuntimeException(() -> u.getChunk(1024), IndexOutOfBoundsException.class);
 		assertNull(assertThrowsNoRuntimeException(() -> u.getChunk(0)));
 		assertNull(assertThrowsNoRuntimeException(() -> u.getChunk(1023)));
+
+		assertEquals(1628, f.getChunk(0).getDataVersion());
+		assertEquals(1538048269, f.getChunk(0).getLastMCAUpdate());
+		assertEquals(1205486986, f.getChunk(0).getLastUpdate());
+		assertNotNull(f.getChunk(0).getBiomes());
+		assertNull(f.getChunk(0).getHeightMaps());
+		assertNull(f.getChunk(0).getCarvingMasks());
+		assertEquals(new ListTag<>(), f.getChunk(0).getEntities());
+		assertNull(f.getChunk(0).getTileEntities());
+		assertNull(f.getChunk(0).getTileTicks());
+		assertNull(f.getChunk(0).getLiquidTicks());
+		assertNull(f.getChunk(0).getLights());
+		assertNull(f.getChunk(0).getLiquidsToBeTicked());
+		assertNull(f.getChunk(0).getToBeTicked());
+		assertNull(f.getChunk(0).getPostProcessing());
+		assertNotNull(f.getChunk(0).getStructures());
+
+		assertNotNull(f.getChunk(0).getSection(0).getSkyLight());
+		assertEquals(2048, f.getChunk(0).getSection(0).getSkyLight().length);
+		assertNotNull(f.getChunk(0).getSection(0).getBlockLight());
+		assertEquals(2048, f.getChunk(0).getSection(0).getBlockLight().length);
+		assertNotNull(f.getChunk(0).getSection(0).getBlockStates());
+		assertEquals(256, f.getChunk(0).getSection(0).getBlockStates().length);
 	}
 
-	private Chunk createChunkWithPos(int x, int z) {
+	private Chunk createChunkWithPos() {
 		CompoundTag data = new CompoundTag();
 		CompoundTag level = new CompoundTag();
-		level.putInt("xPos", x);
-		level.putInt("zPos", z);
 		data.put("Level", level);
 		return new Chunk(data);
 	}
@@ -95,32 +115,85 @@ public class MCAFileTest extends NBTTestCase {
 	public void testSetters() {
 		MCAFile f = new MCAFile(2, 2);
 
-		assertThrowsNoRuntimeException(() -> f.setChunk(0, createChunkWithPos(64, 64)));
-		assertEquals(createChunkWithPos(64, 64).toCompoundTag(64, 64), f.getChunk(0).toCompoundTag(64, 64));
-		assertThrowsRuntimeException(() -> f.setChunk(1024, createChunkWithPos(64, 64)), IndexOutOfBoundsException.class);
-		assertThrowsNoRuntimeException(() -> f.setChunk(1023, createChunkWithPos(64, 64)));
+		assertThrowsNoRuntimeException(() -> f.setChunk(0, createChunkWithPos()));
+		assertEquals(createChunkWithPos().updateHandle(64, 64), f.getChunk(0).updateHandle(64, 64));
+		assertThrowsRuntimeException(() -> f.setChunk(1024, createChunkWithPos()), IndexOutOfBoundsException.class);
+		assertThrowsNoRuntimeException(() -> f.setChunk(1023, createChunkWithPos()));
 		assertThrowsNoRuntimeException(() -> f.setChunk(0, null));
 		assertNull(f.getChunk(0));
-		assertThrowsNoRuntimeException(() -> f.setChunk(1023, createChunkWithPos(96, 63)));
-		assertThrowsNoRuntimeException(() -> f.setChunk(1023, createChunkWithPos(95, 95)));
+		assertThrowsNoRuntimeException(() -> f.setChunk(1023, createChunkWithPos()));
+		assertThrowsNoRuntimeException(() -> f.setChunk(1023, createChunkWithPos()));
+
+		f.getChunk(1023).setDataVersion(1627);
+		assertEquals(1627, f.getChunk(1023).getDataVersion());
+		f.getChunk(1023).setLastMCAUpdate(12345678);
+		assertEquals(12345678, f.getChunk(1023).getLastMCAUpdate());
+		f.getChunk(1023).setLastUpdate(87654321);
+		assertEquals(87654321, f.getChunk(1023).getLastUpdate());
+		f.getChunk(1023).setInhabitedTime(13243546);
+		assertEquals(13243546, f.getChunk(1023).getInhabitedTime());
+		assertThrowsRuntimeException(() -> f.getChunk(1023).setBiomes(new int[255]), IllegalArgumentException.class);
+		assertThrowsNoRuntimeException(() -> f.getChunk(1023).setBiomes(new int[256]));
+		assertTrue(Arrays.equals(new int[256], f.getChunk(1023).getBiomes()));
+		f.getChunk(1023).setHeightMaps(getSomeCompoundTag());
+		assertEquals(getSomeCompoundTag(), f.getChunk(1023).getHeightMaps());
+		f.getChunk(1023).setCarvingMasks(getSomeCompoundTag());
+		assertEquals(getSomeCompoundTag(), f.getChunk(1023).getCarvingMasks());
+		f.getChunk(1023).setEntities(getSomeCompoundTagList());
+		assertEquals(getSomeCompoundTagList(), f.getChunk(1023).getEntities());
+		f.getChunk(1023).setTileEntities(getSomeCompoundTagList());
+		assertEquals(getSomeCompoundTagList(), f.getChunk(1023).getTileEntities());
+		f.getChunk(1023).setTileTicks(getSomeCompoundTagList());
+		assertEquals(getSomeCompoundTagList(), f.getChunk(1023).getTileTicks());
+		f.getChunk(1023).setLiquidTicks(getSomeCompoundTagList());
+		assertEquals(getSomeCompoundTagList(), f.getChunk(1023).getLiquidTicks());
+		f.getChunk(1023).setLights(getSomeListTagList());
+		assertEquals(getSomeListTagList(), f.getChunk(1023).getLights());
+		f.getChunk(1023).setLiquidsToBeTicked(getSomeListTagList());
+		assertEquals(getSomeListTagList(), f.getChunk(1023).getLiquidsToBeTicked());
+		f.getChunk(1023).setToBeTicked(getSomeListTagList());
+		assertEquals(getSomeListTagList(), f.getChunk(1023).getToBeTicked());
+		f.getChunk(1023).setPostProcessing(getSomeListTagList());
+		assertEquals(getSomeListTagList(), f.getChunk(1023).getPostProcessing());
+		f.getChunk(1023).setStructures(getSomeCompoundTag());
+		assertEquals(getSomeCompoundTag(), f.getChunk(1023).getStructures());
+		Section s = new Section();
+		f.getChunk(1023).setSection(0, s);
+		assertEquals(s, f.getChunk(1023).getSection(0));
+		assertThrowsRuntimeException(() -> f.getChunk(1023).getSection(0).setBlockStates(null), NullPointerException.class);
+		assertThrowsRuntimeException(() -> f.getChunk(1023).getSection(0).setBlockStates(new long[321]), IllegalArgumentException.class);
+		assertThrowsRuntimeException(() -> f.getChunk(1023).getSection(0).setBlockStates(new long[255]), IllegalArgumentException.class);
+		assertThrowsRuntimeException(() -> f.getChunk(1023).getSection(0).setBlockStates(new long[4097]), IllegalArgumentException.class);
+		assertThrowsNoRuntimeException(() -> f.getChunk(1023).getSection(0).setBlockStates(new long[320]));
+		assertThrowsNoRuntimeException(() -> f.getChunk(1023).getSection(0).setBlockStates(new long[4096]));
+		assertThrowsNoRuntimeException(() -> f.getChunk(1023).getSection(0).setBlockStates(new long[256]));
+		assertThrowsRuntimeException(() -> f.getChunk(1023).getSection(0).setBlockLight(new byte[2047]), IllegalArgumentException.class);
+		assertThrowsRuntimeException(() -> f.getChunk(1023).getSection(0).setBlockLight(new byte[2049]), IllegalArgumentException.class);
+		assertThrowsNoRuntimeException(() -> f.getChunk(1023).getSection(0).setBlockLight(new byte[2048]));
+		assertThrowsNoRuntimeException(() -> f.getChunk(1023).getSection(0).setBlockLight(null));
+		assertThrowsRuntimeException(() -> f.getChunk(1023).getSection(0).setSkyLight(new byte[2047]), IllegalArgumentException.class);
+		assertThrowsRuntimeException(() -> f.getChunk(1023).getSection(0).setSkyLight(new byte[2049]), IllegalArgumentException.class);
+		assertThrowsNoRuntimeException(() -> f.getChunk(1023).getSection(0).setSkyLight(new byte[2048]));
+		assertThrowsNoRuntimeException(() -> f.getChunk(1023).getSection(0).setSkyLight(null));
 	}
 
 	public void testGetBiomeAt() {
 		MCAFile f = assertThrowsNoException(() -> MCAUtil.readMCAFile(copyResourceToTmp("r.2.2.mca")));
 		assertEquals(21, f.getBiomeAt(1024, 1024));
 		assertEquals(-1, f.getBiomeAt(1040, 1024));
-		f.setChunk(1, Chunk.newChunk());
+		f.setChunk(0, 1, Chunk.newChunk());
 		assertEquals(-1, f.getBiomeAt(1024, 1040));
+
 	}
 
 	public void testSetBiomeAt() {
 		MCAFile f = assertThrowsNoException(() -> MCAUtil.readMCAFile(copyResourceToTmp("r.2.2.mca")));
 		f.setBiomeAt(1024, 1024, 20);
-		assertEquals(20, f.getChunk(64, 64).toCompoundTag(64, 64).getCompoundTag("Level").getIntArray("Biomes")[0]);
+		assertEquals(20, f.getChunk(64, 64).updateHandle(64, 64).getCompoundTag("Level").getIntArray("Biomes")[0]);
 		f.setBiomeAt(1039, 1039, 47);
-		assertEquals(47, f.getChunk(64, 64).toCompoundTag(64, 64).getCompoundTag("Level").getIntArray("Biomes")[255]);
+		assertEquals(47, f.getChunk(64, 64).updateHandle(64, 64).getCompoundTag("Level").getIntArray("Biomes")[255]);
 		f.setBiomeAt(1040, 1024, 20);
-		int[] biomes = f.getChunk(65, 64).toCompoundTag(65, 64).getCompoundTag("Level").getIntArray("Biomes");
+		int[] biomes = f.getChunk(65, 64).updateHandle(65, 64).getCompoundTag("Level").getIntArray("Biomes");
 		assertEquals(256, biomes.length);
 		for (int i = 0; i < 256; i++) {
 			assertTrue(i == 0 ? biomes[i] == 20 : biomes[i] == -1);
@@ -139,85 +212,89 @@ public class MCAFileTest extends NBTTestCase {
 		assertEquals(15, s.getPalette().size());
 		f.cleanupPalettesAndBlockStates();
 		assertEquals(10, s.getPalette().size());
-		assertEquals(256, s.toCompoundTag(0).getLongArray("BlockStates").length);
+		assertEquals(256, s.updateHandle(0).getLongArray("BlockStates").length);
 		int y = 0;
 		for (int i = 11; i <= 17; i++) {
 			f.setBlockStateAt(1, y++, 1, block("minecraft:" + i), false);
 		}
 		assertEquals(17, s.getPalette().size());
-		assertEquals(320, s.toCompoundTag(0).getLongArray("BlockStates").length);
+		assertEquals(320, s.updateHandle(0).getLongArray("BlockStates").length);
 		f.cleanupPalettesAndBlockStates();
 		assertEquals(17, s.getPalette().size());
-		assertEquals(320, s.toCompoundTag(0).getLongArray("BlockStates").length);
+		assertEquals(320, s.updateHandle(0).getLongArray("BlockStates").length);
 		f.setBlockStateAt(1, 0, 1, block("minecraft:bedrock"), false);
 		assertEquals(17, s.getPalette().size());
-		assertEquals(320, s.toCompoundTag(0).getLongArray("BlockStates").length);
+		assertEquals(320, s.updateHandle(0).getLongArray("BlockStates").length);
 		f.cleanupPalettesAndBlockStates();
 		assertEquals(16, s.getPalette().size());
-		assertEquals(256, s.toCompoundTag(0).getLongArray("BlockStates").length);
+		assertEquals(256, s.updateHandle(0).getLongArray("BlockStates").length);
 	}
 
-//	public void testSetBlockDataAt() {
-//		MCAFile f = assertThrowsNoException(() -> MCAUtil.readMCAFile(copyResourceToTmp("r.2.2.mca")));
-//		CompoundTag section = f.getChunk(0, 0).getData().getCompoundTag("Level").getListTag("Sections").asCompoundTagList().get(0);
-//		assertEquals(10, section.getListTag("Palette").size());
-//		assertEquals(0b0001000100010001000100010001000100010001000100010001000100010001L, section.getLongArray("BlockStates")[0]);
-//		f.setBlockStateAt(0, 0, 0, block("minecraft:custom"), false);
-//		assertEquals(11, section.getListTag("Palette").size());
-//		assertEquals(0b0001000100010001000100010001000100010001000100010001000100011010L, section.getLongArray("BlockStates")[0]);
-//
-//		//test "line break"
-//		int y = 1;
-//		for (int i = 12; i <= 17; i++) {
-//			f.setBlockStateAt(0, y++, 0, block("minecraft:" + i), false);
-//		}
-//		assertEquals(17, section.getListTag("Palette").size());
-//		assertEquals(320, section.getLongArray("BlockStates").length);
-//		assertEquals(0b0001000010000100001000010000100001000010000100001000010000101010L, section.getLongArray("BlockStates")[0]);
-//		assertEquals(0b0010000100001000010000100001000010000100001000010000100001000010L, section.getLongArray("BlockStates")[1]);
-//		f.setBlockStateAt(12, 0, 0, block("minecraft:18"), false);
-//		assertEquals(0b0001000010000100001000010000100001000010000100001000010000101010L, section.getLongArray("BlockStates")[0]);
-//		assertEquals(0b0010000100001000010000100001000010000100001000010000100001000011L, section.getLongArray("BlockStates")[1]);
-//
-//		//test chunkdata == null
-//		assertNull(f.getChunk(1, 0));
-//		f.setBlockStateAt(17, 0, 0, block("minecraft:test"), false);
-//		assertNotNull(f.getChunk(1, 0));
-//		ListTag<CompoundTag> s = f.getChunk(1, 0).getData().getCompoundTag("Level").getListTag("Sections").asCompoundTagList();
-//		assertEquals(1, s.size());
-//		assertEquals(2, s.get(0).getListTag("Palette").size());
-//		assertEquals(256, s.get(0).getLongArray("BlockStates").length);
-//		assertEquals(0b0000000000000000000000000000000000000000000000000000000000010000L, s.get(0).getLongArray("BlockStates")[0]);
-//
-//		//test section == null
-//		assertNull(f.getChunk(2, 0));
-//		Chunk c = Chunk.createDefaultChunk(66, 0);
-//		f.setChunk(66, 0, c);
-//		assertNotNull(f.getChunk(2, 0));
-//		ListTag<CompoundTag> ss = f.getChunk(2, 0).getData().getCompoundTag("Level").getListTag("Sections").asCompoundTagList();
-//		assertEquals(0, ss.size());
-//		f.setBlockStateAt(33, 0, 0, block("minecraft:air"), false);
-//		assertEquals(0, ss.size());
-//		f.setBlockStateAt(33, 0, 0, block("minecraft:foo"), false);
-//		assertEquals(1, ss.size());
-//		assertEquals(2, ss.get(0).getListTag("Palette").size());
-//		assertEquals(256, s.get(0).getLongArray("BlockStates").length);
-//		assertEquals(0b0000000000000000000000000000000000000000000000000000000000010000L, ss.get(0).getLongArray("BlockStates")[0]);
-//
-//		//test force cleanup
-//		ListTag<CompoundTag> sss = f.getChunk(31, 31).getData().getCompoundTag("Level").getListTag("Sections").asCompoundTagList();
-//		assertEquals(12, sss.get(0).getListTag("Palette").size());
-//		y = 0;
-//		for (int i = 13; i <= 17; i++) {
-//			f.setBlockStateAt(1008, y++, 1008, block("minecraft:" + i), false);
-//		}
-//		f.getChunk(31, 31).cleanupPaletteAndBlockStates(0);
-//		assertEquals(17, sss.get(0).getListTag("Palette").size());
-//		assertEquals(320, sss.get(0).getLongArray("BlockStates").length);
-//		f.setBlockStateAt(1008, 4, 1008, block("minecraft:16"), true);
-//		assertEquals(16, sss.get(0).getListTag("Palette").size());
-//		assertEquals(256, sss.get(0).getLongArray("BlockStates").length);
-//	}
+	public void testSetBlockDataAt() {
+		MCAFile f = assertThrowsNoException(() -> MCAUtil.readMCAFile(copyResourceToTmp("r.2.2.mca")));
+		Section section = f.getChunk(0, 0).getSection(0);
+		assertEquals(10, section.getPalette().size());
+		assertEquals(0b0001000100010001000100010001000100010001000100010001000100010001L, section.getBlockStates()[0]);
+		f.setBlockStateAt(0, 0, 0, block("minecraft:custom"), false);
+		assertEquals(11, section.getPalette().size());
+		assertEquals(0b0001000100010001000100010001000100010001000100010001000100011010L, section.getBlockStates()[0]);
+
+		//test "line break"
+		int y = 1;
+		for (int i = 12; i <= 17; i++) {
+			f.setBlockStateAt(0, y++, 0, block("minecraft:" + i), false);
+		}
+		assertEquals(17, section.getPalette().size());
+		assertEquals(320, section.getBlockStates().length);
+		assertEquals(0b0001000010000100001000010000100001000010000100001000010000101010L, section.getBlockStates()[0]);
+		assertEquals(0b0010000100001000010000100001000010000100001000010000100001000010L, section.getBlockStates()[1]);
+		f.setBlockStateAt(12, 0, 0, block("minecraft:18"), false);
+		assertEquals(0b0001000010000100001000010000100001000010000100001000010000101010L, section.getBlockStates()[0]);
+		assertEquals(0b0010000100001000010000100001000010000100001000010000100001000011L, section.getBlockStates()[1]);
+
+		//test chunkdata == null
+		assertNull(f.getChunk(1, 0));
+		f.setBlockStateAt(17, 0, 0, block("minecraft:test"), false);
+		assertNotNull(f.getChunk(1, 0));
+		ListTag<CompoundTag> s = f.getChunk(1, 0).updateHandle(65, 64).getCompoundTag("Level").getListTag("Sections").asCompoundTagList();
+		assertEquals(1, s.size());
+		assertEquals(2, s.get(0).getListTag("Palette").size());
+		assertEquals(256, s.get(0).getLongArray("BlockStates").length);
+		assertEquals(0b0000000000000000000000000000000000000000000000000000000000010000L, s.get(0).getLongArray("BlockStates")[0]);
+
+		//test section == null
+		assertNull(f.getChunk(66, 64));
+		Chunk c = Chunk.newChunk();
+		f.setChunk(66, 64, c);
+		assertNotNull(f.getChunk(66, 64));
+		ListTag<CompoundTag> ss = f.getChunk(66, 64).updateHandle(66, 64).getCompoundTag("Level").getListTag("Sections").asCompoundTagList();
+		assertEquals(0, ss.size());
+		f.setBlockStateAt(33, 0, 0, block("minecraft:air"), false);
+		ss = f.getChunk(66, 64).updateHandle(66, 64).getCompoundTag("Level").getListTag("Sections").asCompoundTagList();
+		assertEquals(1, ss.size());
+		f.setBlockStateAt(33, 0, 0, block("minecraft:foo"), false);
+		ss = f.getChunk(66, 64).updateHandle(66, 64).getCompoundTag("Level").getListTag("Sections").asCompoundTagList();
+		assertEquals(1, ss.size());
+		assertEquals(2, ss.get(0).getListTag("Palette").size());
+		assertEquals(256, s.get(0).getLongArray("BlockStates").length);
+		assertEquals(0b0000000000000000000000000000000000000000000000000000000000010000L, ss.get(0).getLongArray("BlockStates")[0]);
+
+		//test force cleanup
+		ListTag<CompoundTag> sss = f.getChunk(31, 31).updateHandle(65, 65).getCompoundTag("Level").getListTag("Sections").asCompoundTagList();
+		assertEquals(12, sss.get(0).getListTag("Palette").size());
+		y = 0;
+		for (int i = 13; i <= 17; i++) {
+			f.setBlockStateAt(1008, y++, 1008, block("minecraft:" + i), false);
+		}
+		f.getChunk(31, 31).getSection(0).cleanupPaletteAndBlockStates();
+		sss = f.getChunk(31, 31).updateHandle(65, 65).getCompoundTag("Level").getListTag("Sections").asCompoundTagList();
+		assertEquals(17, sss.get(0).getListTag("Palette").size());
+		assertEquals(320, sss.get(0).getLongArray("BlockStates").length);
+		f.setBlockStateAt(1008, 4, 1008, block("minecraft:16"), true);
+		sss = f.getChunk(31, 31).updateHandle(65, 65).getCompoundTag("Level").getListTag("Sections").asCompoundTagList();
+		assertEquals(16, sss.get(0).getListTag("Palette").size());
+		assertEquals(256, sss.get(0).getLongArray("BlockStates").length);
+	}
 
 	public void testGetBlockDataAt() {
 		MCAFile f = assertThrowsNoException(() -> MCAUtil.readMCAFile(copyResourceToTmp("r.2.2.mca")));
@@ -228,67 +305,21 @@ public class MCAFileTest extends NBTTestCase {
 		assertNull(f.getBlockStateAt(3, 100, 3));
 	}
 
-	public void test() {
-		int regionX = 0, regionZ = -1;
-
-
-		int x = 3, z = 4;
-
-		int i = z * 16 + x;
-
-
-
-		int ix = regionX * 32 + i % 16, iz = regionZ * 32 + i / 16 % 16;
-
-
-		System.out.println("x: " + ix);
-		System.out.println("z: " + iz);
+	public void testGetChunkStatus() {
+		MCAFile f = assertThrowsNoException(() -> MCAUtil.readMCAFile(copyResourceToTmp("r.2.2.mca")));
+		assertEquals("mobs_spawned", f.getChunk(0, 0).getStatus());
 	}
 
-//	public void testGetChunkStatus() {
-//		MCAFile f = assertThrowsNoException(() -> MCAUtil.readMCAFile(copyResourceToTmp("r.2.2.mca")));
-//		assertEquals("mobs_spawned", f.getChunk(0, 0));
-//		assertNull(assertThrowsNoRuntimeException(() -> f.getChunkStatus(1, 0)));
-//	}
-//
-//	public void testSetChunkStatus() {
-//		MCAFile f = assertThrowsNoException(() -> MCAUtil.readMCAFile(copyResourceToTmp("r.2.2.mca")));
-//		assertThrowsNoRuntimeException(() -> f.setChunkStatus(0, 0, "base"));
-//		assertEquals("base", f.getChunkData(0, 0).getCompoundTag("Level").getString("Status"));
-//		assertNull(f.getChunkData(1, 0));
-//		assertThrowsNoRuntimeException(() -> f.setChunkStatus(1, 0, "test"));
-//		assertEquals("test", f.getChunkData(1, 0).getCompoundTag("Level").getString("Status"));
-//	}
-
-	private CompoundTag block(String name) {
-		CompoundTag c = new CompoundTag();
-		c.putString("Name", name);
-		return c;
+	public void testSetChunkStatus() {
+		MCAFile f = assertThrowsNoException(() -> MCAUtil.readMCAFile(copyResourceToTmp("r.2.2.mca")));
+		assertThrowsNoRuntimeException(() -> f.getChunk(0, 0).setStatus("base"));
+		assertEquals("base", f.getChunk(0, 0).updateHandle(64, 64).getCompoundTag("Level").getString("Status"));
+		assertNull(f.getChunk(1, 0));
 	}
 
-	private CompoundTag getSection(CompoundTag chunk, int y) {
-		for (CompoundTag section : chunk.getCompoundTag("Level").getListTag("Sections").asCompoundTagList()) {
-			if (section.getByte("Y") == y) {
-				return section;
-			}
-		}
-		fail("could not find section");
-		return null;
-	}
-
-	public static String longToBinaryString(long n) {
-		StringBuilder s = new StringBuilder(Long.toBinaryString(n));
-		for (int i = s.length(); i < 64; i++) {
-			s.insert(0, "0");
-		}
-		return s.toString();
-	}
-
-	public static String intToBinaryString(int n) {
-		StringBuilder s = new StringBuilder(Integer.toBinaryString(n));
-		for (int i = s.length(); i < 32; i++) {
-			s.insert(0, "0");
-		}
-		return s.toString();
+	public void testChunkInitReferences() {
+		CompoundTag t = new CompoundTag();
+		assertThrowsRuntimeException(() -> new Chunk(null), NullPointerException.class);
+		assertThrowsRuntimeException(() -> new Chunk(t), IllegalArgumentException.class);
 	}
 }

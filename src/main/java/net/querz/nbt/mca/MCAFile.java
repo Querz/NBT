@@ -114,6 +114,10 @@ public class MCAFile {
 		chunks[index] = chunk;
 	}
 
+	public void setChunk(int chunkX, int chunkZ, Chunk chunk) {
+		setChunk(getChunkIndex(chunkX, chunkZ), chunk);
+	}
+
 	/**
 	 * Returns the chunk data of a chunk at a specific index in this file.
 	 * @param index The index of the chunk in this file.

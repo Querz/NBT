@@ -1,7 +1,10 @@
 package net.querz.nbt;
 
+import javafx.util.Callback;
+
 import java.io.*;
 import java.util.LinkedHashMap;
+import java.util.function.Consumer;
 import java.util.zip.GZIPInputStream;
 
 public class TagTest extends NBTTestCase {
@@ -44,5 +47,19 @@ public class TagTest extends NBTTestCase {
 			ex.printStackTrace();
 			fail(ex.getMessage());
 		}
+	}
+
+	public void testMakeMyCoverageGreatAgain() {
+		assertThrowsException(() -> NBTUtil.readTag((String) null), NullPointerException.class);
+		assertThrowsException(() -> NBTUtil.writeTag(null, (String) null), NullPointerException.class);
+		assertThrowsException(() -> NBTUtil.writeTag(null, (File) null), NullPointerException.class);
+		assertThrowsException(() -> NBTUtil.writeTag(null, (String) null, false), NullPointerException.class);
+		assertThrowsException(() -> NBTUtil.writeTag(null, (File) null, false), NullPointerException.class);
+		assertThrowsException(() -> NBTUtil.writeTag(null, null, (String) null), NullPointerException.class);
+		assertThrowsException(() -> NBTUtil.writeTag(null, (File) null), NullPointerException.class);
+		assertThrowsException(() -> NBTUtil.writeTag(null, null, (File) null), NullPointerException.class);
+		assertThrowsException(() -> NBTUtil.writeTag(null, (File) null), NullPointerException.class);
+		assertThrowsException(() -> NBTUtil.writeTag(null, null, (File) null, false), NullPointerException.class);
+		assertThrowsException(() -> NBTUtil.writeTag(null, null, (String) null, false), NullPointerException.class);
 	}
 }

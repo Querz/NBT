@@ -50,6 +50,8 @@ public class ListTagTest extends NBTTestCase {
 		bl2.addByte(Byte.MIN_VALUE);
 		bl2.addByte((byte) 0);
 		assertFalse(bl.equals(bl4));
+
+		assertEquals(bl, bl);
 	}
 
 	public void testClone() {
@@ -248,6 +250,15 @@ public class ListTagTest extends NBTTestCase {
 		assertEquals(7, l.size());
 		assertEquals(9, l.get(1).asByte());
 		assertEquals(11, l.get(2).asByte());
+	}
+
+	public void testIndexOf() {
+		ListTag<ByteTag> l = createListTag();
+		assertEquals(0, l.indexOf(new ByteTag(Byte.MIN_VALUE)));
+		assertEquals(1, l.indexOf(new ByteTag((byte) 0)));
+		assertEquals(2, l.indexOf(new ByteTag(Byte.MAX_VALUE)));
+		l.addByte((byte) 0);
+		assertEquals(1, l.indexOf(new ByteTag((byte) 0)));
 	}
 
 	public void testAdd() {
