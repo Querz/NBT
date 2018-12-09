@@ -1,10 +1,11 @@
 package net.querz.nbt;
 
-import javafx.util.Callback;
-
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.PushbackInputStream;
 import java.util.LinkedHashMap;
-import java.util.function.Consumer;
 import java.util.zip.GZIPInputStream;
 
 public class TagTest extends NBTTestCase {
