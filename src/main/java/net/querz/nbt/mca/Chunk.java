@@ -10,6 +10,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.RandomAccessFile;
 
 public class Chunk {
@@ -96,8 +97,14 @@ public class Chunk {
 		if (compressionType == null) {
 			throw new IOException("invalid compression type " + compressionTypeByte);
 		}
-		DataInputStream dis = new DataInputStream(new BufferedInputStream(compressionType.decompress(new FileInputStream(raf.getFD()))));
-		Tag tag = Tag.deserialize(dis, 0);
+		
+		final Tag<?> tag;
+		
+		try (InputStream inputStream = new FileInputStream(raf.getFD())) {
+			DataInputStream dis = new DataInputStream(new BufferedInputStream(compressionType.decompress(inputStream)));
+			tag = Tag.deserialize(dis, 0);
+		}
+		
 		if (tag instanceof CompoundTag) {
 			data = (CompoundTag) tag;
 			initReferences();
