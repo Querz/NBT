@@ -43,7 +43,7 @@ public class DoubleTag extends NumberTag<Double> {
 
 	@Override
 	public boolean equals(Object other) {
-		return super.equals(other) && asDouble() == ((DoubleTag) other).asDouble();
+		return super.equals(other) && Double.valueOf(asDouble()).equals(((DoubleTag) other).asDouble());
 	}
 
 	@Override
