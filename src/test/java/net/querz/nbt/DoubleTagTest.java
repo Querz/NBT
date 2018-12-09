@@ -1,5 +1,7 @@
 package net.querz.nbt;
 
+import static org.junit.Assert.assertNotEquals;
+
 import java.util.Arrays;
 
 public class DoubleTagTest extends NBTTestCase {
@@ -14,10 +16,9 @@ public class DoubleTagTest extends NBTTestCase {
 
 	public void testEquals() {
 		DoubleTag t = new DoubleTag(Double.MAX_VALUE);
-		DoubleTag t2 = new DoubleTag(Double.MAX_VALUE);
-		assertTrue(t.equals(t2));
-		DoubleTag t3 = new DoubleTag(Double.MIN_VALUE);
-		assertFalse(t.equals(t3));
+		assertEquals(t, new DoubleTag(Double.MAX_VALUE));
+		assertNotEquals(t, new DoubleTag(Double.MIN_VALUE));
+		assertEquals(new DoubleTag(Double.NaN), new DoubleTag(Double.NaN));
 	}
 
 	public void testClone() {
