@@ -1,7 +1,6 @@
 package net.querz.nbt;
 
 import static org.junit.Assert.assertNotEquals;
-
 import java.util.Arrays;
 
 public class DoubleTagTest extends NBTTestCase {
