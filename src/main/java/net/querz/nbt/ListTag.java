@@ -3,11 +3,7 @@ package net.querz.nbt;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> {
@@ -309,6 +305,11 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 			}
 		}
 		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(getValue().toArray());
 	}
 
 	@Override

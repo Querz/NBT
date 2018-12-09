@@ -10,6 +10,7 @@ import net.querz.nbt.NBTTestCase;
 import net.querz.nbt.StringTag;
 import net.querz.nbt.Tag;
 import java.util.Arrays;
+import static org.junit.Assert.assertNotEquals;
 
 public class StructTagTest extends NBTTestCase {
 
@@ -43,6 +44,15 @@ public class StructTagTest extends NBTTestCase {
 		StructTag s4 = new StructTag();
 		s4.add(new ByteTag(Byte.MAX_VALUE));
 		assertFalse(s.equals(s4));
+	}
+
+	public void testHashCode() {
+		StructTag s = createStructTag();
+		StructTag s2 = createStructTag();
+		s2.addInt(123);
+		assertNotEquals(s.hashCode(), s2.hashCode());
+		assertEquals(s.hashCode(), s.clone().hashCode());
+
 	}
 
 	public void testClone() {

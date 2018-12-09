@@ -3,11 +3,10 @@ package net.querz.nbt.custom;
 import net.querz.nbt.NBTTestCase;
 import net.querz.nbt.NBTUtil;
 import net.querz.nbt.TagFactory;
-
-import java.io.File;
+import static org.junit.Assert.assertNotEquals;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Arrays;
+import java.util.Objects;
 import java.util.Random;
 
 public class ObjectTagTest extends NBTTestCase implements Serializable {
@@ -29,6 +28,15 @@ public class ObjectTagTest extends NBTTestCase implements Serializable {
 		assertFalse(o.equals(o3));
 		ObjectTag<DummyObject> o4 = new ObjectTag<>(d.clone());
 		assertTrue(o.equals(o4));
+	}
+
+	public void testHashCode() {
+		DummyObject d = new DummyObject();
+		DummyObject d2 = new DummyObject();
+		ObjectTag<DummyObject> o = new ObjectTag<>(d);
+		ObjectTag<DummyObject> o2 = new ObjectTag<>(d2);
+		assertNotEquals(o.hashCode(), o2.hashCode());
+		assertEquals(o.hashCode(), o.clone().hashCode());
 	}
 
 	public void testClone() {
@@ -156,6 +164,11 @@ public class ObjectTagTest extends NBTTestCase implements Serializable {
 						&& t.f == f;
 			}
 			return false;
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(a, b, c, d, e, f);
 		}
 	}
 }

@@ -1,10 +1,9 @@
 package net.querz.nbt;
 
-import junit.framework.TestCase;
-
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import static org.junit.Assert.assertNotEquals;
 
 public class CompoundTagTest extends NBTTestCase {
 
@@ -48,6 +47,89 @@ public class CompoundTagTest extends NBTTestCase {
 		assertFalse(ct.equals("blah"));
 
 		assertEquals(ct, ct);
+	}
+
+	public void testHashCode() {
+		CompoundTag t = new CompoundTag();
+		for (int i = 0; i < 256; i++) {
+			t.putByte("key_byte" + i, (byte) i);
+			t.putShort("key_short" + i, (short) i);
+			t.putInt("key_int" + i, i);
+			t.putLong("key_long" + i, i);
+			t.putFloat("key_float" + i, i * 1.001f);
+			t.putDouble("key_double" + i, i * 1.001);
+			t.putString("key_string" + i, "value" + i);
+
+			byte[] bArray = new byte[257];
+			int[] iArray = new int[257];
+			long[] lArray = new long[257];
+			for (byte b = -128; b < 127; b++) {
+				bArray[b + 128] = b;
+				iArray[b + 128] = b;
+				lArray[b + 128] = b;
+			}
+			bArray[256] = (byte) i;
+			iArray[256] = i;
+			lArray[256] = i;
+			t.putByteArray("key_byte_array" + i, bArray);
+			t.putIntArray("key_int_array" + i, iArray);
+			t.putLongArray("key_long_array" + i, lArray);
+
+			ListTag<StringTag> l = new ListTag<>();
+			for (int j = 0; j < 256; j++) {
+				l.addString("value" + j);
+			}
+			l.addString("value" + i);
+			t.put("key_list" + i, l);
+
+			CompoundTag c = new CompoundTag();
+			c.putString("key_string" + i, "value" + i);
+			t.put("key_child" + i, c);
+		}
+		CompoundTag t2 = new CompoundTag();
+		for (int i = 0; i < 256; i++) {
+			t2.putString("key_string" + i, "value" + i);
+			t2.putDouble("key_double" + i, i * 1.001);
+			t2.putFloat("key_float" + i, i * 1.001f);
+			t2.putLong("key_long" + i, i);
+			t2.putInt("key_int" + i, i);
+			t2.putShort("key_short" + i, (short) i);
+			t2.putByte("key_byte" + i, (byte) i);
+
+			byte[] bArray = new byte[257];
+			int[] iArray = new int[257];
+			long[] lArray = new long[257];
+			for (byte b = -128; b < 127; b++) {
+				bArray[b + 128] = b;
+				iArray[b + 128] = b;
+				lArray[b + 128] = b;
+			}
+			bArray[256] = (byte) i;
+			iArray[256] = i;
+			lArray[256] = i;
+			t2.putByteArray("key_byte_array" + i, bArray);
+			t2.putIntArray("key_int_array" + i, iArray);
+			t2.putLongArray("key_long_array" + i, lArray);
+
+			ListTag<StringTag> l = new ListTag<>();
+			for (int j = 0; j < 256; j++) {
+				l.addString("value" + j);
+			}
+			l.addString("value" + i);
+			t2.put("key_list" + i, l);
+
+			CompoundTag c = new CompoundTag();
+			c.putString("key_string" + i, "value" + i);
+			t2.put("key_child" + i, c);
+		}
+
+		assertEquals(t, t2);
+		assertEquals(t.hashCode(), t2.hashCode());
+
+		t.getCompoundTag("key_child1").remove("key_string1");
+
+		assertNotEquals(t, t2);
+		assertNotEquals(t.hashCode(), t2.hashCode());
 	}
 
 	public void testClone() {

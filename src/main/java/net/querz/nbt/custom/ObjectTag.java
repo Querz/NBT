@@ -2,12 +2,8 @@ package net.querz.nbt.custom;
 
 import net.querz.nbt.Tag;
 import net.querz.nbt.TagFactory;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 
 public class ObjectTag<T extends Serializable> extends Tag<T> {
@@ -58,7 +54,7 @@ public class ObjectTag<T extends Serializable> extends Tag<T> {
 	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
 		try {
 			setValue((T) new ObjectInputStream(dis).readObject());
-		} catch (ClassNotFoundException e) {
+		} catch (InvalidClassException | ClassNotFoundException e) {
 			throw new IOException(e.getCause());
 		}
 	}
@@ -79,6 +75,11 @@ public class ObjectTag<T extends Serializable> extends Tag<T> {
 				&& (getValue() == ((ObjectTag) other).getValue()
 				|| getValue() != null
 				&& getValue().equals(((ObjectTag<?>) other).getValue()));
+	}
+
+	@Override
+	public int hashCode() {
+		return getValue().hashCode();
 	}
 
 	@SuppressWarnings("unchecked")

@@ -199,12 +199,17 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 		return other != null && getClass() == other.getClass();
 	}
 
+	@Override
+	public int hashCode() {
+		return value.hashCode();
+	}
+
 	/**
 	 * Creates a clone of this Tag.
 	 * @return A clone of this Tag.
 	 * */
 	@SuppressWarnings("CloneDoesntDeclareCloneNotSupportedException")
-	protected abstract Tag clone();
+	public abstract Tag clone();
 
 	/**
 	 * A utility method to check if some value is null.

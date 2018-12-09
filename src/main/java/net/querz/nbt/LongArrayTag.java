@@ -54,6 +54,11 @@ public class LongArrayTag extends ArrayTag<long[]> {
 	}
 
 	@Override
+	public int hashCode() {
+		return Arrays.hashCode(getValue());
+	}
+
+	@Override
 	public LongArrayTag clone() {
 		return new LongArrayTag(Arrays.copyOf(getValue(), length()));
 	}

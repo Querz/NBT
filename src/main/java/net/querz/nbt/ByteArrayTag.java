@@ -50,6 +50,11 @@ public class ByteArrayTag extends ArrayTag<byte[]> {
 	}
 
 	@Override
+	public int hashCode() {
+		return Arrays.hashCode(getValue());
+	}
+
+	@Override
 	public ByteArrayTag clone() {
 		return new ByteArrayTag(Arrays.copyOf(getValue(), length()));
 	}

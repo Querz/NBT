@@ -60,6 +60,11 @@ public class ShortArrayTag extends ArrayTag<short[]> {
 	}
 
 	@Override
+	public int hashCode() {
+		return Arrays.hashCode(getValue());
+	}
+
+	@Override
 	public ShortArrayTag clone() {
 		return new ShortArrayTag(Arrays.copyOf(getValue(), length()));
 	}

@@ -77,7 +77,7 @@ public class TagFactoryTest extends NBTTestCase {
 		}
 
 		@Override
-		protected InvalidCustomTag clone() {
+		public InvalidCustomTag clone() {
 			return null;
 		}
 

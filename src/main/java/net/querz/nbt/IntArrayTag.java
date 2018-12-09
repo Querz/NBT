@@ -54,6 +54,11 @@ public class IntArrayTag extends ArrayTag<int[]> {
 	}
 
 	@Override
+	public int hashCode() {
+		return Arrays.hashCode(getValue());
+	}
+
+	@Override
 	public IntArrayTag clone() {
 		return new IntArrayTag(Arrays.copyOf(getValue(), length()));
 	}

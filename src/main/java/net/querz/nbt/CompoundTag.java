@@ -3,11 +3,7 @@ package net.querz.nbt;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 public class CompoundTag extends Tag<Map<String, Tag>> implements Iterable<Map.Entry<String, Tag>> {
@@ -291,6 +287,13 @@ public class CompoundTag extends Tag<Map<String, Tag>> implements Iterable<Map.E
 			}
 		}
 		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		int keyHash = Objects.hash(getValue().keySet().toArray());
+		int valueHash = Objects.hash(values().toArray());
+		return Objects.hash(keyHash, valueHash);
 	}
 
 	@Override
