@@ -291,9 +291,7 @@ public class CompoundTag extends Tag<Map<String, Tag>> implements Iterable<Map.E
 
 	@Override
 	public int hashCode() {
-		int keyHash = Objects.hash(getValue().keySet().toArray());
-		int valueHash = Objects.hash(values().toArray());
-		return Objects.hash(keyHash, valueHash);
+		return Objects.hash(entrySet().toArray());
 	}
 
 	@Override
