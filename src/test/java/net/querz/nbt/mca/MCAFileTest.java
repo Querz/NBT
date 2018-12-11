@@ -1,8 +1,16 @@
 package net.querz.nbt.mca;
 
+import net.querz.nbt.ByteTag;
 import net.querz.nbt.CompoundTag;
 import net.querz.nbt.ListTag;
+
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.file.Files;
 import java.util.Arrays;
 
 public class MCAFileTest extends MCATestCase {
@@ -321,5 +329,23 @@ public class MCAFileTest extends MCATestCase {
 		CompoundTag t = new CompoundTag();
 		assertThrowsRuntimeException(() -> new Chunk(null), NullPointerException.class);
 		assertThrowsRuntimeException(() -> new Chunk(t), IllegalArgumentException.class);
+	}
+
+	public void testChunkInvalidCompressionType() {
+		assertThrowsException(() -> {
+			try (RandomAccessFile raf = new RandomAccessFile(getResourceFile("invalid_compression.dat"), "r")) {
+				Chunk c = new Chunk(0);
+				c.deserialize(raf);
+			}
+		}, IOException.class);
+	}
+
+	public void testChunkInvalidDataTag() {
+		assertThrowsException(() -> {
+			try (RandomAccessFile raf = new RandomAccessFile(getResourceFile("invalid_data_tag.dat"), "r")) {
+				Chunk c = new Chunk(0);
+				c.deserialize(raf);
+			}
+		}, IOException.class);
 	}
 }

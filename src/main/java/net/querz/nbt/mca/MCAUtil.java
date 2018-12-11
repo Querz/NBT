@@ -8,6 +8,10 @@ import java.nio.file.StandardCopyOption;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Provides main and utility functions to read and write .mca files and
+ * to convert block, chunk and region coordinates.
+ * */
 public final class MCAUtil {
 
 	private MCAUtil() {}

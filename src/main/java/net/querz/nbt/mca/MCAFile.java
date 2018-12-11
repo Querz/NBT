@@ -6,11 +6,22 @@ import java.io.RandomAccessFile;
 
 public class MCAFile {
 
+	/**
+	 * The default chunk data version used when no custom version is supplied.
+	 * */
 	public static final int DEFAULT_DATA_VERSION = 1628;
 
 	private int regionX, regionZ;
 	private Chunk[] chunks;
 
+	/**
+	 * MCAFile represents a world save file used by Minecraft to store world
+	 * data on the hard drive.
+	 * This constructor needs the x- and z-coordinates of the stored region,
+	 * which can usually be taken from the file name {@code r.x.z.mca}
+	 * @param regionX The x-coordinate of this region.
+	 * @param regionZ The z-coordinate of this region.
+	 * */
 	public MCAFile(int regionX, int regionZ) {
 		this.regionX = regionX;
 		this.regionZ = regionZ;

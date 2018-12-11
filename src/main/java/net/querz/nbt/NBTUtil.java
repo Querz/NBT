@@ -11,7 +11,11 @@ import java.io.PushbackInputStream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-public class NBTUtil {
+/**
+ * Provides main functions to read Tags from and write Tags to nbt files.
+ * This does not support reading or writing .mca files, use {@link net.querz.nbt.mca.MCAUtil} instead.
+ * */
+public final class NBTUtil {
 
 	private NBTUtil() {}
 

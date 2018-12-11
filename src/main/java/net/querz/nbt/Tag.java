@@ -188,7 +188,7 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 
 	/**
 	 * Returns whether this Tag and some other Tag are equal.
-	 * The are equal if {@code other} is not {@code null} and they are of the same class.
+	 * They are equal if {@code other} is not {@code null} and they are of the same class.
 	 * Custom Tag implementations should overwrite this but check the result
 	 * of this {@code super}-method while comparing.
 	 * @param other The Tag to compare to.
@@ -199,6 +199,11 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 		return other != null && getClass() == other.getClass();
 	}
 
+	/**
+	 * Calculates the hash code of this Tag. Tags which are equal according to {@link Tag#equals(Object)}
+	 * must return an equal hash code.
+	 * @return The hash code of this Tag.
+	 * */
 	@Override
 	public int hashCode() {
 		return value.hashCode();
