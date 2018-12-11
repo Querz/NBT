@@ -115,4 +115,7 @@ There are 4 example classes in `net.querz.nbt.custom` that show how to implement
 | [CharTag](src/main/java/net/querz/nbt/custom/CharTag.java)                | 110 | `Character` (char) tag. |
 | [StructTag](src/main/java/net/querz/nbt/custom/StructTag.java)            | 120 | Similar to the `ListTag`, but with the ability to store multiple types. |
 
-To be able to use a custom tag with deserialization, it needs to have a public no-args constructor and its id and class must be registered during runtime with `TagFactory.registerCustomTag()`.
+To be able to use a custom tag with deserialization, a `Supplier` must be registered at runtime alongside its id with `TagFactory.registerCustomTag()`. The `Supplier` can be anything that returns a new instance of this custom tag. Here is an example using the custom tags no-args constructor:
+```java
+TagFactory.registerCustomTag(90, ObjectTag::new);
+```
