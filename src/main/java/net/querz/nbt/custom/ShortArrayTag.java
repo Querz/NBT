@@ -10,7 +10,7 @@ import java.util.Arrays;
 public class ShortArrayTag extends ArrayTag<short[]> {
 
 	public static void register() {
-		TagFactory.registerCustomTag(100, ShortArrayTag.class);
+		TagFactory.registerCustomTag(100, ShortArrayTag::new);
 	}
 
 	public ShortArrayTag() {}

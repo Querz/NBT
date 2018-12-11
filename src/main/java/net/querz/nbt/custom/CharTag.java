@@ -9,7 +9,7 @@ import java.io.IOException;
 public class CharTag extends Tag<Character> {
 
 	public static void register() {
-		TagFactory.registerCustomTag(110, CharTag.class);
+		TagFactory.registerCustomTag(110, CharTag::new);
 	}
 
 	public CharTag() {}

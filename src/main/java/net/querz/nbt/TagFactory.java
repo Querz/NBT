@@ -2,10 +2,11 @@ package net.querz.nbt;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public class TagFactory {
 
-	private static Map<Integer, Class<? extends Tag>> customTags = new HashMap<>();
+	private static Map<Integer, Supplier<? extends Tag<?>>> customTags = new HashMap<>();
 
 	private TagFactory() {}
 
@@ -38,19 +39,15 @@ public class TagFactory {
 			case 12:
 				return new LongArrayTag();
 			default:
-				Class<?> clazz = customTags.get(id);
-				if (clazz != null) {
-					try {
-						return (Tag) clazz.newInstance();
-					} catch (InstantiationException | IllegalAccessException e) {
-						throw new RuntimeException("error instantiating custom tag: " + e.getMessage());
-					}
+				Supplier<? extends Tag<?>> factory = customTags.get(id);
+				if (factory != null) {
+					return factory.get();
 				}
 				throw new IllegalArgumentException("unknown Tag id: " + id);
 		}
 	}
 
-	public static void registerCustomTag(int id, Class<? extends Tag> clazz) {
+	public static void registerCustomTag(int id, Supplier<? extends Tag<?>> factory) {
 		if (id < 0) {
 			throw new IllegalArgumentException("id cannot be negative");
 		}
@@ -63,7 +60,7 @@ public class TagFactory {
 		if (customTags.containsKey(id)) {
 			throw new IllegalArgumentException("custom tag already registered");
 		}
-		customTags.put(id, clazz);
+		customTags.put(id, factory);
 	}
 
 	public static void unregisterCustomTag(int id) {
