@@ -17,10 +17,7 @@ import net.querz.nbt.TagFactory;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class StructTag extends Tag<List<Tag>> implements Iterable<Tag> {
@@ -287,6 +284,11 @@ public class StructTag extends Tag<List<Tag>> implements Iterable<Tag> {
 	}
 
 	@Override
+	public int hashCode() {
+		return Objects.hash(getValue().toArray());
+	}
+
+	@Override
 	public int compareTo(Tag<List<Tag>> o) {
 		if (!(o instanceof StructTag)) {
 			return 0;
@@ -298,7 +300,7 @@ public class StructTag extends Tag<List<Tag>> implements Iterable<Tag> {
 	public StructTag clone() {
 		StructTag copy = new StructTag();
 		for (Tag tag : getValue()) {
-			copy.add(tag);
+			copy.add(tag.clone());
 		}
 		return copy;
 	}

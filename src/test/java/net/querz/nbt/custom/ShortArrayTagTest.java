@@ -2,6 +2,7 @@ package net.querz.nbt.custom;
 
 import net.querz.nbt.NBTTestCase;
 import java.util.Arrays;
+import static org.junit.Assert.assertNotEquals;
 
 public class ShortArrayTagTest extends NBTTestCase {
 
@@ -19,6 +20,13 @@ public class ShortArrayTagTest extends NBTTestCase {
 		assertTrue(t.equals(t2));
 		ShortArrayTag t3 = new ShortArrayTag(new short[]{Short.MAX_VALUE, 0, Short.MIN_VALUE});
 		assertFalse(t.equals(t3));
+	}
+
+	public void testHashCode() {
+		ShortArrayTag t = new ShortArrayTag(new short[]{Short.MIN_VALUE, 0, Short.MAX_VALUE});
+		ShortArrayTag t2 = new ShortArrayTag(new short[]{Short.MAX_VALUE, 0, Short.MIN_VALUE});
+		assertNotEquals(t.hashCode(), t2.hashCode());
+		assertEquals(t.hashCode(), t.clone().hashCode());
 	}
 
 	public void testClone() {
