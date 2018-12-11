@@ -309,7 +309,7 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(getValue().toArray());
+		return getValue().hashCode();
 	}
 
 	@Override

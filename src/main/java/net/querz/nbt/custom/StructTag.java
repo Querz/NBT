@@ -285,7 +285,7 @@ public class StructTag extends Tag<List<Tag>> implements Iterable<Tag> {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(getValue().toArray());
+		return getValue().hashCode();
 	}
 
 	@Override
