@@ -23,10 +23,32 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 	private byte typeID = 0;
 	private Class<? extends Tag> typeClass = EndTag.class;
 
-	protected ListTag() {}
+	private ListTag() {}
+	
+	/**
+	 * <p>Creates a non-type-safe ListTag. Its element type will be set after the first 
+	 * element was added.</p>
+	 * 
+	 * <p>This is an internal helper method for cases where the element type is not known 
+	 * at construction time. Use {@link #ListTag(Class)} when the type is known.</p>
+	 * 
+	 * @return A new non-type-safe ListTag
+	 */
+	protected static ListTag<?> createUnchecked() {
+		return new ListTag<>();
+	}
 
-	public ListTag(Class<T> typeClass) {
-		this.typeClass = typeClass;
+	/**
+	 * @param typeClass The exact class of the elements
+	 * @throws IllegalArgumentException When {@code typeClass} is {@link EndTag}{@code .class}
+	 * @throws NullPointerException When {@code typeClass} is {@code null}
+	 */
+	public ListTag(Class<T> typeClass) throws IllegalArgumentException, NullPointerException {
+		if (typeClass == EndTag.class) {
+			throw new IllegalArgumentException("Cannot create ListTag with EndTag elements");
+		}
+		
+		this.typeClass = checkNull(typeClass);
 	}
 
 	@Override
@@ -88,7 +110,6 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 	/**
 	 * Adds a Tag to this ListTag after the last index.
 	 * @param t The element to be added.
-	 * @throws IllegalArgumentException if this ListTag already contains a Tag of another type.
 	 * */
 	public void add(T t) {
 		add(size(), t);
@@ -247,10 +268,6 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 				add((T) tag);
 			}
 		}
-		if (size() == 0) {
-			typeID = 0;
-			typeClass = EndTag.class;
-		}
 	}
 
 	@Override
@@ -278,7 +295,7 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 		if (this == other) {
 			return true;
 		}
-		if (!super.equals(other) || size() != ((ListTag<?>) other).size() || typeID != ((ListTag<?>) other).getTypeID()) {
+		if (!super.equals(other) || size() != ((ListTag<?>) other).size() || getTypeID() != ((ListTag<?>) other).getTypeID()) {
 			return false;
 		}
 		for (int i = 0; i < size(); i++) {
@@ -306,6 +323,9 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 	@Override
 	public ListTag<T> clone() {
 		ListTag<T> copy = new ListTag<>();
+		// At least set typeID to get some type safety if list is empty
+		copy.typeID = typeID;
+		
 		for (T t : getValue()) {
 			copy.add((T) t.clone());
 		}

@@ -31,7 +31,7 @@ public class TagFactory {
 			case 8:
 				return new StringTag();
 			case 9:
-				return new ListTag();
+				return ListTag.createUnchecked();
 			case 10:
 				return new CompoundTag();
 			case 11:

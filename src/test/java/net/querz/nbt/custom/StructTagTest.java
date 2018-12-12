@@ -181,9 +181,9 @@ public class StructTagTest extends NBTTestCase {
 		assertEquals(1, co.size());
 		assertEquals(new CompoundTag(), co.getCompoundTag(0));
 		StructTag li = new StructTag();
-		li.add(new ListTag<>(EndTag.class));
+		li.add(new ListTag<>(IntTag.class));
 		assertEquals(1, li.size());
-		assertEquals(new ListTag<>(EndTag.class), li.getListTag(0));
+		assertEquals(new ListTag<>(IntTag.class), li.getListTag(0));
 
 		StructTag t = new StructTag();
 		t.add(0, new StringTag("foo"));
