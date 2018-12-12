@@ -10,6 +10,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 
+/**
+ * ListTag represents a typed List in the nbt structure.
+ * An empty ListTag is of type {@code EndTag}.
+ * Having this in mind, ListTag will always act consistent with serialization
+ * regarding its type. Therefore {@link ListTag#getTypeID()} will return {@code 0}
+ * and {@link ListTag#getTypeClass()} will return {@code EndTag.class}
+ * when called on an empty ListTag.
+ * */
 public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> {
 
 	private byte typeID = 0;
