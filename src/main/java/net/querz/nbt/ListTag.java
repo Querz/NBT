@@ -306,7 +306,7 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 
 	@SuppressWarnings("unchecked")
 	private void addUnchecked(Tag tag) {
-		if (typeID != 0 && tag.getID() != typeID) {
+		if (typeClass != EndTag.class && typeClass != tag.getClass() || typeID != 0 && tag.getID() != typeID) {
 			throw new IllegalArgumentException(String.format(
 					"cannot add %s to ListTag<%s>",
 					tag.getClass().getSimpleName(), typeClass.getSimpleName()));

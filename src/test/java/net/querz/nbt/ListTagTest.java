@@ -85,17 +85,17 @@ public class ListTagTest extends NBTTestCase {
 
 	public void testCasting() {
 		ListTag<ByteTag> b = new ListTag<>(ByteTag.class);
-		assertThrowsNoRuntimeException(() -> b.addShort((short) 123));
-		assertThrowsRuntimeException(() -> b.addByte((byte) 123), IllegalArgumentException.class);
-		assertThrowsNoRuntimeException(b::asShortTagList);
-		assertThrowsRuntimeException(b::asByteTagList, ClassCastException.class);
-		assertThrowsNoRuntimeException(() -> b.asTypedList(ShortTag.class));
-		assertThrowsRuntimeException(() -> b.asTypedList(ByteTag.class), ClassCastException.class);
+		assertThrowsRuntimeException(() -> b.addShort((short) 123), IllegalArgumentException.class);
+		assertThrowsNoRuntimeException(() -> b.addByte((byte) 123));
+		assertThrowsNoRuntimeException(b::asByteTagList);
+		assertThrowsRuntimeException(b::asShortTagList, ClassCastException.class);
+		assertThrowsNoRuntimeException(() -> b.asTypedList(ByteTag.class));
+		assertThrowsRuntimeException(() -> b.asTypedList(ShortTag.class), ClassCastException.class);
 		b.remove(0);
 		//list is empty, type is 0 (EndTag), but it should still remember its type
 		assertEquals(0, b.getTypeID());
 		assertEquals(EndTag.class, b.getTypeClass());
-		assertThrowsRuntimeException(() -> b.addByte((byte) 1), IllegalArgumentException.class);
+		assertThrowsRuntimeException(() -> b.addShort((short) 1), IllegalArgumentException.class);
 		assertEquals(0, b.getTypeID());
 		assertEquals(EndTag.class, b.getTypeClass());
 		b.clear();
