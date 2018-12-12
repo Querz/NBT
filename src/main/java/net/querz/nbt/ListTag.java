@@ -3,7 +3,11 @@ package net.querz.nbt;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> {
@@ -11,7 +15,11 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 	private byte typeID = 0;
 	private Class<? extends Tag> typeClass = EndTag.class;
 
-	public ListTag() {}
+	protected ListTag() {}
+
+	public ListTag(Class<? extends Tag> typeClass) {
+		this.typeClass = typeClass;
+	}
 
 	@Override
 	public byte getID() {
@@ -19,11 +27,11 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 	}
 
 	public byte getTypeID() {
-		return typeID;
+		return size() == 0 ? 0 : typeID;
 	}
 
 	public Class<? extends Tag> getTypeClass() {
-		return typeClass;
+		return size() == 0 ? EndTag.class : typeClass;
 	}
 
 	@Override
@@ -36,14 +44,11 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 	}
 
 	public T remove(int index) {
-		T removed = getValue().remove(index);
-		checkEmpty();
-		return removed;
+		return getValue().remove(index);
 	}
 
 	public void clear() {
 		getValue().clear();
-		checkEmpty();
 	}
 
 	public boolean contains(T t) {
@@ -69,8 +74,7 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 	}
 
 	public T set(int index, T t) {
-		checkValue(t);
-		return getValue().set(index, t);
+		return getValue().set(index, checkNull(t));
 	}
 
 	/**
@@ -83,10 +87,12 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 	}
 
 	public void add(int index, T t) {
-		checkValue(t);
+		checkNull(t);
 		getValue().add(index, t);
-		typeID = t.getID();
-		typeClass = t.getClass();
+		if (typeID == 0) {
+			typeID = t.getID();
+			typeClass = t.getClass();
+		}
 	}
 
 	public void addAll(Collection<T> t) {
@@ -103,59 +109,48 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public void addBoolean(boolean value) {
-		add((T) new ByteTag(value));
+		addUnchecked(new ByteTag(value));
 	}
 
-	@SuppressWarnings("unchecked")
 	public void addByte(byte value) {
-		add((T) new ByteTag(value));
+		addUnchecked(new ByteTag(value));
 	}
 
-	@SuppressWarnings("unchecked")
 	public void addShort(short value) {
-		add((T) new ShortTag(value));
+		addUnchecked(new ShortTag(value));
 	}
 
-	@SuppressWarnings("unchecked")
 	public void addInt(int value) {
-		add((T) new IntTag(value));
+		addUnchecked(new IntTag(value));
 	}
 
-	@SuppressWarnings("unchecked")
 	public void addLong(long value) {
-		add((T) new LongTag(value));
+		addUnchecked(new LongTag(value));
 	}
 
-	@SuppressWarnings("unchecked")
 	public void addFloat(float value) {
-		add((T) new FloatTag(value));
+		addUnchecked(new FloatTag(value));
 	}
 
-	@SuppressWarnings("unchecked")
 	public void addDouble(double value) {
-		add((T) new DoubleTag(value));
+		addUnchecked(new DoubleTag(value));
 	}
 
-	@SuppressWarnings("unchecked")
 	public void addString(String value) {
-		add((T) new StringTag(checkNull(value)));
+		addUnchecked(new StringTag(checkNull(value)));
 	}
 
-	@SuppressWarnings("unchecked")
 	public void addByteArray(byte[] value) {
-		add((T) new ByteArrayTag(checkNull(value)));
+		addUnchecked(new ByteArrayTag(checkNull(value)));
 	}
 
-	@SuppressWarnings("unchecked")
 	public void addIntArray(int[] value) {
-		add((T) new IntArrayTag(checkNull(value)));
+		addUnchecked(new IntArrayTag(checkNull(value)));
 	}
 
-	@SuppressWarnings("unchecked")
 	public void addLongArray(long[] value) {
-		add((T) new LongArrayTag(checkNull(value)));
+		addUnchecked(new LongArrayTag(checkNull(value)));
 	}
 
 	public T get(int index) {
@@ -172,64 +167,44 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 		return (ListTag<L>) this;
 	}
 
-	@SuppressWarnings("unchecked")
 	public ListTag<ByteTag> asByteTagList() {
-		checkTypeClass(ByteTag.class);
-		return (ListTag<ByteTag>) this;
+		return asTypedList(ByteTag.class);
 	}
 
-	@SuppressWarnings("unchecked")
 	public ListTag<ShortTag> asShortTagList() {
-		checkTypeClass(ShortTag.class);
-		return (ListTag<ShortTag>) this;
+		return asTypedList(ShortTag.class);
 	}
 
-	@SuppressWarnings("unchecked")
 	public ListTag<IntTag> asIntTagList() {
-		checkTypeClass(IntTag.class);
-		return (ListTag<IntTag>) this;
+		return asTypedList(IntTag.class);
 	}
 
-	@SuppressWarnings("unchecked")
 	public ListTag<LongTag> asLongTagList() {
-		checkTypeClass(LongTag.class);
-		return (ListTag<LongTag>) this;
+		return asTypedList(LongTag.class);
 	}
 
-	@SuppressWarnings("unchecked")
 	public ListTag<FloatTag> asFloatTagList() {
-		checkTypeClass(FloatTag.class);
-		return (ListTag<FloatTag>) this;
+		return asTypedList(FloatTag.class);
 	}
 
-	@SuppressWarnings("unchecked")
 	public ListTag<DoubleTag> asDoubleTagList() {
-		checkTypeClass(DoubleTag.class);
-		return (ListTag<DoubleTag>) this;
+		return asTypedList(DoubleTag.class);
 	}
 
-	@SuppressWarnings("unchecked")
 	public ListTag<StringTag> asStringTagList() {
-		checkTypeClass(StringTag.class);
-		return (ListTag<StringTag>) this;
+		return asTypedList(StringTag.class);
 	}
 
-	@SuppressWarnings("unchecked")
 	public ListTag<ByteArrayTag> asByteArrayTagList() {
-		checkTypeClass(ByteArrayTag.class);
-		return (ListTag<ByteArrayTag>) this;
+		return asTypedList(ByteArrayTag.class);
 	}
 
-	@SuppressWarnings("unchecked")
 	public ListTag<IntArrayTag> asIntArrayTagList() {
-		checkTypeClass(IntArrayTag.class);
-		return (ListTag<IntArrayTag>) this;
+		return asTypedList(IntArrayTag.class);
 	}
 
-	@SuppressWarnings("unchecked")
 	public ListTag<LongArrayTag> asLongArrayTagList() {
-		checkTypeClass(LongArrayTag.class);
-		return (ListTag<LongArrayTag>) this;
+		return asTypedList(LongArrayTag.class);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -238,17 +213,15 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 		return (ListTag<ListTag<?>>) this;
 	}
 
-	@SuppressWarnings("unchecked")
 	public ListTag<CompoundTag> asCompoundTagList() {
-		checkTypeClass(CompoundTag.class);
-		return (ListTag<CompoundTag>) this;
+		return asTypedList(CompoundTag.class);
 	}
 
 	@Override
 	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
-		dos.writeByte(typeID);
+		dos.writeByte(getTypeID());
 		dos.writeInt(size());
-		if (typeID != 0) {
+		if (size() != 0) {
 			for (T t : getValue()) {
 				t.serializeValue(dos, incrementDepth(depth));
 			}
@@ -268,7 +241,10 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 				add((T) tag);
 			}
 		}
-		checkEmpty();
+		if (size() == 0) {
+			typeID = 0;
+			typeClass = EndTag.class;
+		}
 	}
 
 	@Override
@@ -330,13 +306,14 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 		return copy;
 	}
 
-	private void checkValue(T t) {
-		checkNull(t);
-		if (typeID != 0 && t.getID() != typeID) {
+	@SuppressWarnings("unchecked")
+	private void addUnchecked(Tag tag) {
+		if (typeID != 0 && tag.getID() != typeID) {
 			throw new IllegalArgumentException(String.format(
 					"cannot add %s to ListTag<%s>",
-					t.getClass().getSimpleName(), typeClass.getSimpleName()));
+					tag.getClass().getSimpleName(), typeClass.getSimpleName()));
 		}
+		add(size(), (T) tag);
 	}
 
 	private void checkTypeClass(Class<?> clazz) {
@@ -344,13 +321,6 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 			throw new ClassCastException(String.format(
 					"cannot cast ListTag<%s> to ListTag<%s>",
 					typeClass.getSimpleName(), clazz.getSimpleName()));
-		}
-	}
-
-	private void checkEmpty() {
-		if (size() == 0) {
-			typeID = 0;
-			typeClass = EndTag.class;
 		}
 	}
 }

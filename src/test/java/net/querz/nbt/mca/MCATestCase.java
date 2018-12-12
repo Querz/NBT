@@ -29,14 +29,14 @@ public abstract class MCATestCase extends NBTTestCase {
 	}
 
 	public ListTag<CompoundTag> getSomeCompoundTagList() {
-		ListTag<CompoundTag> l = new ListTag<>();
+		ListTag<CompoundTag> l = new ListTag<>(CompoundTag.class);
 		l.add(getSomeCompoundTag());
 		l.add(getSomeCompoundTag());
 		return l;
 	}
 
 	public ListTag<ListTag<?>> getSomeListTagList() {
-		ListTag<ListTag<?>> l = new ListTag<>();
+		ListTag<ListTag<?>> l = new ListTag<>(ListTag.class);
 		l.add(getSomeCompoundTagList());
 		l.add(getSomeCompoundTagList());
 		return l;

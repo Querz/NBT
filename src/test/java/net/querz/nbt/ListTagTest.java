@@ -84,7 +84,7 @@ public class ListTagTest extends NBTTestCase {
 	}
 
 	public void testCasting() {
-		ListTag<ByteTag> b = new ListTag<>();
+		ListTag<ByteTag> b = new ListTag<>(ByteTag.class);
 		assertThrowsNoRuntimeException(() -> b.addShort((short) 123));
 		assertThrowsRuntimeException(() -> b.addByte((byte) 123), IllegalArgumentException.class);
 		assertThrowsNoRuntimeException(b::asShortTagList);
@@ -92,15 +92,17 @@ public class ListTagTest extends NBTTestCase {
 		assertThrowsNoRuntimeException(() -> b.asTypedList(ShortTag.class));
 		assertThrowsRuntimeException(() -> b.asTypedList(ByteTag.class), ClassCastException.class);
 		b.remove(0);
+		//list is empty, type is 0 (EndTag), but it should still remember its type
 		assertEquals(0, b.getTypeID());
 		assertEquals(EndTag.class, b.getTypeClass());
-		b.addByte((byte) 1);
-		assertEquals(1, b.getTypeID());
-		assertEquals(ByteTag.class, b.getTypeClass());
+		assertThrowsRuntimeException(() -> b.addByte((byte) 1), IllegalArgumentException.class);
+		assertEquals(0, b.getTypeID());
+		assertEquals(EndTag.class, b.getTypeClass());
 		b.clear();
 		assertEquals(0, b.getTypeID());
 		assertEquals(EndTag.class, b.getTypeClass());
 
+		//adjust ListTag type during deserialization
 		ListTag<?> l = new ListTag<>();
 		assertThrowsNoRuntimeException(l::asByteTagList);
 		l.addByte(Byte.MAX_VALUE);

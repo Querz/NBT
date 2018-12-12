@@ -253,7 +253,7 @@ public class Section {
 	public static Section newSection() {
 		Section s = new Section();
 		s.blockStates = new long[256];
-		s.palette = new ListTag<>();
+		s.palette = new ListTag<>(CompoundTag.class);
 		CompoundTag air = new CompoundTag();
 		air.putString("Name", "minecraft:air");
 		s.palette.add(air);

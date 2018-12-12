@@ -328,7 +328,7 @@ public class Chunk {
 		if (postProcessing != null) level.put("PostProcessing", postProcessing);
 		level.putString("Status", status);
 		if (structures != null) level.put("Structures", structures);
-		ListTag<CompoundTag> sections = new ListTag<>();
+		ListTag<CompoundTag> sections = new ListTag<>(CompoundTag.class);
 		for (int i = 0; i < this.sections.length; i++) {
 			if (this.sections[i] != null) {
 				sections.add(this.sections[i].updateHandle(i));
