@@ -17,7 +17,7 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 
 	protected ListTag() {}
 
-	public ListTag(Class<? extends Tag> typeClass) {
+	public ListTag(Class<T> typeClass) {
 		this.typeClass = typeClass;
 	}
 
@@ -207,10 +207,8 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 		return asTypedList(LongArrayTag.class);
 	}
 
-	@SuppressWarnings("unchecked")
-	public ListTag<ListTag<?>> asListTagList() {
-		checkTypeClass(ListTag.class);
-		return (ListTag<ListTag<?>>) this;
+	public ListTag<ListTag> asListTagList() {
+		return asTypedList(ListTag.class);
 	}
 
 	public ListTag<CompoundTag> asCompoundTagList() {
