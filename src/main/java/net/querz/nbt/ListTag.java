@@ -325,9 +325,9 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	@Override
 	public ListTag<T> clone() {
 		ListTag<T> copy = new ListTag<>();
-		// At least set typeID to get some type safety if list is empty
+		// assure type safety for clone
 		copy.typeID = typeID;
-		
+		copy.typeClass = typeClass;
 		for (T t : getValue()) {
 			copy.add((T) t.clone());
 		}

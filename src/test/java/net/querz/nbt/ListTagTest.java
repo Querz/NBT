@@ -63,12 +63,19 @@ public class ListTagTest extends NBTTestCase {
 	}
 
 	public void testClone() {
-		ListTag<ByteTag> bl = createListTag();
+		ListTag<IntTag> i = new ListTag<>(IntTag.class);
+		ListTag<IntTag> c = i.clone();
+		assertThrowsRuntimeException(() -> c.addString("wrong type in clone"), IllegalArgumentException.class);
+		c.addInt(123);
+		assertFalse(i.equals(c));
+		c.clear();
+		assertTrue(i.equals(c));
+		assertFalse(invokeGetValue(i) == invokeGetValue(c));
 
-		ListTag<ByteTag> tc = bl.clone();
-		assertTrue(bl.equals(tc));
-		assertFalse(bl == tc);
-		assertFalse(invokeGetValue(bl) == invokeGetValue(tc));
+		i.addInt(123);
+		ListTag<IntTag> c2 = i.clone();
+		assertTrue(i.equals(c2));
+		assertFalse(invokeGetValue(i) == invokeGetValue(c2));
 	}
 
 	public void testSerializeDeserialize() {
