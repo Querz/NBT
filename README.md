@@ -56,7 +56,7 @@ NBTUtil.writeTag(tag, "filename.dat");
 
 Example usage:
 ```java
-Tag tag = NBTUtil.readTag("filename.dat");
+Tag<?> tag = NBTUtil.readTag("filename.dat");
 ```
 #### Playing Minecraft?
 Each tag can be converted into a JSON-like NBT String used in Minecraft commands.

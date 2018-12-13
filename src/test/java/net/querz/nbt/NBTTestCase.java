@@ -31,7 +31,7 @@ public abstract class NBTTestCase extends TestCase {
 		cleanupTmpDir();
 	}
 
-	protected byte[] serialize(Tag tag) {
+	protected byte[] serialize(Tag<?> tag) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try (DataOutputStream dos = new DataOutputStream(baos)) {
 			tag.serialize(dos, 0);
@@ -42,7 +42,7 @@ public abstract class NBTTestCase extends TestCase {
 		return baos.toByteArray();
 	}
 
-	protected Tag deserialize(byte[] data) {
+	protected Tag<?> deserialize(byte[] data) {
 		try (DataInputStream dis = new DataInputStream(new ByteArrayInputStream(data))) {
 			return Tag.deserialize(dis, 0);
 		} catch (IOException ex) {
@@ -58,7 +58,7 @@ public abstract class NBTTestCase extends TestCase {
 		return new File(resource.getFile());
 	}
 
-	protected Tag deserializeFromFile(String f) {
+	protected Tag<?> deserializeFromFile(String f) {
 		try (DataInputStream dis = new DataInputStream(new FileInputStream(getResourceFile(f)))) {
 			return Tag.deserialize(dis, 0);
 		} catch (IOException ex) {
@@ -109,11 +109,11 @@ public abstract class NBTTestCase extends TestCase {
 		return null;
 	}
 
-	protected void assertThrowsException(ExceptionRunnable r, Class<? extends Exception> e) {
+	protected <E extends Exception> void assertThrowsException(ExceptionRunnable<E> r, Class<? extends Exception> e) {
 		assertThrowsException(r, e, false);
 	}
 
-	protected void assertThrowsException(ExceptionRunnable r, Class<? extends Exception> e, boolean printStackTrace) {
+	protected <E extends Exception> void assertThrowsException(ExceptionRunnable<E> r, Class<? extends Exception> e, boolean printStackTrace) {
 		try {
 			r.run();
 			TestCase.fail();
@@ -125,7 +125,7 @@ public abstract class NBTTestCase extends TestCase {
 		}
 	}
 
-	protected void assertThrowsNoException(ExceptionRunnable r) {
+	protected <E extends Exception> void assertThrowsNoException(ExceptionRunnable<E> r) {
 		try {
 			r.run();
 		} catch (Exception ex) {
@@ -134,11 +134,11 @@ public abstract class NBTTestCase extends TestCase {
 		}
 	}
 
-	protected void assertThrowsException(ExceptionSupplier r, Class<? extends Exception> e) {
+	protected <T, E extends Exception> void assertThrowsException(ExceptionSupplier<T, E> r, Class<? extends Exception> e) {
 		assertThrowsException(r, e, false);
 	}
 
-	protected void assertThrowsException(ExceptionSupplier r, Class<? extends Exception> e, boolean printStackTrace) {
+	protected <T, E extends Exception> void assertThrowsException(ExceptionSupplier<T, E> r, Class<? extends Exception> e, boolean printStackTrace) {
 		try {
 			r.run();
 			TestCase.fail();

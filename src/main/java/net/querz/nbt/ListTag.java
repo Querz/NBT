@@ -18,15 +18,36 @@ import java.util.function.Consumer;
  * and {@link ListTag#getTypeClass()} will return {@code EndTag.class}
  * when called on an empty ListTag.
  * */
-public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> {
+public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<T> {
 
 	private byte typeID = 0;
-	private Class<? extends Tag> typeClass = EndTag.class;
+	private Class<?> typeClass = EndTag.class;
 
-	protected ListTag() {}
+	private ListTag() {}
+	
+	/**
+	 * <p>Creates a non-type-safe ListTag. Its element type will be set after the first 
+	 * element was added.</p>
+	 * 
+	 * <p>This is an internal helper method for cases where the element type is not known 
+	 * at construction time. Use {@link #ListTag(Class)} when the type is known.</p>
+	 * 
+	 * @return A new non-type-safe ListTag
+	 */
+	protected static ListTag<?> createUnchecked() {
+		return new ListTag<>();
+	}
 
-	public ListTag(Class<T> typeClass) {
-		this.typeClass = typeClass;
+	/**
+	 * @param typeClass The exact class of the elements
+	 * @throws IllegalArgumentException When {@code typeClass} is {@link EndTag}{@code .class}
+	 * @throws NullPointerException When {@code typeClass} is {@code null}
+	 */
+	public ListTag(Class<? super T> typeClass) throws IllegalArgumentException, NullPointerException {
+		if (typeClass == EndTag.class) {
+			throw new IllegalArgumentException("cannot create ListTag with EndTag elements");
+		}
+		this.typeClass = checkNull(typeClass);
 	}
 
 	@Override
@@ -38,7 +59,7 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 		return size() == 0 ? 0 : typeID;
 	}
 
-	public Class<? extends Tag> getTypeClass() {
+	public Class<?> getTypeClass() {
 		return size() == 0 ? EndTag.class : typeClass;
 	}
 
@@ -63,7 +84,7 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 		return getValue().contains(t);
 	}
 
-	public boolean containsAll(Collection<Tag> tags) {
+	public boolean containsAll(Collection<Tag<?>> tags) {
 		return getValue().containsAll(tags);
 	}
 
@@ -88,12 +109,12 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 	/**
 	 * Adds a Tag to this ListTag after the last index.
 	 * @param t The element to be added.
-	 * @throws IllegalArgumentException if this ListTag already contains a Tag of another type.
 	 * */
 	public void add(T t) {
 		add(size(), t);
 	}
 
+	@SuppressWarnings("unchecked")
 	public void add(int index, T t) {
 		checkNull(t);
 		getValue().add(index, t);
@@ -169,8 +190,8 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 		return getValue().indexOf(t);
 	}
 
-	@SuppressWarnings({"unchecked", "unused"})
-	public <L extends Tag> ListTag<L> asTypedList(Class<L> type) {
+	@SuppressWarnings("unchecked")
+	public <L extends Tag<?>> ListTag<L> asTypedList(Class<L> type) {
 		checkTypeClass(type);
 		return (ListTag<L>) this;
 	}
@@ -215,8 +236,10 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 		return asTypedList(LongArrayTag.class);
 	}
 
-	public ListTag<ListTag> asListTagList() {
-		return asTypedList(ListTag.class);
+	@SuppressWarnings("unchecked")
+	public ListTag<ListTag<?>> asListTagList() {
+		checkTypeClass(ListTag.class);
+		return (ListTag<ListTag<?>>) this;
 	}
 
 	public ListTag<CompoundTag> asCompoundTagList() {
@@ -242,14 +265,10 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 		if (typeID != 0) {
 			setValue(new ArrayList<>(size));
 			for (int i = 0; i < size; i++) {
-				Tag tag = TagFactory.fromID(typeID);
+				Tag<?> tag = TagFactory.fromID(typeID);
 				tag.deserializeValue(dis, incrementDepth(depth));
 				add((T) tag);
 			}
-		}
-		if (size() == 0) {
-			typeID = 0;
-			typeClass = EndTag.class;
 		}
 	}
 
@@ -278,7 +297,7 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 		if (this == other) {
 			return true;
 		}
-		if (!super.equals(other) || size() != ((ListTag<?>) other).size() || typeID != ((ListTag<?>) other).getTypeID()) {
+		if (!super.equals(other) || size() != ((ListTag<?>) other).size() || getTypeID() != ((ListTag<?>) other).getTypeID()) {
 			return false;
 		}
 		for (int i = 0; i < size(); i++) {
@@ -306,6 +325,9 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 	@Override
 	public ListTag<T> clone() {
 		ListTag<T> copy = new ListTag<>();
+		// At least set typeID to get some type safety if list is empty
+		copy.typeID = typeID;
+		
 		for (T t : getValue()) {
 			copy.add((T) t.clone());
 		}
@@ -313,7 +335,7 @@ public class ListTag<T extends Tag> extends Tag<List<T>> implements Iterable<T> 
 	}
 
 	@SuppressWarnings("unchecked")
-	private void addUnchecked(Tag tag) {
+	private void addUnchecked(Tag<?> tag) {
 		if (typeClass != EndTag.class && typeClass != tag.getClass() || typeID != 0 && tag.getID() != typeID) {
 			throw new IllegalArgumentException(String.format(
 					"cannot add %s to ListTag<%s>",

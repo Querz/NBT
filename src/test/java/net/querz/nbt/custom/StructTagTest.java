@@ -3,7 +3,6 @@ package net.querz.nbt.custom;
 import junit.framework.TestCase;
 import net.querz.nbt.ByteTag;
 import net.querz.nbt.CompoundTag;
-import net.querz.nbt.EndTag;
 import net.querz.nbt.IntTag;
 import net.querz.nbt.ListTag;
 import net.querz.nbt.LongTag;
@@ -103,7 +102,7 @@ public class StructTagTest extends NBTTestCase {
 		StructTag l = new StructTag();
 		l.addInt(1);
 		l.addLong(2);
-		for (Tag t : l) {
+		for (Tag<?> t : l) {
 			assertNotNull(t);
 		}
 		l.forEach(TestCase::assertNotNull);
@@ -181,9 +180,9 @@ public class StructTagTest extends NBTTestCase {
 		assertEquals(1, co.size());
 		assertEquals(new CompoundTag(), co.getCompoundTag(0));
 		StructTag li = new StructTag();
-		li.add(new ListTag<>(EndTag.class));
+		li.add(new ListTag<>(IntTag.class));
 		assertEquals(1, li.size());
-		assertEquals(new ListTag<>(EndTag.class), li.getListTag(0));
+		assertEquals(new ListTag<>(IntTag.class), li.getListTag(0));
 
 		StructTag t = new StructTag();
 		t.add(0, new StringTag("foo"));

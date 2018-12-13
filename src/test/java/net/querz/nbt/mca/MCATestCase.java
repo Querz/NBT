@@ -35,8 +35,8 @@ public abstract class MCATestCase extends NBTTestCase {
 		return l;
 	}
 
-	public ListTag<ListTag> getSomeListTagList() {
-		ListTag<ListTag> l = new ListTag<>(ListTag.class);
+	public ListTag<ListTag<?>> getSomeListTagList() {
+		ListTag<ListTag<?>> l = new ListTag<>(ListTag.class);
 		l.add(getSomeCompoundTagList());
 		l.add(getSomeCompoundTagList());
 		return l;

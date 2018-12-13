@@ -12,7 +12,7 @@ public class CompoundTagTest extends NBTTestCase {
 		invokeSetValue(ct, new LinkedHashMap<>());
 		ct.put("b", new ByteTag(Byte.MAX_VALUE));
 		ct.put("str", new StringTag("foo"));
-		ct.put("list", new ListTag<>());
+		ct.put("list", new ListTag<>(ByteTag.class));
 		ct.getListTag("list").addByte((byte) 123);
 		return ct;
 	}
@@ -33,7 +33,7 @@ public class CompoundTagTest extends NBTTestCase {
 		CompoundTag ct2 = new CompoundTag();
 		ct2.putByte("b", Byte.MAX_VALUE);
 		ct2.putString("str", "foo");
-		ct2.put("list", new ListTag<>());
+		ct2.put("list", new ListTag<>(ByteTag.class));
 		ct2.getListTag("list").addByte((byte) 123);
 		assertTrue(ct.equals(ct2));
 
@@ -75,7 +75,7 @@ public class CompoundTagTest extends NBTTestCase {
 			t.putIntArray("key_int_array" + i, iArray);
 			t.putLongArray("key_long_array" + i, lArray);
 
-			ListTag<StringTag> l = new ListTag<>();
+			ListTag<StringTag> l = new ListTag<>(StringTag.class);
 			for (int j = 0; j < 256; j++) {
 				l.addString("value" + j);
 			}
@@ -111,7 +111,7 @@ public class CompoundTagTest extends NBTTestCase {
 			t2.putIntArray("key_int_array" + i, iArray);
 			t2.putLongArray("key_long_array" + i, lArray);
 
-			ListTag<StringTag> l = new ListTag<>();
+			ListTag<StringTag> l = new ListTag<>(StringTag.class);
 			for (int j = 0; j < 256; j++) {
 				l.addString("value" + j);
 			}
@@ -238,8 +238,8 @@ public class CompoundTagTest extends NBTTestCase {
 		assertThrowsRuntimeException(() -> cc.getListTag("la"), ClassCastException.class);
 		assertTrue(Arrays.equals(new long[0], cc.getLongArray("lala")));
 
-		cc.put("li", new ListTag<>());
-		assertEquals(new ListTag<>(), cc.getListTag("li"));
+		cc.put("li", new ListTag<>(IntTag.class));
+		assertEquals(new ListTag<>(IntTag.class), cc.getListTag("li"));
 		assertNull(cc.getListTag("lili"));
 		assertThrowsRuntimeException(() -> cc.getCompoundTag("li"), ClassCastException.class);
 
@@ -292,7 +292,7 @@ public class CompoundTagTest extends NBTTestCase {
 	public void testEntrySet() {
 		CompoundTag e = new CompoundTag();
 		e.putInt("int", 123);
-		for (Map.Entry<String, Tag> en : e.entrySet()) {
+		for (Map.Entry<String, Tag<?>> en : e.entrySet()) {
 			assertThrowsRuntimeException(() -> en.setValue(null), NullPointerException.class);
 			assertThrowsNoRuntimeException(() -> en.setValue(new IntTag(321)));
 		}
@@ -308,7 +308,7 @@ public class CompoundTagTest extends NBTTestCase {
 		assertTrue(ct.containsKey("list"));
 		assertFalse(ct.containsKey("invalid"));
 		assertTrue(ct.containsValue(new StringTag("foo")));
-		ListTag<ByteTag> l = new ListTag<>();
+		ListTag<ByteTag> l = new ListTag<>(ByteTag.class);
 		l.addByte((byte) 123);
 		assertTrue(ct.containsValue(l));
 		assertTrue(ct.containsValue(new ByteTag(Byte.MAX_VALUE)));
@@ -318,7 +318,7 @@ public class CompoundTagTest extends NBTTestCase {
 
 	public void testIterator() {
 		CompoundTag ct = createCompoundTag();
-		for (Tag t : ct.values()) {
+		for (Tag<?> t : ct.values()) {
 			assertNotNull(t);
 		}
 		ct.values().remove(new StringTag("foo"));
@@ -333,7 +333,7 @@ public class CompoundTagTest extends NBTTestCase {
 		assertFalse(ct.containsKey("str"));
 		assertThrowsRuntimeException(() -> ct.keySet().add("str"), UnsupportedOperationException.class);
 		ct.putString("str", "foo");
-		for (Map.Entry<String, Tag> e : ct.entrySet()) {
+		for (Map.Entry<String, Tag<?>> e : ct.entrySet()) {
 			assertNotNull(e.getKey());
 			assertNotNull(e.getValue());
 			assertThrowsRuntimeException(() -> e.setValue(null), NullPointerException.class);
@@ -343,7 +343,7 @@ public class CompoundTagTest extends NBTTestCase {
 		}
 		assertTrue(ct.containsKey("str"));
 		assertEquals("bar", ct.getString("str"));
-		for (Map.Entry<String, Tag> e : ct) {
+		for (Map.Entry<String, Tag<?>> e : ct) {
 			assertNotNull(e.getKey());
 			assertNotNull(e.getValue());
 			assertThrowsRuntimeException(() -> e.setValue(null), NullPointerException.class);
