@@ -104,9 +104,9 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	 * @exception NullPointerException If {@code dis} is {@code null}.
 	 * @exception MaxDepthReachedException If the structure depth exceeds {@link Tag#MAX_DEPTH}.
 	 * */
-	public static Tag deserialize(DataInputStream dis, int depth) throws IOException {
+	public static Tag<?> deserialize(DataInputStream dis, int depth) throws IOException {
 		int id = dis.readByte() & 0xFF;
-		Tag tag = TagFactory.fromID(id);
+		Tag<?> tag = TagFactory.fromID(id);
 		if (id != 0) {
 			dis.readUTF();
 			tag.deserializeValue(dis, depth);
@@ -214,7 +214,7 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	 * @return A clone of this Tag.
 	 * */
 	@SuppressWarnings("CloneDoesntDeclareCloneNotSupportedException")
-	public abstract Tag clone();
+	public abstract Tag<T> clone();
 
 	/**
 	 * A utility method to check if some value is null.

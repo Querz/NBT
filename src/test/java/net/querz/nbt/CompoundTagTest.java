@@ -292,7 +292,7 @@ public class CompoundTagTest extends NBTTestCase {
 	public void testEntrySet() {
 		CompoundTag e = new CompoundTag();
 		e.putInt("int", 123);
-		for (Map.Entry<String, Tag> en : e.entrySet()) {
+		for (Map.Entry<String, Tag<?>> en : e.entrySet()) {
 			assertThrowsRuntimeException(() -> en.setValue(null), NullPointerException.class);
 			assertThrowsNoRuntimeException(() -> en.setValue(new IntTag(321)));
 		}
@@ -318,7 +318,7 @@ public class CompoundTagTest extends NBTTestCase {
 
 	public void testIterator() {
 		CompoundTag ct = createCompoundTag();
-		for (Tag t : ct.values()) {
+		for (Tag<?> t : ct.values()) {
 			assertNotNull(t);
 		}
 		ct.values().remove(new StringTag("foo"));
@@ -333,7 +333,7 @@ public class CompoundTagTest extends NBTTestCase {
 		assertFalse(ct.containsKey("str"));
 		assertThrowsRuntimeException(() -> ct.keySet().add("str"), UnsupportedOperationException.class);
 		ct.putString("str", "foo");
-		for (Map.Entry<String, Tag> e : ct.entrySet()) {
+		for (Map.Entry<String, Tag<?>> e : ct.entrySet()) {
 			assertNotNull(e.getKey());
 			assertNotNull(e.getValue());
 			assertThrowsRuntimeException(() -> e.setValue(null), NullPointerException.class);
@@ -343,7 +343,7 @@ public class CompoundTagTest extends NBTTestCase {
 		}
 		assertTrue(ct.containsKey("str"));
 		assertEquals("bar", ct.getString("str"));
-		for (Map.Entry<String, Tag> e : ct) {
+		for (Map.Entry<String, Tag<?>> e : ct) {
 			assertNotNull(e.getKey());
 			assertNotNull(e.getValue());
 			assertThrowsRuntimeException(() -> e.setValue(null), NullPointerException.class);

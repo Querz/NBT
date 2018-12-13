@@ -59,7 +59,7 @@ public class ListTagTest extends NBTTestCase {
 		ListTag<IntTag> il = new ListTag<>(IntTag.class);
 		il.addInt(1);
 		il.clear();
-		assertEquals(il, new ListTag<IntTag>(IntTag.class));
+		assertEquals(il, new ListTag<>(IntTag.class));
 	}
 
 	public void testClone() {
@@ -162,7 +162,7 @@ public class ListTagTest extends NBTTestCase {
 		assertThrowsNoRuntimeException(l::asLongArrayTagList);
 		assertThrowsRuntimeException(l::asListTagList, ClassCastException.class);
 
-		ListTag<ListTag> lis = new ListTag<>(ListTag.class);
+		ListTag<ListTag<?>> lis = new ListTag<>(ListTag.class);
 		lis.add(new ListTag<>(IntTag.class));
 		assertThrowsNoRuntimeException(lis::asListTagList);
 		assertThrowsRuntimeException(lis::asCompoundTagList, ClassCastException.class);
@@ -190,10 +190,10 @@ public class ListTagTest extends NBTTestCase {
 	}
 
 	public void testMaxDepth() {
-		ListTag<ListTag> root = new ListTag<>(ListTag.class);
-		ListTag<ListTag> rec = root;
+		ListTag<ListTag<?>> root = new ListTag<>(ListTag.class);
+		ListTag<ListTag<?>> rec = root;
 		for (int i = 0; i < Tag.MAX_DEPTH + 1; i++) {
-			ListTag<ListTag> l = new ListTag<>(ListTag.class);
+			ListTag<ListTag<?>> l = new ListTag<>(ListTag.class);
 			rec.add(l);
 			rec = l;
 		}
@@ -206,7 +206,7 @@ public class ListTagTest extends NBTTestCase {
 	}
 
 	public void testRecursion() {
-		ListTag<ListTag> recursive = new ListTag<>(ListTag.class);
+		ListTag<ListTag<?>> recursive = new ListTag<>(ListTag.class);
 		recursive.add(recursive);
 		assertThrowsRuntimeException(() -> serialize(recursive), MaxDepthReachedException.class);
 		assertThrowsRuntimeException(recursive::toString, MaxDepthReachedException.class);

@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
 
-public class StructTag extends Tag<List<Tag>> implements Iterable<Tag> {
+public class StructTag extends Tag<List<Tag<?>>> implements Iterable<Tag<?>> {
 
 	public static void register() {
 		TagFactory.registerCustomTag(120, StructTag::new);
@@ -34,7 +34,7 @@ public class StructTag extends Tag<List<Tag>> implements Iterable<Tag> {
 	}
 
 	@Override
-	protected List<Tag> getEmptyValue() {
+	protected List<Tag<?>> getEmptyValue() {
 		return new ArrayList<>(3);
 	}
 
@@ -42,11 +42,11 @@ public class StructTag extends Tag<List<Tag>> implements Iterable<Tag> {
 		return getValue().size();
 	}
 
-	public Tag remove(int index) {
+	public Tag<?> remove(int index) {
 		return getValue().remove(index);
 	}
 
-	public boolean remove(Tag tag) {
+	public boolean remove(Tag<?> tag) {
 		return getValue().remove(tag);
 	}
 
@@ -54,30 +54,30 @@ public class StructTag extends Tag<List<Tag>> implements Iterable<Tag> {
 		getValue().clear();
 	}
 
-	public boolean contains(Tag tag) {
+	public boolean contains(Tag<?> tag) {
 		return getValue().contains(tag);
 	}
 
-	public boolean containsAll(Collection<Tag> tags) {
+	public boolean containsAll(Collection<Tag<?>> tags) {
 		return getValue().containsAll(tags);
 	}
 
 	@Override
-	public Iterator<Tag> iterator() {
+	public Iterator<Tag<?>> iterator() {
 		return getValue().iterator();
 	}
 
 	@Override
-	public void forEach(Consumer<? super Tag> action) {
+	public void forEach(Consumer<? super Tag<?>> action) {
 		getValue().forEach(action);
 	}
 
-	public <S extends Tag> S get(int index, Class<S> type) {
-		Tag t = getValue().get(index);
+	public <S extends Tag<?>> S get(int index, Class<S> type) {
+		Tag<?> t = getValue().get(index);
 		return type.cast(t);
 	}
 
-	public Tag get(int index) {
+	public Tag<?> get(int index) {
 		return getValue().get(index);
 	}
 
@@ -130,7 +130,7 @@ public class StructTag extends Tag<List<Tag>> implements Iterable<Tag> {
 	}
 
 	public boolean getBoolean(int index) {
-		Tag t = get(index);
+		Tag<?> t = get(index);
 		return t instanceof ByteTag && ((ByteTag) t).asByte() > 0;
 	}
 
@@ -174,15 +174,15 @@ public class StructTag extends Tag<List<Tag>> implements Iterable<Tag> {
 		return getLongArrayTag(index).getValue();
 	}
 
-	public Tag set(int index, Tag tag) {
+	public Tag<?> set(int index, Tag<?> tag) {
 		return getValue().set(index, checkNull(tag));
 	}
 
-	public void add(Tag tag) {
+	public void add(Tag<?> tag) {
 		getValue().add(checkNull(tag));
 	}
 
-	public void add(int index, Tag tag) {
+	public void add(int index, Tag<?> tag) {
 		getValue().add(index, checkNull(tag));
 	}
 
@@ -233,7 +233,7 @@ public class StructTag extends Tag<List<Tag>> implements Iterable<Tag> {
 	@Override
 	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
 		dos.writeInt(size());
-		for (Tag tag : getValue()) {
+		for (Tag<?> tag : getValue()) {
 			dos.writeByte(tag.getID());
 			tag.serializeValue(dos, incrementDepth(depth));
 		}
@@ -244,7 +244,7 @@ public class StructTag extends Tag<List<Tag>> implements Iterable<Tag> {
 		int size = dis.readInt();
 		setValue(new ArrayList<>(size));
 		for (int i = 0; i < size; i++) {
-			Tag tag = TagFactory.fromID(dis.readByte());
+			Tag<?> tag = TagFactory.fromID(dis.readByte());
 			tag.deserializeValue(dis, incrementDepth(depth));
 			add(tag);
 		}
@@ -289,7 +289,7 @@ public class StructTag extends Tag<List<Tag>> implements Iterable<Tag> {
 	}
 
 	@Override
-	public int compareTo(Tag<List<Tag>> o) {
+	public int compareTo(Tag<List<Tag<?>>> o) {
 		if (!(o instanceof StructTag)) {
 			return 0;
 		}
@@ -299,7 +299,7 @@ public class StructTag extends Tag<List<Tag>> implements Iterable<Tag> {
 	@Override
 	public StructTag clone() {
 		StructTag copy = new StructTag();
-		for (Tag tag : getValue()) {
+		for (Tag<?> tag : getValue()) {
 			copy.add(tag.clone());
 		}
 		return copy;

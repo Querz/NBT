@@ -31,10 +31,10 @@ public class Chunk {
 	private ListTag<CompoundTag> tileEntities;
 	private ListTag<CompoundTag> tileTicks;
 	private ListTag<CompoundTag> liquidTicks;
-	private ListTag<ListTag> lights;
-	private ListTag<ListTag> liquidsToBeTicked;
-	private ListTag<ListTag> toBeTicked;
-	private ListTag<ListTag> postProcessing;
+	private ListTag<ListTag<?>> lights;
+	private ListTag<ListTag<?>> liquidsToBeTicked;
+	private ListTag<ListTag<?>> toBeTicked;
+	private ListTag<ListTag<?>> postProcessing;
 	private String status;
 	private CompoundTag structures;
 
@@ -97,7 +97,7 @@ public class Chunk {
 			throw new IOException("invalid compression type " + compressionTypeByte);
 		}
 		DataInputStream dis = new DataInputStream(new BufferedInputStream(compressionType.decompress(new FileInputStream(raf.getFD()))));
-		Tag tag = Tag.deserialize(dis, 0);
+		Tag<?> tag = Tag.deserialize(dis, 0);
 		if (tag instanceof CompoundTag) {
 			data = (CompoundTag) tag;
 			initReferences();
@@ -247,35 +247,35 @@ public class Chunk {
 		this.liquidTicks = liquidTicks;
 	}
 
-	public ListTag<ListTag> getLights() {
+	public ListTag<ListTag<?>> getLights() {
 		return lights;
 	}
 
-	public void setLights(ListTag<ListTag> lights) {
+	public void setLights(ListTag<ListTag<?>> lights) {
 		this.lights = lights;
 	}
 
-	public ListTag<ListTag> getLiquidsToBeTicked() {
+	public ListTag<ListTag<?>> getLiquidsToBeTicked() {
 		return liquidsToBeTicked;
 	}
 
-	public void setLiquidsToBeTicked(ListTag<ListTag> liquidsToBeTicked) {
+	public void setLiquidsToBeTicked(ListTag<ListTag<?>> liquidsToBeTicked) {
 		this.liquidsToBeTicked = liquidsToBeTicked;
 	}
 
-	public ListTag<ListTag> getToBeTicked() {
+	public ListTag<ListTag<?>> getToBeTicked() {
 		return toBeTicked;
 	}
 
-	public void setToBeTicked(ListTag<ListTag> toBeTicked) {
+	public void setToBeTicked(ListTag<ListTag<?>> toBeTicked) {
 		this.toBeTicked = toBeTicked;
 	}
 
-	public ListTag<ListTag> getPostProcessing() {
+	public ListTag<ListTag<?>> getPostProcessing() {
 		return postProcessing;
 	}
 
-	public void setPostProcessing(ListTag<ListTag> postProcessing) {
+	public void setPostProcessing(ListTag<ListTag<?>> postProcessing) {
 		this.postProcessing = postProcessing;
 	}
 

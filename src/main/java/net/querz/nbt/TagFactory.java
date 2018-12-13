@@ -10,7 +10,7 @@ public class TagFactory {
 
 	private TagFactory() {}
 
-	public static Tag fromID(int id) {
+	public static Tag<?> fromID(int id) {
 		switch (id) {
 			case 0:
 				return EndTag.INSTANCE;

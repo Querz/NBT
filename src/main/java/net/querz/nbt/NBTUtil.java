@@ -23,7 +23,7 @@ public final class NBTUtil {
 	 * Calls {@link NBTUtil#writeTag(Tag, String, File, boolean)} with an empty name and GZIP compression.
 	 * @see NBTUtil#writeTag(Tag, String, File, boolean)
 	 */
-	public static void writeTag(Tag tag, String file) throws IOException {
+	public static void writeTag(Tag<?> tag, String file) throws IOException {
 		writeTag(tag, "", new File(file), true);
 	}
 
@@ -31,7 +31,7 @@ public final class NBTUtil {
 	 * Calls {@link NBTUtil#writeTag(Tag, String, File, boolean)} with an empty name and GZIP compression.
 	 * @see NBTUtil#writeTag(Tag, String, File, boolean)
 	 */
-	public static void writeTag(Tag tag, File file) throws IOException {
+	public static void writeTag(Tag<?> tag, File file) throws IOException {
 		writeTag(tag, "", file, true);
 	}
 
@@ -39,7 +39,7 @@ public final class NBTUtil {
 	 * Calls {@link NBTUtil#writeTag(Tag, String, File, boolean)} with an empty name.
 	 * @see NBTUtil#writeTag(Tag, String, File, boolean)
 	 */
-	public static void writeTag(Tag tag, String file, boolean compressed) throws IOException {
+	public static void writeTag(Tag<?> tag, String file, boolean compressed) throws IOException {
 		writeTag(tag, "", new File(file), compressed);
 	}
 
@@ -47,14 +47,14 @@ public final class NBTUtil {
 	 * Calls {@link NBTUtil#writeTag(Tag, String, File, boolean)} with an empty name.
 	 * @see NBTUtil#writeTag(Tag, String, File, boolean)
 	 * */
-	public static void writeTag(Tag tag, File file, boolean compressed) throws IOException {
+	public static void writeTag(Tag<?> tag, File file, boolean compressed) throws IOException {
 		writeTag(tag, "", file, compressed);
 	}
 
 	/**
 	 * @see NBTUtil#writeTag(Tag, String, File)
 	 */
-	public static void writeTag(Tag tag, String name, String file) throws IOException {
+	public static void writeTag(Tag<?> tag, String name, String file) throws IOException {
 		writeTag(tag, name, new File(file), true);
 	}
 
@@ -62,14 +62,14 @@ public final class NBTUtil {
 	 * Calls {@link NBTUtil#writeTag(Tag, String, String, boolean)} with GZIP compression.
 	 * @see NBTUtil#writeTag(Tag, String, File, boolean)
 	 */
-	public static void writeTag(Tag tag, String name, File file) throws IOException {
+	public static void writeTag(Tag<?> tag, String name, File file) throws IOException {
 		writeTag(tag, name, file, true);
 	}
 
 	/**
 	 * @see NBTUtil#writeTag(Tag, String, String, boolean)
 	 */
-	public static void writeTag(Tag tag, String name, String file, boolean compressed) throws IOException {
+	public static void writeTag(Tag<?> tag, String name, String file, boolean compressed) throws IOException {
 		writeTag(tag, name, new File(file), compressed);
 	}
 
@@ -84,7 +84,7 @@ public final class NBTUtil {
 	 * @exception NullPointerException If {@code tag}, {@code name} or {@code file} is {@code null}.
 	 * @exception MaxDepthReachedException If the NBT structure exceeds {@link Tag#MAX_DEPTH}.
 	 */
-	public static void writeTag(Tag tag, String name, File file, boolean compressed) throws IOException {
+	public static void writeTag(Tag<?> tag, String name, File file, boolean compressed) throws IOException {
 		try (
 				DataOutputStream dos = new DataOutputStream(
 						compressed ? new GZIPOutputStream(new FileOutputStream(file)) : new FileOutputStream(file))
@@ -96,7 +96,7 @@ public final class NBTUtil {
 	/**
 	 * @see NBTUtil#readTag(File)
 	 * */
-	public static Tag readTag(String file) throws IOException {
+	public static Tag<?> readTag(String file) throws IOException {
 		return readTag(new File(file));
 	}
 
@@ -109,7 +109,7 @@ public final class NBTUtil {
 	 * @throws NullPointerException If {@code file} is {@code null}.
 	 * @exception MaxDepthReachedException If the NBT structure exceeds {@link Tag#MAX_DEPTH}.
 	 * */
-	public static Tag readTag(File file) throws IOException {
+	public static Tag<?> readTag(File file) throws IOException {
 		try (DataInputStream dis = new DataInputStream(applyDecompression(new FileInputStream(file)))) {
 			return Tag.deserialize(dis, 0);
 		}
