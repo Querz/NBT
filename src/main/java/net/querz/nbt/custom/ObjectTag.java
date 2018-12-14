@@ -9,7 +9,7 @@ import java.lang.reflect.InvocationTargetException;
 public class ObjectTag<T extends Serializable> extends Tag<T> {
 
 	public static void register() {
-		TagFactory.registerCustomTag(90, ObjectTag::new);
+		TagFactory.registerCustomTag(90, ObjectTag::new, ObjectTag.class);
 	}
 
 	public ObjectTag() {}

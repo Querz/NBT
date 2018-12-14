@@ -8,20 +8,20 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
  * ListTag represents a typed List in the nbt structure.
  * An empty ListTag is of type {@code EndTag}.
  * Having this in mind, ListTag will always act consistent with serialization
- * regarding its type. Therefore {@link ListTag#getTypeID()} will return {@code 0}
+ * regarding its type. Therefore  will return {@code 0}
  * and {@link ListTag#getTypeClass()} will return {@code EndTag.class}
  * when called on an empty ListTag.
  * */
 public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<T> {
 
-	private byte typeID = 0;
-	private Class<?> typeClass = EndTag.class;
+	private Class<?> typeClass = null;
 
 	private ListTag() {}
 	
@@ -55,12 +55,8 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 		return 9;
 	}
 
-	public byte getTypeID() {
-		return size() == 0 ? 0 : typeID;
-	}
-
 	public Class<?> getTypeClass() {
-		return size() == 0 ? EndTag.class : typeClass;
+		return typeClass == null ? EndTag.class : typeClass;
 	}
 
 	@Override
@@ -118,8 +114,7 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	public void add(int index, T t) {
 		checkNull(t);
 		getValue().add(index, t);
-		if (typeID == 0) {
-			typeID = t.getID();
+		if (typeClass == null) {
 			typeClass = t.getClass();
 		}
 	}
@@ -193,6 +188,7 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	@SuppressWarnings("unchecked")
 	public <L extends Tag<?>> ListTag<L> asTypedList(Class<L> type) {
 		checkTypeClass(type);
+		typeClass = type;
 		return (ListTag<L>) this;
 	}
 
@@ -239,6 +235,7 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	@SuppressWarnings("unchecked")
 	public ListTag<ListTag<?>> asListTagList() {
 		checkTypeClass(ListTag.class);
+		typeClass = ListTag.class;
 		return (ListTag<ListTag<?>>) this;
 	}
 
@@ -248,7 +245,7 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 
 	@Override
 	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
-		dos.writeByte(getTypeID());
+		dos.writeByte(TagFactory.idFromClass(getTypeClass()));
 		dos.writeInt(size());
 		if (size() != 0) {
 			for (T t : getValue()) {
@@ -260,9 +257,12 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	@SuppressWarnings("unchecked")
 	@Override
 	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
-		typeID = dis.readByte();
-		int size = dis.readInt();
+		int typeID = dis.readByte();
 		if (typeID != 0) {
+			typeClass = TagFactory.classFromID(typeID);
+		}
+		int size = dis.readInt();
+		if (size != 0) {
 			setValue(new ArrayList<>(size));
 			for (int i = 0; i < size; i++) {
 				Tag<?> tag = TagFactory.fromID(typeID);
@@ -297,7 +297,7 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 		if (this == other) {
 			return true;
 		}
-		if (!super.equals(other) || size() != ((ListTag<?>) other).size() || getTypeID() != ((ListTag<?>) other).getTypeID()) {
+		if (!super.equals(other) || size() != ((ListTag<?>) other).size() || typeClass != ((ListTag<?>) other).getTypeClass()) {
 			return false;
 		}
 		for (int i = 0; i < size(); i++) {
@@ -310,7 +310,7 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 
 	@Override
 	public int hashCode() {
-		return getValue().hashCode();
+		return Objects.hash(getTypeClass().hashCode(), getValue().hashCode());
 	}
 
 	@Override
@@ -326,7 +326,6 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	public ListTag<T> clone() {
 		ListTag<T> copy = new ListTag<>();
 		// assure type safety for clone
-		copy.typeID = typeID;
 		copy.typeClass = typeClass;
 		for (T t : getValue()) {
 			copy.add((T) t.clone());
@@ -336,7 +335,7 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 
 	@SuppressWarnings("unchecked")
 	private void addUnchecked(Tag<?> tag) {
-		if (typeClass != EndTag.class && typeClass != tag.getClass() || typeID != 0 && tag.getID() != typeID) {
+		if (typeClass != null && typeClass != tag.getClass()) {
 			throw new IllegalArgumentException(String.format(
 					"cannot add %s to ListTag<%s>",
 					tag.getClass().getSimpleName(), typeClass.getSimpleName()));
@@ -345,7 +344,7 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	}
 
 	private void checkTypeClass(Class<?> clazz) {
-		if (typeClass != EndTag.class && clazz != typeClass) {
+		if (typeClass != null && typeClass != clazz) {
 			throw new ClassCastException(String.format(
 					"cannot cast ListTag<%s> to ListTag<%s>",
 					typeClass.getSimpleName(), clazz.getSimpleName()));

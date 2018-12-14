@@ -114,7 +114,7 @@ public class ObjectTagTest extends NBTTestCase implements Serializable {
 	}
 
 	public void testUnknownObject() {
-		TagFactory.registerCustomTag(90, ObjectTag::new);
+		TagFactory.registerCustomTag(90, ObjectTag::new, ObjectTag.class);
 		assertThrowsException(() -> NBTUtil.readTag(getResourceFile("unknown_object_tag.dat")), IOException.class);
 	}
 

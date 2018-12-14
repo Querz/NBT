@@ -23,7 +23,7 @@ import java.util.function.Consumer;
 public class StructTag extends Tag<List<Tag<?>>> implements Iterable<Tag<?>> {
 
 	public static void register() {
-		TagFactory.registerCustomTag(120, StructTag::new);
+		TagFactory.registerCustomTag(120, StructTag::new, StructTag.class);
 	}
 
 	public StructTag() {}

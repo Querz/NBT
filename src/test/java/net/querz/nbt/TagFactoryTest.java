@@ -21,10 +21,20 @@ public class TagFactoryTest extends NBTTestCase {
 		assertThrowsRuntimeException(() -> TagFactory.fromID(-1), IllegalArgumentException.class);
 	}
 
+	public void testClassFromID() {
+		assertThrowsNoRuntimeException(() -> TagFactory.classFromID(1));
+		assertThrowsRuntimeException(() -> TagFactory.classFromID(20), IllegalArgumentException.class);
+	}
+
+	public void testIDFromClass() {
+		assertThrowsNoRuntimeException(() -> TagFactory.idFromClass(ByteTag.class));
+		assertThrowsRuntimeException(() -> TagFactory.idFromClass(CharTag.class), IllegalArgumentException.class);
+	}
+
 	public void testRegisterCustomTag() {
-		assertThrowsRuntimeException(() -> TagFactory.registerCustomTag(-1, CharTag::new), IllegalArgumentException.class);
-		assertThrowsRuntimeException(() -> TagFactory.registerCustomTag(12, CharTag::new), IllegalArgumentException.class);
-		assertThrowsRuntimeException(() -> TagFactory.registerCustomTag(128, CharTag::new), IllegalArgumentException.class);
+		assertThrowsRuntimeException(() -> TagFactory.registerCustomTag(-1, CharTag::new, CharTag.class), IllegalArgumentException.class);
+		assertThrowsRuntimeException(() -> TagFactory.registerCustomTag(12, CharTag::new, CharTag.class), IllegalArgumentException.class);
+		assertThrowsRuntimeException(() -> TagFactory.registerCustomTag(128, CharTag::new, CharTag.class), IllegalArgumentException.class);
 		CharTag.register();
 		assertThrowsRuntimeException(CharTag::register, IllegalArgumentException.class);
 	}

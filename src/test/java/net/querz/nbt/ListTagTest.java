@@ -3,6 +3,7 @@ package net.querz.nbt;
 import junit.framework.TestCase;
 import java.util.Arrays;
 import java.util.Comparator;
+import static org.junit.Assert.assertNotEquals;
 
 public class ListTagTest extends NBTTestCase {
 	public void testCreateInvalidList() {
@@ -62,6 +63,14 @@ public class ListTagTest extends NBTTestCase {
 		assertEquals(il, new ListTag<>(IntTag.class));
 	}
 
+	public void testHashCode() {
+		ListTag<StringTag> ls = new ListTag<>(StringTag.class);
+		ListTag<IntTag> li = new ListTag<>(IntTag.class);
+		assertNotEquals(ls.hashCode(), li.hashCode());
+		ListTag<StringTag> ls2 = new ListTag<>(StringTag.class);
+		assertEquals(ls.hashCode(), ls2.hashCode());
+	}
+
 	public void testClone() {
 		ListTag<IntTag> i = new ListTag<>(IntTag.class);
 		ListTag<IntTag> c = i.clone();
@@ -91,11 +100,10 @@ public class ListTagTest extends NBTTestCase {
 	public void testSerializeDeserializeEmptyList() {
 		ListTag<IntTag> empty = new ListTag<>(IntTag.class);
 		byte[] data = serialize(empty);
-		assertTrue(Arrays.equals(new byte[]{9, 0, 0, 0, 0, 0, 0, 0}, data));
+		assertTrue(Arrays.equals(new byte[]{9, 0, 0, 3, 0, 0, 0, 0}, data));
 		ListTag<?> et = (ListTag<?>) deserialize(data);
 		assertNotNull(et);
-		ListTag<ByteTag> ett = et.asByteTagList();
-		assertTrue(empty.equals(ett));
+		assertThrowsRuntimeException(et::asByteTagList, ClassCastException.class);
 	}
 
 	public void testCasting() {
@@ -107,15 +115,12 @@ public class ListTagTest extends NBTTestCase {
 		assertThrowsNoRuntimeException(() -> b.asTypedList(ByteTag.class));
 		assertThrowsRuntimeException(() -> b.asTypedList(ShortTag.class), ClassCastException.class);
 		b.remove(0);
-		//list is empty, type is 0 (EndTag), but it should still remember its type
-		assertEquals(0, b.getTypeID());
-		assertEquals(EndTag.class, b.getTypeClass());
+
+		assertEquals(ByteTag.class, b.getTypeClass());
 		assertThrowsRuntimeException(() -> b.addShort((short) 1), IllegalArgumentException.class);
-		assertEquals(0, b.getTypeID());
-		assertEquals(EndTag.class, b.getTypeClass());
+		assertEquals(ByteTag.class, b.getTypeClass());
 		b.clear();
-		assertEquals(0, b.getTypeID());
-		assertEquals(EndTag.class, b.getTypeClass());
+		assertEquals(ByteTag.class, b.getTypeClass());
 
 		//adjust ListTag type during deserialization
 		ListTag<?> l = ListTag.createUnchecked();
@@ -178,6 +183,12 @@ public class ListTagTest extends NBTTestCase {
 		lco.add(new CompoundTag());
 		assertThrowsNoRuntimeException(lco::asCompoundTagList);
 		assertThrowsRuntimeException(lco::asByteTagList, ClassCastException.class);
+
+		ListTag<?> lg = ListTag.createUnchecked();
+		ListTag<ByteTag> lb = assertThrowsNoRuntimeException(lg::asByteTagList);
+		assertEquals(lb, lg);
+		//only allow casting once from untyped list to typed list
+		assertThrowsRuntimeException(lg::asShortTagList, ClassCastException.class);
 	}
 
 	public void testCompareTo() {
