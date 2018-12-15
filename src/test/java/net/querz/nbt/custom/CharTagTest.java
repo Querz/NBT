@@ -6,6 +6,7 @@ import java.util.Arrays;
 public class CharTagTest extends NBTTestCase {
 
 	public void testStringConversion() {
+		CharTag.register();
 		CharTag t = new CharTag('a');
 		assertEquals('a', (char) t.getValue());
 		assertEquals(110, t.getID());

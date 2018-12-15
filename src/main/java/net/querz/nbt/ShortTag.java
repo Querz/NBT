@@ -13,11 +13,6 @@ public class ShortTag extends NumberTag<Short> {
 	}
 
 	@Override
-	public byte getID() {
-		return 2;
-	}
-
-	@Override
 	protected Short getEmptyValue() {
 		return 0;
 	}

@@ -13,11 +13,6 @@ public class StringTag extends Tag<String> {
 	}
 
 	@Override
-	public byte getID() {
-		return 8;
-	}
-
-	@Override
 	protected String getEmptyValue() {
 		return "";
 	}

@@ -29,11 +29,6 @@ public class StructTag extends Tag<List<Tag<?>>> implements Iterable<Tag<?>> {
 	public StructTag() {}
 
 	@Override
-	public byte getID() {
-		return 120;
-	}
-
-	@Override
 	protected List<Tag<?>> getEmptyValue() {
 		return new ArrayList<>(3);
 	}

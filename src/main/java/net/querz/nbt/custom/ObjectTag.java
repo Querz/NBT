@@ -19,11 +19,6 @@ public class ObjectTag<T extends Serializable> extends Tag<T> {
 	}
 
 	@Override
-	public byte getID() {
-		return 90;
-	}
-
-	@Override
 	protected T getEmptyValue() {
 		return null;
 	}

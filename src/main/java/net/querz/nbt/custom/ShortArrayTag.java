@@ -20,11 +20,6 @@ public class ShortArrayTag extends ArrayTag<short[]> {
 	}
 
 	@Override
-	public byte getID() {
-		return 100;
-	}
-
-	@Override
 	protected short[] getEmptyValue() {
 		return new short[0];
 	}

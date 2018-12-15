@@ -14,11 +14,6 @@ public class LongArrayTag extends ArrayTag<long[]> {
 	}
 
 	@Override
-	public byte getID() {
-		return 12;
-	}
-
-	@Override
 	protected long[] getEmptyValue() {
 		return new long[0];
 	}

@@ -10,11 +10,6 @@ public final class EndTag extends Tag<Void> {
 	private EndTag() {}
 
 	@Override
-	public byte getID() {
-		return 0;
-	}
-
-	@Override
 	protected Void getEmptyValue() {
 		return null;
 	}

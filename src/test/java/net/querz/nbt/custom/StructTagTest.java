@@ -22,6 +22,7 @@ public class StructTagTest extends NBTTestCase {
 	}
 
 	public void testStringConversion() {
+		StructTag.register();
 		StructTag s = createStructTag();
 		assertEquals(120, s.getID());
 		assertEquals("[127b,2147483647]", s.toTagString());

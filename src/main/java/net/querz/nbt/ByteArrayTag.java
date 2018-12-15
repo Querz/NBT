@@ -14,11 +14,6 @@ public class ByteArrayTag extends ArrayTag<byte[]> {
 	}
 
 	@Override
-	public byte getID() {
-		return 7;
-	}
-
-	@Override
 	protected byte[] getEmptyValue() {
 		return new byte[0];
 	}
