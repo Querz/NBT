@@ -61,12 +61,12 @@ public final class TagFactory {
 		return mapping.clazz;
 	}
 
-	public static int idFromClass(Class<?> clazz) {
+	public static byte idFromClass(Class<?> clazz) {
 		TagMapping<?> mapping = classMapping.get(clazz);
 		if (mapping == null) {
 			throw new IllegalArgumentException("unknown Tag class " + clazz.getName());
 		}
-		return mapping.id;
+		return (byte) mapping.id;
 	}
 
 	public static <T extends Tag<?>> void registerCustomTag(int id, Supplier<T> factory, Class<T> clazz) {

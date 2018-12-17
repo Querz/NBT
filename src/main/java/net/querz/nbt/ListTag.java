@@ -13,11 +13,10 @@ import java.util.function.Consumer;
 
 /**
  * ListTag represents a typed List in the nbt structure.
- * An empty ListTag is of type {@code EndTag}.
- * Having this in mind, ListTag will always act consistent with serialization
- * regarding its type. Therefore  will return {@code 0}
- * and {@link ListTag#getTypeClass()} will return {@code EndTag.class}
- * when called on an empty ListTag.
+ * An empty {@link ListTag} created using {@link ListTag#createUnchecked()} will be of unknown type
+ * and returns an {@link EndTag}{@code .class} in {@link ListTag#getTypeClass()}.
+ * The type of an empty untyped {@link ListTag} can be set by using any of the {@code add()}
+ * methods or any of the {@code as...List()} methods.
  * */
 public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<T> {
 
@@ -48,11 +47,6 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 			throw new IllegalArgumentException("cannot create ListTag with EndTag elements");
 		}
 		this.typeClass = checkNull(typeClass);
-	}
-
-	@Override
-	public byte getID() {
-		return 9;
 	}
 
 	public Class<?> getTypeClass() {
@@ -274,7 +268,7 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 
 	@Override
 	public String valueToString(int depth) {
-		StringBuilder sb = new StringBuilder("{\"type\":\"").append(typeClass.getSimpleName()).append("\",\"list\":[");
+		StringBuilder sb = new StringBuilder("{\"type\":\"").append(getTypeClass().getSimpleName()).append("\",\"list\":[");
 		for (int i = 0; i < size(); i++) {
 			sb.append(i > 0 ? "," : "").append(get(i).valueToString(incrementDepth(depth)));
 		}
@@ -297,7 +291,7 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 		if (this == other) {
 			return true;
 		}
-		if (!super.equals(other) || size() != ((ListTag<?>) other).size() || typeClass != ((ListTag<?>) other).getTypeClass()) {
+		if (!super.equals(other) || size() != ((ListTag<?>) other).size() || getTypeClass() != ((ListTag<?>) other).getTypeClass()) {
 			return false;
 		}
 		for (int i = 0; i < size(); i++) {

@@ -48,7 +48,9 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	/**
 	 * @return This Tag's ID, usually used for serialization and deserialization.
 	 * */
-	public abstract byte getID();
+	public byte getID() {
+		return TagFactory.idFromClass(getClass());
+	}
 
 	/**
 	 * @return A default value for this Tag.

@@ -6,6 +6,7 @@ import java.util.Comparator;
 import static org.junit.Assert.assertNotEquals;
 
 public class ListTagTest extends NBTTestCase {
+
 	public void testCreateInvalidList() {
 		assertThrowsException(() -> new ListTag<>(EndTag.class), IllegalArgumentException.class);
 		assertThrowsException(() -> new ListTag<>(null), NullPointerException.class);
@@ -33,6 +34,8 @@ public class ListTagTest extends NBTTestCase {
 				"-128," +
 				"0," +
 				"127]}}", bl.toString());
+		ListTag<?> lu = ListTag.createUnchecked();
+		assertEquals("{\"type\":\"ListTag\",\"value\":{\"type\":\"EndTag\",\"list\":[]}}", lu.toString());
 	}
 
 	public void testEquals() {
@@ -61,6 +64,17 @@ public class ListTagTest extends NBTTestCase {
 		il.addInt(1);
 		il.clear();
 		assertEquals(il, new ListTag<>(IntTag.class));
+
+		// test empty untyped list
+		ListTag<?> lu = ListTag.createUnchecked();
+		ListTag<?> lu2 = ListTag.createUnchecked();
+		assertTrue(lu.equals(lu2));
+		lu2.asIntTagList();
+		assertFalse(lu.equals(lu2));
+		ListTag<IntTag> lie = new ListTag<>(IntTag.class);
+		assertFalse(lu.equals(lie));
+		lu.asIntTagList();
+		assertTrue(lie.equals(lu));
 	}
 
 	public void testHashCode() {

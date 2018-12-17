@@ -17,11 +17,6 @@ public class ByteTag extends NumberTag<Byte> {
 	}
 
 	@Override
-	public byte getID() {
-		return 1;
-	}
-
-	@Override
 	protected Byte getEmptyValue() {
 		return 0;
 	}

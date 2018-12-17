@@ -19,11 +19,6 @@ public class CharTag extends Tag<Character> {
 	}
 
 	@Override
-	public byte getID() {
-		return 110;
-	}
-
-	@Override
 	protected Character getEmptyValue() {
 		return 0;
 	}

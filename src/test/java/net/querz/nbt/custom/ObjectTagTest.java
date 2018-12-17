@@ -12,6 +12,7 @@ import java.util.Random;
 public class ObjectTagTest extends NBTTestCase implements Serializable {
 
 	public void testStringConversion() {
+		ObjectTag.register();
 		DummyObject d = new DummyObject();
 		ObjectTag<DummyObject> o = new ObjectTag<>(d);
 		assertEquals(90, o.getID());

@@ -13,11 +13,6 @@ public class IntTag extends NumberTag<Integer> {
 	}
 
 	@Override
-	public byte getID() {
-		return 3;
-	}
-
-	@Override
 	protected Integer getEmptyValue() {
 		return 0;
 	}

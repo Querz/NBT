@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNotEquals;
 public class ShortArrayTagTest extends NBTTestCase {
 
 	public void testStringConversion() {
+		ShortArrayTag.register();
 		ShortArrayTag t = new ShortArrayTag(new short[]{Short.MIN_VALUE, 0, Short.MAX_VALUE});
 		assertTrue(Arrays.equals(new short[]{Short.MIN_VALUE, 0, Short.MAX_VALUE}, t.getValue()));
 		assertEquals(100, t.getID());

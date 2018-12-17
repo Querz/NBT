@@ -11,11 +11,6 @@ public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Ma
 	public CompoundTag() {}
 
 	@Override
-	public byte getID() {
-		return 10;
-	}
-
-	@Override
 	protected Map<String, Tag<?>> getEmptyValue() {
 		return new HashMap<>(8);
 	}
