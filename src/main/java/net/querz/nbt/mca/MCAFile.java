@@ -55,6 +55,9 @@ public class MCAFile {
 	/**
 	 * Calls {@link MCAFile#serialize(RandomAccessFile, boolean)} without updating any timestamps.
 	 * @see MCAFile#serialize(RandomAccessFile, boolean)
+	 * @param raf The {@code RandomAccessFile} to write to.
+	 * @return The amount of chunks written to the file.
+	 * @throws IOException If something went wrong during serialization.
 	 * */
 	public int serialize(RandomAccessFile raf) throws IOException {
 		return serialize(raf, false);
@@ -66,8 +69,8 @@ public class MCAFile {
 	 * @param raf The {@code RandomAccessFile} to write to.
 	 * @param changeLastUpdate Whether it should update all timestamps that show
 	 *                         when this file was last updated.
-	 * @throws IOException If something went wrong during serialization.
 	 * @return The amount of chunks written to the file.
+	 * @throws IOException If something went wrong during serialization.
 	 * */
 	public int serialize(RandomAccessFile raf, boolean changeLastUpdate) throws IOException {
 		int globalOffset = 2;

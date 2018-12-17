@@ -75,6 +75,9 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	/**
 	 * Calls {@link Tag#serialize(DataOutputStream, String, int)} with an empty name.
 	 * @see Tag#serialize(DataOutputStream, String, int)
+	 * @param dos The DataOutputStream to write to
+	 * @param depth The current depth of the structure
+	 * @throws IOException If something went wrong during serialization
 	 * */
 	public final void serialize(DataOutputStream dos, int depth) throws IOException {
 		serialize(dos, "", depth);
@@ -82,7 +85,7 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 
 	/**
 	 * Serializes this Tag starting at the gives depth.
-	 * @param dos The DataOutputStream to serialize into.
+	 * @param dos The DataOutputStream to write to.
 	 * @param name The name of this Tag, if this is the root Tag.
 	 * @param depth The current depth of the structure.
 	 * @throws IOException If something went wrong during serialization.
@@ -105,6 +108,7 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	 * @throws IOException If something went wrong during deserialization.
 	 * @exception NullPointerException If {@code dis} is {@code null}.
 	 * @exception MaxDepthReachedException If the structure depth exceeds {@link Tag#MAX_DEPTH}.
+	 * @return The deserialized NBT structure.
 	 * */
 	public static Tag<?> deserialize(DataInputStream dis, int depth) throws IOException {
 		int id = dis.readByte() & 0xFF;
@@ -165,6 +169,7 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	/**
 	 * Calls {@link Tag#toTagString(int)} with an initial depth of {@code 0}.
 	 * @see Tag#toTagString(int)
+	 * @return The JSON-like string representation of this Tag.
 	 * */
 	public String toTagString() {
 		return toTagString(0);
@@ -219,7 +224,8 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	public abstract Tag<T> clone();
 
 	/**
-	 * A utility method to check if some value is null.
+	 * A utility method to check if some value is {@code null}.
+	 * @param <V> Any type that should be checked for being {@code null}
 	 * @param v The value to check.
 	 * @return {@code v}, if it's not {@code null}.
 	 * @exception NullPointerException If {@code v} is {@code null}.

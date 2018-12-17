@@ -18,6 +18,9 @@ public final class MCAUtil {
 
 	/**
 	 * @see MCAUtil#readMCAFile(File)
+	 * @param file The file to read the data from.
+	 * @return An in-memory representation of the MCA file with decompressed chunk data.
+	 * @throws IOException if something during deserialization goes wrong.
 	 * */
 	public static MCAFile readMCAFile(String file) throws IOException {
 		return readMCAFile(new File(file));
@@ -40,6 +43,10 @@ public final class MCAUtil {
 	/**
 	 * Calls {@link MCAUtil#writeMCAFile(MCAFile, File, boolean)} without changing the timestamps.
 	 * @see MCAUtil#writeMCAFile(MCAFile, File, boolean)
+	 * @param file The file to write to.
+	 * @param mcaFile The data of the MCA file to write.
+	 * @return The amount of chunks written to the file.
+	 * @throws IOException If something goes wrong during serialization.
 	 * */
 	public static int writeMCAFile(MCAFile mcaFile, String file) throws IOException {
 		return writeMCAFile(mcaFile, new File(file), false);
@@ -48,6 +55,10 @@ public final class MCAUtil {
 	/**
 	 * Calls {@link MCAUtil#writeMCAFile(MCAFile, File, boolean)} without changing the timestamps.
 	 * @see MCAUtil#writeMCAFile(MCAFile, File, boolean)
+	 * @param file The file to write to.
+	 * @param mcaFile The data of the MCA file to write.
+	 * @return The amount of chunks written to the file.
+	 * @throws IOException If something goes wrong during serialization.
 	 * */
 	public static int writeMCAFile(MCAFile mcaFile, File file) throws IOException {
 		return writeMCAFile(mcaFile, file, false);
@@ -55,6 +66,11 @@ public final class MCAUtil {
 
 	/**
 	 * @see MCAUtil#writeMCAFile(MCAFile, File, boolean)
+	 * @param file The file to write to.
+	 * @param mcaFile The data of the MCA file to write.
+	 * @param changeLastUpdate Whether to adjust the timestamps of when the file was saved.
+	 * @return The amount of chunks written to the file.
+	 * @throws IOException If something goes wrong during serialization.
 	 * */
 	public static int writeMCAFile(MCAFile mcaFile, String file, boolean changeLastUpdate) throws IOException {
 		return writeMCAFile(mcaFile, new File(file), changeLastUpdate);
@@ -90,6 +106,9 @@ public final class MCAUtil {
 	/**
 	 * Turns the chunks coordinates into region coordinates and calls
 	 * {@link MCAUtil#createNameFromRegionLocation(int, int)}
+	 * @param chunkX The x-value of the location of the chunk.
+	 * @param chunkZ The z-value of the location of the chunk.
+	 * @return A mca filename in the format "r.{regionX}.{regionZ}.mca"
 	 * */
 	public static String createNameFromChunkLocation(int chunkX, int chunkZ) {
 		return createNameFromRegionLocation( chunkToRegion(chunkX), chunkToRegion(chunkZ));
@@ -98,6 +117,9 @@ public final class MCAUtil {
 	/**
 	 * Turns the block coordinates into region coordinates and calls
 	 * {@link MCAUtil#createNameFromRegionLocation(int, int)}
+	 * @param blockX The x-value of the location of the block.
+	 * @param blockZ The z-value of the location of the block.
+	 * @return A mca filename in the format "r.{regionX}.{regionZ}.mca"
 	 * */
 	public static String createNameFromBlockLocation(int blockX, int blockZ) {
 		return createNameFromRegionLocation(blockToRegion(blockX), blockToRegion(blockZ));
@@ -105,8 +127,8 @@ public final class MCAUtil {
 
 	/**
 	 * Creates a filename string from provided chunk coordinates.
-	 * @param regionX The x-value of the location of the chunk.
-	 * @param regionZ The z-value of the location of the chunk.
+	 * @param regionX The x-value of the location of the region.
+	 * @param regionZ The z-value of the location of the region.
 	 * @return A mca filename in the format "r.{regionX}.{regionZ}.mca"
 	 * */
 	public static String createNameFromRegionLocation(int regionX, int regionZ) {
