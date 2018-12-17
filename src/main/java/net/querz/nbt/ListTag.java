@@ -276,7 +276,7 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	public String valueToString(int depth) {
 		StringBuilder sb = new StringBuilder("{\"type\":\"").append(typeClass.getSimpleName()).append("\",\"list\":[");
 		for (int i = 0; i < size(); i++) {
-			sb.append(i > 0 ? "," : "").append(get(i).toString(incrementDepth(depth)));
+			sb.append(i > 0 ? "," : "").append(get(i).valueToString(incrementDepth(depth)));
 		}
 		sb.append("]}");
 		return sb.toString();

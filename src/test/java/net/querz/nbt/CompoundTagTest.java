@@ -25,7 +25,7 @@ public class CompoundTagTest extends NBTTestCase {
 				"\"b\":{\"type\":\"ByteTag\",\"value\":127}," +
 				"\"str\":{\"type\":\"StringTag\",\"value\":\"foo\"}," +
 				"\"list\":{\"type\":\"ListTag\"," +
-				"\"value\":{\"type\":\"ByteTag\",\"list\":[{\"type\":\"ByteTag\",\"value\":123}]}}}}", ct.toString());
+				"\"value\":{\"type\":\"ByteTag\",\"list\":[123]}}}}", ct.toString());
 	}
 
 	public void testEquals() {

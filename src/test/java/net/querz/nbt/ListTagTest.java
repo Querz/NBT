@@ -30,9 +30,9 @@ public class ListTagTest extends NBTTestCase {
 				"\"value\":{" +
 				"\"type\":\"ByteTag\"," +
 				"\"list\":[" +
-				"{\"type\":\"ByteTag\",\"value\":-128}," +
-				"{\"type\":\"ByteTag\",\"value\":0}," +
-				"{\"type\":\"ByteTag\",\"value\":127}]}}", bl.toString());
+				"-128," +
+				"0," +
+				"127]}}", bl.toString());
 	}
 
 	public void testEquals() {
