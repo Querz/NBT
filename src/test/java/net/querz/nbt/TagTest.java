@@ -62,5 +62,14 @@ public class TagTest extends NBTTestCase {
 		assertThrowsException(() -> NBTUtil.writeTag(null, (File) null), NullPointerException.class);
 		assertThrowsException(() -> NBTUtil.writeTag(null, null, (File) null, false), NullPointerException.class);
 		assertThrowsException(() -> NBTUtil.writeTag(null, null, (String) null, false), NullPointerException.class);
+
+		CompoundTag dummy = new CompoundTag();
+		assertThrowsNoException(() -> NBTUtil.writeTag(dummy, getNewTmpFile("coverage.dat")));
+		assertThrowsNoException(() -> NBTUtil.writeTag(dummy, getNewTmpFile("coverage.dat").getAbsolutePath()));
+		assertThrowsNoException(() -> NBTUtil.writeTag(dummy, getNewTmpFile("coverage.dat"), true));
+		assertThrowsNoException(() -> NBTUtil.writeTag(dummy, getNewTmpFile("coverage.dat").getAbsolutePath(), true));
+		assertThrowsNoException(() -> NBTUtil.writeTag(dummy, "foo", getNewTmpFile("coverage.dat")));
+		assertThrowsNoException(() -> NBTUtil.writeTag(dummy, "foo", getNewTmpFile("coverage.dat").getAbsolutePath()));
+		assertThrowsNoException(() -> NBTUtil.writeTag(dummy, "foo", getNewTmpFile("coverage.dat").getAbsolutePath(), true));
 	}
 }

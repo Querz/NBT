@@ -28,7 +28,7 @@ public abstract class NBTTestCase extends TestCase {
 		TagFactory.unregisterCustomTag(100);
 		TagFactory.unregisterCustomTag(110);
 		TagFactory.unregisterCustomTag(120);
-		cleanupTmpDir();
+//		cleanupTmpDir();
 	}
 
 	protected byte[] serialize(Tag<?> tag) {
@@ -151,10 +151,16 @@ public abstract class NBTTestCase extends TestCase {
 	}
 
 	protected <T, E extends Exception> T assertThrowsNoException(ExceptionSupplier<T, E> r) {
+		return assertThrowsNoException(r, false);
+	}
+
+	protected <T, E extends Exception> T assertThrowsNoException(ExceptionSupplier<T, E> r, boolean printStackTrace) {
 		try {
 			return r.run();
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			if (printStackTrace) {
+				ex.printStackTrace();
+			}
 			TestCase.fail("Threw exception " + ex.getClass().getName() + " with message \"" + ex.getMessage() + "\"");
 		}
 		return null;
@@ -216,6 +222,15 @@ public abstract class NBTTestCase extends TestCase {
 			tmpFile = new File(tmpDir, UUID.randomUUID() + name);
 		}
 		return tmpFile;
+	}
+
+	protected File getTmpFile(String name) {
+		String workingDir = System.getProperty("user.dir");
+		File tmpDir = new File(workingDir, "tmp");
+		if (!tmpDir.exists()) {
+			tmpDir.mkdirs();
+		}
+		return new File(tmpDir, name);
 	}
 
 	protected File copyResourceToTmp(String resource) {

@@ -2,6 +2,11 @@ package net.querz.nbt;
 
 import java.lang.reflect.Array;
 
+/**
+ * ArrayTag is an abstract representation of any NBT array tag.
+ * For implementations see {@link ByteArrayTag}, {@link IntArrayTag}, {@link LongArrayTag}.
+ * @param <T> The array type.
+ * */
 public abstract class ArrayTag<T> extends Tag<T> {
 
 	public ArrayTag() {}

@@ -80,6 +80,10 @@ public class MCAFile {
 		int chunkXOffset = MCAUtil.regionToChunk(regionX);
 		int chunkZOffset = MCAUtil.regionToChunk(regionZ);
 
+		if (chunks == null) {
+			return 0;
+		}
+
 		for (int cx = 0; cx < 32; cx++) {
 			for (int cz = 0; cz < 32; cz++) {
 				int index = getChunkIndex(cx, cz);
@@ -104,7 +108,7 @@ public class MCAFile {
 				raf.writeByte(globalOffset & 0xFF);
 				raf.writeByte(sectors);
 
-				//write timestamp to tmp file
+				// write timestamp
 				raf.seek(index * 4 + 4096);
 				raf.writeInt(changeLastUpdate ? timestamp : chunk.getLastMCAUpdate());
 
@@ -112,7 +116,7 @@ public class MCAFile {
 			}
 		}
 
-		//padding
+		// padding
 		if (lastWritten % 4096 != 0) {
 			raf.seek(globalOffset * 4096 - 1);
 			raf.write(0);
