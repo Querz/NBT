@@ -35,9 +35,9 @@ ct.put("byte", new ByteTag((byte) 1));
 ct.put("double", new DoubleTag(1.234));
 ct.putString("string", "stringValue");
 ```
-An example on how to use `ListTag`:
+An example how to use a `ListTag`:
 ```java
-ListTag<FloatTag> fl = new ListTag<>();
+ListTag<FloatTag> fl = new ListTag<>(FloatTag.class);
 
 fl.add(new FloatTag(1.234f);
 fl.addFloat(5.678f);
@@ -66,15 +66,20 @@ Example usage:
 CompoundTag c = new CompoundTag();
 c.putByte("blah", (byte) 5);
 c.putString("foo", "bär");
-String s = c.toTagString();
+System.out.println(c.toTagString()); // {blah:5b,foo:"bär"}
 
-//output: {blah:5b,foo:"bär"}
+ListTag<StringTag> s = new ListTag<>(StringTag.class);
+s.addString("test");
+s.add(new StringTag("text"));
+c.add("list", s);
+System.out.println(c.toTagString()); // {blah:5b,foo:"bär",list:[test,text]}
+
 ```
-There are also some tools to read, change and write MCA files.
+There is also a tool to read, change and write MCA files.
 
 Here are some examples:
 ```java
-//This changes the InhabitedTime field of the chunk at x=68, z=81 to 0
+// This changes the InhabitedTime field of the chunk at x=68, z=81 to 0
 MCAFile mcaFile = MCAUtil.readMCAFile("r.2.2.mca");
 Chunk chunk = mcaFile.getChunk(68, 81);
 chunk.setInhabitedTime(0);
@@ -84,13 +89,13 @@ There is also an optimized api to retrieve and set block information (BlockState
 
 Example:
 ```java
-//Retrieves block information from the MCA file
+// Retrieves block information from the MCA file
 CompoundTag blockState = mcaFile.getBlockStateAt(1090, 25, 1301);
 
-//Retrieves block information from a single chunk
+// Retrieves block information from a single chunk
 CompoundTag blockState = chunk.getBlockStateAt(2, 25, 5);
 
-//Set block information
+// Set block information
 CompoundTag stone = new CompoundTag();
 stone.putString("Name", "minecraft:stone");
 mcaFile.setBlockStateAt(1090, 25, 1301, stone, false);
@@ -115,7 +120,7 @@ There are 4 example classes in `net.querz.nbt.custom` that show how to implement
 | [CharTag](src/main/java/net/querz/nbt/custom/CharTag.java)                | 110 | `Character` (char) tag. |
 | [StructTag](src/main/java/net/querz/nbt/custom/StructTag.java)            | 120 | Similar to the `ListTag`, but with the ability to store multiple types. |
 
-To be able to use a custom tag with deserialization, a `Supplier` must be registered at runtime alongside its id with `TagFactory.registerCustomTag()`. The `Supplier` can be anything that returns a new instance of this custom tag. Here is an example using the custom tags no-args constructor:
+To be able to use a custom tag with deserialization, a `Supplier` and the custom tag class must be registered at runtime alongside its id with `TagFactory.registerCustomTag()`. The `Supplier` can be anything that returns a new instance of this custom tag. Here is an example using the custom tags no-args constructor:
 ```java
-TagFactory.registerCustomTag(90, ObjectTag::new);
+TagFactory.registerCustomTag(90, ObjectTag::new, ObjectTag.class);
 ```
