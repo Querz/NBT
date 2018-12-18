@@ -13,7 +13,9 @@ public class ShortArrayTag extends ArrayTag<short[]> {
 		TagFactory.registerCustomTag(100, ShortArrayTag::new, ShortArrayTag.class);
 	}
 
-	public ShortArrayTag() {}
+	public ShortArrayTag() {
+		super(new short[0]);
+	}
 
 	public ShortArrayTag(short[] value) {
 		super(value);
@@ -43,7 +45,7 @@ public class ShortArrayTag extends ArrayTag<short[]> {
 
 	@Override
 	public String valueToTagString(int depth) {
-		return arrayToString(getValue(), "S", "s");
+		return arrayToString("S", "s");
 	}
 
 	@Override

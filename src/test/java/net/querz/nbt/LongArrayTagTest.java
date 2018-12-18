@@ -10,7 +10,6 @@ public class LongArrayTagTest extends NBTTestCase {
 		assertEquals(12, t.getID());
 		assertEquals("[L;-9223372036854775808l,0l,9223372036854775807l]", t.toTagString());
 		assertEquals("{\"type\":\"" + t.getClass().getSimpleName() + "\",\"value\":[-9223372036854775808,0,9223372036854775807]}", t.toString());
-		assertThrowsRuntimeException(() -> t.arrayToString(null, "", ""), UnsupportedOperationException.class);
 	}
 
 	public void testEquals() {

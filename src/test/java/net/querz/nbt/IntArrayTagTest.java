@@ -10,7 +10,6 @@ public class IntArrayTagTest extends NBTTestCase {
 		assertEquals(11, t.getID());
 		assertEquals("[I;-2147483648,0,2147483647]", t.toTagString());
 		assertEquals("{\"type\":\"" + t.getClass().getSimpleName() + "\",\"value\":[-2147483648,0,2147483647]}", t.toString());
-		assertThrowsRuntimeException(() -> t.arrayToString(null, "", ""), UnsupportedOperationException.class);
 	}
 
 	public void testEquals() {

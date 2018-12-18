@@ -1,5 +1,7 @@
 package net.querz.nbt;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.util.Arrays;
 
 public class ByteArrayTagTest extends NBTTestCase {
@@ -10,7 +12,6 @@ public class ByteArrayTagTest extends NBTTestCase {
 		assertEquals(7, t.getID());
 		assertEquals("[B;-128b,0b,127b]", t.toTagString());
 		assertEquals("{\"type\":\"" + t.getClass().getSimpleName() + "\",\"value\":[-128,0,127]}", t.toString());
-		assertThrowsRuntimeException(() -> t.arrayToString(null, "", ""), UnsupportedOperationException.class);
 	}
 
 	public void testEquals() {
@@ -47,5 +48,46 @@ public class ByteArrayTagTest extends NBTTestCase {
 		assertTrue(0 < t.compareTo(t4));
 		assertTrue(0 > t4.compareTo(t));
 		assertThrowsRuntimeException(() -> t.compareTo(null), IllegalArgumentException.class);
+	}
+
+	public void testInvalidType() {
+		assertThrowsRuntimeException(NotAnArrayTag::new, UnsupportedOperationException.class);
+		assertThrowsRuntimeException(() -> new NotAnArrayTag("test"), UnsupportedOperationException.class);
+	}
+
+	public class NotAnArrayTag extends ArrayTag<String> {
+
+		public NotAnArrayTag() {
+			super("");
+		}
+
+		public NotAnArrayTag(String value) {
+			super(value);
+		}
+
+		@Override
+		protected String getEmptyValue() {
+			return "";
+		}
+
+		@Override
+		public void serializeValue(DataOutputStream dos, int depth) {
+			throw new UnsupportedOperationException("goddammit, this is a test class, you don't want to save it.");
+		}
+
+		@Override
+		public void deserializeValue(DataInputStream dis, int depth) {
+			throw new UnsupportedOperationException("goddammit, this is a test class, you don't want to load it.");
+		}
+
+		@Override
+		public String valueToTagString(int depth) {
+			return escapeString(getValue(), true);
+		}
+
+		@Override
+		public NotAnArrayTag clone() {
+			return new NotAnArrayTag(getName());
+		}
 	}
 }

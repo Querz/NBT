@@ -7,7 +7,9 @@ import java.util.Arrays;
 
 public class ByteArrayTag extends ArrayTag<byte[]> {
 
-	public ByteArrayTag() {}
+	public ByteArrayTag() {
+		super(new byte[0]);
+	}
 
 	public ByteArrayTag(byte[] value) {
 		super(value);
@@ -33,7 +35,7 @@ public class ByteArrayTag extends ArrayTag<byte[]> {
 
 	@Override
 	public String valueToTagString(int depth) {
-		return arrayToString(getValue(), "B", "b");
+		return arrayToString("B", "b");
 	}
 
 	@Override

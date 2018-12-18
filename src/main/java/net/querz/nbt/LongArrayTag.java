@@ -7,7 +7,9 @@ import java.util.Arrays;
 
 public class LongArrayTag extends ArrayTag<long[]> {
 
-	public LongArrayTag() {}
+	public LongArrayTag() {
+		super(new long[0]);
+	}
 
 	public LongArrayTag(long[] value) {
 		super(value);
@@ -37,7 +39,7 @@ public class LongArrayTag extends ArrayTag<long[]> {
 
 	@Override
 	public String valueToTagString(int depth) {
-		return arrayToString(getValue(), "L", "l");
+		return arrayToString("L", "l");
 	}
 
 	@Override
