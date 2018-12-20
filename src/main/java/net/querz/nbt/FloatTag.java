@@ -13,11 +13,6 @@ public class FloatTag extends NumberTag<Float> {
 	}
 
 	@Override
-	public byte getID() {
-		return 5;
-	}
-
-	@Override
 	protected Float getEmptyValue() {
 		return 0.0f;
 	}

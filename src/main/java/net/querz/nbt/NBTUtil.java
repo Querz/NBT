@@ -22,54 +22,95 @@ public final class NBTUtil {
 	/**
 	 * Calls {@link NBTUtil#writeTag(Tag, String, File, boolean)} with an empty name and GZIP compression.
 	 * @see NBTUtil#writeTag(Tag, String, File, boolean)
+	 * @param tag The tag to be written to the file.
+	 * @param file The file to write {@code tag} into.
+	 * @throws IOException If something during the serialization goes wrong.
+	 * @exception NullPointerException If {@code tag}, {@code name} or {@code file} is {@code null}.
+	 * @exception MaxDepthReachedException If the NBT structure exceeds {@link Tag#MAX_DEPTH}.
 	 */
-	public static void writeTag(Tag tag, String file) throws IOException {
+	public static void writeTag(Tag<?> tag, String file) throws IOException {
 		writeTag(tag, "", new File(file), true);
 	}
 
 	/**
 	 * Calls {@link NBTUtil#writeTag(Tag, String, File, boolean)} with an empty name and GZIP compression.
 	 * @see NBTUtil#writeTag(Tag, String, File, boolean)
+	 * @param tag The tag to be written to the file.
+	 * @param file The file to write {@code tag} into.
+	 * @throws IOException If something during the serialization goes wrong.
+	 * @exception NullPointerException If {@code tag}, {@code name} or {@code file} is {@code null}.
+	 * @exception MaxDepthReachedException If the NBT structure exceeds {@link Tag#MAX_DEPTH}.
 	 */
-	public static void writeTag(Tag tag, File file) throws IOException {
+	public static void writeTag(Tag<?> tag, File file) throws IOException {
 		writeTag(tag, "", file, true);
 	}
 
 	/**
 	 * Calls {@link NBTUtil#writeTag(Tag, String, File, boolean)} with an empty name.
 	 * @see NBTUtil#writeTag(Tag, String, File, boolean)
+	 * @param tag The tag to be written to the file.
+	 * @param file The file to write {@code tag} into.
+	 * @param compressed {@code true} if the file should be GZIP compressed, {@code false} if not.
+	 * @throws IOException If something during the serialization goes wrong.
+	 * @exception NullPointerException If {@code tag}, {@code name} or {@code file} is {@code null}.
+	 * @exception MaxDepthReachedException If the NBT structure exceeds {@link Tag#MAX_DEPTH}.
 	 */
-	public static void writeTag(Tag tag, String file, boolean compressed) throws IOException {
+	public static void writeTag(Tag<?> tag, String file, boolean compressed) throws IOException {
 		writeTag(tag, "", new File(file), compressed);
 	}
 
 	/**
 	 * Calls {@link NBTUtil#writeTag(Tag, String, File, boolean)} with an empty name.
 	 * @see NBTUtil#writeTag(Tag, String, File, boolean)
+	 * @param tag The tag to be written to the file.
+	 * @param file The file to write {@code tag} into.
+	 * @param compressed {@code true} if the file should be GZIP compressed, {@code false} if not.
+	 * @throws IOException If something during the serialization goes wrong.
+	 * @exception NullPointerException If {@code tag}, {@code name} or {@code file} is {@code null}.
+	 * @exception MaxDepthReachedException If the NBT structure exceeds {@link Tag#MAX_DEPTH}.
 	 * */
-	public static void writeTag(Tag tag, File file, boolean compressed) throws IOException {
+	public static void writeTag(Tag<?> tag, File file, boolean compressed) throws IOException {
 		writeTag(tag, "", file, compressed);
 	}
 
 	/**
 	 * @see NBTUtil#writeTag(Tag, String, File)
+	 * @param tag The tag to be written to the file.
+	 * @param name The name of the root tag.
+	 * @param file The file to write {@code tag} into.
+	 * @throws IOException If something during the serialization goes wrong.
+	 * @exception NullPointerException If {@code tag}, {@code name} or {@code file} is {@code null}.
+	 * @exception MaxDepthReachedException If the NBT structure exceeds {@link Tag#MAX_DEPTH}.
 	 */
-	public static void writeTag(Tag tag, String name, String file) throws IOException {
+	public static void writeTag(Tag<?> tag, String name, String file) throws IOException {
 		writeTag(tag, name, new File(file), true);
 	}
 
 	/**
 	 * Calls {@link NBTUtil#writeTag(Tag, String, String, boolean)} with GZIP compression.
 	 * @see NBTUtil#writeTag(Tag, String, File, boolean)
+	 * @param tag The tag to be written to the file.
+	 * @param name The name of the root tag.
+	 * @param file The file to write {@code tag} into.
+	 * @throws IOException If something during the serialization goes wrong.
+	 * @exception NullPointerException If {@code tag}, {@code name} or {@code file} is {@code null}.
+	 * @exception MaxDepthReachedException If the NBT structure exceeds {@link Tag#MAX_DEPTH}.
 	 */
-	public static void writeTag(Tag tag, String name, File file) throws IOException {
+	public static void writeTag(Tag<?> tag, String name, File file) throws IOException {
 		writeTag(tag, name, file, true);
 	}
 
 	/**
 	 * @see NBTUtil#writeTag(Tag, String, String, boolean)
+	 * @param tag The tag to be written to the file.
+	 * @param name The name of the root tag.
+	 * @param file The file to write {@code tag} into.
+	 * @param compressed {@code true} if the file should be GZIP compressed, {@code false} if not.
+	 * @throws IOException If something during the serialization goes wrong.
+	 * @exception NullPointerException If {@code tag}, {@code name} or {@code file} is {@code null}.
+	 * @exception MaxDepthReachedException If the NBT structure exceeds {@link Tag#MAX_DEPTH}.
 	 */
-	public static void writeTag(Tag tag, String name, String file, boolean compressed) throws IOException {
+	public static void writeTag(Tag<?> tag, String name, String file, boolean compressed) throws IOException {
 		writeTag(tag, name, new File(file), compressed);
 	}
 
@@ -84,7 +125,7 @@ public final class NBTUtil {
 	 * @exception NullPointerException If {@code tag}, {@code name} or {@code file} is {@code null}.
 	 * @exception MaxDepthReachedException If the NBT structure exceeds {@link Tag#MAX_DEPTH}.
 	 */
-	public static void writeTag(Tag tag, String name, File file, boolean compressed) throws IOException {
+	public static void writeTag(Tag<?> tag, String name, File file, boolean compressed) throws IOException {
 		try (
 				DataOutputStream dos = new DataOutputStream(
 						compressed ? new GZIPOutputStream(new FileOutputStream(file)) : new FileOutputStream(file))
@@ -95,8 +136,11 @@ public final class NBTUtil {
 
 	/**
 	 * @see NBTUtil#readTag(File)
+	 * @param file The file to read a Tag from.
+	 * @return The tag read from the file.
+	 * @throws IOException If something during deserialization goes wrong.
 	 * */
-	public static Tag readTag(String file) throws IOException {
+	public static Tag<?> readTag(String file) throws IOException {
 		return readTag(new File(file));
 	}
 
@@ -109,7 +153,7 @@ public final class NBTUtil {
 	 * @throws NullPointerException If {@code file} is {@code null}.
 	 * @exception MaxDepthReachedException If the NBT structure exceeds {@link Tag#MAX_DEPTH}.
 	 * */
-	public static Tag readTag(File file) throws IOException {
+	public static Tag<?> readTag(File file) throws IOException {
 		try (DataInputStream dis = new DataInputStream(applyDecompression(new FileInputStream(file)))) {
 			return Tag.deserialize(dis, 0);
 		}

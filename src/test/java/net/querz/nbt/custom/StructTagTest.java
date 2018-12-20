@@ -22,6 +22,7 @@ public class StructTagTest extends NBTTestCase {
 	}
 
 	public void testStringConversion() {
+		StructTag.register();
 		StructTag s = createStructTag();
 		assertEquals(120, s.getID());
 		assertEquals("[127b,2147483647]", s.toTagString());
@@ -102,7 +103,7 @@ public class StructTagTest extends NBTTestCase {
 		StructTag l = new StructTag();
 		l.addInt(1);
 		l.addLong(2);
-		for (Tag t : l) {
+		for (Tag<?> t : l) {
 			assertNotNull(t);
 		}
 		l.forEach(TestCase::assertNotNull);
@@ -180,9 +181,9 @@ public class StructTagTest extends NBTTestCase {
 		assertEquals(1, co.size());
 		assertEquals(new CompoundTag(), co.getCompoundTag(0));
 		StructTag li = new StructTag();
-		li.add(new ListTag<>());
+		li.add(new ListTag<>(IntTag.class));
 		assertEquals(1, li.size());
-		assertEquals(new ListTag<>(), li.getListTag(0));
+		assertEquals(new ListTag<>(IntTag.class), li.getListTag(0));
 
 		StructTag t = new StructTag();
 		t.add(0, new StringTag("foo"));

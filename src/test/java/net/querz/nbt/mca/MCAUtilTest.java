@@ -80,6 +80,12 @@ public class MCAUtilTest extends MCATestCase {
 		assertThrowsException(() -> MCAUtil.writeMCAFile(null, (File) null), NullPointerException.class);
 		assertThrowsException(() -> MCAUtil.writeMCAFile(null, (String) null, false), NullPointerException.class);
 		assertThrowsException(() -> MCAUtil.readMCAFile("r.a.b.mca"), IllegalArgumentException.class);
-		assertThrowsException(() -> new MCAFile(0, 0).serialize(null), NullPointerException.class);
+		assertThrowsNoException(() -> new MCAFile(0, 0).serialize(null)); // empty MCAFile will not even attempt to write to file
+
+		// test overwriting file
+		MCAFile m = new MCAFile(0, 0);
+		m.setChunk(0, Chunk.newChunk());
+		assertThrowsNoException(() -> MCAUtil.writeMCAFile(m, getTmpFile("r.0.0.mca"), false), true);
+		assertThrowsNoException(() -> MCAUtil.writeMCAFile(m, getTmpFile("r.0.0.mca"), false), true);
 	}
 }

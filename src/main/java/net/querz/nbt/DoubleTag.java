@@ -13,11 +13,6 @@ public class DoubleTag extends NumberTag<Double> {
 	}
 
 	@Override
-	public byte getID() {
-		return 6;
-	}
-
-	@Override
 	protected Double getEmptyValue() {
 		return 0.0d;
 	}

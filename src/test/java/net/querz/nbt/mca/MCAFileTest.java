@@ -1,16 +1,10 @@
 package net.querz.nbt.mca;
 
-import net.querz.nbt.ByteTag;
 import net.querz.nbt.CompoundTag;
 import net.querz.nbt.ListTag;
-
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.file.Files;
 import java.util.Arrays;
 
 public class MCAFileTest extends MCATestCase {
@@ -95,7 +89,7 @@ public class MCAFileTest extends MCATestCase {
 		assertNotNull(f.getChunk(0).getBiomes());
 		assertNull(f.getChunk(0).getHeightMaps());
 		assertNull(f.getChunk(0).getCarvingMasks());
-		assertEquals(new ListTag<>(), f.getChunk(0).getEntities());
+		assertEquals(new ListTag<>(CompoundTag.class), f.getChunk(0).getEntities());
 		assertNull(f.getChunk(0).getTileEntities());
 		assertNull(f.getChunk(0).getTileTicks());
 		assertNull(f.getChunk(0).getLiquidTicks());

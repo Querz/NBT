@@ -13,11 +13,6 @@ public class LongTag extends NumberTag<Long> {
 	}
 
 	@Override
-	public byte getID() {
-		return 4;
-	}
-
-	@Override
 	protected Long getEmptyValue() {
 		return 0L;
 	}

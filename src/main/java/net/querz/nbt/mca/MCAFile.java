@@ -55,6 +55,9 @@ public class MCAFile {
 	/**
 	 * Calls {@link MCAFile#serialize(RandomAccessFile, boolean)} without updating any timestamps.
 	 * @see MCAFile#serialize(RandomAccessFile, boolean)
+	 * @param raf The {@code RandomAccessFile} to write to.
+	 * @return The amount of chunks written to the file.
+	 * @throws IOException If something went wrong during serialization.
 	 * */
 	public int serialize(RandomAccessFile raf) throws IOException {
 		return serialize(raf, false);
@@ -66,8 +69,8 @@ public class MCAFile {
 	 * @param raf The {@code RandomAccessFile} to write to.
 	 * @param changeLastUpdate Whether it should update all timestamps that show
 	 *                         when this file was last updated.
-	 * @throws IOException If something went wrong during serialization.
 	 * @return The amount of chunks written to the file.
+	 * @throws IOException If something went wrong during serialization.
 	 * */
 	public int serialize(RandomAccessFile raf, boolean changeLastUpdate) throws IOException {
 		int globalOffset = 2;
@@ -76,6 +79,10 @@ public class MCAFile {
 		int chunksWritten = 0;
 		int chunkXOffset = MCAUtil.regionToChunk(regionX);
 		int chunkZOffset = MCAUtil.regionToChunk(regionZ);
+
+		if (chunks == null) {
+			return 0;
+		}
 
 		for (int cx = 0; cx < 32; cx++) {
 			for (int cz = 0; cz < 32; cz++) {
@@ -101,7 +108,7 @@ public class MCAFile {
 				raf.writeByte(globalOffset & 0xFF);
 				raf.writeByte(sectors);
 
-				//write timestamp to tmp file
+				// write timestamp
 				raf.seek(index * 4 + 4096);
 				raf.writeInt(changeLastUpdate ? timestamp : chunk.getLastMCAUpdate());
 
@@ -109,7 +116,7 @@ public class MCAFile {
 			}
 		}
 
-		//padding
+		// padding
 		if (lastWritten % 4096 != 0) {
 			raf.seek(globalOffset * 4096 - 1);
 			raf.write(0);

@@ -7,15 +7,12 @@ import java.util.Arrays;
 
 public class IntArrayTag extends ArrayTag<int[]> {
 
-	public IntArrayTag() {}
+	public IntArrayTag() {
+		super(new int[0]);
+	}
 
 	public IntArrayTag(int[] value) {
 		super(value);
-	}
-
-	@Override
-	public byte getID() {
-		return 11;
 	}
 
 	@Override
@@ -42,7 +39,7 @@ public class IntArrayTag extends ArrayTag<int[]> {
 
 	@Override
 	public String valueToTagString(int depth) {
-		return arrayToString(getValue(), "I", "");
+		return arrayToString("I", "");
 	}
 
 	@Override

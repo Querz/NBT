@@ -6,17 +6,12 @@ import java.io.IOException;
 import java.util.*;
 import java.util.function.BiConsumer;
 
-public class CompoundTag extends Tag<Map<String, Tag>> implements Iterable<Map.Entry<String, Tag>> {
+public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Map.Entry<String, Tag<?>>> {
 
 	public CompoundTag() {}
 
 	@Override
-	public byte getID() {
-		return 10;
-	}
-
-	@Override
-	protected Map<String, Tag> getEmptyValue() {
+	protected Map<String, Tag<?>> getEmptyValue() {
 		return new HashMap<>(8);
 	}
 
@@ -24,7 +19,7 @@ public class CompoundTag extends Tag<Map<String, Tag>> implements Iterable<Map.E
 		return getValue().size();
 	}
 
-	public Tag remove(String key) {
+	public Tag<?> remove(String key) {
 		return getValue().remove(key);
 	}
 
@@ -36,11 +31,11 @@ public class CompoundTag extends Tag<Map<String, Tag>> implements Iterable<Map.E
 		return getValue().containsKey(key);
 	}
 
-	public boolean containsValue(Tag value) {
+	public boolean containsValue(Tag<?> value) {
 		return getValue().containsValue(value);
 	}
 
-	public Collection<Tag> values() {
+	public Collection<Tag<?>> values() {
 		return getValue().values();
 	}
 
@@ -48,28 +43,28 @@ public class CompoundTag extends Tag<Map<String, Tag>> implements Iterable<Map.E
 		return getValue().keySet();
 	}
 
-	public Set<Map.Entry<String, Tag>> entrySet() {
+	public Set<Map.Entry<String, Tag<?>>> entrySet() {
 		return new NonNullEntrySet<>(getValue().entrySet());
 	}
 
 	@Override
-	public Iterator<Map.Entry<String, Tag>> iterator() {
+	public Iterator<Map.Entry<String, Tag<?>>> iterator() {
 		return entrySet().iterator();
 	}
 
-	public void forEach(BiConsumer<String, Tag> action) {
+	public void forEach(BiConsumer<String, Tag<?>> action) {
 		getValue().forEach(action);
 	}
 
-	public <C extends Tag> C get(String key, Class<C> type) {
-		Tag t = getValue().get(key);
+	public <C extends Tag<?>> C get(String key, Class<C> type) {
+		Tag<?> t = getValue().get(key);
 		if (t != null) {
 			return type.cast(t);
 		}
 		return null;
 	}
 
-	public Tag get(String key) {
+	public Tag<?> get(String key) {
 		return getValue().get(key);
 	}
 
@@ -122,7 +117,7 @@ public class CompoundTag extends Tag<Map<String, Tag>> implements Iterable<Map.E
 	}
 
 	public boolean getBoolean(String key) {
-		Tag t = get(key);
+		Tag<?> t = get(key);
 		return t instanceof ByteTag && ((ByteTag) t).asByte() > 0;
 	}
 
@@ -176,57 +171,57 @@ public class CompoundTag extends Tag<Map<String, Tag>> implements Iterable<Map.E
 		return t == null ? new LongArrayTag().getEmptyValue() : t.getValue();
 	}
 
-	public Tag put(String key, Tag tag) {
+	public Tag<?> put(String key, Tag<?> tag) {
 		return getValue().put(checkNull(key), checkNull(tag));
 	}
 
-	public Tag putBoolean(String key, boolean value) {
+	public Tag<?> putBoolean(String key, boolean value) {
 		return put(key, new ByteTag(value));
 	}
 
-	public Tag putByte(String key, byte value) {
+	public Tag<?> putByte(String key, byte value) {
 		return put(key, new ByteTag(value));
 	}
 
-	public Tag putShort(String key, short value) {
+	public Tag<?> putShort(String key, short value) {
 		return put(key, new ShortTag(value));
 	}
 
-	public Tag putInt(String key, int value) {
+	public Tag<?> putInt(String key, int value) {
 		return put(key, new IntTag(value));
 	}
 
-	public Tag putLong(String key, long value) {
+	public Tag<?> putLong(String key, long value) {
 		return put(key, new LongTag(value));
 	}
 
-	public Tag putFloat(String key, float value) {
+	public Tag<?> putFloat(String key, float value) {
 		return put(key, new FloatTag(value));
 	}
 
-	public Tag putDouble(String key, double value) {
+	public Tag<?> putDouble(String key, double value) {
 		return put(key, new DoubleTag(value));
 	}
 
-	public Tag putString(String key, String value) {
+	public Tag<?> putString(String key, String value) {
 		return put(key, new StringTag(checkNull(value)));
 	}
 
-	public Tag putByteArray(String key, byte[] value) {
+	public Tag<?> putByteArray(String key, byte[] value) {
 		return put(key, new ByteArrayTag(checkNull(value)));
 	}
 
-	public Tag putIntArray(String key, int[] value) {
+	public Tag<?> putIntArray(String key, int[] value) {
 		return put(key, new IntArrayTag(checkNull(value)));
 	}
 
-	public Tag putLongArray(String key, long[] value) {
+	public Tag<?> putLongArray(String key, long[] value) {
 		return put(key, new LongArrayTag(checkNull(value)));
 	}
 
 	@Override
 	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
-		for (Map.Entry<String, Tag> e : getValue().entrySet()) {
+		for (Map.Entry<String, Tag<?>> e : getValue().entrySet()) {
 			dos.writeByte(e.getValue().getID());
 			dos.writeUTF(e.getKey());
 			e.getValue().serializeValue(dos, incrementDepth(depth));
@@ -237,7 +232,7 @@ public class CompoundTag extends Tag<Map<String, Tag>> implements Iterable<Map.E
 	@Override
 	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
 		for (int id = dis.readByte() & 0xFF; id != 0; id = dis.readByte() & 0xFF) {
-			Tag tag = TagFactory.fromID(id);
+			Tag<?> tag = TagFactory.fromID(id);
 			String name = dis.readUTF();
 			tag.deserializeValue(dis, incrementDepth(depth));
 			put(name, tag);
@@ -248,7 +243,7 @@ public class CompoundTag extends Tag<Map<String, Tag>> implements Iterable<Map.E
 	public String valueToString(int depth) {
 		StringBuilder sb = new StringBuilder("{");
 		boolean first = true;
-		for (Map.Entry<String, Tag> e : getValue().entrySet()) {
+		for (Map.Entry<String, Tag<?>> e : getValue().entrySet()) {
 			sb.append(first ? "" : ",")
 					.append(escapeString(e.getKey(), false)).append(":")
 					.append(e.getValue().toString(incrementDepth(depth)));
@@ -262,7 +257,7 @@ public class CompoundTag extends Tag<Map<String, Tag>> implements Iterable<Map.E
 	public String valueToTagString(int depth) {
 		StringBuilder sb = new StringBuilder("{");
 		boolean first = true;
-		for (Map.Entry<String, Tag> e : getValue().entrySet()) {
+		for (Map.Entry<String, Tag<?>> e : getValue().entrySet()) {
 			sb.append(first ? "" : ",")
 					.append(escapeString(e.getKey(), true)).append(":")
 					.append(e.getValue().valueToTagString(incrementDepth(depth)));
@@ -280,8 +275,8 @@ public class CompoundTag extends Tag<Map<String, Tag>> implements Iterable<Map.E
 		if (!super.equals(other) || size() != ((CompoundTag) other).size()) {
 			return false;
 		}
-		for (Map.Entry<String, Tag> e : getValue().entrySet()) {
-			Tag v;
+		for (Map.Entry<String, Tag<?>> e : getValue().entrySet()) {
+			Tag<?> v;
 			if ((v = ((CompoundTag) other).get(e.getKey())) == null || !e.getValue().equals(v)) {
 				return false;
 			}
@@ -295,7 +290,7 @@ public class CompoundTag extends Tag<Map<String, Tag>> implements Iterable<Map.E
 	}
 
 	@Override
-	public int compareTo(Tag<Map<String, Tag>> o) {
+	public int compareTo(Tag<Map<String, Tag<?>>> o) {
 		if (!(o instanceof CompoundTag)) {
 			return 0;
 		}
@@ -305,7 +300,7 @@ public class CompoundTag extends Tag<Map<String, Tag>> implements Iterable<Map.E
 	@Override
 	public CompoundTag clone() {
 		CompoundTag copy = new CompoundTag();
-		for (Map.Entry<String, Tag> e : getValue().entrySet()) {
+		for (Map.Entry<String, Tag<?>> e : getValue().entrySet()) {
 			copy.put(e.getKey(), e.getValue().clone());
 		}
 		return copy;

@@ -9,18 +9,13 @@ import java.io.IOException;
 public class CharTag extends Tag<Character> {
 
 	public static void register() {
-		TagFactory.registerCustomTag(110, CharTag::new);
+		TagFactory.registerCustomTag(110, CharTag::new, CharTag.class);
 	}
 
 	public CharTag() {}
 
 	public CharTag(char value) {
 		super(value);
-	}
-
-	@Override
-	public byte getID() {
-		return 110;
 	}
 
 	@Override
