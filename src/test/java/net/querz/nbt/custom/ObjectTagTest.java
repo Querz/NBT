@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.util.Objects;
 import java.util.Random;
 
-public class ObjectTagTest extends NBTTestCase implements Serializable {
+public class ObjectTagTest extends NBTTestCase {
 
 	public void testStringConversion() {
 		ObjectTag.register();
@@ -119,7 +119,8 @@ public class ObjectTagTest extends NBTTestCase implements Serializable {
 		assertThrowsException(() -> NBTUtil.readTag(getResourceFile("unknown_object_tag.dat")), IOException.class);
 	}
 
-	public abstract class AbstractDummyObject implements Serializable {
+	public static abstract class AbstractDummyObject implements Serializable {
+		private static final long serialVersionUID = 1L;
 
 		@Override
 		public String toString() {
@@ -129,8 +130,9 @@ public class ObjectTagTest extends NBTTestCase implements Serializable {
 
 	private static final Random RANDOM = new Random();
 
-	public class DummyObject extends AbstractDummyObject implements Cloneable {
-
+	public static class DummyObject extends AbstractDummyObject implements Cloneable {
+		private static final long serialVersionUID = 1L;
+		
 		public byte a = (byte) RANDOM.nextInt(Byte.MAX_VALUE);
 		public short b = (short) RANDOM.nextInt(Short.MAX_VALUE);
 		public int c = RANDOM.nextInt();
