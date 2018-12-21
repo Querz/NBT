@@ -97,11 +97,11 @@ class NonNullEntrySet<K, V> implements Set<Map.Entry<K, V>> {
 
 		@Override
 		public Map.Entry<K, V> next() {
-			return new NonNullEntry<>(iterator.next());
+			return new NonNullEntry(iterator.next());
 		}
 	}
 
-	class NonNullEntry<K, V> implements Map.Entry<K, V> {
+	class NonNullEntry implements Map.Entry<K, V> {
 
 		private Map.Entry<K, V> entry;
 
