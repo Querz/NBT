@@ -40,10 +40,7 @@ public class ByteArrayTag extends ArrayTag<byte[]> {
 
 	@Override
 	public boolean equals(Object other) {
-		return super.equals(other)
-				&& (getValue() == ((ByteArrayTag) other).getValue()
-				|| getValue().length == (((ByteArrayTag) other).length())
-				&& Arrays.equals(getValue(), ((ByteArrayTag) other).getValue()));
+		return super.equals(other) && Arrays.equals(getValue(), ((ByteArrayTag) other).getValue());
 	}
 
 	@Override

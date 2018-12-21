@@ -44,10 +44,7 @@ public class IntArrayTag extends ArrayTag<int[]> {
 
 	@Override
 	public boolean equals(Object other) {
-		return super.equals(other)
-				&& (getValue() == ((IntArrayTag) other).getValue()
-				|| getValue().length == (((IntArrayTag) other).length())
-				&& Arrays.equals(getValue(), ((IntArrayTag) other).getValue()));
+		return super.equals(other) && Arrays.equals(getValue(), ((IntArrayTag) other).getValue());
 	}
 
 	@Override
