@@ -285,11 +285,6 @@ public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Ma
 	}
 
 	@Override
-	public int hashCode() {
-		return getValue().hashCode();
-	}
-
-	@Override
 	public int compareTo(Tag<Map<String, Tag<?>>> o) {
 		if (!(o instanceof CompoundTag)) {
 			return 0;
