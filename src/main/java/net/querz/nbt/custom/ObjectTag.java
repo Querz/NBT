@@ -5,6 +5,7 @@ import net.querz.nbt.TagFactory;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Objects;
 
 public class ObjectTag<T extends Serializable> extends Tag<T> {
 
@@ -66,10 +67,7 @@ public class ObjectTag<T extends Serializable> extends Tag<T> {
 
 	@Override
 	public boolean equals(Object other) {
-		return super.equals(other)
-				&& (getValue() == ((ObjectTag) other).getValue()
-				|| getValue() != null
-				&& getValue().equals(((ObjectTag<?>) other).getValue()));
+		return super.equals(other) && Objects.equals(getValue(), ((ObjectTag<?>) other).getValue());
 	}
 
 	@Override
@@ -80,9 +78,9 @@ public class ObjectTag<T extends Serializable> extends Tag<T> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public int compareTo(Tag<T> o) {
-		ObjectTag<?> oo = (ObjectTag<?>) o;
+		ObjectTag<T> oo = (ObjectTag<T>) o;
 		if (oo.getValue() instanceof Comparable && getValue() instanceof Comparable) {
-			return ((Comparable) getValue()).compareTo(oo.getValue());
+			return ((Comparable<T>) getValue()).compareTo(oo.getValue());
 		}
 		return 0;
 	}
@@ -91,9 +89,9 @@ public class ObjectTag<T extends Serializable> extends Tag<T> {
 	@Override
 	public ObjectTag<T> clone() {
 		try {
-			return new ObjectTag((T) getValue().getClass().getMethod("clone").invoke(getValue()));
+			return new ObjectTag<>((T) getValue().getClass().getMethod("clone").invoke(getValue()));
 		} catch (NullPointerException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-			return new ObjectTag(getValue());
+			return new ObjectTag<>(getValue());
 		}
 	}
 

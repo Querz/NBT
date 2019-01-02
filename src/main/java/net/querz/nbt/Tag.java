@@ -3,6 +3,7 @@ package net.querz.nbt;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -15,13 +16,16 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	 * */
 	public static final int MAX_DEPTH = 512;
 
-	private static final Map<String, String> ESCAPE_CHARACTERS = new HashMap<String, String>() {{
-		put("\\", "\\\\\\\\");
-		put("\n", "\\\\n");
-		put("\t", "\\\\t");
-		put("\r", "\\\\r");
-		put("\"", "\\\\\"");
-	}};
+	private static final Map<String, String> ESCAPE_CHARACTERS;
+	static {
+		final Map<String, String> temp = new HashMap<>();
+		temp.put("\\", "\\\\\\\\");
+		temp.put("\n", "\\\\n");
+		temp.put("\t", "\\\\t");
+		temp.put("\r", "\\\\r");
+		temp.put("\"", "\\\\\"");
+		ESCAPE_CHARACTERS = Collections.unmodifiableMap(temp);
+	}
 
 	private static final Pattern ESCAPE_PATTERN = Pattern.compile("[\\\\\n\t\r\"]");
 	private static final Pattern NON_QUOTE_PATTERN = Pattern.compile("[a-zA-Z0-9_\\-+]+");

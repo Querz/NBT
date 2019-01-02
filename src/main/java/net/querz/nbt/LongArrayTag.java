@@ -44,10 +44,7 @@ public class LongArrayTag extends ArrayTag<long[]> {
 
 	@Override
 	public boolean equals(Object other) {
-		return super.equals(other)
-				&& (getValue() == ((LongArrayTag) other).getValue()
-				|| getValue().length == (((LongArrayTag) other).length())
-				&& Arrays.equals(getValue(), ((LongArrayTag) other).getValue()));
+		return super.equals(other) && Arrays.equals(getValue(), ((LongArrayTag) other).getValue());
 	}
 
 	@Override

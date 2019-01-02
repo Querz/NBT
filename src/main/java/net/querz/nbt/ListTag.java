@@ -104,7 +104,6 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 		add(size(), t);
 	}
 
-	@SuppressWarnings("unchecked")
 	public void add(int index, T t) {
 		checkNull(t);
 		getValue().add(index, t);
