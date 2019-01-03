@@ -218,7 +218,7 @@ public class ListTagTest extends NBTTestCase {
 		lo.remove(2);
 		lo.remove(1);
 		assertEquals(1, li.compareTo(lo));
-		assertEquals(0, li.compareTo(null));
+		assertThrowsRuntimeException(() -> li.compareTo(null), IllegalArgumentException.class);
 	}
 
 	public void testMaxDepth() {

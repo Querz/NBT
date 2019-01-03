@@ -262,7 +262,7 @@ public class CompoundTagTest extends NBTTestCase {
 		co.remove("five");
 		co.remove("four");
 		assertEquals(1, ci.compareTo(co));
-		assertEquals(0, ci.compareTo(null));
+		assertThrowsRuntimeException(() -> ci.compareTo(null), IllegalArgumentException.class);
 	}
 
 	public void testMaxDepth() {

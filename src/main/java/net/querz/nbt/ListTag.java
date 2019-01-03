@@ -309,7 +309,8 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	@Override
 	public int compareTo(Tag<List<T>> o) {
 		if (!(o instanceof ListTag)) {
-			return 0;
+			throw new IllegalArgumentException(
+					"cannot compare " + getClass().getSimpleName() + "and" + (o == null ? "null" : o.getClass().getSimpleName()));
 		}
 		return Integer.compare(size(), o.getValue().size());
 	}

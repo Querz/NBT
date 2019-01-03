@@ -287,7 +287,7 @@ public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Ma
 	@Override
 	public int compareTo(Tag<Map<String, Tag<?>>> o) {
 		if (!(o instanceof CompoundTag)) {
-			return 0;
+			throw new IllegalArgumentException("cannot compare " + getClass().getSimpleName() + " and " + (o == null ? "null" : o.getClass().getSimpleName()));
 		}
 		return Integer.compare(size(), o.getValue().size());
 	}
