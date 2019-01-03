@@ -237,6 +237,7 @@ public class StructTag extends Tag<List<Tag<?>>> implements Iterable<Tag<?>> {
 	@Override
 	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
 		int size = dis.readInt();
+		size = size < 0 ? 0 : size;
 		setValue(new ArrayList<>(size));
 		for (int i = 0; i < size; i++) {
 			Tag<?> tag = TagFactory.fromID(dis.readByte());
