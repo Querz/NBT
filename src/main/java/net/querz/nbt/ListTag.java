@@ -255,8 +255,8 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 			typeClass = TagFactory.classFromID(typeID);
 		}
 		int size = dis.readInt();
+		setValue(new ArrayList<>(size));
 		if (size != 0) {
-			setValue(new ArrayList<>(size));
 			for (int i = 0; i < size; i++) {
 				Tag<?> tag = TagFactory.fromID(typeID);
 				tag.deserializeValue(dis, incrementDepth(depth));

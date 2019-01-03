@@ -231,6 +231,7 @@ public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Ma
 
 	@Override
 	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+		clear();
 		for (int id = dis.readByte() & 0xFF; id != 0; id = dis.readByte() & 0xFF) {
 			Tag<?> tag = TagFactory.fromID(id);
 			String name = dis.readUTF();
