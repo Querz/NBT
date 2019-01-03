@@ -147,7 +147,7 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	 * @see Tag#toString(int)
 	 * */
 	@Override
-	public String toString() {
+	public final String toString() {
 		return toString(0);
 	}
 
@@ -175,7 +175,7 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	 * @see Tag#toTagString(int)
 	 * @return The JSON-like string representation of this Tag.
 	 * */
-	public String toTagString() {
+	public final String toTagString() {
 		return toTagString(0);
 	}
 
