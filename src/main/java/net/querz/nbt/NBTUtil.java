@@ -26,7 +26,7 @@ public final class NBTUtil {
 	 * @param file The file to write {@code tag} into.
 	 * @throws IOException If something during the serialization goes wrong.
 	 * @exception NullPointerException If {@code tag}, {@code name} or {@code file} is {@code null}.
-	 * @exception MaxDepthReachedException If the NBT structure exceeds {@link Tag#MAX_DEPTH}.
+	 * @exception MaxDepthReachedException If the NBT structure exceeds {@link Tag#DEFAULT_MAX_DEPTH}.
 	 */
 	public static void writeTag(Tag<?> tag, String file) throws IOException {
 		writeTag(tag, "", new File(file), true);
@@ -39,7 +39,7 @@ public final class NBTUtil {
 	 * @param file The file to write {@code tag} into.
 	 * @throws IOException If something during the serialization goes wrong.
 	 * @exception NullPointerException If {@code tag}, {@code name} or {@code file} is {@code null}.
-	 * @exception MaxDepthReachedException If the NBT structure exceeds {@link Tag#MAX_DEPTH}.
+	 * @exception MaxDepthReachedException If the NBT structure exceeds {@link Tag#DEFAULT_MAX_DEPTH}.
 	 */
 	public static void writeTag(Tag<?> tag, File file) throws IOException {
 		writeTag(tag, "", file, true);
@@ -53,7 +53,7 @@ public final class NBTUtil {
 	 * @param compressed {@code true} if the file should be GZIP compressed, {@code false} if not.
 	 * @throws IOException If something during the serialization goes wrong.
 	 * @exception NullPointerException If {@code tag}, {@code name} or {@code file} is {@code null}.
-	 * @exception MaxDepthReachedException If the NBT structure exceeds {@link Tag#MAX_DEPTH}.
+	 * @exception MaxDepthReachedException If the NBT structure exceeds {@link Tag#DEFAULT_MAX_DEPTH}.
 	 */
 	public static void writeTag(Tag<?> tag, String file, boolean compressed) throws IOException {
 		writeTag(tag, "", new File(file), compressed);
@@ -67,7 +67,7 @@ public final class NBTUtil {
 	 * @param compressed {@code true} if the file should be GZIP compressed, {@code false} if not.
 	 * @throws IOException If something during the serialization goes wrong.
 	 * @exception NullPointerException If {@code tag}, {@code name} or {@code file} is {@code null}.
-	 * @exception MaxDepthReachedException If the NBT structure exceeds {@link Tag#MAX_DEPTH}.
+	 * @exception MaxDepthReachedException If the NBT structure exceeds {@link Tag#DEFAULT_MAX_DEPTH}.
 	 * */
 	public static void writeTag(Tag<?> tag, File file, boolean compressed) throws IOException {
 		writeTag(tag, "", file, compressed);
@@ -80,7 +80,7 @@ public final class NBTUtil {
 	 * @param file The file to write {@code tag} into.
 	 * @throws IOException If something during the serialization goes wrong.
 	 * @exception NullPointerException If {@code tag}, {@code name} or {@code file} is {@code null}.
-	 * @exception MaxDepthReachedException If the NBT structure exceeds {@link Tag#MAX_DEPTH}.
+	 * @exception MaxDepthReachedException If the NBT structure exceeds {@link Tag#DEFAULT_MAX_DEPTH}.
 	 */
 	public static void writeTag(Tag<?> tag, String name, String file) throws IOException {
 		writeTag(tag, name, new File(file), true);
@@ -94,7 +94,7 @@ public final class NBTUtil {
 	 * @param file The file to write {@code tag} into.
 	 * @throws IOException If something during the serialization goes wrong.
 	 * @exception NullPointerException If {@code tag}, {@code name} or {@code file} is {@code null}.
-	 * @exception MaxDepthReachedException If the NBT structure exceeds {@link Tag#MAX_DEPTH}.
+	 * @exception MaxDepthReachedException If the NBT structure exceeds {@link Tag#DEFAULT_MAX_DEPTH}.
 	 */
 	public static void writeTag(Tag<?> tag, String name, File file) throws IOException {
 		writeTag(tag, name, file, true);
@@ -108,7 +108,7 @@ public final class NBTUtil {
 	 * @param compressed {@code true} if the file should be GZIP compressed, {@code false} if not.
 	 * @throws IOException If something during the serialization goes wrong.
 	 * @exception NullPointerException If {@code tag}, {@code name} or {@code file} is {@code null}.
-	 * @exception MaxDepthReachedException If the NBT structure exceeds {@link Tag#MAX_DEPTH}.
+	 * @exception MaxDepthReachedException If the NBT structure exceeds {@link Tag#DEFAULT_MAX_DEPTH}.
 	 */
 	public static void writeTag(Tag<?> tag, String name, String file, boolean compressed) throws IOException {
 		writeTag(tag, name, new File(file), compressed);
@@ -123,14 +123,14 @@ public final class NBTUtil {
 	 * @param compressed {@code true} if the file should be GZIP compressed, {@code false} if not.
 	 * @throws IOException If something during the serialization goes wrong.
 	 * @exception NullPointerException If {@code tag}, {@code name} or {@code file} is {@code null}.
-	 * @exception MaxDepthReachedException If the NBT structure exceeds {@link Tag#MAX_DEPTH}.
+	 * @exception MaxDepthReachedException If the NBT structure exceeds {@link Tag#DEFAULT_MAX_DEPTH}.
 	 */
 	public static void writeTag(Tag<?> tag, String name, File file, boolean compressed) throws IOException {
 		try (
 				DataOutputStream dos = new DataOutputStream(
 						compressed ? new GZIPOutputStream(new FileOutputStream(file)) : new FileOutputStream(file))
 		) {
-			tag.serialize(dos, name, 0);
+			tag.serialize(dos, name, Tag.DEFAULT_MAX_DEPTH);
 		}
 	}
 
@@ -151,11 +151,11 @@ public final class NBTUtil {
 	 * @return The tag read from the file.
 	 * @throws IOException If something during deserialization goes wrong.
 	 * @throws NullPointerException If {@code file} is {@code null}.
-	 * @exception MaxDepthReachedException If the NBT structure exceeds {@link Tag#MAX_DEPTH}.
+	 * @exception MaxDepthReachedException If the NBT structure exceeds {@link Tag#DEFAULT_MAX_DEPTH}.
 	 * */
 	public static Tag<?> readTag(File file) throws IOException {
 		try (DataInputStream dis = new DataInputStream(applyDecompression(new FileInputStream(file)))) {
-			return Tag.deserialize(dis, 0);
+			return Tag.deserialize(dis, Tag.DEFAULT_MAX_DEPTH);
 		}
 	}
 

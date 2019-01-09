@@ -224,7 +224,7 @@ public class ListTagTest extends NBTTestCase {
 	public void testMaxDepth() {
 		ListTag<ListTag<?>> root = new ListTag<>(ListTag.class);
 		ListTag<ListTag<?>> rec = root;
-		for (int i = 0; i < Tag.MAX_DEPTH + 1; i++) {
+		for (int i = 0; i < Tag.DEFAULT_MAX_DEPTH + 1; i++) {
 			ListTag<ListTag<?>> l = new ListTag<>(ListTag.class);
 			rec.add(l);
 			rec = l;
@@ -233,8 +233,8 @@ public class ListTagTest extends NBTTestCase {
 		assertThrowsRuntimeException(() -> deserializeFromFile("max_depth_reached.dat"), MaxDepthReachedException.class);
 		assertThrowsRuntimeException(root::toString, MaxDepthReachedException.class);
 		assertThrowsRuntimeException(root::toTagString, MaxDepthReachedException.class);
-		assertThrowsRuntimeException(() -> root.valueToString(-1), IllegalArgumentException.class);
-		assertThrowsRuntimeException(() -> root.valueToTagString(-1), IllegalArgumentException.class);
+		assertThrowsRuntimeException(() -> root.valueToString(-1), MaxDepthReachedException.class);
+		assertThrowsRuntimeException(() -> root.valueToTagString(-1), MaxDepthReachedException.class);
 	}
 
 	public void testRecursion() {

@@ -230,7 +230,7 @@ public class StructTag extends Tag<List<Tag<?>>> implements Iterable<Tag<?>> {
 		dos.writeInt(size());
 		for (Tag<?> tag : getValue()) {
 			dos.writeByte(tag.getID());
-			tag.serializeValue(dos, incrementDepth(depth));
+			tag.serializeValue(dos, decrementDepth(depth));
 		}
 	}
 
@@ -241,7 +241,7 @@ public class StructTag extends Tag<List<Tag<?>>> implements Iterable<Tag<?>> {
 		setValue(new ArrayList<>(size));
 		for (int i = 0; i < size; i++) {
 			Tag<?> tag = TagFactory.fromID(dis.readByte());
-			tag.deserializeValue(dis, incrementDepth(depth));
+			tag.deserializeValue(dis, decrementDepth(depth));
 			add(tag);
 		}
 	}
@@ -250,7 +250,7 @@ public class StructTag extends Tag<List<Tag<?>>> implements Iterable<Tag<?>> {
 	public String valueToString(int depth) {
 		StringBuilder sb = new StringBuilder("[");
 		for (int i = 0; i < size(); i++) {
-			sb.append(i > 0 ? "," : "").append(get(i).toString(incrementDepth(depth)));
+			sb.append(i > 0 ? "," : "").append(get(i).toString(decrementDepth(depth)));
 		}
 		sb.append("]");
 		return sb.toString();
@@ -260,7 +260,7 @@ public class StructTag extends Tag<List<Tag<?>>> implements Iterable<Tag<?>> {
 	public String valueToTagString(int depth) {
 		StringBuilder sb = new StringBuilder("[");
 		for (int i = 0; i < size(); i++) {
-			sb.append(i > 0 ? "," : "").append(get(i).valueToTagString(incrementDepth(depth)));
+			sb.append(i > 0 ? "," : "").append(get(i).valueToTagString(decrementDepth(depth)));
 		}
 		sb.append("]");
 		return sb.toString();

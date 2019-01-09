@@ -242,7 +242,7 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 		dos.writeInt(size());
 		if (size() != 0) {
 			for (T t : getValue()) {
-				t.serializeValue(dos, incrementDepth(depth));
+				t.serializeValue(dos, decrementDepth(depth));
 			}
 		}
 	}
@@ -260,7 +260,7 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 		if (size != 0) {
 			for (int i = 0; i < size; i++) {
 				Tag<?> tag = TagFactory.fromID(typeID);
-				tag.deserializeValue(dis, incrementDepth(depth));
+				tag.deserializeValue(dis, decrementDepth(depth));
 				add((T) tag);
 			}
 		}
@@ -270,7 +270,7 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	public String valueToString(int depth) {
 		StringBuilder sb = new StringBuilder("{\"type\":\"").append(getTypeClass().getSimpleName()).append("\",\"list\":[");
 		for (int i = 0; i < size(); i++) {
-			sb.append(i > 0 ? "," : "").append(get(i).valueToString(incrementDepth(depth)));
+			sb.append(i > 0 ? "," : "").append(get(i).valueToString(decrementDepth(depth)));
 		}
 		sb.append("]}");
 		return sb.toString();
@@ -280,7 +280,7 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	public String valueToTagString(int depth) {
 		StringBuilder sb = new StringBuilder("[");
 		for (int i = 0; i < size(); i++) {
-			sb.append(i > 0 ? "," : "").append(get(i).valueToTagString(incrementDepth(depth)));
+			sb.append(i > 0 ? "," : "").append(get(i).valueToTagString(decrementDepth(depth)));
 		}
 		sb.append("]");
 		return sb.toString();

@@ -14,7 +14,7 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	/**
 	 * The maximum depth of the NBT structure.
 	 * */
-	public static final int MAX_DEPTH = 512;
+	public static final int DEFAULT_MAX_DEPTH = 512;
 
 	private static final Map<String, String> ESCAPE_CHARACTERS;
 	static {
@@ -94,7 +94,7 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	 * @param depth The current depth of the structure.
 	 * @throws IOException If something went wrong during serialization.
 	 * @exception NullPointerException If {@code dos} or {@code name} is {@code null}.
-	 * @exception MaxDepthReachedException If the structure depth exceeds {@link Tag#MAX_DEPTH}.
+	 * @exception MaxDepthReachedException If the structure depth exceeds {@link Tag#DEFAULT_MAX_DEPTH}.
 	 * */
 	public final void serialize(DataOutputStream dos, String name, int depth) throws IOException {
 		dos.writeByte(getID());
@@ -111,7 +111,7 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	 * @param depth The current depth of the structure.
 	 * @throws IOException If something went wrong during deserialization.
 	 * @exception NullPointerException If {@code dis} is {@code null}.
-	 * @exception MaxDepthReachedException If the structure depth exceeds {@link Tag#MAX_DEPTH}.
+	 * @exception MaxDepthReachedException If the structure depth exceeds {@link Tag#DEFAULT_MAX_DEPTH}.
 	 * @return The deserialized NBT structure.
 	 * */
 	public static Tag<?> deserialize(DataInputStream dis, int depth) throws IOException {
@@ -129,7 +129,7 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	 * @param dos The DataOutputStream to write to.
 	 * @param depth The current depth of the structure.
 	 * @throws IOException If something went wrong during serialization.
-	 * @exception MaxDepthReachedException If the structure depth exceeds {@link Tag#MAX_DEPTH}.
+	 * @exception MaxDepthReachedException If the structure depth exceeds {@link Tag#DEFAULT_MAX_DEPTH}.
 	 * */
 	public abstract void serializeValue(DataOutputStream dos, int depth) throws IOException;
 
@@ -138,7 +138,7 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	 * @param dis The DataInputStream to read from.
 	 * @param depth The current depth of the structure.
 	 * @throws IOException If something went wrong during deserialization.
-	 * @exception MaxDepthReachedException If the structure depth exceeds {@link Tag#MAX_DEPTH}.
+	 * @exception MaxDepthReachedException If the structure depth exceeds {@link Tag#DEFAULT_MAX_DEPTH}.
 	 * */
 	public abstract void deserializeValue(DataInputStream dis, int depth) throws IOException;
 
@@ -148,14 +148,14 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	 * */
 	@Override
 	public final String toString() {
-		return toString(0);
+		return toString(DEFAULT_MAX_DEPTH);
 	}
 
 	/**
 	 * Creates a string representation of this Tag in a valid JSON format.
 	 * @param depth The current depth of the structure.
 	 * @return The string representation of this Tag.
-	 * @exception MaxDepthReachedException If the structure depth exceeds {@link Tag#MAX_DEPTH}.
+	 * @exception MaxDepthReachedException If the structure depth exceeds {@link Tag#DEFAULT_MAX_DEPTH}.
 	 * */
 	public String toString(int depth) {
 		return "{\"type\":\""+ getClass().getSimpleName() + "\"," +
@@ -166,7 +166,7 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	 * Returns a JSON representation of the value of this Tag.
 	 * @param depth The current depth of the structure.
 	 * @return The string representation of the value of this Tag.
-	 * @exception MaxDepthReachedException If the structure depth exceeds {@link Tag#MAX_DEPTH}.
+	 * @exception MaxDepthReachedException If the structure depth exceeds {@link Tag#DEFAULT_MAX_DEPTH}.
 	 * */
 	public abstract String valueToString(int depth);
 
@@ -176,14 +176,14 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	 * @return The JSON-like string representation of this Tag.
 	 * */
 	public final String toTagString() {
-		return toTagString(0);
+		return toTagString(DEFAULT_MAX_DEPTH);
 	}
 
 	/**
 	 * Returns a JSON-like representation of the value of this Tag, usually used for Minecraft commands.
 	 * @param depth The current depth of the structure.
 	 * @return The JSON-like string representation of this Tag.
-	 * @exception MaxDepthReachedException If the structure depth exceeds {@link Tag#MAX_DEPTH}.
+	 * @exception MaxDepthReachedException If the structure depth exceeds {@link Tag#DEFAULT_MAX_DEPTH}.
 	 * */
 	public String toTagString(int depth) {
 		return valueToTagString(depth);
@@ -193,7 +193,7 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	 * Returns a JSON-like representation of the value of this Tag.
 	 * @param depth The current depth of the structure.
 	 * @return The JSON-like string representation of the value of this Tag.
-	 * @exception MaxDepthReachedException If the structure depth exceeds {@link Tag#MAX_DEPTH}.
+	 * @exception MaxDepthReachedException If the structure depth exceeds {@link Tag#DEFAULT_MAX_DEPTH}.
 	 * */
 	public abstract String valueToTagString(int depth);
 
@@ -242,20 +242,16 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	}
 
 	/**
-	 * Increments {@code depth} by {@code 1}.
-	 * @param depth The value to increment.
-	 * @return The incremented value.
-	 * @exception MaxDepthReachedException If {@code depth} is {@code >=} {@link Tag#MAX_DEPTH}.
-	 * @exception IllegalArgumentException If {@code depth} is {@code <} {@code 0}
+	 * Decrements {@code depth} by {@code 1}.
+	 * @param depth The value to decrement.
+	 * @return The decremented value.
+	 * @exception MaxDepthReachedException If {@code depth <= 0}.
 	 * */
-	protected int incrementDepth(int depth) {
-		if (depth >= MAX_DEPTH) {
-			throw new MaxDepthReachedException("reached maximum depth (" + Tag.MAX_DEPTH + ") of NBT structure");
+	protected int decrementDepth(int depth) {
+		if (depth <= 0) {
+			throw new MaxDepthReachedException("reached maximum depth of NBT structure");
 		}
-		if (depth < 0) {
-			throw new IllegalArgumentException("initial depth cannot be negative");
-		}
-		return ++depth;
+		return --depth;
 	}
 
 	/**

@@ -224,7 +224,7 @@ public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Ma
 		for (Map.Entry<String, Tag<?>> e : getValue().entrySet()) {
 			dos.writeByte(e.getValue().getID());
 			dos.writeUTF(e.getKey());
-			e.getValue().serializeValue(dos, incrementDepth(depth));
+			e.getValue().serializeValue(dos, decrementDepth(depth));
 		}
 		EndTag.INSTANCE.serialize(dos, depth);
 	}
@@ -235,7 +235,7 @@ public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Ma
 		for (int id = dis.readByte() & 0xFF; id != 0; id = dis.readByte() & 0xFF) {
 			Tag<?> tag = TagFactory.fromID(id);
 			String name = dis.readUTF();
-			tag.deserializeValue(dis, incrementDepth(depth));
+			tag.deserializeValue(dis, decrementDepth(depth));
 			put(name, tag);
 		}
 	}
@@ -247,7 +247,7 @@ public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Ma
 		for (Map.Entry<String, Tag<?>> e : getValue().entrySet()) {
 			sb.append(first ? "" : ",")
 					.append(escapeString(e.getKey(), false)).append(":")
-					.append(e.getValue().toString(incrementDepth(depth)));
+					.append(e.getValue().toString(decrementDepth(depth)));
 			first = false;
 		}
 		sb.append("}");
@@ -261,7 +261,7 @@ public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Ma
 		for (Map.Entry<String, Tag<?>> e : getValue().entrySet()) {
 			sb.append(first ? "" : ",")
 					.append(escapeString(e.getKey(), true)).append(":")
-					.append(e.getValue().valueToTagString(incrementDepth(depth)));
+					.append(e.getValue().valueToTagString(decrementDepth(depth)));
 			first = false;
 		}
 		sb.append("}");
