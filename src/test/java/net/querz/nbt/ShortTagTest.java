@@ -42,5 +42,6 @@ public class ShortTagTest extends NBTTestCase {
 		assertTrue(0 < new ShortTag((short) 7).compareTo(new ShortTag((short) 5)));
 		assertTrue(0 > new ShortTag((short) 5).compareTo(new ShortTag((short) 7)));
 		assertThrowsRuntimeException(() -> new ShortTag((short) 5).compareTo(null), NullPointerException.class);
+		assertThrowsRuntimeException(() -> new ShortTag((short) 5).compareTo(new DummyNumberTag<>()), IllegalArgumentException.class);
 	}
 }

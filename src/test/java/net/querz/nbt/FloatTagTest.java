@@ -40,5 +40,6 @@ public class FloatTagTest extends NBTTestCase {
 		assertTrue(0 < new FloatTag(7).compareTo(new FloatTag(5)));
 		assertTrue(0 > new FloatTag(5).compareTo(new FloatTag(7)));
 		assertThrowsRuntimeException(() -> new FloatTag(5).compareTo(null), NullPointerException.class);
+		assertThrowsRuntimeException(() -> new FloatTag(5).compareTo(new DummyNumberTag<>()), IllegalArgumentException.class);
 	}
 }

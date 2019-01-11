@@ -57,10 +57,6 @@ public class StructTag extends Tag<List<Tag<?>>> implements Iterable<Tag<?>> {
 		return getValue().containsAll(tags);
 	}
 
-	public void sort(Comparator<Tag<?>> comparator) {
-		getValue().sort(comparator);
-	}
-
 	@Override
 	public Iterator<Tag<?>> iterator() {
 		return getValue().iterator();

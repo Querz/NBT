@@ -1,5 +1,6 @@
 package net.querz.nbt.custom;
 
+import net.querz.nbt.DummyArrayTag;
 import net.querz.nbt.NBTTestCase;
 import java.util.Arrays;
 import static org.junit.Assert.assertNotEquals;
@@ -57,5 +58,6 @@ public class ShortArrayTagTest extends NBTTestCase {
 		assertTrue(0 < t.compareTo(t4));
 		assertTrue(0 > t4.compareTo(t));
 		assertThrowsRuntimeException(() -> t.compareTo(null), NullPointerException.class);
+		assertThrowsRuntimeException(() -> t.compareTo(new DummyArrayTag<>(new short[0])), IllegalArgumentException.class);
 	}
 }

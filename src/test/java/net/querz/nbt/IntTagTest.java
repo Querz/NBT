@@ -41,5 +41,6 @@ public class IntTagTest extends NBTTestCase {
 		assertTrue(0 < new IntTag(7).compareTo(new IntTag(5)));
 		assertTrue(0 > new IntTag(5).compareTo(new IntTag(7)));
 		assertThrowsRuntimeException(() -> new IntTag(5).compareTo(null), NullPointerException.class);
+		assertThrowsRuntimeException(() -> new IntTag(5).compareTo(new DummyNumberTag<>()), IllegalArgumentException.class);
 	}
 }
