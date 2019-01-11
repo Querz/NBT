@@ -37,7 +37,7 @@ public abstract class ArrayTag<T> extends Tag<T> {
 
 	@Override
 	public int compareTo(Tag<T> other) {
-		if (!(other instanceof ArrayTag) || this.getClass() != other.getClass()) {
+		if (this.getClass() != other.getClass()) {
 			throw new IllegalArgumentException("array types are incompatible");
 		}
 		return Integer.compare(Array.getLength(getValue()), Array.getLength(other.getValue()));

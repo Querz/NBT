@@ -39,6 +39,6 @@ public class DoubleTagTest extends NBTTestCase {
 		assertEquals(0, new DoubleTag(5).compareTo(new DoubleTag(5)));
 		assertTrue(0 < new DoubleTag(7).compareTo(new DoubleTag(5)));
 		assertTrue(0 > new DoubleTag(5).compareTo(new DoubleTag(7)));
-		assertThrowsRuntimeException(() -> new DoubleTag(5).compareTo(null), IllegalArgumentException.class);
+		assertThrowsRuntimeException(() -> new DoubleTag(5).compareTo(null), NullPointerException.class);
 	}
 }
