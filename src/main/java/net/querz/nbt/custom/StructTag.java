@@ -17,7 +17,11 @@ import net.querz.nbt.TagFactory;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public class StructTag extends Tag<List<Tag<?>>> implements Iterable<Tag<?>> {
@@ -26,10 +30,11 @@ public class StructTag extends Tag<List<Tag<?>>> implements Iterable<Tag<?>> {
 		TagFactory.registerCustomTag(120, StructTag::new, StructTag.class);
 	}
 
-	public StructTag() {}
+	public StructTag() {
+		setValue(createEmptyValue());
+	}
 
-	@Override
-	protected List<Tag<?>> getEmptyValue() {
+	private List<Tag<?>> createEmptyValue() {
 		return new ArrayList<>(3);
 	}
 
@@ -170,15 +175,15 @@ public class StructTag extends Tag<List<Tag<?>>> implements Iterable<Tag<?>> {
 	}
 
 	public Tag<?> set(int index, Tag<?> tag) {
-		return getValue().set(index, checkNull(tag));
+		return getValue().set(index, Objects.requireNonNull(tag));
 	}
 
 	public void add(Tag<?> tag) {
-		getValue().add(checkNull(tag));
+		getValue().add(Objects.requireNonNull(tag));
 	}
 
 	public void add(int index, Tag<?> tag) {
-		getValue().add(index, checkNull(tag));
+		getValue().add(index, Objects.requireNonNull(tag));
 	}
 
 	public void addBoolean(boolean value) {
@@ -210,19 +215,19 @@ public class StructTag extends Tag<List<Tag<?>>> implements Iterable<Tag<?>> {
 	}
 
 	public void addString(String value) {
-		add(new StringTag(checkNull(value)));
+		add(new StringTag(value));
 	}
 
 	public void addByteArray(byte[] value) {
-		add(new ByteArrayTag(checkNull(value)));
+		add(new ByteArrayTag(value));
 	}
 
 	public void addIntArray(int[] value) {
-		add(new IntArrayTag(checkNull(value)));
+		add(new IntArrayTag(value));
 	}
 
 	public void addLongArray(long[] value) {
-		add(new LongArrayTag(checkNull(value)));
+		add(new LongArrayTag(value));
 	}
 
 	@Override

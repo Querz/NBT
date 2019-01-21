@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,18 +36,17 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	/**
 	 * Initializes this Tag with a {@code null} value.
 	 */
-	public Tag() {
-		this(null);
+	protected Tag() {
+		value = null;
 	}
 
 	/**
-	 * Initializes this Tag with some value. If the value is {@code null}, it will call
-	 * this Tag's implementation of {@link Tag#getEmptyValue()} to set as the default value.
+	 * Initializes this Tag with some value. If the value is {@code null}, it will
+	 * throw a {@code NullPointerException}
 	 * @param value The value to be set for this Tag.
 	 * */
 	public Tag(T value) {
-		//the value of a tag can never be null
-		this.value = value == null ? getEmptyValue() : value;
+		setValue(value);
 	}
 
 	/**
@@ -55,11 +55,6 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	public byte getID() {
 		return TagFactory.idFromClass(getClass());
 	}
-
-	/**
-	 * @return A default value for this Tag.
-	 * */
-	protected abstract T getEmptyValue();
 
 	/**
 	 * @return The value of this Tag.
@@ -73,7 +68,7 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	 * @param value The value to be set.
 	 * */
 	protected void setValue(T value) {
-		this.value = value;
+		this.value = Objects.requireNonNull(value);
 	}
 
 	/**
@@ -226,20 +221,6 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	 * */
 	@SuppressWarnings("CloneDoesntDeclareCloneNotSupportedException")
 	public abstract Tag<T> clone();
-
-	/**
-	 * A utility method to check if some value is {@code null}.
-	 * @param <V> Any type that should be checked for being {@code null}
-	 * @param v The value to check.
-	 * @return {@code v}, if it's not {@code null}.
-	 * @exception NullPointerException If {@code v} is {@code null}.
-	 * */
-	protected <V> V checkNull(V v) {
-		if (v == null) {
-			throw new NullPointerException(getClass().getSimpleName() + " does not allow setting null");
-		}
-		return v;
-	}
 
 	/**
 	 * Decrements {@code depth} by {@code 1}.

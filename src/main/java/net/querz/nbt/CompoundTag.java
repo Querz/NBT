@@ -8,10 +8,11 @@ import java.util.function.BiConsumer;
 
 public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Map.Entry<String, Tag<?>>> {
 
-	public CompoundTag() {}
+	public CompoundTag() {
+		setValue(createEmptyValue());
+	}
 
-	@Override
-	protected Map<String, Tag<?>> getEmptyValue() {
+	private Map<String, Tag<?>> createEmptyValue() {
 		return new HashMap<>(8);
 	}
 
@@ -123,56 +124,56 @@ public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Ma
 
 	public byte getByte(String key) {
 		ByteTag t = getByteTag(key);
-		return t == null ? new ByteTag().getEmptyValue() : t.asByte();
+		return t == null ? ByteTag.ZERO_VALUE : t.asByte();
 	}
 
 	public short getShort(String key) {
 		ShortTag t = getShortTag(key);
-		return t == null ? new ShortTag().getEmptyValue() : t.asShort();
+		return t == null ? ShortTag.ZERO_VALUE : t.asShort();
 	}
 
 	public int getInt(String key) {
 		IntTag t = getIntTag(key);
-		return t == null ? new IntTag().getEmptyValue() : t.asInt();
+		return t == null ? IntTag.ZERO_VALUE : t.asInt();
 	}
 
 	public long getLong(String key) {
 		LongTag t = getLongTag(key);
-		return t == null ? new LongTag().getEmptyValue() : t.asLong();
+		return t == null ? LongTag.ZERO_VALUE : t.asLong();
 	}
 
 	public float getFloat(String key) {
 		FloatTag t = getFloatTag(key);
-		return t == null ? new FloatTag().getEmptyValue() : t.asFloat();
+		return t == null ? FloatTag.ZERO_VALUE : t.asFloat();
 	}
 
 	public double getDouble(String key) {
 		DoubleTag t = getDoubleTag(key);
-		return t == null ? new DoubleTag().getEmptyValue() : t.asDouble();
+		return t == null ? DoubleTag.ZERO_VALUE : t.asDouble();
 	}
 
 	public String getString(String key) {
 		StringTag t = getStringTag(key);
-		return t == null ? new StringTag().getEmptyValue() : t.getValue();
+		return t == null ? StringTag.ZERO_VALUE : t.getValue();
 	}
 
 	public byte[] getByteArray(String key) {
 		ByteArrayTag t = getByteArrayTag(key);
-		return t == null ? new ByteArrayTag().getEmptyValue() : t.getValue();
+		return t == null ? ByteArrayTag.ZERO_VALUE : t.getValue();
 	}
 
 	public int[] getIntArray(String key) {
 		IntArrayTag t = getIntArrayTag(key);
-		return t == null ? new IntArrayTag().getEmptyValue() : t.getValue();
+		return t == null ? IntArrayTag.ZERO_VALUE : t.getValue();
 	}
 
 	public long[] getLongArray(String key) {
 		LongArrayTag t = getLongArrayTag(key);
-		return t == null ? new LongArrayTag().getEmptyValue() : t.getValue();
+		return t == null ? LongArrayTag.ZERO_VALUE : t.getValue();
 	}
 
 	public Tag<?> put(String key, Tag<?> tag) {
-		return getValue().put(checkNull(key), checkNull(tag));
+		return getValue().put(Objects.requireNonNull(key), Objects.requireNonNull(tag));
 	}
 
 	public Tag<?> putBoolean(String key, boolean value) {
@@ -204,19 +205,19 @@ public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Ma
 	}
 
 	public Tag<?> putString(String key, String value) {
-		return put(key, new StringTag(checkNull(value)));
+		return put(key, new StringTag(value));
 	}
 
 	public Tag<?> putByteArray(String key, byte[] value) {
-		return put(key, new ByteArrayTag(checkNull(value)));
+		return put(key, new ByteArrayTag(value));
 	}
 
 	public Tag<?> putIntArray(String key, int[] value) {
-		return put(key, new IntArrayTag(checkNull(value)));
+		return put(key, new IntArrayTag(value));
 	}
 
 	public Tag<?> putLongArray(String key, long[] value) {
-		return put(key, new LongArrayTag(checkNull(value)));
+		return put(key, new LongArrayTag(value));
 	}
 
 	@Override

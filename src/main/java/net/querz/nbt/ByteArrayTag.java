@@ -7,17 +7,14 @@ import java.util.Arrays;
 
 public class ByteArrayTag extends ArrayTag<byte[]> {
 
+	public static final byte[] ZERO_VALUE = new byte[0];
+
 	public ByteArrayTag() {
-		super(new byte[0]);
+		super(ZERO_VALUE);
 	}
 
 	public ByteArrayTag(byte[] value) {
 		super(value);
-	}
-
-	@Override
-	protected byte[] getEmptyValue() {
-		return new byte[0];
 	}
 
 	@Override

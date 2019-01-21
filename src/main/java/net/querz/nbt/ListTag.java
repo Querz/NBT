@@ -23,7 +23,9 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 
 	private Class<?> typeClass = null;
 
-	private ListTag() {}
+	private ListTag() {
+		setValue(createEmptyValue());
+	}
 	
 	/**
 	 * <p>Creates a non-type-safe ListTag. Its element type will be set after the first 
@@ -39,24 +41,29 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	}
 
 	/**
+	 * <p>Creates an empty typed value for this ListTag</p>
+	 *
+	 * @return A typed instance of {@link java.util.List} with an initial capacity of 3
+	 * */
+	private List<T> createEmptyValue() {
+		return new ArrayList<>(3);
+	}
+
+	/**
 	 * @param typeClass The exact class of the elements
 	 * @throws IllegalArgumentException When {@code typeClass} is {@link EndTag}{@code .class}
 	 * @throws NullPointerException When {@code typeClass} is {@code null}
 	 */
 	public ListTag(Class<? super T> typeClass) throws IllegalArgumentException, NullPointerException {
+		super(new ArrayList<>(3));
 		if (typeClass == EndTag.class) {
 			throw new IllegalArgumentException("cannot create ListTag with EndTag elements");
 		}
-		this.typeClass = checkNull(typeClass);
+		this.typeClass = Objects.requireNonNull(typeClass);
 	}
 
 	public Class<?> getTypeClass() {
 		return typeClass == null ? EndTag.class : typeClass;
-	}
-
-	@Override
-	protected List<T> getEmptyValue() {
-		return new ArrayList<>(3);
 	}
 
 	public int size() {
@@ -98,7 +105,7 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	}
 
 	public T set(int index, T t) {
-		return getValue().set(index, checkNull(t));
+		return getValue().set(index, Objects.requireNonNull(t));
 	}
 
 	/**
@@ -110,7 +117,7 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	}
 
 	public void add(int index, T t) {
-		checkNull(t);
+		Objects.requireNonNull(t);
 		getValue().add(index, t);
 		if (typeClass == null) {
 			typeClass = t.getClass();
@@ -160,19 +167,19 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	}
 
 	public void addString(String value) {
-		addUnchecked(new StringTag(checkNull(value)));
+		addUnchecked(new StringTag(value));
 	}
 
 	public void addByteArray(byte[] value) {
-		addUnchecked(new ByteArrayTag(checkNull(value)));
+		addUnchecked(new ByteArrayTag(value));
 	}
 
 	public void addIntArray(int[] value) {
-		addUnchecked(new IntArrayTag(checkNull(value)));
+		addUnchecked(new IntArrayTag(value));
 	}
 
 	public void addLongArray(long[] value) {
-		addUnchecked(new LongArrayTag(checkNull(value)));
+		addUnchecked(new LongArrayTag(value));
 	}
 
 	public T get(int index) {

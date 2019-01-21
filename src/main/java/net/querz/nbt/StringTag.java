@@ -6,15 +6,14 @@ import java.io.IOException;
 
 public class StringTag extends Tag<String> {
 
-	public StringTag() {}
+	public static final String ZERO_VALUE = "";
+
+	public StringTag() {
+		super(ZERO_VALUE);
+	}
 
 	public StringTag(String value) {
 		super(value);
-	}
-
-	@Override
-	protected String getEmptyValue() {
-		return "";
 	}
 
 	@Override
@@ -24,7 +23,7 @@ public class StringTag extends Tag<String> {
 
 	@Override
 	public void setValue(String value) {
-		super.setValue(checkNull(value));
+		super.setValue(value);
 	}
 
 	@Override

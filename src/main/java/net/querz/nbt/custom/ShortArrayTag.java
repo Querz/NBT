@@ -9,21 +9,18 @@ import java.util.Arrays;
 
 public class ShortArrayTag extends ArrayTag<short[]> {
 
+	public static final short[] ZERO_VALUE = new short[0];
+
 	public static void register() {
 		TagFactory.registerCustomTag(100, ShortArrayTag::new, ShortArrayTag.class);
 	}
 
 	public ShortArrayTag() {
-		super(new short[0]);
+		super(ZERO_VALUE);
 	}
 
 	public ShortArrayTag(short[] value) {
 		super(value);
-	}
-
-	@Override
-	protected short[] getEmptyValue() {
-		return new short[0];
 	}
 
 	@Override

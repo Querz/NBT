@@ -6,15 +6,14 @@ import java.io.IOException;
 
 public class IntTag extends NumberTag<Integer> {
 
-	public IntTag() {}
+	public static final int ZERO_VALUE = 0;
+
+	public IntTag() {
+		super(ZERO_VALUE);
+	}
 
 	public IntTag(int value) {
 		super(value);
-	}
-
-	@Override
-	protected Integer getEmptyValue() {
-		return 0;
 	}
 
 	public void setValue(int value) {

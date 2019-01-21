@@ -11,11 +11,6 @@ public class DummyArrayTag<T> extends ArrayTag<T> {
 	}
 
 	@Override
-	protected T getEmptyValue() {
-		return null;
-	}
-
-	@Override
 	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
 
 	}

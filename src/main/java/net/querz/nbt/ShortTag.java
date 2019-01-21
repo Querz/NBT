@@ -6,15 +6,14 @@ import java.io.IOException;
 
 public class ShortTag extends NumberTag<Short> {
 
-	public ShortTag() {}
+	public static final short ZERO_VALUE = 0;
+
+	public ShortTag() {
+		super(ZERO_VALUE);
+	}
 
 	public ShortTag(short value) {
 		super(value);
-	}
-
-	@Override
-	protected Short getEmptyValue() {
-		return 0;
 	}
 
 	public void setValue(short value) {

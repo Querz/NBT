@@ -6,15 +6,14 @@ import java.io.IOException;
 
 public class LongTag extends NumberTag<Long> {
 
-	public LongTag() {}
+	public static final long ZERO_VALUE = 0L;
+
+	public LongTag() {
+		super(ZERO_VALUE);
+	}
 
 	public LongTag(long value) {
 		super(value);
-	}
-
-	@Override
-	protected Long getEmptyValue() {
-		return 0L;
 	}
 
 	public void setValue(long value) {

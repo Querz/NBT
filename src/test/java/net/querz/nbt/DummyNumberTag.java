@@ -7,11 +7,6 @@ import java.io.IOException;
 public class DummyNumberTag<T extends Number & Comparable<T>> extends NumberTag<T> {
 
 	@Override
-	protected T getEmptyValue() {
-		return null;
-	}
-
-	@Override
 	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
 
 	}

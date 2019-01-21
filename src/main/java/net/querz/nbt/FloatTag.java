@@ -6,15 +6,14 @@ import java.io.IOException;
 
 public class FloatTag extends NumberTag<Float> {
 
-	public FloatTag() {}
+	public static final float ZERO_VALUE = 0.0F;
+
+	public FloatTag() {
+		super(ZERO_VALUE);
+	}
 
 	public FloatTag(float value) {
 		super(value);
-	}
-
-	@Override
-	protected Float getEmptyValue() {
-		return 0.0f;
 	}
 
 	public void setValue(float value) {

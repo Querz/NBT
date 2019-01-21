@@ -10,11 +10,6 @@ public final class EndTag extends Tag<Void> {
 	private EndTag() {}
 
 	@Override
-	protected Void getEmptyValue() {
-		return null;
-	}
-
-	@Override
 	public void serializeValue(DataOutputStream dos, int depth) {
 		//nothing to do
 	}

@@ -2,8 +2,13 @@ package net.querz.nbt.custom;
 
 import net.querz.nbt.Tag;
 import net.querz.nbt.TagFactory;
-
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InvalidClassException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 
@@ -13,15 +18,14 @@ public class ObjectTag<T extends Serializable> extends Tag<T> {
 		TagFactory.registerCustomTag(90, ObjectTag::new, ObjectTag.class);
 	}
 
-	public ObjectTag() {}
-
-	public ObjectTag(T value) {
-		super(value);
+	public ObjectTag() {
+		// ObjectTag can have a null value, so we don't initialize anything here
 	}
 
-	@Override
-	protected T getEmptyValue() {
-		return null;
+	public ObjectTag(T value) {
+		if (value != null) {
+			setValue(value);
+		}
 	}
 
 	@Override
@@ -49,7 +53,10 @@ public class ObjectTag<T extends Serializable> extends Tag<T> {
 	@Override
 	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
 		try {
-			setValue((T) new ObjectInputStream(dis).readObject());
+			T obj = (T) new ObjectInputStream(dis).readObject();
+			if (obj != null) {
+				setValue(obj);
+			}
 		} catch (InvalidClassException | ClassNotFoundException e) {
 			throw new IOException(e.getCause());
 		}

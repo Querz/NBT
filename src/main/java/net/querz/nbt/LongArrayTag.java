@@ -7,17 +7,14 @@ import java.util.Arrays;
 
 public class LongArrayTag extends ArrayTag<long[]> {
 
+	public static final long[] ZERO_VALUE = new long[0];
+
 	public LongArrayTag() {
-		super(new long[0]);
+		super(ZERO_VALUE);
 	}
 
 	public LongArrayTag(long[] value) {
 		super(value);
-	}
-
-	@Override
-	protected long[] getEmptyValue() {
-		return new long[0];
 	}
 
 	@Override

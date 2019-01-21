@@ -7,17 +7,14 @@ import java.util.Arrays;
 
 public class IntArrayTag extends ArrayTag<int[]> {
 
+	public static final int[] ZERO_VALUE = new int[0];
+
 	public IntArrayTag() {
-		super(new int[0]);
+		super(ZERO_VALUE);
 	}
 
 	public IntArrayTag(int[] value) {
 		super(value);
-	}
-
-	@Override
-	protected int[] getEmptyValue() {
-		return new int[0];
 	}
 
 	@Override

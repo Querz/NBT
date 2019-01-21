@@ -67,11 +67,6 @@ public class ByteArrayTagTest extends NBTTestCase {
 		}
 
 		@Override
-		protected String getEmptyValue() {
-			return "";
-		}
-
-		@Override
 		public void serializeValue(DataOutputStream dos, int depth) {
 			throw new UnsupportedOperationException("goddammit, this is a test class, you don't want to save it.");
 		}

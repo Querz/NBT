@@ -27,7 +27,7 @@ public abstract class ArrayTag<T> extends Tag<T> {
 
 	@Override
 	public void setValue(T value) {
-		super.setValue(checkNull(value));
+		super.setValue(value);
 	}
 
 	@Override

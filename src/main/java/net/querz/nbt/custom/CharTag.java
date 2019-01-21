@@ -8,19 +8,18 @@ import java.io.IOException;
 
 public class CharTag extends Tag<Character> {
 
+	public static final char ZERO_VALUE = '\u0000';
+
 	public static void register() {
 		TagFactory.registerCustomTag(110, CharTag::new, CharTag.class);
 	}
 
-	public CharTag() {}
+	public CharTag() {
+		super(ZERO_VALUE);
+	}
 
 	public CharTag(char value) {
 		super(value);
-	}
-
-	@Override
-	protected Character getEmptyValue() {
-		return 0;
 	}
 
 	@Override

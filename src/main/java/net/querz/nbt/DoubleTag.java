@@ -6,15 +6,14 @@ import java.io.IOException;
 
 public class DoubleTag extends NumberTag<Double> {
 
-	public DoubleTag() {}
+	public static final double ZERO_VALUE = 0.0D;
+
+	public DoubleTag() {
+		super(ZERO_VALUE);
+	}
 
 	public DoubleTag(double value) {
 		super(value);
-	}
-
-	@Override
-	protected Double getEmptyValue() {
-		return 0.0d;
 	}
 
 	public void setValue(double value) {
