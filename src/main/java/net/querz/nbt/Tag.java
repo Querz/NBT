@@ -36,9 +36,7 @@ public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
 	/**
 	 * Initializes this Tag with a {@code null} value.
 	 */
-	protected Tag() {
-		value = null;
-	}
+	protected Tag() {}
 
 	/**
 	 * Initializes this Tag with some value. If the value is {@code null}, it will
