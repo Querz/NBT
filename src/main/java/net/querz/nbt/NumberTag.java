@@ -2,8 +2,6 @@ package net.querz.nbt;
 
 public abstract class NumberTag<T extends Number & Comparable<T>> extends Tag<T> {
 
-	public NumberTag() {}
-
 	public NumberTag(T value) {
 		super(value);
 	}
