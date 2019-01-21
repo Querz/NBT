@@ -6,6 +6,10 @@ import java.io.IOException;
 
 public class DummyNumberTag<T extends Number & Comparable<T>> extends NumberTag<T> {
 
+	public DummyNumberTag(T value) {
+		super(value);
+	}
+
 	@Override
 	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
 
