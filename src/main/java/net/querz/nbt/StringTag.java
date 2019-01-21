@@ -4,7 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class StringTag extends Tag<String> {
+public class StringTag extends Tag<String> implements Comparable<StringTag> {
 
 	public static final String ZERO_VALUE = "";
 
@@ -52,10 +52,7 @@ public class StringTag extends Tag<String> {
 	}
 
 	@Override
-	public int compareTo(Tag<String> o) {
-		if (o == null || o.getClass() != getClass()) {
-			throw new IllegalArgumentException("incompatible string types");
-		}
+	public int compareTo(StringTag o) {
 		return getValue().compareTo(o.getValue());
 	}
 

@@ -30,11 +30,6 @@ public final class EndTag extends Tag<Void> {
 	}
 
 	@Override
-	public int compareTo(Tag<Void> o) {
-		return 0;
-	}
-
-	@Override
 	public EndTag clone() {
 		return INSTANCE;
 	}

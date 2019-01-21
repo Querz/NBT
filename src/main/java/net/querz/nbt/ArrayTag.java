@@ -7,7 +7,7 @@ import java.lang.reflect.Array;
  * For implementations see {@link ByteArrayTag}, {@link IntArrayTag}, {@link LongArrayTag}.
  * @param <T> The array type.
  * */
-public abstract class ArrayTag<T> extends Tag<T> {
+public abstract class ArrayTag<T> extends Tag<T> implements Comparable<ArrayTag<T>> {
 
 	public ArrayTag(T value) {
 		if (!value.getClass().isArray()) {
@@ -36,7 +36,7 @@ public abstract class ArrayTag<T> extends Tag<T> {
 	}
 
 	@Override
-	public int compareTo(Tag<T> other) {
+	public int compareTo(ArrayTag<T> other) {
 		if (this.getClass() != other.getClass()) {
 			throw new IllegalArgumentException("array types are incompatible");
 		}

@@ -18,9 +18,4 @@ public class EndTagTest extends NBTTestCase {
 		assertThrowsNoRuntimeException(() -> EndTag.INSTANCE.serializeValue(null, 0));
 		assertThrowsNoRuntimeException(() -> EndTag.INSTANCE.deserializeValue(null, 0));
 	}
-
-	public void testCompareTo() {
-		assertEquals(0, EndTag.INSTANCE.compareTo(EndTag.INSTANCE.clone()));
-		assertEquals(0, EndTag.INSTANCE.compareTo(null));
-	}
 }

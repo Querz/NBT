@@ -218,7 +218,7 @@ public class ListTagTest extends NBTTestCase {
 		lo.remove(2);
 		lo.remove(1);
 		assertEquals(1, li.compareTo(lo));
-		assertThrowsRuntimeException(() -> li.compareTo(null), IllegalArgumentException.class);
+		assertThrowsRuntimeException(() -> li.compareTo(null), NullPointerException.class);
 	}
 
 	public void testMaxDepth() {
@@ -260,12 +260,6 @@ public class ListTagTest extends NBTTestCase {
 		l.addInt(2);
 		l.addInt(1);
 		l.sort(Comparator.comparingInt(NumberTag::asInt));
-		assertEquals(1, l.get(0).asInt());
-		assertEquals(2, l.get(1).asInt());
-		ListTag<IntTag> l2 = new ListTag<>(IntTag.class);
-		l2.addInt(2);
-		l2.addInt(1);
-		l2.sort();
 		assertEquals(1, l.get(0).asInt());
 		assertEquals(2, l.get(1).asInt());
 	}

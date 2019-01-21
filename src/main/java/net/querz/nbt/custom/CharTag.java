@@ -6,7 +6,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class CharTag extends Tag<Character> {
+public class CharTag extends Tag<Character> implements Comparable<CharTag> {
 
 	public static final char ZERO_VALUE = '\u0000';
 
@@ -57,8 +57,8 @@ public class CharTag extends Tag<Character> {
 	}
 
 	@Override
-	public int compareTo(Tag<Character> o) {
-		return Character.compare(getValue(), ((CharTag) o).getValue());
+	public int compareTo(CharTag o) {
+		return Character.compare(getValue(), o.getValue());
 	}
 
 	@Override

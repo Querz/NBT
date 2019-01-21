@@ -10,7 +10,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class Tag<T> implements Comparable<Tag<T>>, Cloneable {
+public abstract class Tag<T> implements Cloneable {
 
 	/**
 	 * The maximum depth of the NBT structure.

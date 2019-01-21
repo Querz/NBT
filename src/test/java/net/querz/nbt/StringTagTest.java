@@ -56,6 +56,6 @@ public class StringTagTest extends NBTTestCase {
 		assertEquals(0, t.compareTo(t2));
 		assertTrue(0 > t.compareTo(t3));
 		assertTrue(0 < t3.compareTo(t));
-		assertThrowsRuntimeException(() -> t.compareTo(null), IllegalArgumentException.class);
+		assertThrowsRuntimeException(() -> t.compareTo(null), NullPointerException.class);
 	}
 }

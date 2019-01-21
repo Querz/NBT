@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-public class StructTag extends Tag<List<Tag<?>>> implements Iterable<Tag<?>> {
+public class StructTag extends Tag<List<Tag<?>>> implements Iterable<Tag<?>>, Comparable<StructTag> {
 
 	public static void register() {
 		TagFactory.registerCustomTag(120, StructTag::new, StructTag.class);
@@ -290,11 +290,8 @@ public class StructTag extends Tag<List<Tag<?>>> implements Iterable<Tag<?>> {
 	}
 
 	@Override
-	public int compareTo(Tag<List<Tag<?>>> o) {
-		if (!(o instanceof StructTag)) {
-			return 0;
-		}
-		return Integer.compare(size(), ((StructTag) o).size());
+	public int compareTo(StructTag o) {
+		return Integer.compare(size(), o.size());
 	}
 
 	@Override

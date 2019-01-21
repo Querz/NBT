@@ -12,7 +12,7 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 
-public class ObjectTag<T extends Serializable> extends Tag<T> {
+public class ObjectTag<T extends Serializable> extends Tag<T> implements Comparable<ObjectTag<T>> {
 
 	public static void register() {
 		TagFactory.registerCustomTag(90, ObjectTag::new, ObjectTag.class);
@@ -84,10 +84,9 @@ public class ObjectTag<T extends Serializable> extends Tag<T> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public int compareTo(Tag<T> o) {
-		ObjectTag<T> oo = (ObjectTag<T>) o;
-		if (oo.getValue() instanceof Comparable && getValue() instanceof Comparable) {
-			return ((Comparable<T>) getValue()).compareTo(oo.getValue());
+	public int compareTo(ObjectTag<T> o) {
+		if (o.getValue() instanceof Comparable && getValue() instanceof Comparable) {
+			return ((Comparable<T>) getValue()).compareTo(o.getValue());
 		}
 		return 0;
 	}

@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.function.BiConsumer;
 
-public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Map.Entry<String, Tag<?>>> {
+public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Map.Entry<String, Tag<?>>>, Comparable<CompoundTag> {
 
 	public CompoundTag() {
 		setValue(createEmptyValue());
@@ -287,10 +287,7 @@ public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Ma
 	}
 
 	@Override
-	public int compareTo(Tag<Map<String, Tag<?>>> o) {
-		if (!(o instanceof CompoundTag)) {
-			throw new IllegalArgumentException("cannot compare " + getClass().getSimpleName() + " and " + (o == null ? "null" : o.getClass().getSimpleName()));
-		}
+	public int compareTo(CompoundTag o) {
 		return Integer.compare(size(), o.getValue().size());
 	}
 
