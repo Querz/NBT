@@ -4,7 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class ByteTag extends NumberTag<Byte> {
+public class ByteTag extends NumberTag<Byte> implements Comparable<ByteTag> {
 
 	public static final byte ZERO_VALUE = 0;
 
@@ -46,6 +46,11 @@ public class ByteTag extends NumberTag<Byte> {
 	@Override
 	public boolean equals(Object other) {
 		return super.equals(other) && asByte() == ((ByteTag) other).asByte();
+	}
+
+	@Override
+	public int compareTo(ByteTag other) {
+		return getValue().compareTo(other.getValue());
 	}
 
 	@Override

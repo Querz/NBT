@@ -4,7 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class ShortTag extends NumberTag<Short> {
+public class ShortTag extends NumberTag<Short> implements Comparable<ShortTag> {
 
 	public static final short ZERO_VALUE = 0;
 
@@ -38,6 +38,11 @@ public class ShortTag extends NumberTag<Short> {
 	@Override
 	public boolean equals(Object other) {
 		return super.equals(other) && asShort() == ((ShortTag) other).asShort();
+	}
+
+	@Override
+	public int compareTo(ShortTag other) {
+		return getValue().compareTo(other.getValue());
 	}
 
 	@Override

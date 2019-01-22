@@ -5,7 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
-public class LongArrayTag extends ArrayTag<long[]> {
+public class LongArrayTag extends ArrayTag<long[]> implements Comparable<LongArrayTag> {
 
 	public static final long[] ZERO_VALUE = new long[0];
 
@@ -47,6 +47,11 @@ public class LongArrayTag extends ArrayTag<long[]> {
 	@Override
 	public int hashCode() {
 		return Arrays.hashCode(getValue());
+	}
+
+	@Override
+	public int compareTo(LongArrayTag other) {
+		return Integer.compare(length(), other.length());
 	}
 
 	@Override

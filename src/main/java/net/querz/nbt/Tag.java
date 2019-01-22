@@ -34,11 +34,6 @@ public abstract class Tag<T> implements Cloneable {
 	private T value;
 
 	/**
-	 * Initializes this Tag with a {@code null} value.
-	 */
-	protected Tag() {}
-
-	/**
 	 * Initializes this Tag with some value. If the value is {@code null}, it will
 	 * throw a {@code NullPointerException}
 	 * @param value The value to be set for this Tag.
@@ -64,9 +59,20 @@ public abstract class Tag<T> implements Cloneable {
 	/**
 	 * Sets the value for this Tag directly.
 	 * @param value The value to be set.
+	 * @throws NullPointerException If the value is null
 	 * */
 	protected void setValue(T value) {
-		this.value = Objects.requireNonNull(value);
+		this.value = checkValue(value);
+	}
+
+	/**
+	 * Checks if the value {@code value} is {@code null}.
+	 * @param value The value to check
+	 * @throws NullPointerException If {@code value} was {@code null}
+	 * @return The parameter {@code value}
+	 * */
+	protected T checkValue(T value) {
+		return Objects.requireNonNull(value);
 	}
 
 	/**
@@ -227,7 +233,9 @@ public abstract class Tag<T> implements Cloneable {
 	 * @exception MaxDepthReachedException If {@code depth <= 0}.
 	 * */
 	protected int decrementDepth(int depth) {
-		if (depth <= 0) {
+		if (depth < 0) {
+			throw new IllegalArgumentException("negative depth is not allowed");
+		} else if (depth == 0) {
 			throw new MaxDepthReachedException("reached maximum depth of NBT structure");
 		}
 		return --depth;

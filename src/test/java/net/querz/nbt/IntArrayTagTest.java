@@ -46,6 +46,5 @@ public class IntArrayTagTest extends NBTTestCase {
 		assertTrue(0 < t.compareTo(t4));
 		assertTrue(0 > t4.compareTo(t));
 		assertThrowsRuntimeException(() -> t.compareTo(null), NullPointerException.class);
-		assertThrowsRuntimeException(() -> t.compareTo(new DummyArrayTag<>(new int[0])), IllegalArgumentException.class);
 	}
 }

@@ -279,8 +279,8 @@ public class CompoundTagTest extends NBTTestCase {
 		assertThrowsRuntimeException(root::toString, MaxDepthReachedException.class);
 		assertThrowsNoRuntimeException(() -> root.toTagString(Tag.DEFAULT_MAX_DEPTH + 1));
 		assertThrowsRuntimeException(root::toTagString, MaxDepthReachedException.class);
-		assertThrowsRuntimeException(() -> root.valueToString(-1), MaxDepthReachedException.class);
-		assertThrowsRuntimeException(() -> root.valueToTagString(-1), MaxDepthReachedException.class);
+		assertThrowsRuntimeException(() -> root.valueToString(-1), IllegalArgumentException.class);
+		assertThrowsRuntimeException(() -> root.valueToTagString(-1), IllegalArgumentException.class);
 	}
 
 	public void testRecursion() {

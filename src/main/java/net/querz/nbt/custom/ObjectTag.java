@@ -19,13 +19,16 @@ public class ObjectTag<T extends Serializable> extends Tag<T> implements Compara
 	}
 
 	public ObjectTag() {
-		// ObjectTag can have a null value, so we don't initialize anything here
+		super(null);
 	}
 
 	public ObjectTag(T value) {
-		if (value != null) {
-			setValue(value);
-		}
+		super(value);
+	}
+
+	@Override
+	protected T checkValue(T value) {
+		return value;
 	}
 
 	@Override
@@ -53,10 +56,7 @@ public class ObjectTag<T extends Serializable> extends Tag<T> implements Compara
 	@Override
 	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
 		try {
-			T obj = (T) new ObjectInputStream(dis).readObject();
-			if (obj != null) {
-				setValue(obj);
-			}
+			setValue((T) new ObjectInputStream(dis).readObject());
 		} catch (InvalidClassException | ClassNotFoundException e) {
 			throw new IOException(e.getCause());
 		}

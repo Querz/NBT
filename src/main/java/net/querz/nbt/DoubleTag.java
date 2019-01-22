@@ -4,7 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class DoubleTag extends NumberTag<Double> {
+public class DoubleTag extends NumberTag<Double> implements Comparable<DoubleTag> {
 
 	public static final double ZERO_VALUE = 0.0D;
 
@@ -38,6 +38,11 @@ public class DoubleTag extends NumberTag<Double> {
 	@Override
 	public boolean equals(Object other) {
 		return super.equals(other) && getValue().equals(((DoubleTag) other).getValue());
+	}
+
+	@Override
+	public int compareTo(DoubleTag other) {
+		return getValue().compareTo(other.getValue());
 	}
 
 	@Override

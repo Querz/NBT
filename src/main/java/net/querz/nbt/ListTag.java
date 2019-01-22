@@ -23,7 +23,7 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	private Class<?> typeClass = null;
 
 	private ListTag() {
-		setValue(createEmptyValue());
+		super(createEmptyValue(3));
 	}
 	
 	/**
@@ -40,12 +40,13 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	}
 
 	/**
-	 * <p>Creates an empty typed value for this ListTag</p>
+	 * <p>Creates an empty mutable list to be used as empty value of ListTags.</p>
 	 *
-	 * @return A typed instance of {@link java.util.List} with an initial capacity of 3
+	 * @param <T> Type of the list elements
+	 * @return An instance of {@link java.util.List} with an initial capacity of 3
 	 * */
-	private List<T> createEmptyValue() {
-		return new ArrayList<>(3);
+	private static <T> List<T> createEmptyValue(int initialCapacity) {
+		return new ArrayList<>(initialCapacity);
 	}
 
 	/**
@@ -54,7 +55,7 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	 * @throws NullPointerException When {@code typeClass} is {@code null}
 	 */
 	public ListTag(Class<? super T> typeClass) throws IllegalArgumentException, NullPointerException {
-		super(new ArrayList<>(3));
+		super(createEmptyValue(3));
 		if (typeClass == EndTag.class) {
 			throw new IllegalArgumentException("cannot create ListTag with EndTag elements");
 		}
@@ -263,7 +264,7 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 		}
 		int size = dis.readInt();
 		size = size < 0 ? 0 : size;
-		setValue(new ArrayList<>(size));
+		setValue(createEmptyValue(size));
 		if (size != 0) {
 			for (int i = 0; i < size; i++) {
 				Tag<?> tag = TagFactory.fromID(typeID);

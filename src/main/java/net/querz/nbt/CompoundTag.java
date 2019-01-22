@@ -3,16 +3,21 @@ package net.querz.nbt;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.BiConsumer;
 
 public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Map.Entry<String, Tag<?>>>, Comparable<CompoundTag> {
 
 	public CompoundTag() {
-		setValue(createEmptyValue());
+		super(createEmptyValue());
 	}
 
-	private Map<String, Tag<?>> createEmptyValue() {
+	private static Map<String, Tag<?>> createEmptyValue() {
 		return new HashMap<>(8);
 	}
 

@@ -7,7 +7,14 @@ public final class EndTag extends Tag<Void> {
 
 	static final EndTag INSTANCE = new EndTag();
 
-	private EndTag() {}
+	private EndTag() {
+		super(null);
+	}
+
+	@Override
+	protected Void checkValue(Void value) {
+		return value;
+	}
 
 	@Override
 	public void serializeValue(DataOutputStream dos, int depth) {

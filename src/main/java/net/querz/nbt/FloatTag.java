@@ -4,7 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class FloatTag extends NumberTag<Float> {
+public class FloatTag extends NumberTag<Float> implements Comparable<FloatTag> {
 
 	public static final float ZERO_VALUE = 0.0F;
 
@@ -38,6 +38,11 @@ public class FloatTag extends NumberTag<Float> {
 	@Override
 	public boolean equals(Object other) {
 		return super.equals(other) && getValue().equals(((FloatTag) other).getValue());
+	}
+
+	@Override
+	public int compareTo(FloatTag other) {
+		return getValue().compareTo(other.getValue());
 	}
 
 	@Override

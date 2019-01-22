@@ -31,10 +31,10 @@ public class StructTag extends Tag<List<Tag<?>>> implements Iterable<Tag<?>>, Co
 	}
 
 	public StructTag() {
-		setValue(createEmptyValue());
+		super(createEmptyValue());
 	}
 
-	private List<Tag<?>> createEmptyValue() {
+	private static List<Tag<?>> createEmptyValue() {
 		return new ArrayList<>(3);
 	}
 

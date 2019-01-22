@@ -5,7 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
-public class IntArrayTag extends ArrayTag<int[]> {
+public class IntArrayTag extends ArrayTag<int[]> implements Comparable<IntArrayTag> {
 
 	public static final int[] ZERO_VALUE = new int[0];
 
@@ -47,6 +47,11 @@ public class IntArrayTag extends ArrayTag<int[]> {
 	@Override
 	public int hashCode() {
 		return Arrays.hashCode(getValue());
+	}
+
+	@Override
+	public int compareTo(IntArrayTag other) {
+		return Integer.compare(length(), other.length());
 	}
 
 	@Override

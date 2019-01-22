@@ -3,9 +3,10 @@ package net.querz.nbt;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.Arrays;
 
-public class ByteArrayTag extends ArrayTag<byte[]> {
+public class ByteArrayTag extends ArrayTag<byte[]> implements Comparable<ByteArrayTag> {
 
 	public static final byte[] ZERO_VALUE = new byte[0];
 
@@ -43,6 +44,11 @@ public class ByteArrayTag extends ArrayTag<byte[]> {
 	@Override
 	public int hashCode() {
 		return Arrays.hashCode(getValue());
+	}
+
+	@Override
+	public int compareTo(ByteArrayTag other) {
+		return Integer.compare(length(), other.length());
 	}
 
 	@Override

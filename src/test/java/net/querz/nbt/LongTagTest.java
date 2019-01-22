@@ -40,6 +40,5 @@ public class LongTagTest extends NBTTestCase {
 		assertTrue(0 < new LongTag(7).compareTo(new LongTag(5)));
 		assertTrue(0 > new LongTag(5).compareTo(new LongTag(7)));
 		assertThrowsRuntimeException(() -> new LongTag(5).compareTo(null), NullPointerException.class);
-		assertThrowsRuntimeException(() -> new LongTag(5).compareTo(new DummyNumberTag<>(0L)), IllegalArgumentException.class);
 	}
 }

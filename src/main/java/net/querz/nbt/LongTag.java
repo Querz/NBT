@@ -4,7 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class LongTag extends NumberTag<Long> {
+public class LongTag extends NumberTag<Long> implements Comparable<LongTag> {
 
 	public static final long ZERO_VALUE = 0L;
 
@@ -38,6 +38,11 @@ public class LongTag extends NumberTag<Long> {
 	@Override
 	public boolean equals(Object other) {
 		return super.equals(other) && asLong() == ((LongTag) other).asLong();
+	}
+
+	@Override
+	public int compareTo(LongTag other) {
+		return getValue().compareTo(other.getValue());
 	}
 
 	@Override
