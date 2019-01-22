@@ -43,6 +43,7 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	 * <p>Creates an empty mutable list to be used as empty value of ListTags.</p>
 	 *
 	 * @param <T> Type of the list elements
+	 * @param initialCapacity The initial capacity of the returned List
 	 * @return An instance of {@link java.util.List} with an initial capacity of 3
 	 * */
 	private static <T> List<T> createEmptyValue(int initialCapacity) {
