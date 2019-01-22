@@ -94,9 +94,9 @@ public class ObjectTag<T extends Serializable> extends Tag<T> implements Compara
 			return 0;
 		} else if (getValue() == null) {
 			// sort a null value to the end
-			return -1;
-		} else if (o.getValue() == null) {
 			return 1;
+		} else if (o.getValue() == null) {
+			return -1;
 		}
 		return 0;
 	}

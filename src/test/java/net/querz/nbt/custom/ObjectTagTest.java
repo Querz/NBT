@@ -6,6 +6,9 @@ import net.querz.nbt.TagFactory;
 import static org.junit.Assert.assertNotEquals;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
@@ -123,11 +126,18 @@ public class ObjectTagTest extends NBTTestCase {
 		assertEquals(0, d6.compareTo(d7));
 
 		ObjectTag<DummyObject> d8 = new ObjectTag<>();
-		assertEquals(-1, d8.compareTo(d7));
-		assertEquals(1, d7.compareTo(d8));
+		assertEquals(1, d8.compareTo(d7));
+		assertEquals(-1, d7.compareTo(d8));
 
 		ObjectTag<DummyObject> d9 = new ObjectTag<>();
 		assertEquals(0, d8.compareTo(d9));
+
+		List<ObjectTag<DummyObject>> l = new ArrayList<>();
+		l.add(d);
+		l.add(d9);
+		l.add(d2);
+		l.sort(Comparator.naturalOrder());
+		assertEquals(d9, l.get(2));
 	}
 
 	public void testUnknownObject() {
