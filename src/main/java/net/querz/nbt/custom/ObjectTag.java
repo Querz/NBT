@@ -79,6 +79,9 @@ public class ObjectTag<T extends Serializable> extends Tag<T> implements Compara
 
 	@Override
 	public int hashCode() {
+		if (getValue() == null) {
+			return 0;
+		}
 		return getValue().hashCode();
 	}
 
@@ -87,6 +90,13 @@ public class ObjectTag<T extends Serializable> extends Tag<T> implements Compara
 	public int compareTo(ObjectTag<T> o) {
 		if (o.getValue() instanceof Comparable && getValue() instanceof Comparable) {
 			return ((Comparable<T>) getValue()).compareTo(o.getValue());
+		} else if (o.getValue() == getValue()) {
+			return 0;
+		} else if (getValue() == null) {
+			// sort a null value to the end
+			return -1;
+		} else if (o.getValue() == null) {
+			return 1;
 		}
 		return 0;
 	}
@@ -94,9 +104,12 @@ public class ObjectTag<T extends Serializable> extends Tag<T> implements Compara
 	@SuppressWarnings("unchecked")
 	@Override
 	public ObjectTag<T> clone() {
+		if (getValue() == null) {
+			return new ObjectTag<>();
+		}
 		try {
 			return new ObjectTag<>((T) getValue().getClass().getMethod("clone").invoke(getValue()));
-		} catch (NullPointerException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+		} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
 			return new ObjectTag<>(getValue());
 		}
 	}
