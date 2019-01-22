@@ -125,6 +125,9 @@ public class ObjectTagTest extends NBTTestCase {
 		ObjectTag<DummyObject> d8 = new ObjectTag<>();
 		assertEquals(-1, d8.compareTo(d7));
 		assertEquals(1, d7.compareTo(d8));
+
+		ObjectTag<DummyObject> d9 = new ObjectTag<>();
+		assertEquals(0, d8.compareTo(d9));
 	}
 
 	public void testUnknownObject() {
