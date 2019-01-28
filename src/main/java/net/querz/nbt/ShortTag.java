@@ -21,17 +21,17 @@ public class ShortTag extends NumberTag<Short> implements Comparable<ShortTag> {
 	}
 
 	@Override
-	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
 		dos.writeShort(getValue());
 	}
 
 	@Override
-	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
 		setValue(dis.readShort());
 	}
 
 	@Override
-	public String valueToTagString(int depth) {
+	public String valueToTagString(int maxDepth) {
 		return getValue() + "s";
 	}
 

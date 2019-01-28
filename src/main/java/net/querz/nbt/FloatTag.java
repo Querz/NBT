@@ -21,17 +21,17 @@ public class FloatTag extends NumberTag<Float> implements Comparable<FloatTag> {
 	}
 
 	@Override
-	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
 		dos.writeFloat(getValue());
 	}
 
 	@Override
-	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
 		setValue(dis.readFloat());
 	}
 
 	@Override
-	public String valueToTagString(int depth) {
+	public String valueToTagString(int maxDepth) {
 		return getValue() + "f";
 	}
 

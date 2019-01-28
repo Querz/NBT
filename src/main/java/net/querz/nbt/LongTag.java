@@ -21,17 +21,17 @@ public class LongTag extends NumberTag<Long> implements Comparable<LongTag> {
 	}
 
 	@Override
-	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
 		dos.writeLong(getValue());
 	}
 
 	@Override
-	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
 		setValue(dis.readLong());
 	}
 
 	@Override
-	public String valueToTagString(int depth) {
+	public String valueToTagString(int maxDepth) {
 		return getValue() + "l";
 	}
 

@@ -29,17 +29,17 @@ public class ByteTag extends NumberTag<Byte> implements Comparable<ByteTag> {
 	}
 
 	@Override
-	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
 		dos.writeByte(getValue());
 	}
 
 	@Override
-	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
 		setValue(dis.readByte());
 	}
 
 	@Override
-	public String valueToTagString(int depth) {
+	public String valueToTagString(int maxDepth) {
 		return getValue() + "b";
 	}
 

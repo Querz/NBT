@@ -48,13 +48,13 @@ public class ObjectTag<T extends Serializable> extends Tag<T> implements Compara
 	}
 
 	@Override
-	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
 		new ObjectOutputStream(dos).writeObject(getValue());
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
 		try {
 			setValue((T) new ObjectInputStream(dis).readObject());
 		} catch (InvalidClassException | ClassNotFoundException e) {
@@ -63,12 +63,12 @@ public class ObjectTag<T extends Serializable> extends Tag<T> implements Compara
 	}
 
 	@Override
-	public String valueToString(int depth) {
+	public String valueToString(int maxDepth) {
 		return getValue() == null ? "null" : escapeString(getValue().toString(), false);
 	}
 
 	@Override
-	public String valueToTagString(int depth) {
+	public String valueToTagString(int maxDepth) {
 		return getValue() == null ? "null" : escapeString(getValue().toString(), true);
 	}
 

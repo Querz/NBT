@@ -17,22 +17,22 @@ public final class EndTag extends Tag<Void> {
 	}
 
 	@Override
-	public void serializeValue(DataOutputStream dos, int depth) {
+	public void serializeValue(DataOutputStream dos, int maxDepth) {
 		//nothing to do
 	}
 
 	@Override
-	public void deserializeValue(DataInputStream dis, int depth) {
+	public void deserializeValue(DataInputStream dis, int maxDepth) {
 		//nothing to do
 	}
 
 	@Override
-	public String valueToString(int depth) {
+	public String valueToString(int maxDepth) {
 		return "\"end\"";
 	}
 
 	@Override
-	public String valueToTagString(int depth) {
+	public String valueToTagString(int maxDepth) {
 		throw new UnsupportedOperationException("EndTag cannot be turned into a String");
 	}
 
