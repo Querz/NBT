@@ -3,7 +3,6 @@ package net.querz.nbt;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.Arrays;
 
 public class ByteArrayTag extends ArrayTag<byte[]> implements Comparable<ByteArrayTag> {
