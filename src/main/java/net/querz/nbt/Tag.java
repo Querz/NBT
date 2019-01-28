@@ -230,7 +230,8 @@ public abstract class Tag<T> implements Cloneable {
 	 * Decrements {@code depth} by {@code 1}.
 	 * @param depth The value to decrement.
 	 * @return The decremented value.
-	 * @exception MaxDepthReachedException If {@code depth <= 0}.
+	 * @exception MaxDepthReachedException If {@code depth == 0}.
+	 * @exception IllegalArgumentException If {@code depth < 0}.
 	 * */
 	protected int decrementDepth(int depth) {
 		if (depth < 0) {
