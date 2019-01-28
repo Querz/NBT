@@ -228,9 +228,7 @@ public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Ma
 	@Override
 	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
 		for (Map.Entry<String, Tag<?>> e : getValue().entrySet()) {
-			dos.writeByte(e.getValue().getID());
-			dos.writeUTF(e.getKey());
-			e.getValue().serializeValue(dos, decrementDepth(depth));
+			e.getValue().serialize(dos, e.getKey(), decrementDepth(depth));
 		}
 		EndTag.INSTANCE.serialize(dos, depth);
 	}
