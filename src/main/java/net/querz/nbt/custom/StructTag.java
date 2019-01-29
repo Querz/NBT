@@ -231,41 +231,41 @@ public class StructTag extends Tag<List<Tag<?>>> implements Iterable<Tag<?>>, Co
 	}
 
 	@Override
-	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
 		dos.writeInt(size());
 		for (Tag<?> tag : getValue()) {
 			dos.writeByte(tag.getID());
-			tag.serializeValue(dos, decrementDepth(depth));
+			tag.serializeValue(dos, decrementMaxDepth(maxDepth));
 		}
 	}
 
 	@Override
-	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
 		int size = dis.readInt();
 		size = size < 0 ? 0 : size;
 		setValue(new ArrayList<>(size));
 		for (int i = 0; i < size; i++) {
 			Tag<?> tag = TagFactory.fromID(dis.readByte());
-			tag.deserializeValue(dis, decrementDepth(depth));
+			tag.deserializeValue(dis, decrementMaxDepth(maxDepth));
 			add(tag);
 		}
 	}
 
 	@Override
-	public String valueToString(int depth) {
+	public String valueToString(int maxDepth) {
 		StringBuilder sb = new StringBuilder("[");
 		for (int i = 0; i < size(); i++) {
-			sb.append(i > 0 ? "," : "").append(get(i).toString(decrementDepth(depth)));
+			sb.append(i > 0 ? "," : "").append(get(i).toString(decrementMaxDepth(maxDepth)));
 		}
 		sb.append("]");
 		return sb.toString();
 	}
 
 	@Override
-	public String valueToTagString(int depth) {
+	public String valueToTagString(int maxDepth) {
 		StringBuilder sb = new StringBuilder("[");
 		for (int i = 0; i < size(); i++) {
-			sb.append(i > 0 ? "," : "").append(get(i).valueToTagString(decrementDepth(depth)));
+			sb.append(i > 0 ? "," : "").append(get(i).valueToTagString(decrementMaxDepth(maxDepth)));
 		}
 		sb.append("]");
 		return sb.toString();

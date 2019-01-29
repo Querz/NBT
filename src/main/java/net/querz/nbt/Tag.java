@@ -10,10 +10,34 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Base class for all NBT tags.
+ * 
+ * <h1>Nesting</h1>
+ * <p>All methods serializing instances or deserializing data track the nesting levels to prevent 
+ * circular references or malicious data which could, when deserialized, result in thousands 
+ * of instances causing a denial of service.</p>
+ * 
+ * <p>These methods have a parameter for the maximum nesting depth they are allowed to traverse. A 
+ * value of {@code 0} means that only the object itself, but no nested objects may be processed. 
+ * If an instance is nested further than allowed, a {@link MaxDepthReachedException} will be thrown. 
+ * Providing a negative maximum nesting depth will cause an {@code IllegalArgumentException} 
+ * to be thrown.</p>
+ * 
+ * <p>Some methods do not provide a parameter to specify the maximum nesting depth, but instead use 
+ * {@link #DEFAULT_MAX_DEPTH}, which is also the maximum used by Minecraft. This is documented for 
+ * the respective methods.</p>
+ * 
+ * <p>If custom NBT tags contain objects other than NBT tags, which can be nested as well, then there 
+ * is no guarantee that {@code MaxDepthReachedException}s are thrown for them. The respective class 
+ * will document this behavior accordingly.</p>
+ * 
+ * @param <T> The type of the contained value
+ * */
 public abstract class Tag<T> implements Cloneable {
 
 	/**
-	 * The maximum depth of the NBT structure.
+	 * The default maximum depth of the NBT structure.
 	 * */
 	public static final int DEFAULT_MAX_DEPTH = 512;
 
@@ -79,46 +103,48 @@ public abstract class Tag<T> implements Cloneable {
 	 * Calls {@link Tag#serialize(DataOutputStream, String, int)} with an empty name.
 	 * @see Tag#serialize(DataOutputStream, String, int)
 	 * @param dos The DataOutputStream to write to
-	 * @param depth The current depth of the structure
-	 * @throws IOException If something went wrong during serialization
+	 * @param maxDepth The maximum nesting depth
+	 * @throws IOException If something went wrong during serialization.
+	 * @throws NullPointerException If {@code dos} is {@code null}.
+	 * @throws MaxDepthReachedException If the maximum nesting depth is exceeded.
 	 * */
-	public final void serialize(DataOutputStream dos, int depth) throws IOException {
-		serialize(dos, "", depth);
+	public final void serialize(DataOutputStream dos, int maxDepth) throws IOException {
+		serialize(dos, "", maxDepth);
 	}
 
 	/**
 	 * Serializes this Tag starting at the gives depth.
 	 * @param dos The DataOutputStream to write to.
 	 * @param name The name of this Tag, if this is the root Tag.
-	 * @param depth The current depth of the structure.
+	 * @param maxDepth The maximum nesting depth
 	 * @throws IOException If something went wrong during serialization.
-	 * @exception NullPointerException If {@code dos} or {@code name} is {@code null}.
-	 * @exception MaxDepthReachedException If the structure depth exceeds {@link Tag#DEFAULT_MAX_DEPTH}.
+	 * @throws NullPointerException If {@code dos} or {@code name} is {@code null}.
+	 * @throws MaxDepthReachedException If the maximum nesting depth is exceeded.
 	 * */
-	public final void serialize(DataOutputStream dos, String name, int depth) throws IOException {
+	public final void serialize(DataOutputStream dos, String name, int maxDepth) throws IOException {
 		dos.writeByte(getID());
 		if (getID() != 0) {
 			dos.writeUTF(name);
 		}
-		serializeValue(dos, depth);
+		serializeValue(dos, maxDepth);
 	}
 
 	/**
 	 * Deserializes this Tag starting at the given depth.
 	 * The name of the root Tag is ignored.
 	 * @param dis The DataInputStream to read from.
-	 * @param depth The current depth of the structure.
+	 * @param maxDepth The maximum nesting depth.
 	 * @throws IOException If something went wrong during deserialization.
-	 * @exception NullPointerException If {@code dis} is {@code null}.
-	 * @exception MaxDepthReachedException If the structure depth exceeds {@link Tag#DEFAULT_MAX_DEPTH}.
+	 * @throws NullPointerException If {@code dis} is {@code null}.
+	 * @throws MaxDepthReachedException If the maximum nesting depth is exceeded.
 	 * @return The deserialized NBT structure.
 	 * */
-	public static Tag<?> deserialize(DataInputStream dis, int depth) throws IOException {
+	public static Tag<?> deserialize(DataInputStream dis, int maxDepth) throws IOException {
 		int id = dis.readByte() & 0xFF;
 		Tag<?> tag = TagFactory.fromID(id);
 		if (id != 0) {
 			dis.readUTF();
-			tag.deserializeValue(dis, depth);
+			tag.deserializeValue(dis, maxDepth);
 		}
 		return tag;
 	}
@@ -126,24 +152,25 @@ public abstract class Tag<T> implements Cloneable {
 	/**
 	 * Serializes only the value of this Tag.
 	 * @param dos The DataOutputStream to write to.
-	 * @param depth The current depth of the structure.
+	 * @param maxDepth The maximum nesting depth.
 	 * @throws IOException If something went wrong during serialization.
-	 * @exception MaxDepthReachedException If the structure depth exceeds {@link Tag#DEFAULT_MAX_DEPTH}.
+	 * @throws MaxDepthReachedException If the maximum nesting depth is exceeded.
 	 * */
-	public abstract void serializeValue(DataOutputStream dos, int depth) throws IOException;
+	public abstract void serializeValue(DataOutputStream dos, int maxDepth) throws IOException;
 
 	/**
 	 * Deserializes only the value of this Tag.
 	 * @param dis The DataInputStream to read from.
-	 * @param depth The current depth of the structure.
+	 * @param maxDepth The maximum nesting depth.
 	 * @throws IOException If something went wrong during deserialization.
-	 * @exception MaxDepthReachedException If the structure depth exceeds {@link Tag#DEFAULT_MAX_DEPTH}.
+	 * @throws MaxDepthReachedException If the maximum nesting depth is exceeded
 	 * */
-	public abstract void deserializeValue(DataInputStream dis, int depth) throws IOException;
+	public abstract void deserializeValue(DataInputStream dis, int maxDepth) throws IOException;
 
 	/**
 	 * Calls {@link Tag#toString(int)} with an initial depth of {@code 0}.
 	 * @see Tag#toString(int)
+	 * @throws MaxDepthReachedException If the maximum nesting depth is exceeded.
 	 * */
 	@Override
 	public final String toString() {
@@ -152,25 +179,25 @@ public abstract class Tag<T> implements Cloneable {
 
 	/**
 	 * Creates a string representation of this Tag in a valid JSON format.
-	 * @param depth The current depth of the structure.
+	 * @param maxDepth The maximum nesting depth.
 	 * @return The string representation of this Tag.
-	 * @exception MaxDepthReachedException If the structure depth exceeds {@link Tag#DEFAULT_MAX_DEPTH}.
+	 * @throws MaxDepthReachedException If the maximum nesting depth is exceeded.
 	 * */
-	public String toString(int depth) {
+	public String toString(int maxDepth) {
 		return "{\"type\":\""+ getClass().getSimpleName() + "\"," +
-				"\"value\":" + valueToString(depth) + "}";
+				"\"value\":" + valueToString(maxDepth) + "}";
 	}
 
 	/**
 	 * Returns a JSON representation of the value of this Tag.
-	 * @param depth The current depth of the structure.
+	 * @param maxDepth The maximum nesting depth.
 	 * @return The string representation of the value of this Tag.
-	 * @exception MaxDepthReachedException If the structure depth exceeds {@link Tag#DEFAULT_MAX_DEPTH}.
+	 * @throws MaxDepthReachedException If the maximum nesting depth is exceeded.
 	 * */
-	public abstract String valueToString(int depth);
+	public abstract String valueToString(int maxDepth);
 
 	/**
-	 * Calls {@link Tag#toTagString(int)} with an initial depth of {@code 0}.
+	 * Calls {@link Tag#toTagString(int)} with {@link #DEFAULT_MAX_DEPTH}.
 	 * @see Tag#toTagString(int)
 	 * @return The JSON-like string representation of this Tag.
 	 * */
@@ -180,21 +207,21 @@ public abstract class Tag<T> implements Cloneable {
 
 	/**
 	 * Returns a JSON-like representation of the value of this Tag, usually used for Minecraft commands.
-	 * @param depth The current depth of the structure.
+	 * @param maxDepth The maximum nesting depth.
 	 * @return The JSON-like string representation of this Tag.
-	 * @exception MaxDepthReachedException If the structure depth exceeds {@link Tag#DEFAULT_MAX_DEPTH}.
+	 * @throws MaxDepthReachedException If the maximum nesting depth is exceeded.
 	 * */
-	public String toTagString(int depth) {
-		return valueToTagString(depth);
+	public String toTagString(int maxDepth) {
+		return valueToTagString(maxDepth);
 	}
 
 	/**
 	 * Returns a JSON-like representation of the value of this Tag.
-	 * @param depth The current depth of the structure.
+	 * @param maxDepth The maximum nesting depth.
 	 * @return The JSON-like string representation of the value of this Tag.
-	 * @exception MaxDepthReachedException If the structure depth exceeds {@link Tag#DEFAULT_MAX_DEPTH}.
+	 * @throws MaxDepthReachedException If the maximum nesting depth is exceeded.
 	 * */
-	public abstract String valueToTagString(int depth);
+	public abstract String valueToTagString(int maxDepth);
 
 	/**
 	 * Returns whether this Tag and some other Tag are equal.
@@ -227,19 +254,22 @@ public abstract class Tag<T> implements Cloneable {
 	public abstract Tag<T> clone();
 
 	/**
-	 * Decrements {@code depth} by {@code 1}.
-	 * @param depth The value to decrement.
+	 * Decrements {@code maxDepth} by {@code 1}. This method has to be used when a tag is 
+	 * (de-)serialized and contains nested tags. Their respective methods are then called 
+	 * with {@code decrementMaxDepth(maxDepth)} as maximum nesting depth.
+	 * 
+	 * @param maxDepth The value to decrement.
 	 * @return The decremented value.
-	 * @exception MaxDepthReachedException If {@code depth == 0}.
-	 * @exception IllegalArgumentException If {@code depth < 0}.
+	 * @throws MaxDepthReachedException If {@code maxDepth == 0}.
+	 * @throws IllegalArgumentException If {@code maxDepth < 0}.
 	 * */
-	protected int decrementDepth(int depth) {
-		if (depth < 0) {
-			throw new IllegalArgumentException("negative depth is not allowed");
-		} else if (depth == 0) {
+	protected int decrementMaxDepth(int maxDepth) {
+		if (maxDepth < 0) {
+			throw new IllegalArgumentException("negative maximum depth is not allowed");
+		} else if (maxDepth == 0) {
 			throw new MaxDepthReachedException("reached maximum depth of NBT structure");
 		}
-		return --depth;
+		return --maxDepth;
 	}
 
 	/**

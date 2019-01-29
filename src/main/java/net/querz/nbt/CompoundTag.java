@@ -226,32 +226,32 @@ public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Ma
 	}
 
 	@Override
-	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
 		for (Map.Entry<String, Tag<?>> e : getValue().entrySet()) {
-			e.getValue().serialize(dos, e.getKey(), decrementDepth(depth));
+			e.getValue().serialize(dos, e.getKey(), decrementMaxDepth(maxDepth));
 		}
-		EndTag.INSTANCE.serialize(dos, depth);
+		EndTag.INSTANCE.serialize(dos, maxDepth);
 	}
 
 	@Override
-	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
 		clear();
 		for (int id = dis.readByte() & 0xFF; id != 0; id = dis.readByte() & 0xFF) {
 			Tag<?> tag = TagFactory.fromID(id);
 			String name = dis.readUTF();
-			tag.deserializeValue(dis, decrementDepth(depth));
+			tag.deserializeValue(dis, decrementMaxDepth(maxDepth));
 			put(name, tag);
 		}
 	}
 
 	@Override
-	public String valueToString(int depth) {
+	public String valueToString(int maxDepth) {
 		StringBuilder sb = new StringBuilder("{");
 		boolean first = true;
 		for (Map.Entry<String, Tag<?>> e : getValue().entrySet()) {
 			sb.append(first ? "" : ",")
 					.append(escapeString(e.getKey(), false)).append(":")
-					.append(e.getValue().toString(decrementDepth(depth)));
+					.append(e.getValue().toString(decrementMaxDepth(maxDepth)));
 			first = false;
 		}
 		sb.append("}");
@@ -259,13 +259,13 @@ public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Ma
 	}
 
 	@Override
-	public String valueToTagString(int depth) {
+	public String valueToTagString(int maxDepth) {
 		StringBuilder sb = new StringBuilder("{");
 		boolean first = true;
 		for (Map.Entry<String, Tag<?>> e : getValue().entrySet()) {
 			sb.append(first ? "" : ",")
 					.append(escapeString(e.getKey(), true)).append(":")
-					.append(e.getValue().valueToTagString(decrementDepth(depth)));
+					.append(e.getValue().valueToTagString(decrementMaxDepth(maxDepth)));
 			first = false;
 		}
 		sb.append("}");

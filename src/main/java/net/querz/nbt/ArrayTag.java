@@ -31,7 +31,7 @@ public abstract class ArrayTag<T> extends Tag<T> {
 	}
 
 	@Override
-	public String valueToString(int depth) {
+	public String valueToString(int maxDepth) {
 		return arrayToString("", "");
 	}
 

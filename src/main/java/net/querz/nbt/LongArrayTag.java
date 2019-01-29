@@ -18,7 +18,7 @@ public class LongArrayTag extends ArrayTag<long[]> implements Comparable<LongArr
 	}
 
 	@Override
-	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
 		dos.writeInt(length());
 		for (long i : getValue()) {
 			dos.writeLong(i);
@@ -26,7 +26,7 @@ public class LongArrayTag extends ArrayTag<long[]> implements Comparable<LongArr
 	}
 
 	@Override
-	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
 		int length = dis.readInt();
 		setValue(new long[length]);
 		for (int i = 0; i < length; i++) {
@@ -35,7 +35,7 @@ public class LongArrayTag extends ArrayTag<long[]> implements Comparable<LongArr
 	}
 
 	@Override
-	public String valueToTagString(int depth) {
+	public String valueToTagString(int maxDepth) {
 		return arrayToString("L", "l");
 	}
 

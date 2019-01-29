@@ -246,19 +246,19 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	}
 
 	@Override
-	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
 		dos.writeByte(TagFactory.idFromClass(getTypeClass()));
 		dos.writeInt(size());
 		if (size() != 0) {
 			for (T t : getValue()) {
-				t.serializeValue(dos, decrementDepth(depth));
+				t.serializeValue(dos, decrementMaxDepth(maxDepth));
 			}
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
 		int typeID = dis.readByte();
 		if (typeID != 0) {
 			typeClass = TagFactory.classFromID(typeID);
@@ -269,27 +269,27 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 		if (size != 0) {
 			for (int i = 0; i < size; i++) {
 				Tag<?> tag = TagFactory.fromID(typeID);
-				tag.deserializeValue(dis, decrementDepth(depth));
+				tag.deserializeValue(dis, decrementMaxDepth(maxDepth));
 				add((T) tag);
 			}
 		}
 	}
 
 	@Override
-	public String valueToString(int depth) {
+	public String valueToString(int maxDepth) {
 		StringBuilder sb = new StringBuilder("{\"type\":\"").append(getTypeClass().getSimpleName()).append("\",\"list\":[");
 		for (int i = 0; i < size(); i++) {
-			sb.append(i > 0 ? "," : "").append(get(i).valueToString(decrementDepth(depth)));
+			sb.append(i > 0 ? "," : "").append(get(i).valueToString(decrementMaxDepth(maxDepth)));
 		}
 		sb.append("]}");
 		return sb.toString();
 	}
 
 	@Override
-	public String valueToTagString(int depth) {
+	public String valueToTagString(int maxDepth) {
 		StringBuilder sb = new StringBuilder("[");
 		for (int i = 0; i < size(); i++) {
-			sb.append(i > 0 ? "," : "").append(get(i).valueToTagString(decrementDepth(depth)));
+			sb.append(i > 0 ? "," : "").append(get(i).valueToTagString(decrementMaxDepth(maxDepth)));
 		}
 		sb.append("]");
 		return sb.toString();
