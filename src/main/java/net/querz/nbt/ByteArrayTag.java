@@ -5,10 +5,12 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
-public class ByteArrayTag extends ArrayTag<byte[]> {
+public class ByteArrayTag extends ArrayTag<byte[]> implements Comparable<ByteArrayTag> {
+
+	public static final byte[] ZERO_VALUE = new byte[0];
 
 	public ByteArrayTag() {
-		super(new byte[0]);
+		super(ZERO_VALUE);
 	}
 
 	public ByteArrayTag(byte[] value) {
@@ -16,25 +18,20 @@ public class ByteArrayTag extends ArrayTag<byte[]> {
 	}
 
 	@Override
-	protected byte[] getEmptyValue() {
-		return new byte[0];
-	}
-
-	@Override
-	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
 		dos.writeInt(length());
 		dos.write(getValue());
 	}
 
 	@Override
-	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
 		int length = dis.readInt();
 		setValue(new byte[length]);
 		dis.readFully(getValue());
 	}
 
 	@Override
-	public String valueToTagString(int depth) {
+	public String valueToTagString(int maxDepth) {
 		return arrayToString("B", "b");
 	}
 
@@ -46,6 +43,11 @@ public class ByteArrayTag extends ArrayTag<byte[]> {
 	@Override
 	public int hashCode() {
 		return Arrays.hashCode(getValue());
+	}
+
+	@Override
+	public int compareTo(ByteArrayTag other) {
+		return Integer.compare(length(), other.length());
 	}
 
 	@Override

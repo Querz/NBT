@@ -262,20 +262,22 @@ public class CompoundTagTest extends NBTTestCase {
 		co.remove("five");
 		co.remove("four");
 		assertEquals(1, ci.compareTo(co));
-		assertEquals(0, ci.compareTo(null));
+		assertThrowsRuntimeException(() -> ci.compareTo(null), NullPointerException.class);
 	}
 
 	public void testMaxDepth() {
 		CompoundTag root = new CompoundTag();
 		CompoundTag rec = root;
-		for (int i = 0; i < Tag.MAX_DEPTH + 1; i++) {
+		for (int i = 0; i < Tag.DEFAULT_MAX_DEPTH + 1; i++) {
 			CompoundTag c = new CompoundTag();
 			rec.put("c" + i, c);
 			rec = c;
 		}
 		assertThrowsRuntimeException(() -> serialize(root), MaxDepthReachedException.class);
 		assertThrowsRuntimeException(() -> deserializeFromFile("max_depth_reached.dat"), MaxDepthReachedException.class);
+		assertThrowsNoRuntimeException(() -> root.toString(Tag.DEFAULT_MAX_DEPTH + 1));
 		assertThrowsRuntimeException(root::toString, MaxDepthReachedException.class);
+		assertThrowsNoRuntimeException(() -> root.toTagString(Tag.DEFAULT_MAX_DEPTH + 1));
 		assertThrowsRuntimeException(root::toTagString, MaxDepthReachedException.class);
 		assertThrowsRuntimeException(() -> root.valueToString(-1), IllegalArgumentException.class);
 		assertThrowsRuntimeException(() -> root.valueToTagString(-1), IllegalArgumentException.class);

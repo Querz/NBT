@@ -4,17 +4,16 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class DoubleTag extends NumberTag<Double> {
+public class DoubleTag extends NumberTag<Double> implements Comparable<DoubleTag> {
 
-	public DoubleTag() {}
+	public static final double ZERO_VALUE = 0.0D;
+
+	public DoubleTag() {
+		super(ZERO_VALUE);
+	}
 
 	public DoubleTag(double value) {
 		super(value);
-	}
-
-	@Override
-	protected Double getEmptyValue() {
-		return 0.0d;
 	}
 
 	public void setValue(double value) {
@@ -22,23 +21,28 @@ public class DoubleTag extends NumberTag<Double> {
 	}
 
 	@Override
-	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
 		dos.writeDouble(getValue());
 	}
 
 	@Override
-	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
 		setValue(dis.readDouble());
 	}
 
 	@Override
-	public String valueToTagString(int depth) {
+	public String valueToTagString(int maxDepth) {
 		return getValue() + "d";
 	}
 
 	@Override
 	public boolean equals(Object other) {
 		return super.equals(other) && getValue().equals(((DoubleTag) other).getValue());
+	}
+
+	@Override
+	public int compareTo(DoubleTag other) {
+		return getValue().compareTo(other.getValue());
 	}
 
 	@Override

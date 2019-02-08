@@ -17,19 +17,24 @@ import net.querz.nbt.TagFactory;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
-public class StructTag extends Tag<List<Tag<?>>> implements Iterable<Tag<?>> {
+public class StructTag extends Tag<List<Tag<?>>> implements Iterable<Tag<?>>, Comparable<StructTag> {
 
 	public static void register() {
 		TagFactory.registerCustomTag(120, StructTag::new, StructTag.class);
 	}
 
-	public StructTag() {}
+	public StructTag() {
+		super(createEmptyValue());
+	}
 
-	@Override
-	protected List<Tag<?>> getEmptyValue() {
+	private static List<Tag<?>> createEmptyValue() {
 		return new ArrayList<>(3);
 	}
 
@@ -170,15 +175,15 @@ public class StructTag extends Tag<List<Tag<?>>> implements Iterable<Tag<?>> {
 	}
 
 	public Tag<?> set(int index, Tag<?> tag) {
-		return getValue().set(index, checkNull(tag));
+		return getValue().set(index, Objects.requireNonNull(tag));
 	}
 
 	public void add(Tag<?> tag) {
-		getValue().add(checkNull(tag));
+		getValue().add(Objects.requireNonNull(tag));
 	}
 
 	public void add(int index, Tag<?> tag) {
-		getValue().add(index, checkNull(tag));
+		getValue().add(index, Objects.requireNonNull(tag));
 	}
 
 	public void addBoolean(boolean value) {
@@ -210,56 +215,57 @@ public class StructTag extends Tag<List<Tag<?>>> implements Iterable<Tag<?>> {
 	}
 
 	public void addString(String value) {
-		add(new StringTag(checkNull(value)));
+		add(new StringTag(value));
 	}
 
 	public void addByteArray(byte[] value) {
-		add(new ByteArrayTag(checkNull(value)));
+		add(new ByteArrayTag(value));
 	}
 
 	public void addIntArray(int[] value) {
-		add(new IntArrayTag(checkNull(value)));
+		add(new IntArrayTag(value));
 	}
 
 	public void addLongArray(long[] value) {
-		add(new LongArrayTag(checkNull(value)));
+		add(new LongArrayTag(value));
 	}
 
 	@Override
-	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
 		dos.writeInt(size());
 		for (Tag<?> tag : getValue()) {
 			dos.writeByte(tag.getID());
-			tag.serializeValue(dos, incrementDepth(depth));
+			tag.serializeValue(dos, decrementMaxDepth(maxDepth));
 		}
 	}
 
 	@Override
-	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
 		int size = dis.readInt();
+		size = size < 0 ? 0 : size;
 		setValue(new ArrayList<>(size));
 		for (int i = 0; i < size; i++) {
 			Tag<?> tag = TagFactory.fromID(dis.readByte());
-			tag.deserializeValue(dis, incrementDepth(depth));
+			tag.deserializeValue(dis, decrementMaxDepth(maxDepth));
 			add(tag);
 		}
 	}
 
 	@Override
-	public String valueToString(int depth) {
+	public String valueToString(int maxDepth) {
 		StringBuilder sb = new StringBuilder("[");
 		for (int i = 0; i < size(); i++) {
-			sb.append(i > 0 ? "," : "").append(get(i).toString(incrementDepth(depth)));
+			sb.append(i > 0 ? "," : "").append(get(i).toString(decrementMaxDepth(maxDepth)));
 		}
 		sb.append("]");
 		return sb.toString();
 	}
 
 	@Override
-	public String valueToTagString(int depth) {
+	public String valueToTagString(int maxDepth) {
 		StringBuilder sb = new StringBuilder("[");
 		for (int i = 0; i < size(); i++) {
-			sb.append(i > 0 ? "," : "").append(get(i).valueToTagString(incrementDepth(depth)));
+			sb.append(i > 0 ? "," : "").append(get(i).valueToTagString(decrementMaxDepth(maxDepth)));
 		}
 		sb.append("]");
 		return sb.toString();
@@ -284,11 +290,8 @@ public class StructTag extends Tag<List<Tag<?>>> implements Iterable<Tag<?>> {
 	}
 
 	@Override
-	public int compareTo(Tag<List<Tag<?>>> o) {
-		if (!(o instanceof StructTag)) {
-			return 0;
-		}
-		return Integer.compare(size(), ((StructTag) o).size());
+	public int compareTo(StructTag o) {
+		return Integer.compare(size(), o.size());
 	}
 
 	@Override

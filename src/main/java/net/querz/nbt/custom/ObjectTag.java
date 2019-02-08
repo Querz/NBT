@@ -2,26 +2,33 @@ package net.querz.nbt.custom;
 
 import net.querz.nbt.Tag;
 import net.querz.nbt.TagFactory;
-
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InvalidClassException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 
-public class ObjectTag<T extends Serializable> extends Tag<T> {
+public class ObjectTag<T extends Serializable> extends Tag<T> implements Comparable<ObjectTag<T>> {
 
 	public static void register() {
 		TagFactory.registerCustomTag(90, ObjectTag::new, ObjectTag.class);
 	}
 
-	public ObjectTag() {}
+	public ObjectTag() {
+		super(null);
+	}
 
 	public ObjectTag(T value) {
 		super(value);
 	}
 
 	@Override
-	protected T getEmptyValue() {
-		return null;
+	protected T checkValue(T value) {
+		return value;
 	}
 
 	@Override
@@ -41,13 +48,13 @@ public class ObjectTag<T extends Serializable> extends Tag<T> {
 	}
 
 	@Override
-	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
 		new ObjectOutputStream(dos).writeObject(getValue());
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
 		try {
 			setValue((T) new ObjectInputStream(dis).readObject());
 		} catch (InvalidClassException | ClassNotFoundException e) {
@@ -56,12 +63,12 @@ public class ObjectTag<T extends Serializable> extends Tag<T> {
 	}
 
 	@Override
-	public String valueToString(int depth) {
+	public String valueToString(int maxDepth) {
 		return getValue() == null ? "null" : escapeString(getValue().toString(), false);
 	}
 
 	@Override
-	public String valueToTagString(int depth) {
+	public String valueToTagString(int maxDepth) {
 		return getValue() == null ? "null" : escapeString(getValue().toString(), true);
 	}
 
@@ -72,15 +79,24 @@ public class ObjectTag<T extends Serializable> extends Tag<T> {
 
 	@Override
 	public int hashCode() {
+		if (getValue() == null) {
+			return 0;
+		}
 		return getValue().hashCode();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public int compareTo(Tag<T> o) {
-		ObjectTag<T> oo = (ObjectTag<T>) o;
-		if (oo.getValue() instanceof Comparable && getValue() instanceof Comparable) {
-			return ((Comparable<T>) getValue()).compareTo(oo.getValue());
+	public int compareTo(ObjectTag<T> o) {
+		if (o.getValue() instanceof Comparable && getValue() instanceof Comparable) {
+			return ((Comparable<T>) getValue()).compareTo(o.getValue());
+		} else if (o.getValue() == getValue()) {
+			return 0;
+		} else if (getValue() == null) {
+			// sort a null value to the end
+			return 1;
+		} else if (o.getValue() == null) {
+			return -1;
 		}
 		return 0;
 	}
@@ -88,9 +104,12 @@ public class ObjectTag<T extends Serializable> extends Tag<T> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public ObjectTag<T> clone() {
+		if (getValue() == null) {
+			return new ObjectTag<>();
+		}
 		try {
 			return new ObjectTag<>((T) getValue().getClass().getMethod("clone").invoke(getValue()));
-		} catch (NullPointerException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+		} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
 			return new ObjectTag<>(getValue());
 		}
 	}

@@ -34,7 +34,7 @@ public abstract class NBTTestCase extends TestCase {
 	protected byte[] serialize(Tag<?> tag) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try (DataOutputStream dos = new DataOutputStream(baos)) {
-			tag.serialize(dos, 0);
+			tag.serialize(dos, Tag.DEFAULT_MAX_DEPTH);
 		} catch (IOException ex) {
 			ex.printStackTrace();
 			fail(ex.getMessage());
@@ -44,7 +44,7 @@ public abstract class NBTTestCase extends TestCase {
 
 	protected Tag<?> deserialize(byte[] data) {
 		try (DataInputStream dis = new DataInputStream(new ByteArrayInputStream(data))) {
-			return Tag.deserialize(dis, 0);
+			return Tag.deserialize(dis, Tag.DEFAULT_MAX_DEPTH);
 		} catch (IOException ex) {
 			ex.printStackTrace();
 			fail(ex.getMessage());
@@ -60,7 +60,7 @@ public abstract class NBTTestCase extends TestCase {
 
 	protected Tag<?> deserializeFromFile(String f) {
 		try (DataInputStream dis = new DataInputStream(new FileInputStream(getResourceFile(f)))) {
-			return Tag.deserialize(dis, 0);
+			return Tag.deserialize(dis, Tag.DEFAULT_MAX_DEPTH);
 		} catch (IOException ex) {
 			ex.printStackTrace();
 			fail(ex.getMessage());

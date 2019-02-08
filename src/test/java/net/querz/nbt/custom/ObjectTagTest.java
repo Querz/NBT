@@ -6,6 +6,9 @@ import net.querz.nbt.TagFactory;
 import static org.junit.Assert.assertNotEquals;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
@@ -38,6 +41,7 @@ public class ObjectTagTest extends NBTTestCase {
 		ObjectTag<DummyObject> o2 = new ObjectTag<>(d2);
 		assertNotEquals(o.hashCode(), o2.hashCode());
 		assertEquals(o.hashCode(), o.clone().hashCode());
+		assertEquals(0, new ObjectTag<DummyObject>().hashCode());
 	}
 
 	public void testClone() {
@@ -112,6 +116,28 @@ public class ObjectTagTest extends NBTTestCase {
 		ObjectTag<String> d4 = new ObjectTag<>("abd");
 		assertTrue(0 > d3.compareTo(d4));
 		assertTrue(0 < d4.compareTo(d3));
+
+		ObjectTag<String> d5 = new ObjectTag<>("abc");
+		assertEquals(0, d3.compareTo(d5));
+
+		DummyObject o = new DummyObject();
+		ObjectTag<DummyObject> d6 = new ObjectTag<>(o);
+		ObjectTag<DummyObject> d7 = new ObjectTag<>(o);
+		assertEquals(0, d6.compareTo(d7));
+
+		ObjectTag<DummyObject> d8 = new ObjectTag<>();
+		assertEquals(1, d8.compareTo(d7));
+		assertEquals(-1, d7.compareTo(d8));
+
+		ObjectTag<DummyObject> d9 = new ObjectTag<>();
+		assertEquals(0, d8.compareTo(d9));
+
+		List<ObjectTag<DummyObject>> l = new ArrayList<>();
+		l.add(d);
+		l.add(d9);
+		l.add(d2);
+		l.sort(Comparator.naturalOrder());
+		assertEquals(d9, l.get(2));
 	}
 
 	public void testUnknownObject() {

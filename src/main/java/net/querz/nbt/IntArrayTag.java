@@ -5,10 +5,12 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
-public class IntArrayTag extends ArrayTag<int[]> {
+public class IntArrayTag extends ArrayTag<int[]> implements Comparable<IntArrayTag> {
+
+	public static final int[] ZERO_VALUE = new int[0];
 
 	public IntArrayTag() {
-		super(new int[0]);
+		super(ZERO_VALUE);
 	}
 
 	public IntArrayTag(int[] value) {
@@ -16,12 +18,7 @@ public class IntArrayTag extends ArrayTag<int[]> {
 	}
 
 	@Override
-	protected int[] getEmptyValue() {
-		return new int[0];
-	}
-
-	@Override
-	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
 		dos.writeInt(length());
 		for (int i : getValue()) {
 			dos.writeInt(i);
@@ -29,7 +26,7 @@ public class IntArrayTag extends ArrayTag<int[]> {
 	}
 
 	@Override
-	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
 		int length = dis.readInt();
 		setValue(new int[length]);
 		for (int i = 0; i < length; i++) {
@@ -38,7 +35,7 @@ public class IntArrayTag extends ArrayTag<int[]> {
 	}
 
 	@Override
-	public String valueToTagString(int depth) {
+	public String valueToTagString(int maxDepth) {
 		return arrayToString("I", "");
 	}
 
@@ -50,6 +47,11 @@ public class IntArrayTag extends ArrayTag<int[]> {
 	@Override
 	public int hashCode() {
 		return Arrays.hashCode(getValue());
+	}
+
+	@Override
+	public int compareTo(IntArrayTag other) {
+		return Integer.compare(length(), other.length());
 	}
 
 	@Override

@@ -18,11 +18,13 @@ import java.util.function.Consumer;
  * The type of an empty untyped {@link ListTag} can be set by using any of the {@code add()}
  * methods or any of the {@code as...List()} methods.
  * */
-public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<T> {
+public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<T>, Comparable<ListTag<T>> {
 
 	private Class<?> typeClass = null;
 
-	private ListTag() {}
+	private ListTag() {
+		super(createEmptyValue(3));
+	}
 	
 	/**
 	 * <p>Creates a non-type-safe ListTag. Its element type will be set after the first 
@@ -38,24 +40,31 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	}
 
 	/**
+	 * <p>Creates an empty mutable list to be used as empty value of ListTags.</p>
+	 *
+	 * @param <T> Type of the list elements
+	 * @param initialCapacity The initial capacity of the returned List
+	 * @return An instance of {@link java.util.List} with an initial capacity of 3
+	 * */
+	private static <T> List<T> createEmptyValue(int initialCapacity) {
+		return new ArrayList<>(initialCapacity);
+	}
+
+	/**
 	 * @param typeClass The exact class of the elements
 	 * @throws IllegalArgumentException When {@code typeClass} is {@link EndTag}{@code .class}
 	 * @throws NullPointerException When {@code typeClass} is {@code null}
 	 */
 	public ListTag(Class<? super T> typeClass) throws IllegalArgumentException, NullPointerException {
+		super(createEmptyValue(3));
 		if (typeClass == EndTag.class) {
 			throw new IllegalArgumentException("cannot create ListTag with EndTag elements");
 		}
-		this.typeClass = checkNull(typeClass);
+		this.typeClass = Objects.requireNonNull(typeClass);
 	}
 
 	public Class<?> getTypeClass() {
 		return typeClass == null ? EndTag.class : typeClass;
-	}
-
-	@Override
-	protected List<T> getEmptyValue() {
-		return new ArrayList<>(3);
 	}
 
 	public int size() {
@@ -93,7 +102,7 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	}
 
 	public T set(int index, T t) {
-		return getValue().set(index, checkNull(t));
+		return getValue().set(index, Objects.requireNonNull(t));
 	}
 
 	/**
@@ -105,7 +114,7 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	}
 
 	public void add(int index, T t) {
-		checkNull(t);
+		Objects.requireNonNull(t);
 		getValue().add(index, t);
 		if (typeClass == null) {
 			typeClass = t.getClass();
@@ -155,19 +164,19 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	}
 
 	public void addString(String value) {
-		addUnchecked(new StringTag(checkNull(value)));
+		addUnchecked(new StringTag(value));
 	}
 
 	public void addByteArray(byte[] value) {
-		addUnchecked(new ByteArrayTag(checkNull(value)));
+		addUnchecked(new ByteArrayTag(value));
 	}
 
 	public void addIntArray(int[] value) {
-		addUnchecked(new IntArrayTag(checkNull(value)));
+		addUnchecked(new IntArrayTag(value));
 	}
 
 	public void addLongArray(long[] value) {
-		addUnchecked(new LongArrayTag(checkNull(value)));
+		addUnchecked(new LongArrayTag(value));
 	}
 
 	public T get(int index) {
@@ -237,49 +246,50 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	}
 
 	@Override
-	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
 		dos.writeByte(TagFactory.idFromClass(getTypeClass()));
 		dos.writeInt(size());
 		if (size() != 0) {
 			for (T t : getValue()) {
-				t.serializeValue(dos, incrementDepth(depth));
+				t.serializeValue(dos, decrementMaxDepth(maxDepth));
 			}
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
 		int typeID = dis.readByte();
 		if (typeID != 0) {
 			typeClass = TagFactory.classFromID(typeID);
 		}
 		int size = dis.readInt();
+		size = size < 0 ? 0 : size;
+		setValue(createEmptyValue(size));
 		if (size != 0) {
-			setValue(new ArrayList<>(size));
 			for (int i = 0; i < size; i++) {
 				Tag<?> tag = TagFactory.fromID(typeID);
-				tag.deserializeValue(dis, incrementDepth(depth));
+				tag.deserializeValue(dis, decrementMaxDepth(maxDepth));
 				add((T) tag);
 			}
 		}
 	}
 
 	@Override
-	public String valueToString(int depth) {
+	public String valueToString(int maxDepth) {
 		StringBuilder sb = new StringBuilder("{\"type\":\"").append(getTypeClass().getSimpleName()).append("\",\"list\":[");
 		for (int i = 0; i < size(); i++) {
-			sb.append(i > 0 ? "," : "").append(get(i).valueToString(incrementDepth(depth)));
+			sb.append(i > 0 ? "," : "").append(get(i).valueToString(decrementMaxDepth(maxDepth)));
 		}
 		sb.append("]}");
 		return sb.toString();
 	}
 
 	@Override
-	public String valueToTagString(int depth) {
+	public String valueToTagString(int maxDepth) {
 		StringBuilder sb = new StringBuilder("[");
 		for (int i = 0; i < size(); i++) {
-			sb.append(i > 0 ? "," : "").append(get(i).valueToTagString(incrementDepth(depth)));
+			sb.append(i > 0 ? "," : "").append(get(i).valueToTagString(decrementMaxDepth(maxDepth)));
 		}
 		sb.append("]");
 		return sb.toString();
@@ -307,10 +317,7 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	}
 
 	@Override
-	public int compareTo(Tag<List<T>> o) {
-		if (!(o instanceof ListTag)) {
-			return 0;
-		}
+	public int compareTo(ListTag<T> o) {
 		return Integer.compare(size(), o.getValue().size());
 	}
 

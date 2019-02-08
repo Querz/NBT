@@ -47,7 +47,7 @@ public class ByteArrayTagTest extends NBTTestCase {
 		assertEquals(0, t.compareTo(t3));
 		assertTrue(0 < t.compareTo(t4));
 		assertTrue(0 > t4.compareTo(t));
-		assertThrowsRuntimeException(() -> t.compareTo(null), IllegalArgumentException.class);
+		assertThrowsRuntimeException(() -> t.compareTo(null), NullPointerException.class);
 	}
 
 	public void testInvalidType() {
@@ -63,11 +63,6 @@ public class ByteArrayTagTest extends NBTTestCase {
 
 		public NotAnArrayTag(String value) {
 			super(value);
-		}
-
-		@Override
-		protected String getEmptyValue() {
-			return "";
 		}
 
 		@Override

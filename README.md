@@ -42,6 +42,16 @@ ListTag<FloatTag> fl = new ListTag<>(FloatTag.class);
 fl.add(new FloatTag(1.234f);
 fl.addFloat(5.678f);
 ```
+
+#### Nesting
+All methods serializing instances or deserializing data track the nesting levels to prevent circular references or malicious data which could, when deserialized, result in thousands of instances causing a denial of service.
+
+These methods have a parameter for the maximum nesting depth they are allowed to traverse. A value of `0` means that only the object itself, but no nested object may be processed.
+
+If an instance is nested further than allowed, a [MaxDepthReachedException](src/main/java/net/querz/nbt/MaxDepthReachedException.java) will be thrown. A negative maximum depth will cause an `IllegalArgumentException`.
+
+Some methods do not provide a parameter to specify the maximum depth, but instead use `Tag.DEFAULT_MAX_DEPTH` (`512`) which is also the maximum used in Minecraft.
+
 ---
 ### Utility
 There are several utility methods to make your life easier if you use this library.
@@ -124,3 +134,8 @@ To be able to use a custom tag with deserialization, a `Supplier` and the custom
 ```java
 TagFactory.registerCustomTag(90, ObjectTag::new, ObjectTag.class);
 ```
+
+#### Nesting
+As mentioned before, serialization and deserialization methods are provided with a parameter indicating the maximum processing depth of the structure. This is not guaranteed when using custom tags, it is the responsibility of the creator of that custom tag to call `Tag#decrementMaxDepth(int)` to correctly update the nesting depth.
+
+It is also highly encouraged to document the custom tag behaviour when it does so to make users aware of the possible exceptions thrown by `Tag#decrementMaxDepth(int)`.

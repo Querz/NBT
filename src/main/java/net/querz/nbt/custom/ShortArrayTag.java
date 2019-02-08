@@ -7,14 +7,16 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
-public class ShortArrayTag extends ArrayTag<short[]> {
+public class ShortArrayTag extends ArrayTag<short[]> implements Comparable<ShortArrayTag> {
+
+	public static final short[] ZERO_VALUE = new short[0];
 
 	public static void register() {
 		TagFactory.registerCustomTag(100, ShortArrayTag::new, ShortArrayTag.class);
 	}
 
 	public ShortArrayTag() {
-		super(new short[0]);
+		super(ZERO_VALUE);
 	}
 
 	public ShortArrayTag(short[] value) {
@@ -22,12 +24,7 @@ public class ShortArrayTag extends ArrayTag<short[]> {
 	}
 
 	@Override
-	protected short[] getEmptyValue() {
-		return new short[0];
-	}
-
-	@Override
-	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
 		dos.writeInt(length());
 		for (int i : getValue()) {
 			dos.writeShort(i);
@@ -35,7 +32,7 @@ public class ShortArrayTag extends ArrayTag<short[]> {
 	}
 
 	@Override
-	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
 		int length = dis.readInt();
 		setValue(new short[length]);
 		for (int i = 0; i < length; i++) {
@@ -44,7 +41,7 @@ public class ShortArrayTag extends ArrayTag<short[]> {
 	}
 
 	@Override
-	public String valueToTagString(int depth) {
+	public String valueToTagString(int maxDepth) {
 		return arrayToString("S", "s");
 	}
 
@@ -59,6 +56,11 @@ public class ShortArrayTag extends ArrayTag<short[]> {
 	@Override
 	public int hashCode() {
 		return Arrays.hashCode(getValue());
+	}
+
+	@Override
+	public int compareTo(ShortArrayTag other) {
+		return Integer.compare(length(), other.length());
 	}
 
 	@Override

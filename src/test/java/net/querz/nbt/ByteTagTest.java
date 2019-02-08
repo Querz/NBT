@@ -42,7 +42,7 @@ public class ByteTagTest extends NBTTestCase {
 		assertEquals(0, new ByteTag((byte) 5).compareTo(new ByteTag((byte) 5)));
 		assertTrue(0 < new ByteTag((byte) 7).compareTo(new ByteTag((byte) 5)));
 		assertTrue(0 > new ByteTag((byte) 5).compareTo(new ByteTag((byte) 7)));
-		assertThrowsRuntimeException(() -> new ByteTag((byte) 5).compareTo(null), IllegalArgumentException.class);
+		assertThrowsRuntimeException(() -> new ByteTag((byte) 5).compareTo(null), NullPointerException.class);
 	}
 
 	public void testBoolean() {

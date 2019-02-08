@@ -86,7 +86,7 @@ public class StructTagTest extends NBTTestCase {
 		so.remove(2);
 		so.remove(1);
 		assertEquals(1, st.compareTo(so));
-		assertEquals(0, st.compareTo(null));
+		assertThrowsRuntimeException(() -> st.compareTo(null), NullPointerException.class);
 	}
 
 	public void testContains() {

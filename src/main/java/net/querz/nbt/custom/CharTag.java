@@ -6,21 +6,20 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class CharTag extends Tag<Character> {
+public class CharTag extends Tag<Character> implements Comparable<CharTag> {
+
+	public static final char ZERO_VALUE = '\u0000';
 
 	public static void register() {
 		TagFactory.registerCustomTag(110, CharTag::new, CharTag.class);
 	}
 
-	public CharTag() {}
+	public CharTag() {
+		super(ZERO_VALUE);
+	}
 
 	public CharTag(char value) {
 		super(value);
-	}
-
-	@Override
-	protected Character getEmptyValue() {
-		return 0;
 	}
 
 	@Override
@@ -33,22 +32,22 @@ public class CharTag extends Tag<Character> {
 	}
 
 	@Override
-	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
 		dos.writeChar(getValue());
 	}
 
 	@Override
-	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
 		setValue(dis.readChar());
 	}
 
 	@Override
-	public String valueToString(int depth) {
+	public String valueToString(int maxDepth) {
 		return escapeString(getValue() + "", false);
 	}
 
 	@Override
-	public String valueToTagString(int depth) {
+	public String valueToTagString(int maxDepth) {
 		return escapeString(getValue() + "", true);
 	}
 
@@ -58,8 +57,8 @@ public class CharTag extends Tag<Character> {
 	}
 
 	@Override
-	public int compareTo(Tag<Character> o) {
-		return Character.compare(getValue(), ((CharTag) o).getValue());
+	public int compareTo(CharTag o) {
+		return Character.compare(getValue(), o.getValue());
 	}
 
 	@Override

@@ -4,17 +4,16 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class IntTag extends NumberTag<Integer> {
+public class IntTag extends NumberTag<Integer> implements Comparable<IntTag> {
 
-	public IntTag() {}
+	public static final int ZERO_VALUE = 0;
+
+	public IntTag() {
+		super(ZERO_VALUE);
+	}
 
 	public IntTag(int value) {
 		super(value);
-	}
-
-	@Override
-	protected Integer getEmptyValue() {
-		return 0;
 	}
 
 	public void setValue(int value) {
@@ -22,23 +21,28 @@ public class IntTag extends NumberTag<Integer> {
 	}
 
 	@Override
-	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
 		dos.writeInt(getValue());
 	}
 
 	@Override
-	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
 		setValue(dis.readInt());
 	}
 
 	@Override
-	public String valueToTagString(int depth) {
+	public String valueToTagString(int maxDepth) {
 		return getValue() + "";
 	}
 
 	@Override
 	public boolean equals(Object other) {
 		return super.equals(other) && asInt() == ((IntTag) other).asInt();
+	}
+
+	@Override
+	public int compareTo(IntTag other) {
+		return getValue().compareTo(other.getValue());
 	}
 
 	@Override

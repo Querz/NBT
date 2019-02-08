@@ -81,7 +81,7 @@ public class Chunk {
 	public int serialize(RandomAccessFile raf, int xPos, int zPos) throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream(4096);
 		try (DataOutputStream nbtOut = new DataOutputStream(new BufferedOutputStream(CompressionType.ZLIB.compress(baos)))) {
-			updateHandle(xPos, zPos).serialize(nbtOut, 0);
+			updateHandle(xPos, zPos).serialize(nbtOut, Tag.DEFAULT_MAX_DEPTH);
 		}
 		byte[] rawData = baos.toByteArray();
 		raf.writeInt(rawData.length);
@@ -97,7 +97,7 @@ public class Chunk {
 			throw new IOException("invalid compression type " + compressionTypeByte);
 		}
 		DataInputStream dis = new DataInputStream(new BufferedInputStream(compressionType.decompress(new FileInputStream(raf.getFD()))));
-		Tag<?> tag = Tag.deserialize(dis, 0);
+		Tag<?> tag = Tag.deserialize(dis, Tag.DEFAULT_MAX_DEPTH);
 		if (tag instanceof CompoundTag) {
 			data = (CompoundTag) tag;
 			initReferences();

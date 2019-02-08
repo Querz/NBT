@@ -2,8 +2,6 @@ package net.querz.nbt;
 
 public abstract class NumberTag<T extends Number & Comparable<T>> extends Tag<T> {
 
-	public NumberTag() {}
-
 	public NumberTag(T value) {
 		super(value);
 	}
@@ -33,15 +31,7 @@ public abstract class NumberTag<T extends Number & Comparable<T>> extends Tag<T>
 	}
 
 	@Override
-	public String valueToString(int depth) {
+	public String valueToString(int maxDepth) {
 		return getValue().toString();
-	}
-
-	@Override
-	public int compareTo(Tag<T> other) {
-		if (!(other instanceof NumberTag) || this.getClass() != other.getClass()) {
-			throw new IllegalArgumentException("number types are incompatible");
-		}
-		return getValue().compareTo(other.getValue());
 	}
 }

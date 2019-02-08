@@ -4,17 +4,16 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class StringTag extends Tag<String> {
+public class StringTag extends Tag<String> implements Comparable<StringTag> {
 
-	public StringTag() {}
+	public static final String ZERO_VALUE = "";
+
+	public StringTag() {
+		super(ZERO_VALUE);
+	}
 
 	public StringTag(String value) {
 		super(value);
-	}
-
-	@Override
-	protected String getEmptyValue() {
-		return "";
 	}
 
 	@Override
@@ -24,26 +23,26 @@ public class StringTag extends Tag<String> {
 
 	@Override
 	public void setValue(String value) {
-		super.setValue(checkNull(value));
+		super.setValue(value);
 	}
 
 	@Override
-	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
 		dos.writeUTF(getValue());
 	}
 
 	@Override
-	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
 		setValue(dis.readUTF());
 	}
 
 	@Override
-	public String valueToString(int depth) {
+	public String valueToString(int maxDepth) {
 		return escapeString(getValue(), false);
 	}
 
 	@Override
-	public String valueToTagString(int depth) {
+	public String valueToTagString(int maxDepth) {
 		return escapeString(getValue(), true);
 	}
 
@@ -53,10 +52,7 @@ public class StringTag extends Tag<String> {
 	}
 
 	@Override
-	public int compareTo(Tag<String> o) {
-		if (o == null || o.getClass() != getClass()) {
-			throw new IllegalArgumentException("incompatible string types");
-		}
+	public int compareTo(StringTag o) {
 		return getValue().compareTo(o.getValue());
 	}
 

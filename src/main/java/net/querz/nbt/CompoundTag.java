@@ -3,15 +3,21 @@ package net.querz.nbt;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.BiConsumer;
 
-public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Map.Entry<String, Tag<?>>> {
+public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Map.Entry<String, Tag<?>>>, Comparable<CompoundTag> {
 
-	public CompoundTag() {}
+	public CompoundTag() {
+		super(createEmptyValue());
+	}
 
-	@Override
-	protected Map<String, Tag<?>> getEmptyValue() {
+	private static Map<String, Tag<?>> createEmptyValue() {
 		return new HashMap<>(8);
 	}
 
@@ -123,56 +129,56 @@ public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Ma
 
 	public byte getByte(String key) {
 		ByteTag t = getByteTag(key);
-		return t == null ? new ByteTag().getEmptyValue() : t.asByte();
+		return t == null ? ByteTag.ZERO_VALUE : t.asByte();
 	}
 
 	public short getShort(String key) {
 		ShortTag t = getShortTag(key);
-		return t == null ? new ShortTag().getEmptyValue() : t.asShort();
+		return t == null ? ShortTag.ZERO_VALUE : t.asShort();
 	}
 
 	public int getInt(String key) {
 		IntTag t = getIntTag(key);
-		return t == null ? new IntTag().getEmptyValue() : t.asInt();
+		return t == null ? IntTag.ZERO_VALUE : t.asInt();
 	}
 
 	public long getLong(String key) {
 		LongTag t = getLongTag(key);
-		return t == null ? new LongTag().getEmptyValue() : t.asLong();
+		return t == null ? LongTag.ZERO_VALUE : t.asLong();
 	}
 
 	public float getFloat(String key) {
 		FloatTag t = getFloatTag(key);
-		return t == null ? new FloatTag().getEmptyValue() : t.asFloat();
+		return t == null ? FloatTag.ZERO_VALUE : t.asFloat();
 	}
 
 	public double getDouble(String key) {
 		DoubleTag t = getDoubleTag(key);
-		return t == null ? new DoubleTag().getEmptyValue() : t.asDouble();
+		return t == null ? DoubleTag.ZERO_VALUE : t.asDouble();
 	}
 
 	public String getString(String key) {
 		StringTag t = getStringTag(key);
-		return t == null ? new StringTag().getEmptyValue() : t.getValue();
+		return t == null ? StringTag.ZERO_VALUE : t.getValue();
 	}
 
 	public byte[] getByteArray(String key) {
 		ByteArrayTag t = getByteArrayTag(key);
-		return t == null ? new ByteArrayTag().getEmptyValue() : t.getValue();
+		return t == null ? ByteArrayTag.ZERO_VALUE : t.getValue();
 	}
 
 	public int[] getIntArray(String key) {
 		IntArrayTag t = getIntArrayTag(key);
-		return t == null ? new IntArrayTag().getEmptyValue() : t.getValue();
+		return t == null ? IntArrayTag.ZERO_VALUE : t.getValue();
 	}
 
 	public long[] getLongArray(String key) {
 		LongArrayTag t = getLongArrayTag(key);
-		return t == null ? new LongArrayTag().getEmptyValue() : t.getValue();
+		return t == null ? LongArrayTag.ZERO_VALUE : t.getValue();
 	}
 
 	public Tag<?> put(String key, Tag<?> tag) {
-		return getValue().put(checkNull(key), checkNull(tag));
+		return getValue().put(Objects.requireNonNull(key), Objects.requireNonNull(tag));
 	}
 
 	public Tag<?> putBoolean(String key, boolean value) {
@@ -204,49 +210,48 @@ public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Ma
 	}
 
 	public Tag<?> putString(String key, String value) {
-		return put(key, new StringTag(checkNull(value)));
+		return put(key, new StringTag(value));
 	}
 
 	public Tag<?> putByteArray(String key, byte[] value) {
-		return put(key, new ByteArrayTag(checkNull(value)));
+		return put(key, new ByteArrayTag(value));
 	}
 
 	public Tag<?> putIntArray(String key, int[] value) {
-		return put(key, new IntArrayTag(checkNull(value)));
+		return put(key, new IntArrayTag(value));
 	}
 
 	public Tag<?> putLongArray(String key, long[] value) {
-		return put(key, new LongArrayTag(checkNull(value)));
+		return put(key, new LongArrayTag(value));
 	}
 
 	@Override
-	public void serializeValue(DataOutputStream dos, int depth) throws IOException {
+	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
 		for (Map.Entry<String, Tag<?>> e : getValue().entrySet()) {
-			dos.writeByte(e.getValue().getID());
-			dos.writeUTF(e.getKey());
-			e.getValue().serializeValue(dos, incrementDepth(depth));
+			e.getValue().serialize(dos, e.getKey(), decrementMaxDepth(maxDepth));
 		}
-		EndTag.INSTANCE.serialize(dos, depth);
+		EndTag.INSTANCE.serialize(dos, maxDepth);
 	}
 
 	@Override
-	public void deserializeValue(DataInputStream dis, int depth) throws IOException {
+	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
+		clear();
 		for (int id = dis.readByte() & 0xFF; id != 0; id = dis.readByte() & 0xFF) {
 			Tag<?> tag = TagFactory.fromID(id);
 			String name = dis.readUTF();
-			tag.deserializeValue(dis, incrementDepth(depth));
+			tag.deserializeValue(dis, decrementMaxDepth(maxDepth));
 			put(name, tag);
 		}
 	}
 
 	@Override
-	public String valueToString(int depth) {
+	public String valueToString(int maxDepth) {
 		StringBuilder sb = new StringBuilder("{");
 		boolean first = true;
 		for (Map.Entry<String, Tag<?>> e : getValue().entrySet()) {
 			sb.append(first ? "" : ",")
 					.append(escapeString(e.getKey(), false)).append(":")
-					.append(e.getValue().toString(incrementDepth(depth)));
+					.append(e.getValue().toString(decrementMaxDepth(maxDepth)));
 			first = false;
 		}
 		sb.append("}");
@@ -254,13 +259,13 @@ public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Ma
 	}
 
 	@Override
-	public String valueToTagString(int depth) {
+	public String valueToTagString(int maxDepth) {
 		StringBuilder sb = new StringBuilder("{");
 		boolean first = true;
 		for (Map.Entry<String, Tag<?>> e : getValue().entrySet()) {
 			sb.append(first ? "" : ",")
 					.append(escapeString(e.getKey(), true)).append(":")
-					.append(e.getValue().valueToTagString(incrementDepth(depth)));
+					.append(e.getValue().valueToTagString(decrementMaxDepth(maxDepth)));
 			first = false;
 		}
 		sb.append("}");
@@ -285,10 +290,7 @@ public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Ma
 	}
 
 	@Override
-	public int compareTo(Tag<Map<String, Tag<?>>> o) {
-		if (!(o instanceof CompoundTag)) {
-			return 0;
-		}
+	public int compareTo(CompoundTag o) {
 		return Integer.compare(size(), o.getValue().size());
 	}
 

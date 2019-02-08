@@ -56,6 +56,6 @@ public class ShortArrayTagTest extends NBTTestCase {
 		assertEquals(0, t.compareTo(t3));
 		assertTrue(0 < t.compareTo(t4));
 		assertTrue(0 > t4.compareTo(t));
-		assertThrowsRuntimeException(() -> t.compareTo(null), IllegalArgumentException.class);
+		assertThrowsRuntimeException(() -> t.compareTo(null), NullPointerException.class);
 	}
 }

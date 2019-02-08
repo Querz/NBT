@@ -218,13 +218,13 @@ public class ListTagTest extends NBTTestCase {
 		lo.remove(2);
 		lo.remove(1);
 		assertEquals(1, li.compareTo(lo));
-		assertEquals(0, li.compareTo(null));
+		assertThrowsRuntimeException(() -> li.compareTo(null), NullPointerException.class);
 	}
 
 	public void testMaxDepth() {
 		ListTag<ListTag<?>> root = new ListTag<>(ListTag.class);
 		ListTag<ListTag<?>> rec = root;
-		for (int i = 0; i < Tag.MAX_DEPTH + 1; i++) {
+		for (int i = 0; i < Tag.DEFAULT_MAX_DEPTH + 1; i++) {
 			ListTag<ListTag<?>> l = new ListTag<>(ListTag.class);
 			rec.add(l);
 			rec = l;
