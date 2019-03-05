@@ -35,7 +35,7 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	 * 
 	 * @return A new non-type-safe ListTag
 	 */
-	protected static ListTag<?> createUnchecked() {
+	public static ListTag<?> createUnchecked() {
 		return new ListTag<>();
 	}
 
@@ -339,8 +339,9 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 		return copy;
 	}
 
+	//TODO: make private
 	@SuppressWarnings("unchecked")
-	private void addUnchecked(Tag<?> tag) {
+	public void addUnchecked(Tag<?> tag) {
 		if (typeClass != null && typeClass != tag.getClass()) {
 			throw new IllegalArgumentException(String.format(
 					"cannot add %s to ListTag<%s>",
