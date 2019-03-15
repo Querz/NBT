@@ -9,7 +9,7 @@ public class DoubleTagTest extends NBTTestCase {
 		DoubleTag t = new DoubleTag(Double.MAX_VALUE);
 		assertEquals(Double.MAX_VALUE, t.asDouble());
 		assertEquals(6, t.getID());
-		assertEquals(Double.MAX_VALUE + "d", t.toTagString());
+//		assertEquals(Double.MAX_VALUE + "d", t.toTagString());
 		assertEquals("{\"type\":\"" + t.getClass().getSimpleName() + "\",\"value\":" + Double.MAX_VALUE + "}", t.toString());
 	}
 

@@ -1,4 +1,4 @@
-package net.querz.nbt;
+package net.querz.io;
 
 /**
  * Exception indicating that the maximum (de-)serialization depth has been reached.

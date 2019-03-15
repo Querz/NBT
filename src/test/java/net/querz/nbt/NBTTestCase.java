@@ -1,6 +1,11 @@
 package net.querz.nbt;
 
 import junit.framework.TestCase;
+import net.querz.nbt.io.NBTDeserializer;
+import net.querz.nbt.io.NBTSerializer;
+import net.querz.nbt.io.NBTUtil;
+import net.querz.nbt.io.NamedTag;
+
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -24,17 +29,21 @@ public abstract class NBTTestCase extends TestCase {
 	@Override
 	public void tearDown() throws Exception {
 		super.tearDown();
-		TagFactory.unregisterCustomTag(90);
-		TagFactory.unregisterCustomTag(100);
-		TagFactory.unregisterCustomTag(110);
-		TagFactory.unregisterCustomTag(120);
+//		TagFactory.unregisterCustomTag(90);
+//		TagFactory.unregisterCustomTag(100);
+//		TagFactory.unregisterCustomTag(110);
+//		TagFactory.unregisterCustomTag(120);
+		NBTUtil.unregisterCustomTag(90);
+		NBTUtil.unregisterCustomTag(100);
+		NBTUtil.unregisterCustomTag(110);
+		NBTUtil.unregisterCustomTag(120);
 //		cleanupTmpDir();
 	}
 
 	protected byte[] serialize(Tag<?> tag) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try (DataOutputStream dos = new DataOutputStream(baos)) {
-			tag.serialize(dos, Tag.DEFAULT_MAX_DEPTH);
+			new NBTSerializer(false).toStream(new NamedTag(null, tag), dos);
 		} catch (IOException ex) {
 			ex.printStackTrace();
 			fail(ex.getMessage());
@@ -44,7 +53,7 @@ public abstract class NBTTestCase extends TestCase {
 
 	protected Tag<?> deserialize(byte[] data) {
 		try (DataInputStream dis = new DataInputStream(new ByteArrayInputStream(data))) {
-			return Tag.deserialize(dis, Tag.DEFAULT_MAX_DEPTH);
+			return new NBTDeserializer(false).fromStream(dis).getTag();
 		} catch (IOException ex) {
 			ex.printStackTrace();
 			fail(ex.getMessage());
@@ -60,7 +69,7 @@ public abstract class NBTTestCase extends TestCase {
 
 	protected Tag<?> deserializeFromFile(String f) {
 		try (DataInputStream dis = new DataInputStream(new FileInputStream(getResourceFile(f)))) {
-			return Tag.deserialize(dis, Tag.DEFAULT_MAX_DEPTH);
+			return new NBTDeserializer(false).fromStream(dis).getTag();
 		} catch (IOException ex) {
 			ex.printStackTrace();
 			fail(ex.getMessage());

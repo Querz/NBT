@@ -189,7 +189,7 @@ public class MCAFileTest extends MCATestCase {
 	}
 
 	public void testSetBiomeAt() {
-		MCAFile f = assertThrowsNoException(() -> MCAUtil.readMCAFile(copyResourceToTmp("r.2.2.mca")));
+		MCAFile f = assertThrowsNoException(() -> MCAUtil.readMCAFile(copyResourceToTmp("r.2.2.mca")), true);
 		f.setBiomeAt(1024, 1024, 20);
 		assertEquals(20, f.getChunk(64, 64).updateHandle(64, 64).getCompoundTag("Level").getIntArray("Biomes")[0]);
 		f.setBiomeAt(1039, 1039, 47);

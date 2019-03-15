@@ -1,8 +1,7 @@
 package net.querz.nbt;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import net.querz.io.MaxDepthIO;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -11,10 +10,17 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
-public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Map.Entry<String, Tag<?>>>, Comparable<CompoundTag> {
+public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Map.Entry<String, Tag<?>>>, Comparable<CompoundTag>, MaxDepthIO {
+
+	public static final byte ID = 10;
 
 	public CompoundTag() {
 		super(createEmptyValue());
+	}
+
+	@Override
+	public byte getID() {
+		return ID;
 	}
 
 	private static Map<String, Tag<?>> createEmptyValue() {
@@ -226,25 +232,6 @@ public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Ma
 	}
 
 	@Override
-	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
-		for (Map.Entry<String, Tag<?>> e : getValue().entrySet()) {
-			e.getValue().serialize(dos, e.getKey(), decrementMaxDepth(maxDepth));
-		}
-		EndTag.INSTANCE.serialize(dos, maxDepth);
-	}
-
-	@Override
-	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
-		clear();
-		for (int id = dis.readByte() & 0xFF; id != 0; id = dis.readByte() & 0xFF) {
-			Tag<?> tag = TagFactory.fromID(id);
-			String name = dis.readUTF();
-			tag.deserializeValue(dis, decrementMaxDepth(maxDepth));
-			put(name, tag);
-		}
-	}
-
-	@Override
 	public String valueToString(int maxDepth) {
 		StringBuilder sb = new StringBuilder("{");
 		boolean first = true;
@@ -252,20 +239,6 @@ public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Ma
 			sb.append(first ? "" : ",")
 					.append(escapeString(e.getKey(), false)).append(":")
 					.append(e.getValue().toString(decrementMaxDepth(maxDepth)));
-			first = false;
-		}
-		sb.append("}");
-		return sb.toString();
-	}
-
-	@Override
-	public String valueToTagString(int maxDepth) {
-		StringBuilder sb = new StringBuilder("{");
-		boolean first = true;
-		for (Map.Entry<String, Tag<?>> e : getValue().entrySet()) {
-			sb.append(first ? "" : ",")
-					.append(escapeString(e.getKey(), true)).append(":")
-					.append(e.getValue().valueToTagString(decrementMaxDepth(maxDepth)));
 			first = false;
 		}
 		sb.append("}");

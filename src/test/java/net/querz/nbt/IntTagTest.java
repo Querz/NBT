@@ -9,7 +9,7 @@ public class IntTagTest extends NBTTestCase {
 		assertEquals(Integer.MAX_VALUE, t.asInt());
 		assertEquals(Integer.MAX_VALUE, t.asLong());
 		assertEquals(3, t.getID());
-		assertEquals(Integer.MAX_VALUE + "", t.toTagString());
+//		assertEquals(Integer.MAX_VALUE + "", t.toTagString());
 		assertEquals("{\"type\":\"" + t.getClass().getSimpleName() + "\",\"value\":" + Integer.MAX_VALUE + "}", t.toString());
 	}
 

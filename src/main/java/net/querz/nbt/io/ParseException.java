@@ -1,6 +1,8 @@
 package net.querz.nbt.io;
 
-public class ParseException extends RuntimeException {
+import java.io.IOException;
+
+public class ParseException extends IOException {
 
 	public ParseException(String msg) {
 		super(msg);

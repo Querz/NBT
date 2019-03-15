@@ -2,12 +2,12 @@ package net.querz.nbt.mca;
 
 import net.querz.nbt.CompoundTag;
 import net.querz.nbt.ListTag;
-import net.querz.nbt.Tag;
+import net.querz.nbt.io.NamedTag;
+import net.querz.nbt.io.NBTDeserializer;
+import net.querz.nbt.io.NBTSerializer;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -80,8 +80,8 @@ public class Chunk {
 
 	public int serialize(RandomAccessFile raf, int xPos, int zPos) throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream(4096);
-		try (DataOutputStream nbtOut = new DataOutputStream(new BufferedOutputStream(CompressionType.ZLIB.compress(baos)))) {
-			updateHandle(xPos, zPos).serialize(nbtOut, Tag.DEFAULT_MAX_DEPTH);
+		try (BufferedOutputStream nbtOut = new BufferedOutputStream(CompressionType.ZLIB.compress(baos))) {
+			new NBTSerializer(false).toStream(new NamedTag(null, updateHandle(xPos, zPos)), nbtOut);
 		}
 		byte[] rawData = baos.toByteArray();
 		raf.writeInt(rawData.length);
@@ -96,10 +96,10 @@ public class Chunk {
 		if (compressionType == null) {
 			throw new IOException("invalid compression type " + compressionTypeByte);
 		}
-		DataInputStream dis = new DataInputStream(new BufferedInputStream(compressionType.decompress(new FileInputStream(raf.getFD()))));
-		Tag<?> tag = Tag.deserialize(dis, Tag.DEFAULT_MAX_DEPTH);
-		if (tag instanceof CompoundTag) {
-			data = (CompoundTag) tag;
+		BufferedInputStream dis = new BufferedInputStream(compressionType.decompress(new FileInputStream(raf.getFD())));
+		NamedTag tag = new NBTDeserializer(false).fromStream(dis);
+		if (tag != null && tag.getTag() instanceof CompoundTag) {
+			data = (CompoundTag) tag.getTag();
 			initReferences();
 		} else {
 			throw new IOException("invalid data tag: " + (tag == null ? "null" : tag.getClass().getName()));
