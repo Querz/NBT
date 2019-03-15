@@ -1,9 +1,9 @@
 package net.querz.nbt.custom;
 
 import net.querz.nbt.ArrayTag;
-import net.querz.nbt.TagFactory;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import net.querz.nbt.io.NBTInputStream;
+import net.querz.nbt.io.NBTOutputStream;
+import net.querz.nbt.io.NBTUtil;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -12,7 +12,7 @@ public class ShortArrayTag extends ArrayTag<short[]> implements Comparable<Short
 	public static final short[] ZERO_VALUE = new short[0];
 
 	public static void register() {
-		TagFactory.registerCustomTag(100, ShortArrayTag::new, ShortArrayTag.class);
+		NBTUtil.registerCustomTag(100, (o, t, m) -> serialize(o, t), (i, m) -> deserialize(i), ShortArrayTag.class);
 	}
 
 	public ShortArrayTag() {
@@ -24,25 +24,23 @@ public class ShortArrayTag extends ArrayTag<short[]> implements Comparable<Short
 	}
 
 	@Override
-	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
-		dos.writeInt(length());
-		for (int i : getValue()) {
+	public byte getID() {
+		return 100;
+	}
+
+	public static void serialize(NBTOutputStream dos, ShortArrayTag tag) throws IOException {
+		dos.writeInt(tag.length());
+		for (int i : tag.getValue()) {
 			dos.writeShort(i);
 		}
 	}
 
-	@Override
-	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
-		int length = dis.readInt();
-		setValue(new short[length]);
-		for (int i = 0; i < length; i++) {
-			getValue()[i] = dis.readShort();
+	public static ShortArrayTag deserialize(NBTInputStream dis) throws IOException {
+		ShortArrayTag tag = new ShortArrayTag(new short[dis.readInt()]);
+		for (int i = 0; i < tag.length(); i++) {
+			tag.getValue()[i] = dis.readShort();
 		}
-	}
-
-	@Override
-	public String valueToTagString(int maxDepth) {
-		return arrayToString("S", "s");
+		return tag;
 	}
 
 	@Override

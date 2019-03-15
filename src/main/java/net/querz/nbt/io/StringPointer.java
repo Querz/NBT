@@ -1,5 +1,7 @@
 package net.querz.nbt.io;
 
+import net.querz.nbt.io.ParseException;
+
 public class StringPointer {
 
 	private String value;
@@ -17,7 +19,7 @@ public class StringPointer {
 		return value.substring(oldIndex, index);
 	}
 
-	public String parseQuotedString() {
+	public String parseQuotedString() throws ParseException {
 		int oldIndex = ++index; //ignore beginning quotes
 		StringBuilder sb = null;
 		boolean escape = false;
@@ -58,7 +60,7 @@ public class StringPointer {
 		return false;
 	}
 
-	public void expectChar(char c) {
+	public void expectChar(char c) throws ParseException {
 		skipWhitespace();
 		boolean hasNext = hasNext();
 		if (hasNext && currentChar() == c) {
@@ -108,7 +110,7 @@ public class StringPointer {
 				|| c == '_';
 	}
 
-	private ParseException parseException(String msg) {
+	public ParseException parseException(String msg) {
 		return new ParseException(msg, value, index);
 	}
 }

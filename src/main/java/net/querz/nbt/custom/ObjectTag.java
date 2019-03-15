@@ -1,9 +1,9 @@
 package net.querz.nbt.custom;
 
 import net.querz.nbt.Tag;
-import net.querz.nbt.TagFactory;
+import net.querz.nbt.io.NBTOutputStream;
+import net.querz.nbt.io.NBTUtil;
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InvalidClassException;
 import java.io.ObjectInputStream;
@@ -15,7 +15,7 @@ import java.util.Objects;
 public class ObjectTag<T extends Serializable> extends Tag<T> implements Comparable<ObjectTag<T>> {
 
 	public static void register() {
-		TagFactory.registerCustomTag(90, ObjectTag::new, ObjectTag.class);
+		NBTUtil.registerCustomTag(90, (o, t, m) -> serialize(o, t), (i, m) -> deserialize(i), ObjectTag.class);
 	}
 
 	public ObjectTag() {
@@ -24,6 +24,15 @@ public class ObjectTag<T extends Serializable> extends Tag<T> implements Compara
 
 	public ObjectTag(T value) {
 		super(value);
+	}
+
+	@Override
+	public byte getID() {
+		return 90;
+	}
+
+	private static <O extends Serializable> ObjectTag<?> createUnchecked(O value) {
+		return new ObjectTag<>(value);
 	}
 
 	@Override
@@ -47,16 +56,14 @@ public class ObjectTag<T extends Serializable> extends Tag<T> implements Compara
 		return (ObjectTag<L>) this;
 	}
 
-	@Override
-	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
-		new ObjectOutputStream(dos).writeObject(getValue());
+	public static void serialize(NBTOutputStream dos, ObjectTag<?> tag) throws IOException {
+		new ObjectOutputStream(dos).writeObject(tag.getValue());
 	}
 
 	@SuppressWarnings("unchecked")
-	@Override
-	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
+	public static ObjectTag<?> deserialize(DataInputStream dis) throws IOException {
 		try {
-			setValue((T) new ObjectInputStream(dis).readObject());
+			return createUnchecked((Serializable) new ObjectInputStream(dis).readObject());
 		} catch (InvalidClassException | ClassNotFoundException e) {
 			throw new IOException(e.getCause());
 		}
@@ -65,11 +72,6 @@ public class ObjectTag<T extends Serializable> extends Tag<T> implements Compara
 	@Override
 	public String valueToString(int maxDepth) {
 		return getValue() == null ? "null" : escapeString(getValue().toString(), false);
-	}
-
-	@Override
-	public String valueToTagString(int maxDepth) {
-		return getValue() == null ? "null" : escapeString(getValue().toString(), true);
 	}
 
 	@Override

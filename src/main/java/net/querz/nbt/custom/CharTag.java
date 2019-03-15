@@ -1,9 +1,9 @@
 package net.querz.nbt.custom;
 
 import net.querz.nbt.Tag;
-import net.querz.nbt.TagFactory;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import net.querz.nbt.io.NBTInputStream;
+import net.querz.nbt.io.NBTOutputStream;
+import net.querz.nbt.io.NBTUtil;
 import java.io.IOException;
 
 public class CharTag extends Tag<Character> implements Comparable<CharTag> {
@@ -11,7 +11,7 @@ public class CharTag extends Tag<Character> implements Comparable<CharTag> {
 	public static final char ZERO_VALUE = '\u0000';
 
 	public static void register() {
-		TagFactory.registerCustomTag(110, CharTag::new, CharTag.class);
+		NBTUtil.registerCustomTag(110, (o, t, m) -> serialize(o, t), (i, m) -> deserialize(i), CharTag.class);
 	}
 
 	public CharTag() {
@@ -23,6 +23,11 @@ public class CharTag extends Tag<Character> implements Comparable<CharTag> {
 	}
 
 	@Override
+	public byte getID() {
+		return 110;
+	}
+
+	@Override
 	public Character getValue() {
 		return super.getValue();
 	}
@@ -31,24 +36,17 @@ public class CharTag extends Tag<Character> implements Comparable<CharTag> {
 		super.setValue(value);
 	}
 
-	@Override
-	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
-		dos.writeChar(getValue());
+	public static void serialize(NBTOutputStream dos, CharTag tag) throws IOException {
+		dos.writeChar(tag.getValue());
 	}
 
-	@Override
-	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
-		setValue(dis.readChar());
+	public static CharTag deserialize(NBTInputStream dis) throws IOException {
+		return new CharTag(dis.readChar());
 	}
 
 	@Override
 	public String valueToString(int maxDepth) {
 		return escapeString(getValue() + "", false);
-	}
-
-	@Override
-	public String valueToTagString(int maxDepth) {
-		return escapeString(getValue() + "", true);
 	}
 
 	@Override

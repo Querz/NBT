@@ -1,14 +1,17 @@
 package net.querz.nbt;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-
 public final class EndTag extends Tag<Void> {
 
-	static final EndTag INSTANCE = new EndTag();
+	public static final byte ID = 0;
+	public static final EndTag INSTANCE = new EndTag();
 
 	private EndTag() {
 		super(null);
+	}
+
+	@Override
+	public byte getID() {
+		return ID;
 	}
 
 	@Override
@@ -17,23 +20,8 @@ public final class EndTag extends Tag<Void> {
 	}
 
 	@Override
-	public void serializeValue(DataOutputStream dos, int maxDepth) {
-		//nothing to do
-	}
-
-	@Override
-	public void deserializeValue(DataInputStream dis, int maxDepth) {
-		//nothing to do
-	}
-
-	@Override
 	public String valueToString(int maxDepth) {
 		return "\"end\"";
-	}
-
-	@Override
-	public String valueToTagString(int maxDepth) {
-		throw new UnsupportedOperationException("EndTag cannot be turned into a String");
 	}
 
 	@Override

@@ -1,6 +1,8 @@
 package net.querz.nbt;
 
 import junit.framework.TestCase;
+import net.querz.io.MaxDepthReachedException;
+
 import java.util.Arrays;
 import java.util.Comparator;
 import static org.junit.Assert.assertNotEquals;
@@ -26,7 +28,7 @@ public class ListTagTest extends NBTTestCase {
 		assertEquals(Byte.MIN_VALUE, bl.get(0).asByte());
 		assertEquals(0, bl.get(1).asByte());
 		assertEquals(Byte.MAX_VALUE, bl.get(2).asByte());
-		assertEquals("[-128b,0b,127b]", bl.toTagString());
+//		assertEquals("[-128b,0b,127b]", bl.toTagString());
 		assertEquals("{\"type\":\"ListTag\"," +
 				"\"value\":{" +
 				"\"type\":\"ByteTag\"," +
@@ -34,7 +36,7 @@ public class ListTagTest extends NBTTestCase {
 				"-128," +
 				"0," +
 				"127]}}", bl.toString());
-		ListTag<?> lu = ListTag.createUnchecked();
+		ListTag<?> lu = ListTag.createUnchecked(null);
 		assertEquals("{\"type\":\"ListTag\",\"value\":{\"type\":\"EndTag\",\"list\":[]}}", lu.toString());
 	}
 
@@ -66,8 +68,8 @@ public class ListTagTest extends NBTTestCase {
 		assertEquals(il, new ListTag<>(IntTag.class));
 
 		// test empty untyped list
-		ListTag<?> lu = ListTag.createUnchecked();
-		ListTag<?> lu2 = ListTag.createUnchecked();
+		ListTag<?> lu = ListTag.createUnchecked(null);
+		ListTag<?> lu2 = ListTag.createUnchecked(null);
 		assertTrue(lu.equals(lu2));
 		lu2.asIntTagList();
 		assertFalse(lu.equals(lu2));
@@ -117,6 +119,7 @@ public class ListTagTest extends NBTTestCase {
 //		empty list can't have type
 		assertTrue(Arrays.equals(new byte[]{9, 0, 0, 0, 0, 0, 0, 0}, data));
 		ListTag<?> et = (ListTag<?>) deserialize(data);
+		System.out.println(et.getTypeClass());
 		assertNotNull(et);
 //		doesn't make sense as there's no type
 //		assertThrowsRuntimeException(et::asByteTagList, ClassCastException.class);
@@ -139,53 +142,53 @@ public class ListTagTest extends NBTTestCase {
 		assertEquals(ByteTag.class, b.getTypeClass());
 
 		//adjust ListTag type during deserialization
-		ListTag<?> l = ListTag.createUnchecked();
+		ListTag<?> l = ListTag.createUnchecked(null);
 		assertThrowsNoRuntimeException(l::asByteTagList);
 		l.addByte(Byte.MAX_VALUE);
 		assertThrowsNoRuntimeException(l::asByteTagList);
 		assertThrowsRuntimeException(l::asShortTagList, ClassCastException.class);
 
-		l = ListTag.createUnchecked();
+		l = ListTag.createUnchecked(null);
 		l.addShort(Short.MAX_VALUE);
 		assertThrowsNoRuntimeException(l::asShortTagList);
 		assertThrowsRuntimeException(l::asIntTagList, ClassCastException.class);
 
-		l = ListTag.createUnchecked();
+		l = ListTag.createUnchecked(null);
 		l.addInt(Integer.MAX_VALUE);
 		assertThrowsNoRuntimeException(l::asIntTagList);
 		assertThrowsRuntimeException(l::asLongTagList, ClassCastException.class);
 
-		l = ListTag.createUnchecked();
+		l = ListTag.createUnchecked(null);
 		l.addLong(Long.MAX_VALUE);
 		assertThrowsNoRuntimeException(l::asLongTagList);
 		assertThrowsRuntimeException(l::asFloatTagList, ClassCastException.class);
 
-		l = ListTag.createUnchecked();
+		l = ListTag.createUnchecked(null);
 		l.addFloat(Float.MAX_VALUE);
 		assertThrowsNoRuntimeException(l::asFloatTagList);
 		assertThrowsRuntimeException(l::asDoubleTagList, ClassCastException.class);
 
-		l = ListTag.createUnchecked();
+		l = ListTag.createUnchecked(null);
 		l.addDouble(Double.MAX_VALUE);
 		assertThrowsNoRuntimeException(l::asDoubleTagList);
 		assertThrowsRuntimeException(l::asStringTagList, ClassCastException.class);
 
-		l = ListTag.createUnchecked();
+		l = ListTag.createUnchecked(null);
 		l.addString("foo");
 		assertThrowsNoRuntimeException(l::asStringTagList);
 		assertThrowsRuntimeException(l::asByteArrayTagList, ClassCastException.class);
 
-		l = ListTag.createUnchecked();
+		l = ListTag.createUnchecked(null);
 		l.addByteArray(new byte[]{Byte.MIN_VALUE, 0, Byte.MAX_VALUE});
 		assertThrowsNoRuntimeException(l::asByteArrayTagList);
 		assertThrowsRuntimeException(l::asIntArrayTagList, ClassCastException.class);
 
-		l = ListTag.createUnchecked();
+		l = ListTag.createUnchecked(null);
 		l.addIntArray(new int[]{Integer.MIN_VALUE, 0, Integer.MAX_VALUE});
 		assertThrowsNoRuntimeException(l::asIntArrayTagList);
 		assertThrowsRuntimeException(l::asLongArrayTagList, ClassCastException.class);
 
-		l = ListTag.createUnchecked();
+		l = ListTag.createUnchecked(null);
 		l.addLongArray(new long[]{Long.MIN_VALUE, 0, Long.MAX_VALUE});
 		assertThrowsNoRuntimeException(l::asLongArrayTagList);
 		assertThrowsRuntimeException(l::asListTagList, ClassCastException.class);
@@ -200,7 +203,7 @@ public class ListTagTest extends NBTTestCase {
 		assertThrowsNoRuntimeException(lco::asCompoundTagList);
 		assertThrowsRuntimeException(lco::asByteTagList, ClassCastException.class);
 
-		ListTag<?> lg = ListTag.createUnchecked();
+		ListTag<?> lg = ListTag.createUnchecked(null);
 		ListTag<ByteTag> lb = assertThrowsNoRuntimeException(lg::asByteTagList);
 		assertEquals(lb, lg);
 		//only allow casting once from untyped list to typed list
@@ -246,9 +249,9 @@ public class ListTagTest extends NBTTestCase {
 		assertThrowsRuntimeException(() -> serialize(root), MaxDepthReachedException.class);
 		assertThrowsRuntimeException(() -> deserializeFromFile("max_depth_reached.dat"), MaxDepthReachedException.class);
 		assertThrowsRuntimeException(root::toString, MaxDepthReachedException.class);
-		assertThrowsRuntimeException(root::toTagString, MaxDepthReachedException.class);
+//		assertThrowsRuntimeException(root::toTagString, MaxDepthReachedException.class);
 		assertThrowsRuntimeException(() -> root.valueToString(-1), IllegalArgumentException.class);
-		assertThrowsRuntimeException(() -> root.valueToTagString(-1), IllegalArgumentException.class);
+//		assertThrowsRuntimeException(() -> root.valueToTagString(-1), IllegalArgumentException.class);
 	}
 
 	public void testRecursion() {
@@ -256,7 +259,7 @@ public class ListTagTest extends NBTTestCase {
 		recursive.add(recursive);
 		assertThrowsRuntimeException(() -> serialize(recursive), MaxDepthReachedException.class);
 		assertThrowsRuntimeException(recursive::toString, MaxDepthReachedException.class);
-		assertThrowsRuntimeException(recursive::toTagString, MaxDepthReachedException.class);
+//		assertThrowsRuntimeException(recursive::toTagString, MaxDepthReachedException.class);
 	}
 
 	public void testContains() {

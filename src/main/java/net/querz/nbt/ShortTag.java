@@ -1,11 +1,8 @@
 package net.querz.nbt;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-
 public class ShortTag extends NumberTag<Short> implements Comparable<ShortTag> {
 
+	public static final byte ID = 2;
 	public static final short ZERO_VALUE = 0;
 
 	public ShortTag() {
@@ -16,23 +13,13 @@ public class ShortTag extends NumberTag<Short> implements Comparable<ShortTag> {
 		super(value);
 	}
 
+	@Override
+	public byte getID() {
+		return ID;
+	}
+
 	public void setValue(short value) {
 		super.setValue(value);
-	}
-
-	@Override
-	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
-		dos.writeShort(getValue());
-	}
-
-	@Override
-	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
-		setValue(dis.readShort());
-	}
-
-	@Override
-	public String valueToTagString(int maxDepth) {
-		return getValue() + "s";
 	}
 
 	@Override

@@ -1,11 +1,8 @@
 package net.querz.nbt;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-
 public class FloatTag extends NumberTag<Float> implements Comparable<FloatTag> {
 
+	public static final byte ID = 5;
 	public static final float ZERO_VALUE = 0.0F;
 
 	public FloatTag() {
@@ -16,23 +13,13 @@ public class FloatTag extends NumberTag<Float> implements Comparable<FloatTag> {
 		super(value);
 	}
 
+	@Override
+	public byte getID() {
+		return ID;
+	}
+
 	public void setValue(float value) {
 		super.setValue(value);
-	}
-
-	@Override
-	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
-		dos.writeFloat(getValue());
-	}
-
-	@Override
-	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
-		setValue(dis.readFloat());
-	}
-
-	@Override
-	public String valueToTagString(int maxDepth) {
-		return getValue() + "f";
 	}
 
 	@Override

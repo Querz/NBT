@@ -10,7 +10,7 @@ public class ShortTagTest extends NBTTestCase {
 		assertEquals(Short.MAX_VALUE, t.asInt());
 		assertEquals(Short.MAX_VALUE, t.asLong());
 		assertEquals(2, t.getID());
-		assertEquals(Short.MAX_VALUE + "s", t.toTagString());
+//		assertEquals(Short.MAX_VALUE + "s", t.toTagString());
 		assertEquals("{\"type\":\"" + t.getClass().getSimpleName() + "\",\"value\":" + Short.MAX_VALUE + "}", t.toString());
 	}
 

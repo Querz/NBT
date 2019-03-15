@@ -1,11 +1,8 @@
 package net.querz.nbt;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-
 public class StringTag extends Tag<String> implements Comparable<StringTag> {
 
+	public static final byte ID = 8;
 	public static final String ZERO_VALUE = "";
 
 	public StringTag() {
@@ -14,6 +11,11 @@ public class StringTag extends Tag<String> implements Comparable<StringTag> {
 
 	public StringTag(String value) {
 		super(value);
+	}
+
+	@Override
+	public byte getID() {
+		return ID;
 	}
 
 	@Override
@@ -27,23 +29,8 @@ public class StringTag extends Tag<String> implements Comparable<StringTag> {
 	}
 
 	@Override
-	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
-		dos.writeUTF(getValue());
-	}
-
-	@Override
-	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
-		setValue(dis.readUTF());
-	}
-
-	@Override
 	public String valueToString(int maxDepth) {
 		return escapeString(getValue(), false);
-	}
-
-	@Override
-	public String valueToTagString(int maxDepth) {
-		return escapeString(getValue(), true);
 	}
 
 	@Override

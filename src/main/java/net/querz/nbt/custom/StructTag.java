@@ -13,9 +13,10 @@ import net.querz.nbt.LongTag;
 import net.querz.nbt.ShortTag;
 import net.querz.nbt.StringTag;
 import net.querz.nbt.Tag;
-import net.querz.nbt.TagFactory;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import net.querz.io.MaxDepthIO;
+import net.querz.nbt.io.NBTInputStream;
+import net.querz.nbt.io.NBTOutputStream;
+import net.querz.nbt.io.NBTUtil;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,14 +25,19 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-public class StructTag extends Tag<List<Tag<?>>> implements Iterable<Tag<?>>, Comparable<StructTag> {
+public class StructTag extends Tag<List<Tag<?>>> implements Iterable<Tag<?>>, Comparable<StructTag>, MaxDepthIO {
 
 	public static void register() {
-		TagFactory.registerCustomTag(120, StructTag::new, StructTag.class);
+		NBTUtil.registerCustomTag(120, StructTag::serialize, StructTag::deserialize, StructTag.class);
 	}
 
 	public StructTag() {
 		super(createEmptyValue());
+	}
+
+	@Override
+	public byte getID() {
+		return 120;
 	}
 
 	private static List<Tag<?>> createEmptyValue() {
@@ -230,25 +236,24 @@ public class StructTag extends Tag<List<Tag<?>>> implements Iterable<Tag<?>>, Co
 		add(new LongArrayTag(value));
 	}
 
-	@Override
-	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
-		dos.writeInt(size());
-		for (Tag<?> tag : getValue()) {
-			dos.writeByte(tag.getID());
-			tag.serializeValue(dos, decrementMaxDepth(maxDepth));
+	public static void serialize(NBTOutputStream dos, StructTag tag, int maxDepth) throws IOException {
+		dos.writeInt(tag.size());
+		for (Tag<?> t : tag.getValue()) {
+			dos.writeByte(t.getID());
+			dos.writeRawTag(t, dos.decrementMaxDepth(maxDepth));
 		}
 	}
 
-	@Override
-	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
+	public static StructTag deserialize(NBTInputStream dis, int maxDepth) throws IOException {
 		int size = dis.readInt();
 		size = size < 0 ? 0 : size;
-		setValue(new ArrayList<>(size));
+		StructTag t = new StructTag();
+		t.setValue(new ArrayList<>(size));
 		for (int i = 0; i < size; i++) {
-			Tag<?> tag = TagFactory.fromID(dis.readByte());
-			tag.deserializeValue(dis, decrementMaxDepth(maxDepth));
-			add(tag);
+			Tag<?> tag = dis.readRawTag(dis.decrementMaxDepth(maxDepth));
+			t.add(tag);
 		}
+		return t;
 	}
 
 	@Override
@@ -256,16 +261,6 @@ public class StructTag extends Tag<List<Tag<?>>> implements Iterable<Tag<?>>, Co
 		StringBuilder sb = new StringBuilder("[");
 		for (int i = 0; i < size(); i++) {
 			sb.append(i > 0 ? "," : "").append(get(i).toString(decrementMaxDepth(maxDepth)));
-		}
-		sb.append("]");
-		return sb.toString();
-	}
-
-	@Override
-	public String valueToTagString(int maxDepth) {
-		StringBuilder sb = new StringBuilder("[");
-		for (int i = 0; i < size(); i++) {
-			sb.append(i > 0 ? "," : "").append(get(i).valueToTagString(decrementMaxDepth(maxDepth)));
 		}
 		sb.append("]");
 		return sb.toString();

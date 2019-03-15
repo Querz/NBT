@@ -1,6 +1,4 @@
-package net.querz.nbt.io;
-
-import net.querz.nbt.MaxDepthReachedException;
+package net.querz.io;
 
 public interface MaxDepthIO {
 

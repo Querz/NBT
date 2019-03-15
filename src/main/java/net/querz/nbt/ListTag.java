@@ -1,8 +1,7 @@
 package net.querz.nbt;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import net.querz.io.MaxDepthIO;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -13,17 +12,24 @@ import java.util.function.Consumer;
 
 /**
  * ListTag represents a typed List in the nbt structure.
- * An empty {@link ListTag} created using {@link ListTag#createUnchecked()} will be of unknown type
+ * An empty {@link ListTag} created using {@link ListTag#createUnchecked(Class)} will be of unknown type
  * and returns an {@link EndTag}{@code .class} in {@link ListTag#getTypeClass()}.
  * The type of an empty untyped {@link ListTag} can be set by using any of the {@code add()}
  * methods or any of the {@code as...List()} methods.
  * */
-public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<T>, Comparable<ListTag<T>> {
+public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<T>, Comparable<ListTag<T>>, MaxDepthIO {
+
+	public static final byte ID = 9;
 
 	private Class<?> typeClass = null;
 
 	private ListTag() {
 		super(createEmptyValue(3));
+	}
+
+	@Override
+	public byte getID() {
+		return ID;
 	}
 	
 	/**
@@ -35,8 +41,10 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	 * 
 	 * @return A new non-type-safe ListTag
 	 */
-	public static ListTag<?> createUnchecked() {
-		return new ListTag<>();
+	public static ListTag<?> createUnchecked(Class<?> typeClass) {
+		ListTag<?> list = new ListTag<>();
+		list.typeClass = typeClass;
+		return list;
 	}
 
 	/**
@@ -115,16 +123,10 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 
 	public void add(int index, T t) {
 		Objects.requireNonNull(t);
+		getValue().add(index, t);
 		if (typeClass == null || typeClass == EndTag.class) {
 			typeClass = t.getClass();
-		} else if (typeClass != t.getClass()) {
-			throw new ClassCastException(
-					String.format("cannot add %s to ListTag<%s>",
-							t.getClass().getSimpleName(),
-							typeClass.getSimpleName()));
 		}
-		getValue().add(index, t);
-
 	}
 
 	public void addAll(Collection<T> t) {
@@ -252,52 +254,12 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	}
 
 	@Override
-	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
-		dos.writeByte(size() != 0 ? TagFactory.idFromClass(getTypeClass()) : 0); // paylod type should be 0 in empty case
-		dos.writeInt(size());
-		if (size() != 0) {
-			for (T t : getValue()) {
-				t.serializeValue(dos, decrementMaxDepth(maxDepth));
-			}
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
-		int typeID = dis.readByte();
-		if (typeID != 0) {
-			typeClass = TagFactory.classFromID(typeID);
-		}
-		int size = dis.readInt();
-		size = size < 0 ? 0 : size;
-		setValue(createEmptyValue(size));
-		if (size != 0) {
-			for (int i = 0; i < size; i++) {
-				Tag<?> tag = TagFactory.fromID(typeID);
-				tag.deserializeValue(dis, decrementMaxDepth(maxDepth));
-				add((T) tag);
-			}
-		}
-	}
-
-	@Override
 	public String valueToString(int maxDepth) {
 		StringBuilder sb = new StringBuilder("{\"type\":\"").append(getTypeClass().getSimpleName()).append("\",\"list\":[");
 		for (int i = 0; i < size(); i++) {
 			sb.append(i > 0 ? "," : "").append(get(i).valueToString(decrementMaxDepth(maxDepth)));
 		}
 		sb.append("]}");
-		return sb.toString();
-	}
-
-	@Override
-	public String valueToTagString(int maxDepth) {
-		StringBuilder sb = new StringBuilder("[");
-		for (int i = 0; i < size(); i++) {
-			sb.append(i > 0 ? "," : "").append(get(i).valueToTagString(decrementMaxDepth(maxDepth)));
-		}
-		sb.append("]");
 		return sb.toString();
 	}
 
@@ -351,7 +313,7 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	}
 
 	private void checkTypeClass(Class<?> clazz) {
-		if (typeClass != null && typeClass != clazz) {
+		if (typeClass != null && typeClass != EndTag.class && typeClass != clazz) {
 			throw new ClassCastException(String.format(
 					"cannot cast ListTag<%s> to ListTag<%s>",
 					typeClass.getSimpleName(), clazz.getSimpleName()));
