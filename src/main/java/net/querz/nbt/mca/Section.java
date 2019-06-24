@@ -17,8 +17,11 @@ public class Section {
 	private byte[] skyLight;
 
 	public Section(CompoundTag sectionRoot) {
-		data = sectionRoot;
-		palette = sectionRoot.getListTag("Palette").asCompoundTagList();
+		ListTag<?> rawPalette = sectionRoot.getListTag("Palette");
+		if (rawPalette == null) {
+			return;
+		}
+		palette = rawPalette.asCompoundTagList();
 		for (int i = 0; i < palette.size(); i++) {
 			CompoundTag data = palette.get(i);
 			putValueIndexedPalette(data, i);
@@ -26,6 +29,7 @@ public class Section {
 		blockLight = sectionRoot.getByteArray("BlockLight");
 		blockStates = sectionRoot.getLongArray("BlockStates");
 		skyLight = sectionRoot.getByteArray("SkyLight");
+		data = sectionRoot;
 	}
 
 	Section() {}
@@ -70,6 +74,10 @@ public class Section {
 			this.data = data;
 			this.index = index;
 		}
+	}
+
+	public boolean isEmpty() {
+		return data == null;
 	}
 
 	public CompoundTag getBlockStateAt(int blockX, int blockY, int blockZ) {
