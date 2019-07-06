@@ -53,3 +53,9 @@ artifacts {
 	archives sourcesJar
 	archives javadocJar
 }
+
+jar {
+	manifest {
+		attributes('Automatic-Module-Name': 'net.querz.nbt')
+	}
+}
