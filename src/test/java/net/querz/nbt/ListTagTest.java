@@ -203,6 +203,18 @@ public class ListTagTest extends NBTTestCase {
 		assertEquals(lb, lg);
 		//only allow casting once from untyped list to typed list
 		assertThrowsRuntimeException(lg::asShortTagList, ClassCastException.class);
+
+		//adding generic Tags to an empty list
+		@SuppressWarnings("unchecked")
+		ListTag<Tag<?>> u = (ListTag<Tag<?>>) TagFactory.fromID(9);
+		assertEquals(EndTag.class, u.getTypeClass());
+		assertThrowsNoRuntimeException(() -> u.add(new StringTag()));
+		assertEquals(StringTag.class, u.getTypeClass());
+		assertThrowsRuntimeException(() -> u.add(new ByteTag()), ClassCastException.class);
+		assertThrowsNoRuntimeException(() -> u.add(new StringTag()));
+		assertEquals(2, u.size());
+
+
 	}
 
 	public void testCompareTo() {
