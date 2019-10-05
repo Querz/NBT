@@ -100,7 +100,8 @@ public class MCAFile {
 
 				chunksWritten++;
 
-				int sectors = (lastWritten >> 12) + 1;
+//				we shouldn't add 1 in case of lastWritten % 4096 == 0 (see docs)
+				int sectors = (lastWritten >> 12) + (lastWritten % 4096 == 0 ? 0 : 1);
 
 				raf.seek(index * 4);
 				raf.writeByte(globalOffset >>> 16);
