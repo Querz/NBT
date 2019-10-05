@@ -253,7 +253,7 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 
 	@Override
 	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
-		dos.writeByte(TagFactory.idFromClass(getTypeClass()));
+		dos.writeByte(size() != 0 ? TagFactory.idFromClass(getTypeClass()) : 0); // paylod type should be 0 in empty case
 		dos.writeInt(size());
 		if (size() != 0) {
 			for (T t : getValue()) {

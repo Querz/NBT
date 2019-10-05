@@ -3,14 +3,8 @@ package net.querz.nbt.mca;
 import net.querz.nbt.CompoundTag;
 import net.querz.nbt.ListTag;
 import net.querz.nbt.Tag;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+
+import java.io.*;
 
 public class Chunk {
 
@@ -63,7 +57,7 @@ public class Chunk {
 		this.inhabitedTime = level.getLong("InhabitedTime");
 		this.lastUpdate = level.getLong("LastUpdate");
 		this.biomes = level.getIntArray("Biomes");
-		this.heightMaps = level.getCompoundTag("HeightMaps");
+		this.heightMaps = level.getCompoundTag("Heightmaps");
 		this.carvingMasks = level.getCompoundTag("CarvingMasks");
 		this.entities = level.containsKey("Entities") ? level.getListTag("Entities").asCompoundTagList() : null;
 		this.tileEntities = level.containsKey("TileEntities") ? level.getListTag("TileEntities").asCompoundTagList() : null;
@@ -104,7 +98,7 @@ public class Chunk {
 			updateHandle(xPos, zPos).serialize(nbtOut, Tag.DEFAULT_MAX_DEPTH);
 		}
 		byte[] rawData = baos.toByteArray();
-		raf.writeInt(rawData.length);
+		raf.writeInt(rawData.length + 1);
 		raf.writeByte(CompressionType.ZLIB.getID());
 		raf.write(rawData);
 		return rawData.length + 5;
@@ -507,7 +501,7 @@ public class Chunk {
 		level.putLong("LastUpdate", lastUpdate);
 		level.putLong("InhabitedTime", inhabitedTime);
 		if (biomes != null && biomes.length == 256) level.putIntArray("Biomes", biomes);
-		if (heightMaps != null) level.put("HeightMaps", heightMaps);
+		if (heightMaps != null) level.put("Heightmaps", heightMaps);
 		if (carvingMasks != null) level.put("CarvingMasks", carvingMasks);
 		if (entities != null) level.put("Entities", entities);
 		if (tileEntities != null) level.put("TileEntities", tileEntities);

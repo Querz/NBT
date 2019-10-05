@@ -1,7 +1,10 @@
 package net.querz.nbt.mca;
 
+import net.querz.nbt.ByteArrayTag;
 import net.querz.nbt.CompoundTag;
 import net.querz.nbt.ListTag;
+import net.querz.nbt.LongArrayTag;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,9 +33,15 @@ public class Section {
 			CompoundTag data = palette.get(i);
 			putValueIndexedPalette(data, i);
 		}
-		blockLight = sectionRoot.getByteArray("BlockLight");
-		blockStates = sectionRoot.getLongArray("BlockStates");
-		skyLight = sectionRoot.getByteArray("SkyLight");
+
+//		we need null in case if there's no such byteArrays. TODO: add getOrNull
+		ByteArrayTag blockLightTag = sectionRoot.getByteArrayTag("BlockLight");
+		LongArrayTag blockStatesTag = sectionRoot.getLongArrayTag("BlockStates");
+		ByteArrayTag skyLightTag = sectionRoot.getByteArrayTag("SkyLight");
+
+		this.blockLight = blockLightTag != null ? blockLightTag.getValue() : null;
+		this.blockStates = blockStatesTag != null ? blockStatesTag.getValue() : null;
+		this.skyLight = skyLightTag != null ? skyLightTag.getValue() : null;
 		data = sectionRoot;
 	}
 

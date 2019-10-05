@@ -1,5 +1,6 @@
 plugins {
 	id 'com.github.kt3k.coveralls' version '2.4.0'
+	id 'maven-publish'
 }
 
 apply plugin: 'java'
@@ -57,5 +58,20 @@ artifacts {
 jar {
 	manifest {
 		attributes('Automatic-Module-Name': 'net.querz.nbt')
+	}
+}
+
+// for convenience, for pushing to local 
+publishing {
+	publications {
+		maven(MavenPublication) {
+			groupId = group
+			artifactId = archivesBaseName
+			version = version
+			artifact sourcesJar
+			artifact javadocJar
+
+			from components.java
+		}
 	}
 }
