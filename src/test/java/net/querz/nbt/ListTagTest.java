@@ -114,10 +114,12 @@ public class ListTagTest extends NBTTestCase {
 	public void testSerializeDeserializeEmptyList() {
 		ListTag<IntTag> empty = new ListTag<>(IntTag.class);
 		byte[] data = serialize(empty);
-		assertTrue(Arrays.equals(new byte[]{9, 0, 0, 3, 0, 0, 0, 0}, data));
+//		empty list can't have type
+		assertTrue(Arrays.equals(new byte[]{9, 0, 0, 0, 0, 0, 0, 0}, data));
 		ListTag<?> et = (ListTag<?>) deserialize(data);
 		assertNotNull(et);
-		assertThrowsRuntimeException(et::asByteTagList, ClassCastException.class);
+//		doesn't make sense as there's no type
+//		assertThrowsRuntimeException(et::asByteTagList, ClassCastException.class);
 	}
 
 	public void testCasting() {
