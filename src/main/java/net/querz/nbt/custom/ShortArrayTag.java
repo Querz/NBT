@@ -2,8 +2,9 @@ package net.querz.nbt.custom;
 
 import net.querz.nbt.ArrayTag;
 import net.querz.nbt.TagFactory;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -24,7 +25,7 @@ public class ShortArrayTag extends ArrayTag<short[]> implements Comparable<Short
 	}
 
 	@Override
-	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
+	public void serializeValue(DataOutput dos, int maxDepth) throws IOException {
 		dos.writeInt(length());
 		for (int i : getValue()) {
 			dos.writeShort(i);
@@ -32,7 +33,7 @@ public class ShortArrayTag extends ArrayTag<short[]> implements Comparable<Short
 	}
 
 	@Override
-	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
+	public void deserializeValue(DataInput dis, int maxDepth) throws IOException {
 		int length = dis.readInt();
 		setValue(new short[length]);
 		for (int i = 0; i < length; i++) {

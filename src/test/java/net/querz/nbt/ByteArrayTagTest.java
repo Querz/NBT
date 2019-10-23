@@ -1,7 +1,7 @@
 package net.querz.nbt;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.util.Arrays;
 
 public class ByteArrayTagTest extends NBTTestCase {
@@ -66,12 +66,12 @@ public class ByteArrayTagTest extends NBTTestCase {
 		}
 
 		@Override
-		public void serializeValue(DataOutputStream dos, int depth) {
+		public void serializeValue(DataOutput dos, int depth) {
 			throw new UnsupportedOperationException("goddammit, this is a test class, you don't want to save it.");
 		}
 
 		@Override
-		public void deserializeValue(DataInputStream dis, int depth) {
+		public void deserializeValue(DataInput dis, int depth) {
 			throw new UnsupportedOperationException("goddammit, this is a test class, you don't want to load it.");
 		}
 

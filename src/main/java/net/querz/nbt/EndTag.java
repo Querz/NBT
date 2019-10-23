@@ -1,7 +1,7 @@
 package net.querz.nbt;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.DataInput;
+import java.io.DataOutput;
 
 public final class EndTag extends Tag<Void> {
 
@@ -17,12 +17,12 @@ public final class EndTag extends Tag<Void> {
 	}
 
 	@Override
-	public void serializeValue(DataOutputStream dos, int maxDepth) {
+	public void serializeValue(DataOutput dos, int maxDepth) {
 		//nothing to do
 	}
 
 	@Override
-	public void deserializeValue(DataInputStream dis, int maxDepth) {
+	public void deserializeValue(DataInput dis, int maxDepth) {
 		//nothing to do
 	}
 

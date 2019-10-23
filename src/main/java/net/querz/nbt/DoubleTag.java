@@ -1,7 +1,7 @@
 package net.querz.nbt;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
 
 public class DoubleTag extends NumberTag<Double> implements Comparable<DoubleTag> {
@@ -21,12 +21,12 @@ public class DoubleTag extends NumberTag<Double> implements Comparable<DoubleTag
 	}
 
 	@Override
-	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
+	public void serializeValue(DataOutput dos, int maxDepth) throws IOException {
 		dos.writeDouble(getValue());
 	}
 
 	@Override
-	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
+	public void deserializeValue(DataInput dis, int maxDepth) throws IOException {
 		setValue(dis.readDouble());
 	}
 

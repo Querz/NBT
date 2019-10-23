@@ -1,7 +1,7 @@
 package net.querz.nbt;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -18,7 +18,7 @@ public class IntArrayTag extends ArrayTag<int[]> implements Comparable<IntArrayT
 	}
 
 	@Override
-	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
+	public void serializeValue(DataOutput dos, int maxDepth) throws IOException {
 		dos.writeInt(length());
 		for (int i : getValue()) {
 			dos.writeInt(i);
@@ -26,7 +26,7 @@ public class IntArrayTag extends ArrayTag<int[]> implements Comparable<IntArrayT
 	}
 
 	@Override
-	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
+	public void deserializeValue(DataInput dis, int maxDepth) throws IOException {
 		int length = dis.readInt();
 		setValue(new int[length]);
 		for (int i = 0; i < length; i++) {

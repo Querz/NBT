@@ -1,7 +1,8 @@
 package net.querz.nbt;
 
+import java.io.DataInput;
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -226,7 +227,7 @@ public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Ma
 	}
 
 	@Override
-	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
+	public void serializeValue(DataOutput dos, int maxDepth) throws IOException {
 		for (Map.Entry<String, Tag<?>> e : getValue().entrySet()) {
 			e.getValue().serialize(dos, e.getKey(), decrementMaxDepth(maxDepth));
 		}
@@ -234,11 +235,11 @@ public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Ma
 	}
 
 	@Override
-	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
+	public void deserializeValue(DataInput dis, int maxDepth) throws IOException {
 		clear();
 		for (int id = dis.readByte() & 0xFF; id != 0; id = dis.readByte() & 0xFF) {
 			Tag<?> tag = TagFactory.fromID(id);
-			String name = dis.readUTF();
+			String name = DataInputStream.readUTF(dis);
 			tag.deserializeValue(dis, decrementMaxDepth(maxDepth));
 			put(name, tag);
 		}

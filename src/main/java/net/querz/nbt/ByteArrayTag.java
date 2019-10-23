@@ -1,7 +1,7 @@
 package net.querz.nbt;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -18,13 +18,13 @@ public class ByteArrayTag extends ArrayTag<byte[]> implements Comparable<ByteArr
 	}
 
 	@Override
-	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
+	public void serializeValue(DataOutput dos, int maxDepth) throws IOException {
 		dos.writeInt(length());
 		dos.write(getValue());
 	}
 
 	@Override
-	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
+	public void deserializeValue(DataInput dis, int maxDepth) throws IOException {
 		int length = dis.readInt();
 		setValue(new byte[length]);
 		dis.readFully(getValue());

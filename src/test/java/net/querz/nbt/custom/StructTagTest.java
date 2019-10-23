@@ -134,7 +134,7 @@ public class StructTagTest extends NBTTestCase {
 		assertFalse(l.getBoolean(4));
 		l.remove(new ByteTag(Byte.MAX_VALUE));
 		assertEquals(4, l.size());
-		assertThrowsRuntimeException(() -> l.remove(-1), ArrayIndexOutOfBoundsException.class);
+		assertThrowsRuntimeException(() -> l.remove(-1), IndexOutOfBoundsException.class);
 		assertThrowsRuntimeException(() -> l.remove(4), IndexOutOfBoundsException.class);
 		assertEquals(new ByteTag(true), assertThrowsNoRuntimeException(() -> l.remove(2)));
 		l.clear();

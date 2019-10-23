@@ -1,7 +1,8 @@
 package net.querz.nbt;
 
+import java.io.DataInput;
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -9,6 +10,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static net.querz.nbt.NBTUtil.writeUTF;
 
 /**
  * Base class for all NBT tags.
@@ -100,15 +103,15 @@ public abstract class Tag<T> implements Cloneable {
 	}
 
 	/**
-	 * Calls {@link Tag#serialize(DataOutputStream, String, int)} with an empty name.
-	 * @see Tag#serialize(DataOutputStream, String, int)
+	 * Calls {@link Tag#serialize(DataOutput, String, int)} with an empty name.
+	 * @see Tag#serialize(DataOutput, String, int)
 	 * @param dos The DataOutputStream to write to
 	 * @param maxDepth The maximum nesting depth
 	 * @throws IOException If something went wrong during serialization.
 	 * @throws NullPointerException If {@code dos} is {@code null}.
 	 * @throws MaxDepthReachedException If the maximum nesting depth is exceeded.
 	 * */
-	public final void serialize(DataOutputStream dos, int maxDepth) throws IOException {
+	public final void serialize(DataOutput dos, int maxDepth) throws IOException {
 		serialize(dos, "", maxDepth);
 	}
 
@@ -121,10 +124,10 @@ public abstract class Tag<T> implements Cloneable {
 	 * @throws NullPointerException If {@code dos} or {@code name} is {@code null}.
 	 * @throws MaxDepthReachedException If the maximum nesting depth is exceeded.
 	 * */
-	public final void serialize(DataOutputStream dos, String name, int maxDepth) throws IOException {
+	public final void serialize(DataOutput dos, String name, int maxDepth) throws IOException {
 		dos.writeByte(getID());
 		if (getID() != 0) {
-			dos.writeUTF(name);
+			writeUTF(name, dos);
 		}
 		serializeValue(dos, maxDepth);
 	}
@@ -139,11 +142,11 @@ public abstract class Tag<T> implements Cloneable {
 	 * @throws MaxDepthReachedException If the maximum nesting depth is exceeded.
 	 * @return The deserialized NBT structure.
 	 * */
-	public static Tag<?> deserialize(DataInputStream dis, int maxDepth) throws IOException {
+	public static Tag<?> deserialize(DataInput dis, int maxDepth) throws IOException {
 		int id = dis.readByte() & 0xFF;
 		Tag<?> tag = TagFactory.fromID(id);
 		if (id != 0) {
-			dis.readUTF();
+			DataInputStream.readUTF(dis);
 			tag.deserializeValue(dis, maxDepth);
 		}
 		return tag;
@@ -156,7 +159,7 @@ public abstract class Tag<T> implements Cloneable {
 	 * @throws IOException If something went wrong during serialization.
 	 * @throws MaxDepthReachedException If the maximum nesting depth is exceeded.
 	 * */
-	public abstract void serializeValue(DataOutputStream dos, int maxDepth) throws IOException;
+	public abstract void serializeValue(DataOutput dos, int maxDepth) throws IOException;
 
 	/**
 	 * Deserializes only the value of this Tag.
@@ -165,7 +168,7 @@ public abstract class Tag<T> implements Cloneable {
 	 * @throws IOException If something went wrong during deserialization.
 	 * @throws MaxDepthReachedException If the maximum nesting depth is exceeded
 	 * */
-	public abstract void deserializeValue(DataInputStream dis, int maxDepth) throws IOException;
+	public abstract void deserializeValue(DataInput dis, int maxDepth) throws IOException;
 
 	/**
 	 * Calls {@link Tag#toString(int)} with an initial depth of {@code 0}.

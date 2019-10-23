@@ -1,8 +1,11 @@
 package net.querz.nbt;
 
+import 	java.io.DataInput;
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.DataOutput;
 import java.io.IOException;
+
+import static net.querz.nbt.NBTUtil.writeUTF;
 
 public class StringTag extends Tag<String> implements Comparable<StringTag> {
 
@@ -27,13 +30,13 @@ public class StringTag extends Tag<String> implements Comparable<StringTag> {
 	}
 
 	@Override
-	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
-		dos.writeUTF(getValue());
+	public void serializeValue(DataOutput dos, int maxDepth) throws IOException {
+		writeUTF(getValue(), dos);
 	}
 
 	@Override
-	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
-		setValue(dis.readUTF());
+	public void deserializeValue(DataInput dis, int maxDepth) throws IOException {
+		setValue(DataInputStream.readUTF(dis));
 	}
 
 	@Override

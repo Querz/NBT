@@ -14,8 +14,9 @@ import net.querz.nbt.ShortTag;
 import net.querz.nbt.StringTag;
 import net.querz.nbt.Tag;
 import net.querz.nbt.TagFactory;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -231,7 +232,7 @@ public class StructTag extends Tag<List<Tag<?>>> implements Iterable<Tag<?>>, Co
 	}
 
 	@Override
-	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
+	public void serializeValue(DataOutput dos, int maxDepth) throws IOException {
 		dos.writeInt(size());
 		for (Tag<?> tag : getValue()) {
 			dos.writeByte(tag.getID());
@@ -240,7 +241,7 @@ public class StructTag extends Tag<List<Tag<?>>> implements Iterable<Tag<?>>, Co
 	}
 
 	@Override
-	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
+	public void deserializeValue(DataInput dis, int maxDepth) throws IOException {
 		int size = dis.readInt();
 		size = size < 0 ? 0 : size;
 		setValue(new ArrayList<>(size));

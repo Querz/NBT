@@ -2,12 +2,15 @@ package net.querz.nbt.custom;
 
 import net.querz.nbt.Tag;
 import net.querz.nbt.TagFactory;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InvalidClassException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
@@ -48,15 +51,15 @@ public class ObjectTag<T extends Serializable> extends Tag<T> implements Compara
 	}
 
 	@Override
-	public void serializeValue(DataOutputStream dos, int maxDepth) throws IOException {
-		new ObjectOutputStream(dos).writeObject(getValue());
+	public void serializeValue(DataOutput dos, int maxDepth) throws IOException {
+		new ObjectOutputStream((OutputStream) dos).writeObject(getValue());
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void deserializeValue(DataInputStream dis, int maxDepth) throws IOException {
+	public void deserializeValue(DataInput dis, int maxDepth) throws IOException {
 		try {
-			setValue((T) new ObjectInputStream(dis).readObject());
+			setValue((T) new ObjectInputStream((InputStream) dis).readObject());
 		} catch (InvalidClassException | ClassNotFoundException e) {
 			throw new IOException(e.getCause());
 		}

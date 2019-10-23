@@ -35,7 +35,7 @@ public class TagTest extends NBTTestCase {
 	public void testApplyDecompression() {
 		ByteArrayInputStream baisComp = new ByteArrayInputStream(new byte[]{31, -117, 8, 0, 0, 0, 0, 0, 0, 0});
 		try (DataInputStream in = new DataInputStream(baisComp)) {
-			assertTrue(NBTUtil.applyDecompression(in) instanceof GZIPInputStream);
+			assertTrue(NBTUtil.CompressionOption.DETECT.read(in) instanceof GZIPInputStream);
 		} catch (IOException ex) {
 			ex.printStackTrace();
 			fail(ex.getMessage());
@@ -43,7 +43,7 @@ public class TagTest extends NBTTestCase {
 
 		ByteArrayInputStream baisUncomp = new ByteArrayInputStream(new byte[]{0, 0});
 		try (DataInputStream in = new DataInputStream(baisUncomp)) {
-			assertTrue(NBTUtil.applyDecompression(in) instanceof PushbackInputStream);
+			assertTrue(NBTUtil.CompressionOption.DETECT.read(in) instanceof PushbackInputStream);
 		} catch (IOException ex) {
 			ex.printStackTrace();
 			fail(ex.getMessage());
