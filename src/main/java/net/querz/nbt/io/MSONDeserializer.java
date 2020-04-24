@@ -1,7 +1,7 @@
 package net.querz.nbt.io;
 
 import net.querz.io.StringDeserializer;
-import net.querz.nbt.Tag;
+import net.querz.nbt.tag.Tag;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;

@@ -2,7 +2,7 @@ package net.querz.nbt.io;
 
 import net.querz.io.ExceptionBiFunction;
 import net.querz.io.ExceptionTriConsumer;
-import net.querz.nbt.Tag;
+import net.querz.nbt.tag.Tag;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

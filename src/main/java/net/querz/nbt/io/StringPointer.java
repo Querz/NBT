@@ -1,7 +1,5 @@
 package net.querz.nbt.io;
 
-import net.querz.nbt.io.ParseException;
-
 public class StringPointer {
 
 	private String value;

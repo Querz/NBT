@@ -1,6 +1,6 @@
 package net.querz.nbt.io;
 
-import net.querz.nbt.Tag;
+import net.querz.nbt.tag.Tag;
 
 public class NamedTag {
 
