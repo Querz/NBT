@@ -22,22 +22,21 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
- * MSONWriter creates an MSON String.
- * This does not support custom tags, because
+ * SNBTWriter creates an SNBT String.
  *
  * */
-public final class MSONWriter implements MaxDepthIO {
+public final class SNBTWriter implements MaxDepthIO {
 
 	private static final Pattern NON_QUOTE_PATTERN = Pattern.compile("[a-zA-Z0-9_.+\\-]+");
 
 	private Writer writer;
 
-	private MSONWriter(Writer writer) {
+	private SNBTWriter(Writer writer) {
 		this.writer = writer;
 	}
 
 	public static void write(Tag<?> tag, Writer writer, int maxDepth) throws IOException {
-		new MSONWriter(writer).writeAnything(tag, maxDepth);
+		new SNBTWriter(writer).writeAnything(tag, maxDepth);
 	}
 
 	public static void write(Tag<?> tag, Writer writer) throws IOException {

@@ -4,13 +4,25 @@ import java.util.Arrays;
 
 public class ShortTagTest extends NBTTestCase {
 
+	public void testCreate() {
+		ShortTag t = new ShortTag(Short.MAX_VALUE);
+		assertEquals(Short.MAX_VALUE, t.asShort());
+		t = new ShortTag();
+		assertEquals(ShortTag.ZERO_VALUE, t.asShort());
+	}
+
+	public void testSetValue() {
+		ShortTag t = new ShortTag();
+		t.setValue((short) 123);
+		assertEquals(123, t.asShort());
+	}
+
 	public void testStringConversion() {
 		ShortTag t = new ShortTag(Short.MAX_VALUE);
 		assertEquals(Short.MAX_VALUE, t.asShort());
 		assertEquals(Short.MAX_VALUE, t.asInt());
 		assertEquals(Short.MAX_VALUE, t.asLong());
 		assertEquals(2, t.getID());
-//		assertEquals(Short.MAX_VALUE + "s", t.toTagString());
 		assertEquals("{\"type\":\"" + t.getClass().getSimpleName() + "\",\"value\":" + Short.MAX_VALUE + "}", t.toString());
 	}
 

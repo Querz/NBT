@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.stream.Collectors;
 
-public class MSONDeserializer implements StringDeserializer<Tag<?>> {
+public class SNBTDeserializer implements StringDeserializer<Tag<?>> {
 
 	@Override
 	public Tag<?> fromReader(Reader reader) throws IOException {
@@ -21,6 +21,6 @@ public class MSONDeserializer implements StringDeserializer<Tag<?>> {
 		} else {
 			bufferedReader = new BufferedReader(reader);
 		}
-		return MSONParser.parse(bufferedReader.lines().collect(Collectors.joining()), maxDepth);
+		return SNBTParser.parse(bufferedReader.lines().collect(Collectors.joining()), maxDepth);
 	}
 }

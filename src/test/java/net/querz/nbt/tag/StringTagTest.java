@@ -8,7 +8,6 @@ public class StringTagTest extends NBTTestCase {
 		StringTag t = new StringTag("foo");
 		assertEquals("foo", t.getValue());
 		assertEquals(8, t.getID());
-//		assertEquals("foo", t.toTagString());
 		assertEquals("{\"type\":\"" + t.getClass().getSimpleName() + "\",\"value\":\"foo\"}", t.toString());
 	}
 
@@ -37,13 +36,13 @@ public class StringTagTest extends NBTTestCase {
 
 	public void testEscape() {
 		StringTag allValue = new StringTag("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXZY0123456789_-+");
-//		assertEquals("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXZY0123456789_-+", allValue.toTagString());
+		assertEquals("\"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXZY0123456789_-+\"", allValue.valueToString());
 		StringTag escapeValue = new StringTag("öäü");
-//		assertEquals("\"öäü\"", escapeValue.toTagString());
+		assertEquals("\"öäü\"", escapeValue.valueToString());
 		StringTag escapeSpecialChars = new StringTag("\\\n\r\t\"");
-//		assertEquals("\"\\\\\\n\\r\\t\\\"\"", escapeSpecialChars.toTagString());
+		assertEquals("\"\\\\\\n\\r\\t\\\"\"", escapeSpecialChars.valueToString());
 		StringTag escapeEmpty = new StringTag("");
-//		assertEquals("\"\"", escapeEmpty.toTagString());
+		assertEquals("\"\"", escapeEmpty.valueToString());
 
 		//no null values allowed
 		assertThrowsRuntimeException(() -> new StringTag().setValue(null), NullPointerException.class);
