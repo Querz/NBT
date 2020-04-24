@@ -1,10 +1,10 @@
-package net.querz.nbt.tag;
+package net.querz;
 
 import junit.framework.TestCase;
 import net.querz.nbt.io.NBTDeserializer;
 import net.querz.nbt.io.NBTSerializer;
-import net.querz.nbt.io.NBTUtil;
 import net.querz.nbt.io.NamedTag;
+import net.querz.nbt.tag.Tag;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;

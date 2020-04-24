@@ -2,6 +2,8 @@ package net.querz.nbt.tag;
 
 import junit.framework.TestCase;
 import net.querz.io.MaxDepthReachedException;
+import net.querz.NBTTestCase;
+
 import java.util.Arrays;
 import java.util.Comparator;
 import static org.junit.Assert.assertNotEquals;

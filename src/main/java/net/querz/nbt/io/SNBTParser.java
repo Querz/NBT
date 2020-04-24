@@ -23,13 +23,14 @@ import java.util.regex.Pattern;
 public final class SNBTParser implements MaxDepthIO {
 
 	private static final Pattern
-			FLOAT_PATTERN = Pattern.compile("^[-+]?(?:\\d+\\.?|\\d*\\.\\d+)(?:e[-+]?\\d+)?f$", Pattern.CASE_INSENSITIVE),
-			DOUBLE_PATTERN = Pattern.compile("^[-+]?(?:\\d+\\.?|\\d*\\.\\d+)(?:e[-+]?\\d+)?d$", Pattern.CASE_INSENSITIVE),
-			DOUBLE_NO_SUFFIX_PATTERN = Pattern.compile("^[-+]?(?:\\d+\\.|\\d*\\.\\d+)(?:e[-+]?\\d+)?$", Pattern.CASE_INSENSITIVE),
-			BYTE_PATTERN = Pattern.compile("^[-+]?\\d+b$", Pattern.CASE_INSENSITIVE),
-			SHORT_PATTERN = Pattern.compile("^[-+]?\\d+s$", Pattern.CASE_INSENSITIVE),
-			INT_PATTERN = Pattern.compile("^[-+]?\\d+$", Pattern.CASE_INSENSITIVE),
-			LONG_PATTERN = Pattern.compile("^[-+]?\\d+l$", Pattern.CASE_INSENSITIVE);
+			FLOAT_LITERAL_PATTERN = Pattern.compile("^[-+]?(?:\\d+\\.?|\\d*\\.\\d+)(?:e[-+]?\\d+)?f$", Pattern.CASE_INSENSITIVE),
+			DOUBLE_LITERAL_PATTERN = Pattern.compile("^[-+]?(?:\\d+\\.?|\\d*\\.\\d+)(?:e[-+]?\\d+)?d$", Pattern.CASE_INSENSITIVE),
+			DOUBLE_LITERAL_NO_SUFFIX_PATTERN = Pattern.compile("^[-+]?(?:\\d+\\.|\\d*\\.\\d+)(?:e[-+]?\\d+)?$", Pattern.CASE_INSENSITIVE),
+			BYTE_LITERAL_PATTERN = Pattern.compile("^[-+]?\\d+b$", Pattern.CASE_INSENSITIVE),
+			SHORT_LITERAL_PATTERN = Pattern.compile("^[-+]?\\d+s$", Pattern.CASE_INSENSITIVE),
+			INT_LITERAL_PATTERN = Pattern.compile("^[-+]?\\d+$", Pattern.CASE_INSENSITIVE),
+			LONG_LITERAL_PATTERN = Pattern.compile("^[-+]?\\d+l$", Pattern.CASE_INSENSITIVE),
+			NUMBER_PATTERN = Pattern.compile("^[-+]?\\d+$");
 
 	private StringPointer ptr;
 
@@ -38,7 +39,13 @@ public final class SNBTParser implements MaxDepthIO {
 	}
 
 	public static Tag<?> parse(String string, int maxDepth) throws ParseException {
-		return new SNBTParser(string).parseAnything(maxDepth);
+		SNBTParser parser = new SNBTParser(string);
+		Tag<?> tag = parser.parseAnything(maxDepth);
+		parser.ptr.skipWhitespace();
+		if (parser.ptr.hasNext()) {
+			throw parser.ptr.parseException("invalid characters after end of snbt");
+		}
+		return tag;
 	}
 
 	public static Tag<?> parse(String string) throws ParseException {
@@ -68,28 +75,40 @@ public final class SNBTParser implements MaxDepthIO {
 		if (s.isEmpty()) {
 			throw new ParseException("expected non empty value");
 		}
-		try {
-			if (FLOAT_PATTERN.matcher(s).matches()) {
-				return new FloatTag(Float.parseFloat(s.substring(0, s.length() - 1)));
-			} else if (BYTE_PATTERN.matcher(s).matches()) {
+		if (FLOAT_LITERAL_PATTERN.matcher(s).matches()) {
+			return new FloatTag(Float.parseFloat(s.substring(0, s.length() - 1)));
+		} else if (BYTE_LITERAL_PATTERN.matcher(s).matches()) {
+			try {
 				return new ByteTag(Byte.parseByte(s.substring(0, s.length() - 1)));
-			} else if (SHORT_PATTERN.matcher(s).matches()) {
-				return new ShortTag(Short.parseShort(s.substring(0, s.length() - 1)));
-			} else if (LONG_PATTERN.matcher(s).matches()) {
-				return new LongTag(Long.parseLong(s.substring(0, s.length() - 1)));
-			} else if (INT_PATTERN.matcher(s).matches()) {
-				return new IntTag(Integer.parseInt(s));
-			} else if (DOUBLE_PATTERN.matcher(s).matches()) {
-				return new DoubleTag(Double.parseDouble(s.substring(0, s.length() - 1)));
-			} else if (DOUBLE_NO_SUFFIX_PATTERN.matcher(s).matches()) {
-				return new DoubleTag(Double.parseDouble(s));
-			} else if ("true".equalsIgnoreCase(s)) {
-				return new ByteTag(true);
-			} else if ("false".equalsIgnoreCase(s)) {
-				return new ByteTag(false);
+			} catch (NumberFormatException ex) {
+				throw ptr.parseException("byte not in range: \"" + s.substring(0, s.length() - 1) + "\"");
 			}
-		} catch (NumberFormatException ex) {
-			return new StringTag(s);
+		} else if (SHORT_LITERAL_PATTERN.matcher(s).matches()) {
+			try {
+				return new ShortTag(Short.parseShort(s.substring(0, s.length() - 1)));
+			} catch (NumberFormatException ex) {
+				throw ptr.parseException("short not in range: \"" + s.substring(0, s.length() - 1) + "\"");
+			}
+		} else if (LONG_LITERAL_PATTERN.matcher(s).matches()) {
+			try {
+				return new LongTag(Long.parseLong(s.substring(0, s.length() - 1)));
+			} catch (NumberFormatException ex) {
+				throw ptr.parseException("long not in range: \"" + s.substring(0, s.length() - 1) + "\"");
+			}
+		} else if (INT_LITERAL_PATTERN.matcher(s).matches()) {
+			try {
+				return new IntTag(Integer.parseInt(s));
+			} catch (NumberFormatException ex) {
+				throw ptr.parseException("int not in range: \"" + s.substring(0, s.length() - 1) + "\"");
+			}
+		} else if (DOUBLE_LITERAL_PATTERN.matcher(s).matches()) {
+			return new DoubleTag(Double.parseDouble(s.substring(0, s.length() - 1)));
+		} else if (DOUBLE_LITERAL_NO_SUFFIX_PATTERN.matcher(s).matches()) {
+			return new DoubleTag(Double.parseDouble(s));
+		} else if ("true".equalsIgnoreCase(s)) {
+			return new ByteTag(true);
+		} else if ("false".equalsIgnoreCase(s)) {
+			return new ByteTag(false);
 		}
 		return new StringTag(s);
 	}
@@ -154,10 +173,14 @@ public final class SNBTParser implements MaxDepthIO {
 		while (ptr.currentChar() != ']') {
 			String s = ptr.parseSimpleString();
 			ptr.skipWhitespace();
-			if (BYTE_PATTERN.matcher(s).matches()) {
-				byteList.add(Byte.parseByte(s.substring(0, s.length() - 1)));
+			if (NUMBER_PATTERN.matcher(s).matches()) {
+				try {
+					byteList.add(Byte.parseByte(s));
+				} catch (NumberFormatException ex) {
+					throw ptr.parseException("byte not in range: \"" + s + "\"");
+				}
 			} else {
-				throw ptr.parseException("invalid byte literal in ByteArrayTag: \"" + s + "\"");
+				throw ptr.parseException("invalid byte in ByteArrayTag: \"" + s + "\"");
 			}
 			if (!ptr.nextArrayElement()) {
 				break;
@@ -176,10 +199,14 @@ public final class SNBTParser implements MaxDepthIO {
 		while (ptr.currentChar() != ']') {
 			String s = ptr.parseSimpleString();
 			ptr.skipWhitespace();
-			if (INT_PATTERN.matcher(s).matches()) {
-				intList.add(Integer.parseInt(s.substring(0, s.length() - 1)));
+			if (NUMBER_PATTERN.matcher(s).matches()) {
+				try {
+					intList.add(Integer.parseInt(s));
+				} catch (NumberFormatException ex) {
+					throw ptr.parseException("int not in range: \"" + s + "\"");
+				}
 			} else {
-				throw ptr.parseException("invalid int literal in IntArrayTag: \"" + s + "\"");
+				throw ptr.parseException("invalid int in IntArrayTag: \"" + s + "\"");
 			}
 			if (!ptr.nextArrayElement()) {
 				break;
@@ -194,10 +221,14 @@ public final class SNBTParser implements MaxDepthIO {
 		while (ptr.currentChar() != ']') {
 			String s = ptr.parseSimpleString();
 			ptr.skipWhitespace();
-			if (LONG_PATTERN.matcher(s).matches()) {
-				longList.add(Long.parseLong(s.substring(0, s.length() - 1)));
+			if (NUMBER_PATTERN.matcher(s).matches()) {
+				try {
+					longList.add(Long.parseLong(s));
+				} catch (NumberFormatException ex) {
+					throw ptr.parseException("long not in range: \"" + s + "\"");
+				}
 			} else {
-				throw ptr.parseException("invalid long literal in LongArrayTag: \"" + s + "\"");
+				throw ptr.parseException("invalid long in LongArrayTag: \"" + s + "\"");
 			}
 			if (!ptr.nextArrayElement()) {
 				break;
