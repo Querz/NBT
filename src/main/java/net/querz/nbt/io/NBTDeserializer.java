@@ -1,7 +1,7 @@
 package net.querz.nbt.io;
 
 import net.querz.io.Deserializer;
-import net.querz.nbt.Tag;
+import net.querz.nbt.tag.Tag;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.GZIPInputStream;

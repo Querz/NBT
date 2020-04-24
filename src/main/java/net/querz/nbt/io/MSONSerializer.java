@@ -1,7 +1,7 @@
 package net.querz.nbt.io;
 
 import net.querz.io.StringSerializer;
-import net.querz.nbt.Tag;
+import net.querz.nbt.tag.Tag;
 import java.io.IOException;
 import java.io.Writer;
 
