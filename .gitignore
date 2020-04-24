@@ -82,3 +82,5 @@ doc/
 
 # ignore out
 out/
+
+*.patch
