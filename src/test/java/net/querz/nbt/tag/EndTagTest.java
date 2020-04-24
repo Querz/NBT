@@ -1,5 +1,7 @@
 package net.querz.nbt.tag;
 
+import net.querz.NBTTestCase;
+
 public class EndTagTest extends NBTTestCase {
 
 	public void testStringConversion() {

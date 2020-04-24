@@ -1,5 +1,7 @@
 package net.querz.nbt.tag;
 
+import net.querz.NBTTestCase;
+
 import java.util.Arrays;
 
 public class ByteTagTest extends NBTTestCase {

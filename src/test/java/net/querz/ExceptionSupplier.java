@@ -1,4 +1,4 @@
-package net.querz.nbt.tag;
+package net.querz;
 
 @FunctionalInterface
 public interface ExceptionSupplier<T, E extends Exception> {

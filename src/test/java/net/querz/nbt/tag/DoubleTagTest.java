@@ -1,5 +1,7 @@
 package net.querz.nbt.tag;
 
+import net.querz.NBTTestCase;
+
 import static org.junit.Assert.assertNotEquals;
 import java.util.Arrays;
 

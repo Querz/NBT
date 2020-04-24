@@ -2,7 +2,7 @@ package net.querz.mca;
 
 import net.querz.nbt.tag.CompoundTag;
 import net.querz.nbt.tag.ListTag;
-import net.querz.nbt.tag.NBTTestCase;
+import net.querz.NBTTestCase;
 
 public abstract class MCATestCase extends NBTTestCase {
 

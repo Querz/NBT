@@ -1,6 +1,7 @@
 package net.querz.nbt.tag;
 
 import net.querz.io.MaxDepthReachedException;
+import net.querz.NBTTestCase;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
