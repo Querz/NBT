@@ -4,11 +4,23 @@ import java.util.Arrays;
 
 public class IntArrayTagTest extends NBTTestCase {
 
+	public void testCreate() {
+		IntArrayTag t = new IntArrayTag(new int[]{Integer.MIN_VALUE, 0, Integer.MAX_VALUE});
+		assertTrue(Arrays.equals(new int[]{Integer.MIN_VALUE, 0, Integer.MAX_VALUE}, t.getValue()));
+		t = new IntArrayTag();
+		assertTrue(Arrays.equals(IntArrayTag.ZERO_VALUE, t.getValue()));
+	}
+
+	public void testSetValue() {
+		IntArrayTag t = new IntArrayTag();
+		t.setValue(new int[]{Integer.MIN_VALUE, 0, Integer.MAX_VALUE});
+		assertTrue(Arrays.equals(new int[]{Integer.MIN_VALUE, 0, Integer.MAX_VALUE}, t.getValue()));
+	}
+
 	public void testStringConversion() {
 		IntArrayTag t = new IntArrayTag(new int[]{Integer.MIN_VALUE, 0, Integer.MAX_VALUE});
 		assertTrue(Arrays.equals(new int[]{Integer.MIN_VALUE, 0, Integer.MAX_VALUE}, t.getValue()));
 		assertEquals(11, t.getID());
-//		assertEquals("[I;-2147483648,0,2147483647]", t.toTagString());
 		assertEquals("{\"type\":\"" + t.getClass().getSimpleName() + "\",\"value\":[-2147483648,0,2147483647]}", t.toString());
 	}
 

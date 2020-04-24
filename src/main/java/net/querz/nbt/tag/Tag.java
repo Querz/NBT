@@ -1,7 +1,6 @@
 package net.querz.nbt.tag;
 
 import net.querz.io.MaxDepthReachedException;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -115,6 +114,15 @@ public abstract class Tag<T> implements Cloneable {
 	public String toString(int maxDepth) {
 		return "{\"type\":\""+ getClass().getSimpleName() + "\"," +
 				"\"value\":" + valueToString(maxDepth) + "}";
+	}
+
+	/**
+	 * Calls {@link Tag#valueToString(int)} with {@link Tag#DEFAULT_MAX_DEPTH}.
+	 * @return The string representation of the value of this Tag.
+	 * @throws MaxDepthReachedException If the maximum nesting depth is exceeded.
+	 * */
+	public String valueToString() {
+		return valueToString(DEFAULT_MAX_DEPTH);
 	}
 
 	/**

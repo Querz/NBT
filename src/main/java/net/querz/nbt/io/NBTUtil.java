@@ -1,7 +1,5 @@
 package net.querz.nbt.io;
 
-import net.querz.io.ExceptionBiFunction;
-import net.querz.io.ExceptionTriConsumer;
 import net.querz.nbt.tag.Tag;
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,35 +12,6 @@ import java.util.zip.GZIPInputStream;
 public final class NBTUtil {
 
 	private NBTUtil() {}
-
-	@SuppressWarnings("unchecked")
-	public static <T extends Tag<?>> void registerCustomTag(
-			int id,
-			ExceptionTriConsumer<NBTOutputStream, T, Integer, IOException> serializer,
-			ExceptionBiFunction<NBTInputStream, Integer, T, IOException> deserializer,
-			Class<T> clazz) {
-		checkID(id);
-		NBTInputStream.registerCustomTag((byte) id, deserializer);
-		NBTOutputStream.registerCustomTag((byte) id, (ExceptionTriConsumer<NBTOutputStream, Tag<?>, Integer, IOException>) serializer, clazz);
-	}
-
-	public static void unregisterCustomTag(int id) {
-		checkID(id);
-		NBTInputStream.unregisterCustomTag((byte) id);
-		NBTOutputStream.unregisterCustomTag((byte) id);
-	}
-
-	private static void checkID(int id) {
-		if (id < 0) {
-			throw new IllegalArgumentException("id cannot be negative");
-		}
-		if (id <= 12) {
-			throw new IllegalArgumentException("cannot change default tags");
-		}
-		if (id > Byte.MAX_VALUE) {
-			throw new IllegalArgumentException("id out of bounds: " + id);
-		}
-	}
 
 	public static void write(NamedTag tag, File file, boolean compressed) throws IOException {
 		try (FileOutputStream fos = new FileOutputStream(file)) {
@@ -109,11 +78,11 @@ public final class NBTUtil {
 		return pbis;
 	}
 
-	public static String toMSONString(Tag<?> tag) throws IOException {
-		return new MSONSerializer().toString(tag);
+	public static String toSNBT(Tag<?> tag) throws IOException {
+		return new SNBTSerializer().toString(tag);
 	}
 
-	public static Tag<?> fromMSONString(String string) throws IOException {
-		return new MSONDeserializer().fromString(string);
+	public static Tag<?> fromSNBT(String string) throws IOException {
+		return new SNBTDeserializer().fromString(string);
 	}
 }

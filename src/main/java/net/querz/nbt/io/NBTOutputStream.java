@@ -76,17 +76,6 @@ public class NBTOutputStream extends DataOutputStream implements MaxDepthIO {
 		f.accept(this, tag, maxDepth);
 	}
 
-	static void registerCustomTag(byte id, ExceptionTriConsumer<NBTOutputStream, Tag<?>, Integer, IOException> f, Class<?> clazz) {
-		if (writers.containsKey(id)) {
-			throw new IllegalArgumentException("custom tag already registered");
-		}
-		put(id, f, clazz);
-	}
-
-	static void unregisterCustomTag(byte id) {
-		writers.remove(id);
-	}
-
 	static byte idFromClass(Class<?> clazz) {
 		Byte id = classIdMapping.get(clazz);
 		if (id == null) {

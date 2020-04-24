@@ -3,6 +3,19 @@ package net.querz.nbt.tag;
 import java.util.Arrays;
 
 public class ByteTagTest extends NBTTestCase {
+	
+	public void testCreate() {
+		ByteTag t = new ByteTag(Byte.MAX_VALUE);
+		assertEquals(Byte.MAX_VALUE, t.asByte());
+		t = new ByteTag();
+		assertEquals(ByteTag.ZERO_VALUE, t.asByte());
+	}
+
+	public void testSetValue() {
+		ByteTag t = new ByteTag();
+		t.setValue((byte) 123);
+		assertEquals(123, t.asByte());
+	}
 
 	public void testStringConversion() {
 		ByteTag t = new ByteTag(Byte.MAX_VALUE);
@@ -11,7 +24,6 @@ public class ByteTagTest extends NBTTestCase {
 		assertEquals(Byte.MAX_VALUE, t.asInt());
 		assertEquals(Byte.MAX_VALUE, t.asLong());
 		assertEquals(1, t.getID());
-//		assertEquals(Byte.MAX_VALUE + "b", t.toTagString());
 		assertEquals("{\"type\":\"" + t.getClass().getSimpleName() + "\",\"value\":" + Byte.MAX_VALUE + "}", t.toString());
 	}
 

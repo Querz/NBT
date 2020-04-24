@@ -4,11 +4,23 @@ import java.util.Arrays;
 
 public class LongArrayTagTest extends NBTTestCase {
 
+	public void testCreate() {
+		LongArrayTag t = new LongArrayTag(new long[]{Long.MIN_VALUE, 0, Long.MAX_VALUE});
+		assertTrue(Arrays.equals(new long[]{Long.MIN_VALUE, 0, Long.MAX_VALUE}, t.getValue()));
+		t = new LongArrayTag();
+		assertTrue(Arrays.equals(LongArrayTag.ZERO_VALUE, t.getValue()));
+	}
+
+	public void testSetValue() {
+		LongArrayTag t = new LongArrayTag();
+		t.setValue(new long[]{Long.MIN_VALUE, 0, Long.MAX_VALUE});
+		assertTrue(Arrays.equals(new long[]{Long.MIN_VALUE, 0, Long.MAX_VALUE}, t.getValue()));
+	}
+
 	public void testStringConversion() {
 		LongArrayTag t = new LongArrayTag(new long[]{Long.MIN_VALUE, 0, Long.MAX_VALUE});
 		assertTrue(Arrays.equals(new long[]{Long.MIN_VALUE, 0, Long.MAX_VALUE}, t.getValue()));
 		assertEquals(12, t.getID());
-//		assertEquals("[L;-9223372036854775808l,0l,9223372036854775807l]", t.toTagString());
 		assertEquals("{\"type\":\"" + t.getClass().getSimpleName() + "\",\"value\":[-9223372036854775808,0,9223372036854775807]}", t.toString());
 	}
 

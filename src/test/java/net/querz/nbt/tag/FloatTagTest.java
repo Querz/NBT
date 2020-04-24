@@ -4,12 +4,24 @@ import static org.junit.Assert.assertNotEquals;
 import java.util.Arrays;
 
 public class FloatTagTest extends NBTTestCase {
+	
+	public void testCreate() {
+		FloatTag t = new FloatTag(Float.MAX_VALUE);
+		assertEquals(Float.MAX_VALUE, t.asFloat());
+		t = new FloatTag();
+		assertEquals(FloatTag.ZERO_VALUE, t.asFloat());
+	}
+
+	public void testSetValue() {
+		FloatTag t = new FloatTag();
+		t.setValue(123.4f);
+		assertEquals(123.4f, t.asFloat());
+	}
 
 	public void testStringConversion() {
 		FloatTag t = new FloatTag(Float.MAX_VALUE);
 		assertEquals(Float.MAX_VALUE, t.asFloat());
 		assertEquals(5, t.getID());
-//		assertEquals(Float.MAX_VALUE + "f", t.toTagString());
 		assertEquals("{\"type\":\"" + t.getClass().getSimpleName() + "\",\"value\":" + Float.MAX_VALUE + "}", t.toString());
 	}
 

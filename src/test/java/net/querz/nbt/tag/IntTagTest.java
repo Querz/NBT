@@ -4,12 +4,24 @@ import java.util.Arrays;
 
 public class IntTagTest extends NBTTestCase {
 
+	public void testCreate() {
+		IntTag t = new IntTag(Integer.MAX_VALUE);
+		assertEquals(Integer.MAX_VALUE, t.asInt());
+		t = new IntTag();
+		assertEquals(IntTag.ZERO_VALUE, t.asInt());
+	}
+
+	public void testSetValue() {
+		IntTag t = new IntTag();
+		t.setValue(123);
+		assertEquals(123, t.asInt());
+	}
+
 	public void testStringConversion() {
 		IntTag t = new IntTag(Integer.MAX_VALUE);
 		assertEquals(Integer.MAX_VALUE, t.asInt());
 		assertEquals(Integer.MAX_VALUE, t.asLong());
 		assertEquals(3, t.getID());
-//		assertEquals(Integer.MAX_VALUE + "", t.toTagString());
 		assertEquals("{\"type\":\"" + t.getClass().getSimpleName() + "\",\"value\":" + Integer.MAX_VALUE + "}", t.toString());
 	}
 

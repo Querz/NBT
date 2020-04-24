@@ -3,12 +3,24 @@ package net.querz.nbt.tag;
 import java.util.Arrays;
 
 public class ByteArrayTagTest extends NBTTestCase {
+	
+	public void testCreate() {
+		ByteArrayTag t = new ByteArrayTag(new byte[]{Byte.MIN_VALUE, 0, Byte.MAX_VALUE});
+		assertTrue(Arrays.equals(new byte[]{Byte.MIN_VALUE, 0, Byte.MAX_VALUE}, t.getValue()));
+		t = new ByteArrayTag();
+		assertTrue(Arrays.equals(ByteArrayTag.ZERO_VALUE, t.getValue()));
+	}
+
+	public void testSetValue() {
+		ByteArrayTag t = new ByteArrayTag();
+		t.setValue(new byte[]{Byte.MIN_VALUE, 0, Byte.MAX_VALUE});
+		assertTrue(Arrays.equals(new byte[]{Byte.MIN_VALUE, 0, Byte.MAX_VALUE}, t.getValue()));
+	}
 
 	public void testStringConversion() {
 		ByteArrayTag t = new ByteArrayTag(new byte[]{Byte.MIN_VALUE, 0, Byte.MAX_VALUE});
 		assertTrue(Arrays.equals(new byte[]{Byte.MIN_VALUE, 0, Byte.MAX_VALUE}, t.getValue()));
 		assertEquals(7, t.getID());
-//		assertEquals("[B;-128b,0b,127b]", t.toTagString());
 		assertEquals("{\"type\":\"" + t.getClass().getSimpleName() + "\",\"value\":[-128,0,127]}", t.toString());
 	}
 

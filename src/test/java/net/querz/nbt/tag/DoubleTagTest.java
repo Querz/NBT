@@ -4,12 +4,24 @@ import static org.junit.Assert.assertNotEquals;
 import java.util.Arrays;
 
 public class DoubleTagTest extends NBTTestCase {
+	
+	public void testCreate() {
+		DoubleTag t = new DoubleTag(Double.MAX_VALUE);
+		assertEquals(Double.MAX_VALUE, t.asDouble());
+		t = new DoubleTag();
+		assertEquals(DoubleTag.ZERO_VALUE, t.asDouble());
+	}
+
+	public void testSetValue() {
+		DoubleTag t = new DoubleTag();
+		t.setValue(123.4);
+		assertEquals(123.4, t.asDouble());
+	}
 
 	public void testStringConversion() {
 		DoubleTag t = new DoubleTag(Double.MAX_VALUE);
 		assertEquals(Double.MAX_VALUE, t.asDouble());
 		assertEquals(6, t.getID());
-//		assertEquals(Double.MAX_VALUE + "d", t.toTagString());
 		assertEquals("{\"type\":\"" + t.getClass().getSimpleName() + "\",\"value\":" + Double.MAX_VALUE + "}", t.toString());
 	}
 

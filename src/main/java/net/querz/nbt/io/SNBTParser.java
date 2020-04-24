@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public final class MSONParser implements MaxDepthIO {
+public final class SNBTParser implements MaxDepthIO {
 
 	private static final Pattern
 			FLOAT_PATTERN = Pattern.compile("^[-+]?(?:\\d+\\.?|\\d*\\.\\d+)(?:e[-+]?\\d+)?f$", Pattern.CASE_INSENSITIVE),
@@ -33,12 +33,12 @@ public final class MSONParser implements MaxDepthIO {
 
 	private StringPointer ptr;
 
-	private MSONParser(String string) {
+	private SNBTParser(String string) {
 		this.ptr = new StringPointer(string);
 	}
 
 	public static Tag<?> parse(String string, int maxDepth) throws ParseException {
-		return new MSONParser(string).parseAnything(maxDepth);
+		return new SNBTParser(string).parseAnything(maxDepth);
 	}
 
 	public static Tag<?> parse(String string) throws ParseException {

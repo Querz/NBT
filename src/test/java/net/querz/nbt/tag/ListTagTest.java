@@ -2,7 +2,6 @@ package net.querz.nbt.tag;
 
 import junit.framework.TestCase;
 import net.querz.io.MaxDepthReachedException;
-
 import java.util.Arrays;
 import java.util.Comparator;
 import static org.junit.Assert.assertNotEquals;
@@ -28,7 +27,6 @@ public class ListTagTest extends NBTTestCase {
 		assertEquals(Byte.MIN_VALUE, bl.get(0).asByte());
 		assertEquals(0, bl.get(1).asByte());
 		assertEquals(Byte.MAX_VALUE, bl.get(2).asByte());
-//		assertEquals("[-128b,0b,127b]", bl.toTagString());
 		assertEquals("{\"type\":\"ListTag\"," +
 				"\"value\":{" +
 				"\"type\":\"ByteTag\"," +

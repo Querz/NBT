@@ -4,11 +4,23 @@ import java.util.Arrays;
 
 public class LongTagTest extends NBTTestCase {
 
+	public void testCreate() {
+		LongTag t = new LongTag(Long.MAX_VALUE);
+		assertEquals(Long.MAX_VALUE, t.asLong());
+		t = new LongTag();
+		assertEquals(LongTag.ZERO_VALUE, t.asLong());
+	}
+
+	public void testSetValue() {
+		LongTag t = new LongTag();
+		t.setValue(123);
+		assertEquals(123, t.asLong());
+	}
+
 	public void testStringConversion() {
 		LongTag t = new LongTag(Long.MAX_VALUE);
 		assertEquals(Long.MAX_VALUE, t.asLong());
 		assertEquals(4, t.getID());
-//		assertEquals(Long.MAX_VALUE + "l", t.toTagString());
 		assertEquals("{\"type\":\"" + t.getClass().getSimpleName() + "\",\"value\":" + Long.MAX_VALUE + "}", t.toString());
 	}
 

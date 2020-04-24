@@ -5,15 +5,15 @@ import net.querz.nbt.tag.Tag;
 import java.io.IOException;
 import java.io.Writer;
 
-public class MSONSerializer implements StringSerializer<Tag<?>> {
+public class SNBTSerializer implements StringSerializer<Tag<?>> {
 
 	private final boolean pretty;
 
-	public MSONSerializer() {
+	public SNBTSerializer() {
 		this(false);
 	}
 
-	public MSONSerializer(boolean pretty) {
+	public SNBTSerializer(boolean pretty) {
 		this.pretty = pretty;
 	}
 
@@ -23,6 +23,6 @@ public class MSONSerializer implements StringSerializer<Tag<?>> {
 	}
 
 	public void toWriter(Tag<?> tag, Writer writer, int maxDepth) throws IOException {
-		MSONWriter.write(tag, writer, maxDepth);
+		SNBTWriter.write(tag, writer, maxDepth);
 	}
 }

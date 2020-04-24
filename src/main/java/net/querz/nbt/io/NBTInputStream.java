@@ -70,17 +70,6 @@ public class NBTInputStream extends DataInputStream implements MaxDepthIO {
 		return f.accept(this, maxDepth);
 	}
 
-	static <T extends Tag<?>> void registerCustomTag(byte id, ExceptionBiFunction<NBTInputStream, Integer, T, IOException> f) {
-		if (readers.containsKey(id)) {
-			throw new IllegalArgumentException("custom tag already registered");
-		}
-		readers.put(id, f);
-	}
-
-	static void unregisterCustomTag(byte id) {
-		readers.remove(id);
-	}
-
 	private static ByteTag readByte(NBTInputStream in) throws IOException {
 		return new ByteTag(in.readByte());
 	}

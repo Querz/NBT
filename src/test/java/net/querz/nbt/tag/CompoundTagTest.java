@@ -21,7 +21,6 @@ public class CompoundTagTest extends NBTTestCase {
 
 	public void testStringConversion() {
 		CompoundTag ct = createCompoundTag();
-//		assertEquals("{b:127b,str:foo,list:[123b]}", ct.toTagString());
 		assertEquals("{\"type\":\"CompoundTag\"," +
 				"\"value\":{" +
 				"\"b\":{\"type\":\"ByteTag\",\"value\":127}," +
