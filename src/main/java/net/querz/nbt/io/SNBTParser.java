@@ -143,7 +143,11 @@ public final class SNBTParser implements MaxDepthIO {
 		ListTag<?> list = ListTag.createUnchecked(EndTag.class);
 		while (ptr.currentChar() != ']') {
 			Tag<?> element = parseAnything(decrementMaxDepth(maxDepth));
-			list.addUnchecked(element);
+			try {
+				list.addUnchecked(element);
+			} catch (IllegalArgumentException ex) {
+				throw ptr.parseException(ex.getMessage());
+			}
 			if (!ptr.nextArrayElement()) {
 				break;
 			}

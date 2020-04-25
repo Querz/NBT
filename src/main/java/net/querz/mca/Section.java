@@ -63,7 +63,7 @@ public class Section {
 		return null;
 	}
 
-	private class PaletteIndex {
+	private static class PaletteIndex {
 
 		CompoundTag data;
 		int index;
@@ -218,7 +218,7 @@ public class Section {
 		//if the palette had been cleaned up before using MCAFile#cleanupPalette().
 
 		int newBits = 32 - Integer.numberOfLeadingZeros(palette.size() - 1);
-		newBits = newBits < 4 ? 4 : newBits;
+		newBits = Math.max(newBits, 4);
 
 		long[] newBlockStates = newBits == blockStates.length / 64 ? blockStates : new long[newBits * 64];
 		if (oldToNewMapping != null) {

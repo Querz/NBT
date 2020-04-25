@@ -386,7 +386,11 @@ public class Chunk {
 		level.putInt("zPos", zPos);
 		level.putLong("LastUpdate", lastUpdate);
 		level.putLong("InhabitedTime", inhabitedTime);
-		if (biomes != null && biomes.length == 256) level.putIntArray("Biomes", biomes);
+		if (dataVersion < 2202) {
+			if (biomes != null && biomes.length == 256) level.putIntArray("Biomes", biomes);
+		} else {
+			if (biomes != null && biomes.length == 1024) level.putIntArray("Biomes", biomes);
+		}
 		if (heightMaps != null) level.put("HeightMaps", heightMaps);
 		if (carvingMasks != null) level.put("CarvingMasks", carvingMasks);
 		if (entities != null) level.put("Entities", entities);

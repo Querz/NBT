@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
  * */
 public final class SNBTWriter implements MaxDepthIO {
 
-	private static final Pattern NON_QUOTE_PATTERN = Pattern.compile("[a-zA-Z0-9_.+\\-]+");
+	private static final Pattern NON_QUOTE_PATTERN = Pattern.compile("[a-zA-Z_.+\\-]+");
 
 	private Writer writer;
 
@@ -67,7 +67,7 @@ public final class SNBTWriter implements MaxDepthIO {
 			writer.append(Double.toString(((DoubleTag) tag).asDouble())).write('d');
 			break;
 		case ByteArrayTag.ID:
-			writeArray(((ByteArrayTag) tag).getValue(), ((ByteArrayTag) tag).length(), "B", "b");
+			writeArray(((ByteArrayTag) tag).getValue(), ((ByteArrayTag) tag).length(), "B");
 			break;
 		case StringTag.ID:
 			writer.write(escapeString(((StringTag) tag).getValue()));
@@ -92,20 +92,20 @@ public final class SNBTWriter implements MaxDepthIO {
 			writer.write('}');
 			break;
 		case IntArrayTag.ID:
-			writeArray(((IntArrayTag) tag).getValue(), ((IntArrayTag) tag).length(), "I", "");
+			writeArray(((IntArrayTag) tag).getValue(), ((IntArrayTag) tag).length(), "I");
 			break;
 		case LongArrayTag.ID:
-			writeArray(((LongArrayTag) tag).getValue(), ((LongArrayTag) tag).length(), "L", "l");
+			writeArray(((LongArrayTag) tag).getValue(), ((LongArrayTag) tag).length(), "L");
 			break;
 		default:
 			throw new IOException("unknown tag with id \"" + tag.getID() + "\"");
 		}
 	}
 
-	private void writeArray(Object array, int length, String prefix, String suffix) throws IOException {
+	private void writeArray(Object array, int length, String prefix) throws IOException {
 		writer.append('[').append(prefix).write(';');
 		for (int i = 0; i < length; i++) {
-			writer.append(i == 0 ? "" : ",").append(Integer.toString((int) Array.get(array, i))).write(suffix);
+			writer.append(i == 0 ? "" : ",").write(Array.get(array, i).toString());
 		}
 		writer.write(']');
 	}

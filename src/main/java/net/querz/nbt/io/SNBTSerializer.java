@@ -7,19 +7,9 @@ import java.io.Writer;
 
 public class SNBTSerializer implements StringSerializer<Tag<?>> {
 
-	private final boolean pretty;
-
-	public SNBTSerializer() {
-		this(false);
-	}
-
-	public SNBTSerializer(boolean pretty) {
-		this.pretty = pretty;
-	}
-
 	@Override
 	public void toWriter(Tag<?> tag, Writer writer) throws IOException {
-		toWriter(tag, writer, Tag.DEFAULT_MAX_DEPTH);
+		SNBTWriter.write(tag, writer);
 	}
 
 	public void toWriter(Tag<?> tag, Writer writer, int maxDepth) throws IOException {

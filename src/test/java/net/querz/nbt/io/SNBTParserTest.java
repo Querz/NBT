@@ -1,19 +1,7 @@
 package net.querz.nbt.io;
 
 import net.querz.NBTTestCase;
-import net.querz.nbt.tag.ByteArrayTag;
-import net.querz.nbt.tag.ByteTag;
-import net.querz.nbt.tag.CompoundTag;
-import net.querz.nbt.tag.DoubleTag;
-import net.querz.nbt.tag.FloatTag;
-import net.querz.nbt.tag.IntArrayTag;
-import net.querz.nbt.tag.IntTag;
-import net.querz.nbt.tag.LongArrayTag;
-import net.querz.nbt.tag.LongTag;
-import net.querz.nbt.tag.ShortTag;
-import net.querz.nbt.tag.StringTag;
-import net.querz.nbt.tag.Tag;
-
+import net.querz.nbt.tag.*;
 import java.util.Arrays;
 
 public class SNBTParserTest extends NBTTestCase {
@@ -140,6 +128,32 @@ public class SNBTParserTest extends NBTTestCase {
 		assertEquals(StringTag.class, st.getClass());
 		assertEquals("123a", ((StringTag) st).getValue());
 
-		// -------------------------------------------------
+		// ------------------------------------------------- list tag
+
+		Tag<?> lt = assertThrowsNoException(() -> SNBTParser.parse("[abc, \"def\", \"123\" ]"));
+		assertEquals(ListTag.class, lt.getClass());
+		assertEquals(StringTag.class, ((ListTag<?>) lt).getTypeClass());
+		assertEquals(3, ((ListTag<?>) lt).size());
+		assertEquals("abc", ((ListTag<?>) lt).asStringTagList().get(0).getValue());
+		assertEquals("def", ((ListTag<?>) lt).asStringTagList().get(1).getValue());
+		assertEquals("123", ((ListTag<?>) lt).asStringTagList().get(2).getValue());
+
+		assertThrowsException(() -> SNBTParser.parse("[123, 456"), ParseException.class);
+		assertThrowsException(() -> SNBTParser.parse("[123, 456d]"), ParseException.class);
+
+		// ------------------------------------------------- compound tag
+
+		Tag<?> ct = assertThrowsNoException(() -> SNBTParser.parse("{abc: def,\"key\": 123d, blah: [L;123, 456], blubb: [123, 456]}"));
+		assertEquals(CompoundTag.class, ct.getClass());
+		assertEquals(4, ((CompoundTag) ct).size());
+		assertEquals("def", assertThrowsNoException(() -> ((CompoundTag) ct).getString("abc")));
+		assertEquals(123D, assertThrowsNoException(() -> ((CompoundTag) ct).getDouble("key")));
+		assertTrue(Arrays.equals(new long[]{123, 456}, assertThrowsNoException(() -> ((CompoundTag) ct).getLongArray("blah"))));
+		assertEquals(2, assertThrowsNoException(() -> ((CompoundTag) ct).getListTag("blubb")).size());
+		assertEquals(IntTag.class, ((CompoundTag) ct).getListTag("blubb").getTypeClass());
+
+		assertThrowsException(() -> SNBTParser.parse("{abc: def"), ParseException.class);
+		assertThrowsException(() -> SNBTParser.parse("{\"\":empty}"), ParseException.class);
+		assertThrowsException(() -> SNBTParser.parse("{empty:}"), ParseException.class);
 	}
 }
