@@ -28,14 +28,14 @@ public class MCAFileTest extends MCATestCase {
 	}
 
 	public void testChangeData() {
-		MCAFile mcaFile = assertThrowsNoException(() -> MCAUtil.readMCAFile(copyResourceToTmp("r.2.2.mca")));
+		MCAFile mcaFile = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("r.2.2.mca")));
 		assertNotNull(mcaFile);
 		mcaFile.setChunk(0, null);
 		File tmpFile = getNewTmpFile("r.2.2.mca");
-		Integer x = assertThrowsNoException(() -> MCAUtil.writeMCAFile(mcaFile, tmpFile, true));
+		Integer x = assertThrowsNoException(() -> MCAUtil.write(mcaFile, tmpFile, true));
 		assertNotNull(x);
 		assertEquals(2, x.intValue());
-		MCAFile again = assertThrowsNoException(() -> MCAUtil.readMCAFile(tmpFile));
+		MCAFile again = assertThrowsNoException(() -> MCAUtil.read(tmpFile));
 		assertNotNull(again);
 		for (int i = 0; i < 1024; i++) {
 			if (i != 512 && i != 1023) {
@@ -47,11 +47,11 @@ public class MCAFileTest extends MCATestCase {
 	}
 
 	public void testChangeLastUpdate() {
-		MCAFile from = assertThrowsNoException(() -> MCAUtil.readMCAFile(copyResourceToTmp("r.2.2.mca")));
+		MCAFile from = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("r.2.2.mca")));
 		assertNotNull(from);
 		File tmpFile = getNewTmpFile("r.2.2.mca");
-		assertThrowsNoException(() -> MCAUtil.writeMCAFile(from, tmpFile, true));
-		MCAFile to = assertThrowsNoException(() -> MCAUtil.readMCAFile(tmpFile));
+		assertThrowsNoException(() -> MCAUtil.write(from, tmpFile, true));
+		MCAFile to = assertThrowsNoException(() -> MCAUtil.read(tmpFile));
 		assertNotNull(to);
 		assertFalse(from.getChunk(0).getLastMCAUpdate() == to.getChunk(0).getLastMCAUpdate());
 		assertFalse(from.getChunk(512).getLastMCAUpdate() == to.getChunk(512).getLastMCAUpdate());
@@ -61,7 +61,7 @@ public class MCAFileTest extends MCATestCase {
 	}
 
 	public void testGetters() {
-		MCAFile f = assertThrowsNoException(() -> MCAUtil.readMCAFile(copyResourceToTmp("r.2.2.mca")));
+		MCAFile f = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("r.2.2.mca")));
 		assertNotNull(f);
 
 		assertThrowsRuntimeException(() -> f.getChunk(-1), IndexOutOfBoundsException.class);
@@ -180,7 +180,7 @@ public class MCAFileTest extends MCATestCase {
 	}
 
 	public void testGetBiomeAt() {
-		MCAFile f = assertThrowsNoException(() -> MCAUtil.readMCAFile(copyResourceToTmp("r.2.2.mca")));
+		MCAFile f = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("r.2.2.mca")));
 		assertEquals(21, f.getBiomeAt(1024, 1024));
 		assertEquals(-1, f.getBiomeAt(1040, 1024));
 		f.setChunk(0, 1, Chunk.newChunk());
@@ -189,7 +189,7 @@ public class MCAFileTest extends MCATestCase {
 	}
 
 	public void testSetBiomeAt() {
-		MCAFile f = assertThrowsNoException(() -> MCAUtil.readMCAFile(copyResourceToTmp("r.2.2.mca")), true);
+		MCAFile f = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("r.2.2.mca")), true);
 		f.setBiomeAt(1024, 1024, 20);
 		assertEquals(20, f.getChunk(64, 64).updateHandle(64, 64).getCompoundTag("Level").getIntArray("Biomes")[0]);
 		f.setBiomeAt(1039, 1039, 47);
@@ -203,7 +203,7 @@ public class MCAFileTest extends MCATestCase {
 	}
 
 	public void testCleanupPaletteAndBlockStates() {
-		MCAFile f = assertThrowsNoException(() -> MCAUtil.readMCAFile(copyResourceToTmp("r.2.2.mca")));
+		MCAFile f = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("r.2.2.mca")));
 		assertThrowsNoRuntimeException(f::cleanupPalettesAndBlockStates);
 		Chunk c = f.getChunk(0, 0);
 		Section s = c.getSection(0);
@@ -233,7 +233,7 @@ public class MCAFileTest extends MCATestCase {
 	}
 
 	public void testSetBlockDataAt() {
-		MCAFile f = assertThrowsNoException(() -> MCAUtil.readMCAFile(copyResourceToTmp("r.2.2.mca")));
+		MCAFile f = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("r.2.2.mca")));
 		Section section = f.getChunk(0, 0).getSection(0);
 		assertEquals(10, section.getPalette().size());
 		assertEquals(0b0001000100010001000100010001000100010001000100010001000100010001L, section.getBlockStates()[0]);
@@ -299,7 +299,7 @@ public class MCAFileTest extends MCATestCase {
 	}
 
 	public void testGetBlockDataAt() {
-		MCAFile f = assertThrowsNoException(() -> MCAUtil.readMCAFile(copyResourceToTmp("r.2.2.mca")));
+		MCAFile f = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("r.2.2.mca")));
 		assertEquals(block("minecraft:bedrock"), f.getBlockStateAt(0, 0, 0));
 		assertNull(f.getBlockStateAt(16, 0, 0));
 		assertEquals(block("minecraft:dirt"), f.getBlockStateAt(0, 62, 0));
@@ -308,12 +308,12 @@ public class MCAFileTest extends MCATestCase {
 	}
 
 	public void testGetChunkStatus() {
-		MCAFile f = assertThrowsNoException(() -> MCAUtil.readMCAFile(copyResourceToTmp("r.2.2.mca")));
+		MCAFile f = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("r.2.2.mca")));
 		assertEquals("mobs_spawned", f.getChunk(0, 0).getStatus());
 	}
 
 	public void testSetChunkStatus() {
-		MCAFile f = assertThrowsNoException(() -> MCAUtil.readMCAFile(copyResourceToTmp("r.2.2.mca")));
+		MCAFile f = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("r.2.2.mca")));
 		assertThrowsNoRuntimeException(() -> f.getChunk(0, 0).setStatus("base"));
 		assertEquals("base", f.getChunk(0, 0).updateHandle(64, 64).getCompoundTag("Level").getString("Status"));
 		assertNull(f.getChunk(1, 0));

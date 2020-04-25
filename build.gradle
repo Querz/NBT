@@ -1,6 +1,5 @@
 plugins {
 	id 'com.github.kt3k.coveralls' version '2.4.0'
-	id 'maven-publish'
 }
 
 apply plugin: 'java'
@@ -10,7 +9,7 @@ apply plugin: 'jacoco'
 
 group                        = 'net.querz.nbt'
 archivesBaseName             = 'nbt'
-version                      = '4.1'
+version                      = '5.0'
 sourceCompatibility          = '1.8'
 targetCompatibility          = '1.8'
 compileJava.options.encoding = 'UTF-8'
@@ -53,25 +52,4 @@ jacocoTestReport {
 artifacts {
 	archives sourcesJar
 	archives javadocJar
-}
-
-jar {
-	manifest {
-		attributes('Automatic-Module-Name': 'net.querz.nbt')
-	}
-}
-
-// for convenience, for pushing to local 
-publishing {
-	publications {
-		maven(MavenPublication) {
-			groupId = group
-			artifactId = archivesBaseName
-			version = version
-			artifact sourcesJar
-			artifact javadocJar
-
-			from components.java
-		}
-	}
 }
