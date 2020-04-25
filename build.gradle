@@ -9,7 +9,7 @@ apply plugin: 'jacoco'
 
 group                        = 'net.querz.nbt'
 archivesBaseName             = 'nbt'
-version                      = '4.1'
+version                      = '5.0'
 sourceCompatibility          = '1.8'
 targetCompatibility          = '1.8'
 compileJava.options.encoding = 'UTF-8'
@@ -52,10 +52,4 @@ jacocoTestReport {
 artifacts {
 	archives sourcesJar
 	archives javadocJar
-}
-
-jar {
-	manifest {
-		attributes('Automatic-Module-Name': 'net.querz.nbt')
-	}
 }
