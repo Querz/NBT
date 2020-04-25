@@ -75,17 +75,17 @@ public class MCAUtilTest extends MCATestCase {
 	}
 
 	public void testMakeMyCoverageGreatAgain() {
-		assertThrowsException(() -> MCAUtil.readMCAFile((String) null), NullPointerException.class);
-		assertThrowsException(() -> MCAUtil.writeMCAFile(null, (String) null), NullPointerException.class);
-		assertThrowsException(() -> MCAUtil.writeMCAFile(null, (File) null), NullPointerException.class);
-		assertThrowsException(() -> MCAUtil.writeMCAFile(null, (String) null, false), NullPointerException.class);
-		assertThrowsException(() -> MCAUtil.readMCAFile("r.a.b.mca"), IllegalArgumentException.class);
+		assertThrowsException(() -> MCAUtil.read((String) null), NullPointerException.class);
+		assertThrowsException(() -> MCAUtil.write(null, (String) null), NullPointerException.class);
+		assertThrowsException(() -> MCAUtil.write(null, (File) null), NullPointerException.class);
+		assertThrowsException(() -> MCAUtil.write(null, (String) null, false), NullPointerException.class);
+		assertThrowsException(() -> MCAUtil.read("r.a.b.mca"), IllegalArgumentException.class);
 		assertThrowsNoException(() -> new MCAFile(0, 0).serialize(null)); // empty MCAFile will not even attempt to write to file
 
 		// test overwriting file
 		MCAFile m = new MCAFile(0, 0);
 		m.setChunk(0, Chunk.newChunk());
-		assertThrowsNoException(() -> MCAUtil.writeMCAFile(m, getTmpFile("r.0.0.mca"), false), true);
-		assertThrowsNoException(() -> MCAUtil.writeMCAFile(m, getTmpFile("r.0.0.mca"), false), true);
+		assertThrowsNoException(() -> MCAUtil.write(m, getTmpFile("r.0.0.mca"), false), true);
+		assertThrowsNoException(() -> MCAUtil.write(m, getTmpFile("r.0.0.mca"), false), true);
 	}
 }
