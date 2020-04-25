@@ -279,10 +279,7 @@ public class CompoundTagTest extends NBTTestCase {
 		assertThrowsRuntimeException(() -> deserializeFromFile("max_depth_reached.dat"), MaxDepthReachedException.class);
 		assertThrowsNoRuntimeException(() -> root.toString(Tag.DEFAULT_MAX_DEPTH + 1));
 		assertThrowsRuntimeException(root::toString, MaxDepthReachedException.class);
-//		assertThrowsNoRuntimeException(() -> root.toTagString(Tag.DEFAULT_MAX_DEPTH + 1));
-//		assertThrowsRuntimeException(root::toTagString, MaxDepthReachedException.class);
 		assertThrowsRuntimeException(() -> root.valueToString(-1), IllegalArgumentException.class);
-//		assertThrowsRuntimeException(() -> root.valueToTagString(-1), IllegalArgumentException.class);
 	}
 
 	public void testRecursion() {
@@ -290,7 +287,6 @@ public class CompoundTagTest extends NBTTestCase {
 		recursive.put("recursive", recursive);
 		assertThrowsRuntimeException(() -> serialize(recursive), MaxDepthReachedException.class);
 		assertThrowsRuntimeException(recursive::toString, MaxDepthReachedException.class);
-//		assertThrowsRuntimeException(recursive::toTagString, MaxDepthReachedException.class);
 	}
 
 	public void testEntrySet() {

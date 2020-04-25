@@ -248,9 +248,7 @@ public class ListTagTest extends NBTTestCase {
 		assertThrowsRuntimeException(() -> serialize(root), MaxDepthReachedException.class);
 		assertThrowsRuntimeException(() -> deserializeFromFile("max_depth_reached.dat"), MaxDepthReachedException.class);
 		assertThrowsRuntimeException(root::toString, MaxDepthReachedException.class);
-//		assertThrowsRuntimeException(root::toTagString, MaxDepthReachedException.class);
 		assertThrowsRuntimeException(() -> root.valueToString(-1), IllegalArgumentException.class);
-//		assertThrowsRuntimeException(() -> root.valueToTagString(-1), IllegalArgumentException.class);
 	}
 
 	public void testRecursion() {
@@ -258,7 +256,6 @@ public class ListTagTest extends NBTTestCase {
 		recursive.add(recursive);
 		assertThrowsRuntimeException(() -> serialize(recursive), MaxDepthReachedException.class);
 		assertThrowsRuntimeException(recursive::toString, MaxDepthReachedException.class);
-//		assertThrowsRuntimeException(recursive::toTagString, MaxDepthReachedException.class);
 	}
 
 	public void testContains() {
