@@ -342,4 +342,20 @@ public class MCAFileTest extends MCATestCase {
 			}
 		}, IOException.class);
 	}
+
+	public void test1_15GetBiomeAt() throws IOException {
+		MCAFile f = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("r.0.0.mca")));
+		assertEquals(162, f.getBiomeAt(31, 0, 63));
+		assertEquals(4, f.getBiomeAt(16, 0, 48));
+		assertEquals(4, f.getBiomeAt(16, 0, 63));
+		assertEquals(162, f.getBiomeAt(31, 0, 48));
+		assertEquals(162, f.getBiomeAt(31, 100, 63));
+		assertEquals(4, f.getBiomeAt(16, 100, 48));
+		assertEquals(4, f.getBiomeAt(16, 100, 63));
+		assertEquals(162, f.getBiomeAt(31, 100, 48));
+		assertEquals(162, f.getBiomeAt(31, 106, 63));
+		assertEquals(4, f.getBiomeAt(16, 106, 48));
+		assertEquals(4, f.getBiomeAt(16, 106, 63));
+		assertEquals(162, f.getBiomeAt(31, 106, 48));
+	}
 }
