@@ -226,7 +226,7 @@ public class Chunk {
 	}
 
 	int getBiomeIndex(int biomeX, int biomeY, int biomeZ) {
-		return biomeY * 64 + biomeX * 4 + biomeZ;
+		return biomeY * 64 + biomeZ * 4 + biomeX;
 	}
 
 	public CompoundTag getBlockStateAt(int blockX, int blockY, int blockZ) {
