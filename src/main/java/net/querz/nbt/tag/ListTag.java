@@ -123,10 +123,15 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 
 	public void add(int index, T t) {
 		Objects.requireNonNull(t);
-		getValue().add(index, t);
 		if (typeClass == null || typeClass == EndTag.class) {
 			typeClass = t.getClass();
+		} else if (typeClass != t.getClass()) {
+			throw new ClassCastException(
+					String.format("cannot add %s to ListTag<%s>",
+							t.getClass().getSimpleName(),
+							typeClass.getSimpleName()));
 		}
+		getValue().add(index, t);
 	}
 
 	public void addAll(Collection<T> t) {
