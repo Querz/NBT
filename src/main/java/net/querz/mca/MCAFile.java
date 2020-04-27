@@ -124,6 +124,12 @@ public class MCAFile {
 		return chunksWritten;
 	}
 
+	/**
+	 * Set a specific Chunk at a specific index. The index must be in range of 0 - 1023.
+	 * @param index The index of the Chunk.
+	 * @param chunk The Chunk to be set.
+	 * @throws IndexOutOfBoundsException If index is not in the range.
+	 */
 	public void setChunk(int index, Chunk chunk) {
 		checkIndex(index);
 		if (chunks == null) {
@@ -132,6 +138,13 @@ public class MCAFile {
 		chunks[index] = chunk;
 	}
 
+	/**
+	 * Set a specific Chunk at a specific chunk location.
+	 * The x- and z-value can be absolute chunk coordinates or they can be relative to the region origin.
+	 * @param chunkX The x-coordinate of the Chunk.
+	 * @param chunkZ The z-coordinate of the Chunk.
+	 * @param chunk The chunk to be set.
+	 */
 	public void setChunk(int chunkX, int chunkZ, Chunk chunk) {
 		setChunk(getChunkIndex(chunkX, chunkZ), chunk);
 	}
@@ -212,6 +225,13 @@ public class MCAFile {
 		return chunk.getBiomeAt(blockX, blockZ);
 	}
 
+	/**
+	 * Fetches the biome id at a specific block.
+	 * @param blockX The x-coordinate of the block.
+	 * @param blockY The y-coordinate of the block.
+	 * @param blockZ The z-coordinate of the block.
+	 * @return The biome id if the chunk exists and the chunk has biomes, otherwise -1.
+	 */
 	public int getBiomeAt(int blockX, int blockY, int blockZ) {
 		int chunkX = MCAUtil.blockToChunk(blockX), chunkZ = MCAUtil.blockToChunk(blockZ);
 		Chunk chunk = getChunk(getChunkIndex(chunkX, chunkZ));
@@ -221,10 +241,27 @@ public class MCAFile {
 		return chunk.getBiomeAt(blockX,blockY, blockZ);
 	}
 
+	/**
+	 * Set a block state at a specific block location.
+	 * The block coordinates can be absolute coordinates or they can be relative to the region.
+	 * @param blockX The x-coordinate of the block.
+	 * @param blockY The y-coordinate of the block.
+	 * @param blockZ The z-coordinate of the block.
+	 * @param state The block state to be set.
+	 * @param cleanup Whether the Palette and the BLockStates should be recalculated after adding the block state.
+	 */
 	public void setBlockStateAt(int blockX, int blockY, int blockZ, CompoundTag state, boolean cleanup) {
 		createChunkIfMissing(blockX, blockZ).setBlockStateAt(blockX, blockY, blockZ, state, cleanup);
 	}
 
+	/**
+	 * Fetches a block state at a specific block location.
+	 * The block coordinates can be absolute coordinates or they can be relative to the region.
+	 * @param blockX The x-coordinate of the block.
+	 * @param blockY The y-coordinate of the block.
+	 * @param blockZ The z-coordinate of the block.
+	 * @return The block state or <code>null</code> if the chunk or the section do not exist.
+	 */
 	public CompoundTag getBlockStateAt(int blockX, int blockY, int blockZ) {
 		int chunkX = MCAUtil.blockToChunk(blockX), chunkZ = MCAUtil.blockToChunk(blockZ);
 		Chunk chunk = getChunk(chunkX, chunkZ);
@@ -234,6 +271,9 @@ public class MCAFile {
 		return chunk.getBlockStateAt(blockX, blockY, blockZ);
 	}
 
+	/**
+	 * Recalculates the Palette and the BlockStates of all chunks and sections of this region.
+	 */
 	public void cleanupPalettesAndBlockStates() {
 		for (Chunk chunk : chunks) {
 			if (chunk != null) {

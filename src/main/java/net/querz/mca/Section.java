@@ -20,7 +20,11 @@ public class Section {
 	public Section(CompoundTag sectionRoot, int dataVersion) {
 		data = sectionRoot;
 		this.dataVersion = dataVersion;
-		palette = sectionRoot.getListTag("Palette").asCompoundTagList();
+		ListTag<?> rawPalette = sectionRoot.getListTag("Palette");
+		if (rawPalette == null) {
+			return;
+		}
+		palette = rawPalette.asCompoundTagList();
 		for (int i = 0; i < palette.size(); i++) {
 			CompoundTag data = palette.get(i);
 			putValueIndexedPalette(data, i);
@@ -74,12 +78,38 @@ public class Section {
 		}
 	}
 
+	/**
+	 * Checks whether the data of this Section is empty.
+	 * @return true if empty
+	 */
+	public boolean isEmpty() {
+		return data == null;
+	}
+
+	/**
+	 * Fetches a block state based on a block location from this section.
+	 * The coordinates represent the location of the block inside of this Section.
+	 * @param blockX The x-coordinate of the block in this Section
+	 * @param blockY The y-coordinate of the block in this Section
+	 * @param blockZ The z-coordinate of the block in this Section
+	 * @return The block state data of this block.
+	 */
 	public CompoundTag getBlockStateAt(int blockX, int blockY, int blockZ) {
 		int index = getBlockIndex(blockX, blockY, blockZ);
 		int paletteIndex = getPaletteIndex(index);
 		return palette.get(paletteIndex);
 	}
 
+	/**
+	 * Attempts to add a block state for a specific block location in this Section.
+	 * @param blockX The x-coordinate of the block in this Section
+	 * @param blockY The y-coordinate of the block in this Section
+	 * @param blockZ The z-coordinate of the block in this Section
+	 * @param state The block state to be set
+	 * @param cleanup When <code>true</code>, it will cleanup the palette of this section.
+	 *                This option should only be used moderately to avoid unnecessary recalculation of the palette indices.
+	 *                Recalculating the Palette should only be executed once right before saving the Section to file.
+	 */
 	public void setBlockStateAt(int blockX, int blockY, int blockZ, CompoundTag state, boolean cleanup) {
 		int paletteSizeBefore = palette.size();
 		int paletteIndex = addToPalette(state);
@@ -152,7 +182,11 @@ public class Section {
 		}
 	}
 
-	ListTag<CompoundTag> getPalette() {
+	/**
+	 * Fetches the palette of this Section.
+	 * @return The palette of this Section.
+	 */
+	public ListTag<CompoundTag> getPalette() {
 		return palette;
 	}
 
@@ -181,12 +215,17 @@ public class Section {
 		return (value << waste) >>> (waste + from);
 	}
 
+	/**
+	 * This method recalculates the palette and its indices.
+	 * This should only be used moderately to avoid unnecessary recalculation of the palette indices.
+	 * Recalculating the Palette should only be executed once right before saving the Section to file.
+	 */
 	public void cleanupPaletteAndBlockStates() {
 		Map<Integer, Integer> oldToNewMapping = cleanupPalette();
 		adjustBlockStateBits(oldToNewMapping, blockStates);
 	}
 
-	Map<Integer, Integer> cleanupPalette() {
+	private Map<Integer, Integer> cleanupPalette() {
 		//create index - palette mapping
 		Map<Integer, Integer> allIndices = new HashMap<>();
 		for (int i = 0; i < 4096; i++) {
@@ -220,7 +259,14 @@ public class Section {
 		int newBits = 32 - Integer.numberOfLeadingZeros(palette.size() - 1);
 		newBits = Math.max(newBits, 4);
 
-		long[] newBlockStates = newBits == blockStates.length / 64 ? blockStates : new long[newBits * 64];
+		long[] newBlockStates;
+
+		if (dataVersion < 2527) {
+			newBlockStates = newBits == blockStates.length / 64 ? blockStates : new long[newBits * 64];
+		} else {
+			int newLength = (int) Math.ceil(4096D / (64D / newBits));
+			newBlockStates = newBits == blockStates.length / 64 ? blockStates : new long[newLength];
+		}
 		if (oldToNewMapping != null) {
 			for (int i = 0; i < 4096; i++) {
 				setPaletteIndex(i, oldToNewMapping.get(getPaletteIndex(i)), newBlockStates);
@@ -233,10 +279,18 @@ public class Section {
 		this.blockStates = newBlockStates;
 	}
 
+	/**
+	 * @return The block light array of this Section
+	 */
 	public byte[] getBlockLight() {
 		return blockLight;
 	}
 
+	/**
+	 * Sets the block light array for this section.
+	 * @param blockLight The block light array
+	 * @throws IllegalArgumentException When the length of the array is not 2048
+	 */
 	public void setBlockLight(byte[] blockLight) {
 		if (blockLight != null && blockLight.length != 2048) {
 			throw new IllegalArgumentException("BlockLight array must have a length of 2048");
@@ -244,10 +298,19 @@ public class Section {
 		this.blockLight = blockLight;
 	}
 
+	/**
+	 * @return The indices of the block states of this Section.
+	 */
 	public long[] getBlockStates() {
 		return blockStates;
 	}
 
+	/**
+	 * Sets the block state indices to a custom value.
+	 * @param blockStates The block state indices.
+	 * @throws NullPointerException If <code>blockStates</code> is <code>null</code>
+	 * @throws IllegalArgumentException When <code>blockStates</code>' length is &lt; 256 or &gt; 4096 and is not a multiple of 64
+	 */
 	public void setBlockStates(long[] blockStates) {
 		if (blockStates == null) {
 			throw new NullPointerException("BlockStates cannot be null");
@@ -257,10 +320,18 @@ public class Section {
 		this.blockStates = blockStates;
 	}
 
+	/**
+	 * @return The sky light values of this Section
+	 */
 	public byte[] getSkyLight() {
 		return skyLight;
 	}
 
+	/**
+	 * Sets the sky light values of this section.
+	 * @param skyLight The custom sky light values
+	 * @throws IllegalArgumentException If the length of the array is not 2048
+	 */
 	public void setSkyLight(byte[] skyLight) {
 		if (skyLight != null && skyLight.length != 2048) {
 			throw new IllegalArgumentException("SkyLight array must have a length of 2048");
@@ -268,6 +339,10 @@ public class Section {
 		this.skyLight = skyLight;
 	}
 
+	/**
+	 * Creates an empty Section with base values.
+	 * @return An empty Section
+	 */
 	public static Section newSection() {
 		Section s = new Section();
 		s.blockStates = new long[256];
@@ -279,6 +354,13 @@ public class Section {
 		return s;
 	}
 
+	/**
+	 * Updates the raw CompoundTag that this Section is based on.
+	 * This must be called before saving a Section to disk if the Section was manually created
+	 * to set the Y of this Section.
+	 * @param y The Y-value of this Section
+	 * @return A reference to the raw CompoundTag this Section is based on
+	 */
 	public CompoundTag updateHandle(int y) {
 		data.putByte("Y", (byte) y);
 		data.put("Palette", palette);
