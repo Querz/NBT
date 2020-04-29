@@ -25,6 +25,41 @@ According to the [specification](https://minecraft.gamepedia.com/NBT_format), th
 
 * The maximum depth of the NBT structure is 512. If the depth exceeds this restriction during serialization, deserialization or String conversion, a `MaxDepthReachedException` is thrown. This usually happens when a circular reference exists in the NBT structure. The NBT specification does not allow circular references, as there is no tag to represent this.
 
+### Add the library as a dependency using Gradle:
+Add Jitpack to your `repositories`:
+```
+repositories {
+	...
+	maven { url 'https://jitpack.io/' }
+}
+```
+And then add it as a dependency as usual:
+```
+dependencies {
+	...
+	compile 'com.github.Querz:NBT:5.2'
+}
+```
+
+### Add the library as a dependency using Maven:
+Add Jitpack:
+```
+<repositories>
+	<repository>
+		<id>jitpack.io</id>
+		<url>https://jitpack.io</url>
+	</repository>
+</repositories>
+```
+Dependency:
+```
+<dependency>
+	<groupId>com.github.Querz</groupId>
+	<artifactId>NBT</artifactId>
+	<version>Tag</version>
+</dependency>
+```
+
 ---
 ### Example usage:
 The following code snippet shows how to create a `CompoundTag`:
