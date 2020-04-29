@@ -1,7 +1,10 @@
 package net.querz.mca;
 
+import net.querz.nbt.tag.ByteArrayTag;
 import net.querz.nbt.tag.CompoundTag;
 import net.querz.nbt.tag.ListTag;
+import net.querz.nbt.tag.LongArrayTag;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,9 +32,14 @@ public class Section {
 			CompoundTag data = palette.get(i);
 			putValueIndexedPalette(data, i);
 		}
-		blockLight = sectionRoot.getByteArray("BlockLight");
-		blockStates = sectionRoot.getLongArray("BlockStates");
-		skyLight = sectionRoot.getByteArray("SkyLight");
+
+		ByteArrayTag blockLight = sectionRoot.getByteArrayTag("BlockLight");
+		LongArrayTag blockStates = sectionRoot.getLongArrayTag("BlockStates");
+		ByteArrayTag skyLight = sectionRoot.getByteArrayTag("SkyLight");
+
+		this.blockLight = blockLight != null ? blockLight.getValue() : null;
+		this.blockStates = blockStates != null ? blockStates.getValue() : null;
+		this.skyLight = skyLight != null ? skyLight.getValue() : null;
 	}
 
 	Section() {}

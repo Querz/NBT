@@ -106,7 +106,7 @@ public class Chunk {
 			new NBTSerializer(false).toStream(new NamedTag(null, updateHandle(xPos, zPos)), nbtOut);
 		}
 		byte[] rawData = baos.toByteArray();
-		raf.writeInt(rawData.length);
+		raf.writeInt(rawData.length + 1); // including the byte to store the compression type
 		raf.writeByte(CompressionType.ZLIB.getID());
 		raf.write(rawData);
 		return rawData.length + 5;
