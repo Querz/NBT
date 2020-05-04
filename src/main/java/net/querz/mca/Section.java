@@ -371,10 +371,18 @@ public class Section {
 	 */
 	public CompoundTag updateHandle(int y) {
 		data.putByte("Y", (byte) y);
-		data.put("Palette", palette);
-		if (blockLight != null) data.putByteArray("BlockLight", blockLight);
-		data.putLongArray("BlockStates", blockStates);
-		if (skyLight != null) data.putByteArray("SkyLight", skyLight);
+		if (palette != null) {
+			data.put("Palette", palette);
+		}
+		if (blockLight != null) {
+			data.putByteArray("BlockLight", blockLight);
+		}
+		if (blockStates != null) {
+			data.putLongArray("BlockStates", blockStates);
+		}
+		if (skyLight != null) {
+			data.putByteArray("SkyLight", skyLight);
+		}
 		return data;
 	}
 }
