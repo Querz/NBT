@@ -191,7 +191,7 @@ public final class MCAUtil {
 
 	private static final Pattern mcaFilePattern = Pattern.compile("^.*r\\.(?<regionX>-?\\d+)\\.(?<regionZ>-?\\d+)\\.mca$");
 
-	private static MCAFile newMCAFile(File file) {
+	public static MCAFile newMCAFile(File file) {
 		Matcher m = mcaFilePattern.matcher(file.getName());
 		if (m.find()) {
 			return new MCAFile(Integer.parseInt(m.group("regionX")), Integer.parseInt(m.group("regionZ")));
