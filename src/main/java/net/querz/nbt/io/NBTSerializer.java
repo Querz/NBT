@@ -22,10 +22,11 @@ public class NBTSerializer implements Serializer<NamedTag> {
 	public void toStream(NamedTag object, OutputStream out) throws IOException {
 		NBTOutputStream nbtOut;
 		if (compressed) {
-			nbtOut = new NBTOutputStream(new GZIPOutputStream(out));
+			nbtOut = new NBTOutputStream(new GZIPOutputStream(out, true));
 		} else {
 			nbtOut = new NBTOutputStream(out);
 		}
 		nbtOut.writeTag(object, Tag.DEFAULT_MAX_DEPTH);
+		nbtOut.flush();
 	}
 }
