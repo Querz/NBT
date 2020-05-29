@@ -64,7 +64,7 @@ public class Chunk {
 		this.inhabitedTime = level.getLong("InhabitedTime");
 		this.lastUpdate = level.getLong("LastUpdate");
 		this.biomes = level.getIntArray("Biomes");
-		this.heightMaps = level.getCompoundTag("HeightMaps");
+		this.heightMaps = level.getCompoundTag("Heightmaps");
 		this.carvingMasks = level.getCompoundTag("CarvingMasks");
 		this.entities = level.containsKey("Entities") ? level.getListTag("Entities").asCompoundTagList() : null;
 		this.tileEntities = level.containsKey("TileEntities") ? level.getListTag("TileEntities").asCompoundTagList() : null;
