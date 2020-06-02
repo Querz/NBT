@@ -12,6 +12,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Arrays;
+import static net.querz.mca.LoadFlags.*;
 
 public class Chunk {
 
@@ -49,10 +50,10 @@ public class Chunk {
 	 */
 	public Chunk(CompoundTag data) {
 		this.data = data;
-		initReferences();
+		initReferences(-1);
 	}
 
-	private void initReferences() {
+	private void initReferences(long loadFlags) {
 		if (data == null) {
 			throw new NullPointerException("data cannot be null");
 		}
@@ -63,17 +64,39 @@ public class Chunk {
 		this.dataVersion = data.getInt("DataVersion");
 		this.inhabitedTime = level.getLong("InhabitedTime");
 		this.lastUpdate = level.getLong("LastUpdate");
-		this.biomes = level.getIntArray("Biomes");
-		this.heightMaps = level.getCompoundTag("Heightmaps");
-		this.carvingMasks = level.getCompoundTag("CarvingMasks");
-		this.entities = level.containsKey("Entities") ? level.getListTag("Entities").asCompoundTagList() : null;
-		this.tileEntities = level.containsKey("TileEntities") ? level.getListTag("TileEntities").asCompoundTagList() : null;
-		this.tileTicks = level.containsKey("TileTicks") ? level.getListTag("TileTicks").asCompoundTagList() : null;
-		this.liquidTicks = level.containsKey("LiquidTicks") ? level.getListTag("LiquidTicks").asCompoundTagList() : null;
-		this.lights = level.containsKey("Lights") ? level.getListTag("Lights").asListTagList() : null;
-		this.liquidsToBeTicked = level.containsKey("LiquidsToBeTicked") ? level.getListTag("LiquidsToBeTicked").asListTagList() : null;
-		this.toBeTicked = level.containsKey("ToBeTicked") ? level.getListTag("ToBeTicked").asListTagList() : null;
-		this.postProcessing = level.containsKey("PostProcessing") ? level.getListTag("PostProcessing").asListTagList() : null;
+		if((loadFlags | BIOMES) != 0) {
+			this.biomes = level.getIntArray("Biomes");
+		}
+		if((loadFlags | HEIGHTMAPS) != 0) {
+			this.heightMaps = level.getCompoundTag("Heightmaps");
+		}
+		if((loadFlags | CARVING_MARKS) != 0) {
+			this.carvingMasks = level.getCompoundTag("CarvingMasks");
+		}
+		if((loadFlags | ENTITIES) != 0) {
+			this.entities = level.containsKey("Entities") ? level.getListTag("Entities").asCompoundTagList() : null;
+		}
+		if((loadFlags | TILE_ENTITIES) != 0) {
+			this.tileEntities = level.containsKey("TileEntities") ? level.getListTag("TileEntities").asCompoundTagList() : null;
+		}
+		if((loadFlags | TILE_TICKS) != 0) {
+			this.tileTicks = level.containsKey("TileTicks") ? level.getListTag("TileTicks").asCompoundTagList() : null;
+		}
+		if((loadFlags | LIQUID_TILE_TICKS) != 0) {
+			this.liquidTicks = level.containsKey("LiquidTicks") ? level.getListTag("LiquidTicks").asCompoundTagList() : null;
+		}
+		if((loadFlags | LIGHTS) != 0) {
+			this.lights = level.containsKey("Lights") ? level.getListTag("Lights").asListTagList() : null;
+		}
+		if((loadFlags | LIQUIDS_TO_BE_TICKED) != 0) {
+			this.liquidsToBeTicked = level.containsKey("LiquidsToBeTicked") ? level.getListTag("LiquidsToBeTicked").asListTagList() : null;
+		}
+		if((loadFlags | TO_BE_TICKED) != 0) {
+			this.toBeTicked = level.containsKey("ToBeTicked") ? level.getListTag("ToBeTicked").asListTagList() : null;
+		}
+		if((loadFlags | POST_PROCESSING) != 0) {
+			this.postProcessing = level.containsKey("PostProcessing") ? level.getListTag("PostProcessing").asListTagList() : null;
+		}
 		this.status = level.getString("Status");
 		this.structures = level.getCompoundTag("Structures");
 		if (level.containsKey("Sections")) {
@@ -86,9 +109,13 @@ public class Chunk {
 				if (newSection.isEmpty()) {
 					continue;
 				}
-
 				this.sections[sectionIndex] = newSection;
 			}
+		}
+
+		// If we haven't requested the full set of data we can drop the underlying raw data to let the GC handle it.
+		if(loadFlags != ALL_DATA) {
+			this.data = null;
 		}
 	}
 
@@ -118,6 +145,16 @@ public class Chunk {
 	 * @throws IOException When something went wrong during reading.
 	 */
 	public void deserialize(RandomAccessFile raf) throws IOException {
+		deserialize(raf, ALL_DATA);
+	}
+
+	/**
+	 * Reads chunk data from a RandomAccessFile. The RandomAccessFile must already be at the correct position.
+	 * @param raf The RandomAccessFile to read the chunk data from.
+	 * @param loadFlags A logical or of {@link LoadFlags} constants indicating what data should be loaded
+	 * @throws IOException When something went wrong during reading.
+	 */
+	public void deserialize(RandomAccessFile raf, long loadFlags) throws IOException {
 		byte compressionTypeByte = raf.readByte();
 		CompressionType compressionType = CompressionType.getFromID(compressionTypeByte);
 		if (compressionType == null) {
@@ -127,7 +164,7 @@ public class Chunk {
 		NamedTag tag = new NBTDeserializer(false).fromStream(dis);
 		if (tag != null && tag.getTag() instanceof CompoundTag) {
 			data = (CompoundTag) tag.getTag();
-			initReferences();
+			initReferences(loadFlags);
 		} else {
 			throw new IOException("invalid data tag: " + (tag == null ? "null" : tag.getClass().getName()));
 		}

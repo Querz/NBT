@@ -34,6 +34,17 @@ public class MCAFile {
 	 * @throws IOException If something went wrong during deserialization.
 	 * */
 	public void deserialize(RandomAccessFile raf) throws IOException {
+		deserialize(raf, LoadFlags.ALL_DATA);
+	}
+
+	/**
+	 * Reads an .mca file from a {@code RandomAccessFile} into this object.
+	 * This method does not perform any cleanups on the data.
+	 * @param raf The {@code RandomAccessFile} to read from.
+	 * @param loadFlags A logical or of {@link LoadFlags} constants indicating what data should be loaded
+	 * @throws IOException If something went wrong during deserialization.
+	 * */
+	public void deserialize(RandomAccessFile raf, long loadFlags) throws IOException {
 		chunks = new Chunk[1024];
 		for (int i = 0; i < 1024; i++) {
 			raf.seek(i * 4);
@@ -47,7 +58,7 @@ public class MCAFile {
 			int timestamp = raf.readInt();
 			Chunk chunk = new Chunk(timestamp);
 			raf.seek(4096 * offset + 4); //+4: skip data size
-			chunk.deserialize(raf);
+			chunk.deserialize(raf, loadFlags);
 			chunks[i] = chunk;
 		}
 	}
