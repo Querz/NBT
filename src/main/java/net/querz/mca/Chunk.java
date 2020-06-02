@@ -50,7 +50,7 @@ public class Chunk {
 	 */
 	public Chunk(CompoundTag data) {
 		this.data = data;
-		initReferences(-1);
+		initReferences(ALL_DATA);
 	}
 
 	private void initReferences(long loadFlags) {

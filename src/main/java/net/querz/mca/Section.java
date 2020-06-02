@@ -23,7 +23,7 @@ public class Section {
 	private int dataVersion;
 
 	public Section(CompoundTag sectionRoot, int dataVersion) {
-		this(sectionRoot, dataVersion, -1);
+		this(sectionRoot, dataVersion, ALL_DATA);
 	}
 
 	public Section(CompoundTag sectionRoot, int dataVersion, long loadFlags) {
