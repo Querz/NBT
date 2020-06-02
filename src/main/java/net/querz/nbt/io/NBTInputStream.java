@@ -105,17 +105,21 @@ public class NBTInputStream extends DataInputStream implements MaxDepthIO {
 	}
 
 	private static IntArrayTag readIntArray(NBTInputStream in) throws IOException {
-		IntArrayTag iat = new IntArrayTag(new int[in.readInt()]);
-		for (int i = 0; i < iat.length(); i++) {
-			iat.getValue()[i] = in.readInt();
+		int l = in.readInt();
+		int[] data = new int[l];
+		IntArrayTag iat = new IntArrayTag(data);
+		for (int i = 0; i < l; i++) {
+			data[i] = in.readInt();
 		}
 		return iat;
 	}
 
 	private static LongArrayTag readLongArray(NBTInputStream in) throws IOException {
-		LongArrayTag iat = new LongArrayTag(new long[in.readInt()]);
-		for (int i = 0; i < iat.length(); i++) {
-			iat.getValue()[i] = in.readLong();
+		int l = in.readInt();
+		long[] data = new long[l];
+		LongArrayTag iat = new LongArrayTag(data);
+		for (int i = 0; i < l; i++) {
+			data[i] = in.readLong();
 		}
 		return iat;
 	}
