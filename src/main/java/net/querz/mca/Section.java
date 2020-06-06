@@ -43,13 +43,13 @@ public class Section {
 		LongArrayTag blockStates = sectionRoot.getLongArrayTag("BlockStates");
 		ByteArrayTag skyLight = sectionRoot.getByteArrayTag("SkyLight");
 
-		if((loadFlags | BLOCK_LIGHTS) != 0) {
+		if((loadFlags & BLOCK_LIGHTS) != 0) {
 			this.blockLight = blockLight != null ? blockLight.getValue() : null;
 		}
-		if((loadFlags | BLOCK_STATES) != 0) {
+		if((loadFlags & BLOCK_STATES) != 0) {
 			this.blockStates = blockStates != null ? blockStates.getValue() : null;
 		}
-		if((loadFlags | SKY_LIGHT) != 0) {
+		if((loadFlags & SKY_LIGHT) != 0) {
 			this.skyLight = skyLight != null ? skyLight.getValue() : null;
 		}
 	}

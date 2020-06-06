@@ -1,5 +1,6 @@
 package net.querz.mca;
 
+import java.rmi.UnexpectedException;
 import net.querz.nbt.tag.CompoundTag;
 import net.querz.nbt.tag.ListTag;
 import net.querz.nbt.io.NamedTag;
@@ -17,6 +18,8 @@ import static net.querz.mca.LoadFlags.*;
 public class Chunk {
 
 	public static final int DEFAULT_DATA_VERSION = 1628;
+
+	private boolean partial;
 
 	private int lastMCAUpdate;
 
@@ -64,48 +67,50 @@ public class Chunk {
 		this.dataVersion = data.getInt("DataVersion");
 		this.inhabitedTime = level.getLong("InhabitedTime");
 		this.lastUpdate = level.getLong("LastUpdate");
-		if((loadFlags | BIOMES) != 0) {
+		if((loadFlags & BIOMES) != 0) {
 			this.biomes = level.getIntArray("Biomes");
 		}
-		if((loadFlags | HEIGHTMAPS) != 0) {
+		if((loadFlags & HEIGHTMAPS) != 0) {
 			this.heightMaps = level.getCompoundTag("Heightmaps");
 		}
-		if((loadFlags | CARVING_MARKS) != 0) {
+		if((loadFlags & CARVINGMASKS) != 0) {
 			this.carvingMasks = level.getCompoundTag("CarvingMasks");
 		}
-		if((loadFlags | ENTITIES) != 0) {
+		if((loadFlags & ENTITIES) != 0) {
 			this.entities = level.containsKey("Entities") ? level.getListTag("Entities").asCompoundTagList() : null;
 		}
-		if((loadFlags | TILE_ENTITIES) != 0) {
+		if((loadFlags & TILE_ENTITIES) != 0) {
 			this.tileEntities = level.containsKey("TileEntities") ? level.getListTag("TileEntities").asCompoundTagList() : null;
 		}
-		if((loadFlags | TILE_TICKS) != 0) {
+		if((loadFlags & TILE_TICKS) != 0) {
 			this.tileTicks = level.containsKey("TileTicks") ? level.getListTag("TileTicks").asCompoundTagList() : null;
 		}
-		if((loadFlags | LIQUID_TILE_TICKS) != 0) {
+		if((loadFlags & LIQUID_TICKS) != 0) {
 			this.liquidTicks = level.containsKey("LiquidTicks") ? level.getListTag("LiquidTicks").asCompoundTagList() : null;
 		}
-		if((loadFlags | LIGHTS) != 0) {
+		if((loadFlags & LIGHTS) != 0) {
 			this.lights = level.containsKey("Lights") ? level.getListTag("Lights").asListTagList() : null;
 		}
-		if((loadFlags | LIQUIDS_TO_BE_TICKED) != 0) {
+		if((loadFlags & LIQUIDS_TO_BE_TICKED) != 0) {
 			this.liquidsToBeTicked = level.containsKey("LiquidsToBeTicked") ? level.getListTag("LiquidsToBeTicked").asListTagList() : null;
 		}
-		if((loadFlags | TO_BE_TICKED) != 0) {
+		if((loadFlags & TO_BE_TICKED) != 0) {
 			this.toBeTicked = level.containsKey("ToBeTicked") ? level.getListTag("ToBeTicked").asListTagList() : null;
 		}
-		if((loadFlags | POST_PROCESSING) != 0) {
+		if((loadFlags & POST_PROCESSING) != 0) {
 			this.postProcessing = level.containsKey("PostProcessing") ? level.getListTag("PostProcessing").asListTagList() : null;
 		}
 		this.status = level.getString("Status");
-		this.structures = level.getCompoundTag("Structures");
-		if (level.containsKey("Sections")) {
+		if((loadFlags & STRUCTURES) != 0) {
+			this.structures = level.getCompoundTag("Structures");
+		}
+		if ((loadFlags & (BLOCK_LIGHTS|BLOCK_STATES|SKY_LIGHT)) != 0 && level.containsKey("Sections")) {
 			for (CompoundTag section : level.getListTag("Sections").asCompoundTagList()) {
 				int sectionIndex = section.getByte("Y");
 				if (sectionIndex > 15 || sectionIndex < 0) {
 					continue;
 				}
-				Section newSection = new Section(section, dataVersion);
+				Section newSection = new Section(section, dataVersion, loadFlags);
 				if (newSection.isEmpty()) {
 					continue;
 				}
@@ -116,6 +121,9 @@ public class Chunk {
 		// If we haven't requested the full set of data we can drop the underlying raw data to let the GC handle it.
 		if(loadFlags != ALL_DATA) {
 			this.data = null;
+			this.partial = true;
+		} else {
+			partial = false;
 		}
 	}
 
@@ -125,9 +133,13 @@ public class Chunk {
 	 * @param xPos The x-coordinate of the chunk.
 	 * @param zPos The z-coodrinate of the chunk.
 	 * @return The amount of bytes written to the RandomAccessFile.
+	 * @throws UnsupportedOperationException When something went wrong during writing.
 	 * @throws IOException When something went wrong during writing.
 	 */
 	public int serialize(RandomAccessFile raf, int xPos, int zPos) throws IOException {
+		if(this.partial) {
+			throw new UnsupportedOperationException("Partially loaded chunks cannot be serialized");
+		}
 		ByteArrayOutputStream baos = new ByteArrayOutputStream(4096);
 		try (BufferedOutputStream nbtOut = new BufferedOutputStream(CompressionType.ZLIB.compress(baos))) {
 			new NBTSerializer(false).toStream(new NamedTag(null, updateHandle(xPos, zPos)), nbtOut);
@@ -608,7 +620,7 @@ public class Chunk {
 		} else {
 			if (biomes != null && biomes.length == 1024) level.putIntArray("Biomes", biomes);
 		}
-		if (heightMaps != null) level.put("HeightMaps", heightMaps);
+		if (heightMaps != null) level.put("Heightmaps", heightMaps);
 		if (carvingMasks != null) level.put("CarvingMasks", carvingMasks);
 		if (entities != null) level.put("Entities", entities);
 		if (tileEntities != null) level.put("TileEntities", tileEntities);
