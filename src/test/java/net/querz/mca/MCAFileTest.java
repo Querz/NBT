@@ -2,6 +2,7 @@ package net.querz.mca;
 
 import net.querz.nbt.tag.CompoundTag;
 import net.querz.nbt.tag.ListTag;
+import static net.querz.mca.LoadFlags.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -341,6 +342,79 @@ public class MCAFileTest extends MCATestCase {
 				c.deserialize(raf);
 			}
 		}, IOException.class);
+	}
+
+	private void assertLoadFLag(Object field, long flags, long wantedFlag) {
+		if((flags & wantedFlag) != 0) {
+			assertNotNull(String.format("Should not be null. Flags=%08x, Wanted flag=%08x", flags, wantedFlag), field);
+		} else {
+			assertNull(String.format("Should be null. Flags=%08x, Wanted flag=%08x", flags, wantedFlag), field);
+		}
+	}
+
+	private void assertPartialChunk(Chunk c, long loadFlags) {
+		assertLoadFLag(c.getBiomes(), loadFlags, BIOMES);
+		assertLoadFLag(c.getHeightMaps(), loadFlags, HEIGHTMAPS);
+		assertLoadFLag(c.getEntities(), loadFlags, ENTITIES);
+		assertLoadFLag(c.getCarvingMasks(), loadFlags, CARVINGMASKS);
+		assertLoadFLag(c.getLights(), loadFlags, LIGHTS);
+		assertLoadFLag(c.getPostProcessing(), loadFlags, POST_PROCESSING);
+		assertLoadFLag(c.getLiquidTicks(), loadFlags, LIQUID_TICKS);
+		assertLoadFLag(c.getLiquidsToBeTicked(), loadFlags, LIQUIDS_TO_BE_TICKED);
+		assertLoadFLag(c.getTileTicks(), loadFlags, TILE_TICKS);
+		assertLoadFLag(c.getTileEntities(), loadFlags, TILE_ENTITIES);
+		assertLoadFLag(c.getToBeTicked(), loadFlags, TO_BE_TICKED);
+		assertLoadFLag(c.getSection(0), loadFlags, BLOCK_LIGHTS|BLOCK_STATES|SKY_LIGHT);
+		if((loadFlags & (BLOCK_LIGHTS|BLOCK_STATES|SKY_LIGHT)) != 0) {
+			Section s = c.getSection(0);
+			assertNotNull(String.format("Section is null. Flags=%08x", loadFlags), s);
+			assertLoadFLag(s.getBlockStates(), loadFlags, BLOCK_STATES);
+			assertLoadFLag(s.getBlockLight(), loadFlags, BLOCK_LIGHTS);
+			assertLoadFLag(s.getSkyLight(), loadFlags, SKY_LIGHT);
+		}
+	}
+
+	public void testPartialLoad() {
+		long[] flags = new long[] {
+				BIOMES,
+				HEIGHTMAPS,
+				ENTITIES,
+				CARVINGMASKS,
+				LIGHTS,
+				POST_PROCESSING,
+				LIQUID_TICKS,
+				LIQUIDS_TO_BE_TICKED,
+				TILE_TICKS,
+				TILE_ENTITIES,
+				TO_BE_TICKED,
+				BLOCK_STATES,
+				BLOCK_LIGHTS,
+				SKY_LIGHT
+		};
+
+		MCAFile f = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("r.2.2.mca")));
+		Chunk c = f.getChunk(0);
+		c.setCarvingMasks(getSomeCompoundTag());
+		c.setEntities(getSomeCompoundTagList());
+		c.setLights(getSomeListTagList());
+		c.setTileEntities(getSomeCompoundTagList());
+		c.setTileTicks(getSomeCompoundTagList());
+		c.setLiquidTicks(getSomeCompoundTagList());
+		c.setToBeTicked(getSomeListTagList());
+		c.setLiquidsToBeTicked(getSomeListTagList());
+		c.setHeightMaps(getSomeCompoundTag());
+		c.setPostProcessing(getSomeListTagList());
+		c.getSection(0).setBlockLight(new byte[2048]);
+		File tmp = this.getNewTmpFile("r.2.2.mca");
+		assertThrowsNoException(() -> MCAUtil.write(f, tmp));
+
+		for(long flag : flags) {
+			MCAFile mcaFile = assertThrowsNoException(() -> MCAUtil.read(tmp, flag));
+			c = mcaFile.getChunk(0, 0);
+			assertPartialChunk(c, flag);
+			assertThrowsException(() -> MCAUtil.write(mcaFile, getNewTmpFile("r.12.34.mca")), UnsupportedOperationException.class);
+		}
+		tmp.delete();
 	}
 
 	public void test1_15GetBiomeAt() throws IOException {
