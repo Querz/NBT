@@ -252,6 +252,7 @@ public abstract class NBTTestCase extends TestCase {
 				file.delete();
 			}
 		}
+		tmpDir.delete();
 	}
 
 	protected String calculateFileMD5(File file) {

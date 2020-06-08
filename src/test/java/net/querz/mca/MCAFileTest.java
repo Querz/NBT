@@ -356,7 +356,7 @@ public class MCAFileTest extends MCATestCase {
 		assertLoadFLag(c.getBiomes(), loadFlags, BIOMES);
 		assertLoadFLag(c.getHeightMaps(), loadFlags, HEIGHTMAPS);
 		assertLoadFLag(c.getEntities(), loadFlags, ENTITIES);
-		assertLoadFLag(c.getCarvingMasks(), loadFlags, CARVINGMASKS);
+		assertLoadFLag(c.getCarvingMasks(), loadFlags, CARVING_MASKS);
 		assertLoadFLag(c.getLights(), loadFlags, LIGHTS);
 		assertLoadFLag(c.getPostProcessing(), loadFlags, POST_PROCESSING);
 		assertLoadFLag(c.getLiquidTicks(), loadFlags, LIQUID_TICKS);
@@ -365,7 +365,7 @@ public class MCAFileTest extends MCATestCase {
 		assertLoadFLag(c.getTileEntities(), loadFlags, TILE_ENTITIES);
 		assertLoadFLag(c.getToBeTicked(), loadFlags, TO_BE_TICKED);
 		assertLoadFLag(c.getSection(0), loadFlags, BLOCK_LIGHTS|BLOCK_STATES|SKY_LIGHT);
-		if((loadFlags & (BLOCK_LIGHTS|BLOCK_STATES|SKY_LIGHT)) != 0) {
+		if ((loadFlags & (BLOCK_LIGHTS|BLOCK_STATES|SKY_LIGHT)) != 0) {
 			Section s = c.getSection(0);
 			assertNotNull(String.format("Section is null. Flags=%08x", loadFlags), s);
 			assertLoadFLag(s.getBlockStates(), loadFlags, BLOCK_STATES);
@@ -379,7 +379,7 @@ public class MCAFileTest extends MCATestCase {
 				BIOMES,
 				HEIGHTMAPS,
 				ENTITIES,
-				CARVINGMASKS,
+				CARVING_MASKS,
 				LIGHTS,
 				POST_PROCESSING,
 				LIQUID_TICKS,
@@ -408,13 +408,12 @@ public class MCAFileTest extends MCATestCase {
 		File tmp = this.getNewTmpFile("r.2.2.mca");
 		assertThrowsNoException(() -> MCAUtil.write(f, tmp));
 
-		for(long flag : flags) {
+		for (long flag : flags) {
 			MCAFile mcaFile = assertThrowsNoException(() -> MCAUtil.read(tmp, flag));
 			c = mcaFile.getChunk(0, 0);
 			assertPartialChunk(c, flag);
 			assertThrowsException(() -> MCAUtil.write(mcaFile, getNewTmpFile("r.12.34.mca")), UnsupportedOperationException.class);
 		}
-		tmp.delete();
 	}
 
 	public void test1_15GetBiomeAt() throws IOException {
