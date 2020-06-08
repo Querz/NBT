@@ -1,12 +1,10 @@
 package net.querz.mca;
 
 import static net.querz.mca.LoadFlags.*;
-
 import net.querz.nbt.tag.ByteArrayTag;
 import net.querz.nbt.tag.CompoundTag;
 import net.querz.nbt.tag.ListTag;
 import net.querz.nbt.tag.LongArrayTag;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,13 +41,13 @@ public class Section {
 		LongArrayTag blockStates = sectionRoot.getLongArrayTag("BlockStates");
 		ByteArrayTag skyLight = sectionRoot.getByteArrayTag("SkyLight");
 
-		if((loadFlags & BLOCK_LIGHTS) != 0) {
+		if ((loadFlags & BLOCK_LIGHTS) != 0) {
 			this.blockLight = blockLight != null ? blockLight.getValue() : null;
 		}
-		if((loadFlags & BLOCK_STATES) != 0) {
+		if ((loadFlags & BLOCK_STATES) != 0) {
 			this.blockStates = blockStates != null ? blockStates.getValue() : null;
 		}
-		if((loadFlags & SKY_LIGHT) != 0) {
+		if ((loadFlags & SKY_LIGHT) != 0) {
 			this.skyLight = skyLight != null ? skyLight.getValue() : null;
 		}
 	}

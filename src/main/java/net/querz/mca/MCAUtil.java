@@ -23,7 +23,7 @@ public final class MCAUtil {
 	 * @throws IOException if something during deserialization goes wrong.
 	 * */
 	public static MCAFile read(String file) throws IOException {
-		return read(new File(file));
+		return read(new File(file), LoadFlags.ALL_DATA);
 	}
 
 	/**
@@ -33,13 +33,8 @@ public final class MCAUtil {
 	 * @throws IOException if something during deserialization goes wrong.
 	 * */
 	public static MCAFile read(File file) throws IOException {
-		MCAFile mcaFile = newMCAFile(file);
-		try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
-			mcaFile.deserialize(raf);
-			return mcaFile;
-		}
+		return read(file, LoadFlags.ALL_DATA);
 	}
-
 
 	/**
 	 * @see MCAUtil#read(File)
