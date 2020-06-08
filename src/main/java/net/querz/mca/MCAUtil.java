@@ -23,7 +23,7 @@ public final class MCAUtil {
 	 * @throws IOException if something during deserialization goes wrong.
 	 * */
 	public static MCAFile read(String file) throws IOException {
-		return read(new File(file));
+		return read(new File(file), LoadFlags.ALL_DATA);
 	}
 
 	/**
@@ -33,9 +33,31 @@ public final class MCAUtil {
 	 * @throws IOException if something during deserialization goes wrong.
 	 * */
 	public static MCAFile read(File file) throws IOException {
+		return read(file, LoadFlags.ALL_DATA);
+	}
+
+	/**
+	 * @see MCAUtil#read(File)
+	 * @param file The file to read the data from.
+	 * @return An in-memory representation of the MCA file with decompressed chunk data.
+	 * @param loadFlags A logical or of {@link LoadFlags} constants indicating what data should be loaded
+	 * @throws IOException if something during deserialization goes wrong.
+	 * */
+	public static MCAFile read(String file, long loadFlags) throws IOException {
+		return read(new File(file), loadFlags);
+	}
+
+	/**
+	 * Reads an MCA file and loads all of its chunks.
+	 * @param file The file to read the data from.
+	 * @return An in-memory representation of the MCA file with decompressed chunk data
+	 * @param loadFlags A logical or of {@link LoadFlags} constants indicating what data should be loaded
+	 * @throws IOException if something during deserialization goes wrong.
+	 * */
+	public static MCAFile read(File file, long loadFlags) throws IOException {
 		MCAFile mcaFile = newMCAFile(file);
 		try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
-			mcaFile.deserialize(raf);
+			mcaFile.deserialize(raf, loadFlags);
 			return mcaFile;
 		}
 	}

@@ -1,10 +1,10 @@
 package net.querz.mca;
 
+import static net.querz.mca.LoadFlags.*;
 import net.querz.nbt.tag.ByteArrayTag;
 import net.querz.nbt.tag.CompoundTag;
 import net.querz.nbt.tag.ListTag;
 import net.querz.nbt.tag.LongArrayTag;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +21,10 @@ public class Section {
 	private int dataVersion;
 
 	public Section(CompoundTag sectionRoot, int dataVersion) {
+		this(sectionRoot, dataVersion, ALL_DATA);
+	}
+
+	public Section(CompoundTag sectionRoot, int dataVersion, long loadFlags) {
 		data = sectionRoot;
 		this.dataVersion = dataVersion;
 		ListTag<?> rawPalette = sectionRoot.getListTag("Palette");
@@ -37,9 +41,15 @@ public class Section {
 		LongArrayTag blockStates = sectionRoot.getLongArrayTag("BlockStates");
 		ByteArrayTag skyLight = sectionRoot.getByteArrayTag("SkyLight");
 
-		this.blockLight = blockLight != null ? blockLight.getValue() : null;
-		this.blockStates = blockStates != null ? blockStates.getValue() : null;
-		this.skyLight = skyLight != null ? skyLight.getValue() : null;
+		if ((loadFlags & BLOCK_LIGHTS) != 0) {
+			this.blockLight = blockLight != null ? blockLight.getValue() : null;
+		}
+		if ((loadFlags & BLOCK_STATES) != 0) {
+			this.blockStates = blockStates != null ? blockStates.getValue() : null;
+		}
+		if ((loadFlags & SKY_LIGHT) != 0) {
+			this.skyLight = skyLight != null ? skyLight.getValue() : null;
+		}
 	}
 
 	Section() {}
