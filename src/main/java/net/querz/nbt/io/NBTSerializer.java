@@ -8,7 +8,7 @@ import java.util.zip.GZIPOutputStream;
 
 public class NBTSerializer implements Serializer<NamedTag> {
 
-	private boolean compressed;
+	private boolean compressed, littleEndian;
 
 	public NBTSerializer() {
 		this(true);
@@ -18,13 +18,25 @@ public class NBTSerializer implements Serializer<NamedTag> {
 		this.compressed = compressed;
 	}
 
+	public NBTSerializer(boolean compressed, boolean littleEndian) {
+		this.compressed = compressed;
+		this.littleEndian = littleEndian;
+	}
+
 	@Override
 	public void toStream(NamedTag object, OutputStream out) throws IOException {
-		NBTOutputStream nbtOut;
+		NBTOutput nbtOut;
+		OutputStream output;
 		if (compressed) {
-			nbtOut = new NBTOutputStream(new GZIPOutputStream(out, true));
+			output = new GZIPOutputStream(out, true);
 		} else {
-			nbtOut = new NBTOutputStream(out);
+			output = out;
+		}
+
+		if (littleEndian) {
+			nbtOut = new LittleEndianNBTOutputStream(output);
+		} else {
+			nbtOut = new NBTOutputStream(output);
 		}
 		nbtOut.writeTag(object, Tag.DEFAULT_MAX_DEPTH);
 		nbtOut.flush();
