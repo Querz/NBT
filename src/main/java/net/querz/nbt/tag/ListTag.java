@@ -202,7 +202,6 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	@SuppressWarnings("unchecked")
 	public <L extends Tag<?>> ListTag<L> asTypedList(Class<L> type) {
 		checkTypeClass(type);
-//		typeClass = type;
 		return (ListTag<L>) this;
 	}
 
