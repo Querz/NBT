@@ -72,11 +72,11 @@ public class ListTagTest extends NBTTestCase {
 		ListTag<?> lu2 = ListTag.createUnchecked(null);
 		assertTrue(lu.equals(lu2));
 		lu2.asIntTagList();
-		assertFalse(lu.equals(lu2));
+		assertTrue(lu.equals(lu2));
 		ListTag<IntTag> lie = new ListTag<>(IntTag.class);
 		assertFalse(lu.equals(lie));
 		lu.asIntTagList();
-		assertTrue(lie.equals(lu));
+		assertFalse(lie.equals(lu));
 	}
 
 	public void testHashCode() {
@@ -91,7 +91,8 @@ public class ListTagTest extends NBTTestCase {
 		ListTag<IntTag> i = new ListTag<>(IntTag.class);
 		ListTag<IntTag> c = i.clone();
 		assertThrowsRuntimeException(() -> c.addString("wrong type in clone"), IllegalArgumentException.class);
-		c.addInt(123);
+		assertThrowsNoRuntimeException(() -> c.addInt(123));
+
 		assertFalse(i.equals(c));
 		c.clear();
 		assertTrue(i.equals(c));
@@ -203,8 +204,8 @@ public class ListTagTest extends NBTTestCase {
 		ListTag<?> lg = ListTag.createUnchecked(null);
 		ListTag<ByteTag> lb = assertThrowsNoRuntimeException(lg::asByteTagList);
 		assertEquals(lb, lg);
-		//only allow casting once from untyped list to typed list
-		assertThrowsRuntimeException(lg::asShortTagList, ClassCastException.class);
+		// allow casting to a different list type if the list is empty
+		assertThrowsNoException(lg::asShortTagList);
 	}
 
 	public void testCompareTo() {
