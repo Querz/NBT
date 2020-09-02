@@ -281,7 +281,7 @@ public class Chunk {
 	}
 
 	int getBiomeIndex(int biomeX, int biomeY, int biomeZ) {
-		return biomeY * 64 + biomeZ * 4 + biomeX;
+		return biomeY * 16 + biomeZ * 4 + biomeX;
 	}
 
 	public CompoundTag getBlockStateAt(int blockX, int blockY, int blockZ) {
@@ -632,8 +632,12 @@ public class Chunk {
 	}
 
 	public static Chunk newChunk() {
+		return newChunk(DEFAULT_DATA_VERSION);
+	}
+
+	public static Chunk newChunk(int dataVersion) {
 		Chunk c = new Chunk(0);
-		c.dataVersion = DEFAULT_DATA_VERSION;
+		c.dataVersion = dataVersion;
 		c.data = new CompoundTag();
 		c.data.put("Level", new CompoundTag());
 		c.status = "mobs_spawned";

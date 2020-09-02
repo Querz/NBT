@@ -12,8 +12,7 @@ import java.util.function.Consumer;
 
 /**
  * ListTag represents a typed List in the nbt structure.
- * An empty {@link ListTag} created using {@link ListTag#createUnchecked(Class)} will be of unknown type
- * and returns an {@link EndTag}{@code .class} in {@link ListTag#getTypeClass()}.
+ * An empty {@link ListTag} will be of type {@link EndTag} (unknown type).
  * The type of an empty untyped {@link ListTag} can be set by using any of the {@code add()}
  * methods or any of the {@code as...List()} methods.
  * */
@@ -123,7 +122,7 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 
 	public void add(int index, T t) {
 		Objects.requireNonNull(t);
-		if (typeClass == null || typeClass == EndTag.class) {
+		if (getTypeClass() == EndTag.class) {
 			typeClass = t.getClass();
 		} else if (typeClass != t.getClass()) {
 			throw new ClassCastException(
@@ -203,7 +202,7 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	@SuppressWarnings("unchecked")
 	public <L extends Tag<?>> ListTag<L> asTypedList(Class<L> type) {
 		checkTypeClass(type);
-		typeClass = type;
+//		typeClass = type;
 		return (ListTag<L>) this;
 	}
 
@@ -309,7 +308,7 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	//TODO: make private
 	@SuppressWarnings("unchecked")
 	public void addUnchecked(Tag<?> tag) {
-		if (typeClass != null && typeClass != tag.getClass() && typeClass != EndTag.class) {
+		if (getTypeClass() != EndTag.class && typeClass != tag.getClass()) {
 			throw new IllegalArgumentException(String.format(
 					"cannot add %s to ListTag<%s>",
 					tag.getClass().getSimpleName(), typeClass.getSimpleName()));
@@ -318,7 +317,7 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	}
 
 	private void checkTypeClass(Class<?> clazz) {
-		if (typeClass != null && typeClass != EndTag.class && typeClass != clazz) {
+		if (getTypeClass() != EndTag.class && typeClass != clazz) {
 			throw new ClassCastException(String.format(
 					"cannot cast ListTag<%s> to ListTag<%s>",
 					typeClass.getSimpleName(), clazz.getSimpleName()));
