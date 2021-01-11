@@ -22,7 +22,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-public class NBTInputStream extends DataInputStream implements MaxDepthIO {
+public class NBTInputStream extends DataInputStream implements NBTInput, MaxDepthIO {
 
 	private static Map<Byte, ExceptionBiFunction<NBTInputStream, Integer, ? extends Tag<?>, IOException>> readers = new HashMap<>();
 	private static Map<Byte, Class<?>> idClassMapping = new HashMap<>();

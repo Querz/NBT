@@ -1,6 +1,7 @@
 package net.querz.mca;
 
 import net.querz.nbt.tag.CompoundTag;
+import net.querz.nbt.tag.EndTag;
 import net.querz.nbt.tag.ListTag;
 import static net.querz.mca.LoadFlags.*;
 import java.io.File;
@@ -90,7 +91,7 @@ public class MCAFileTest extends MCATestCase {
 		assertNotNull(f.getChunk(0).getBiomes());
 		assertNull(f.getChunk(0).getHeightMaps());
 		assertNull(f.getChunk(0).getCarvingMasks());
-		assertEquals(new ListTag<>(CompoundTag.class), f.getChunk(0).getEntities());
+		assertEquals(ListTag.createUnchecked(null), f.getChunk(0).getEntities());
 		assertNull(f.getChunk(0).getTileEntities());
 		assertNull(f.getChunk(0).getTileTicks());
 		assertNull(f.getChunk(0).getLiquidTicks());
@@ -184,7 +185,7 @@ public class MCAFileTest extends MCATestCase {
 		MCAFile f = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("r.2.2.mca")));
 		assertEquals(21, f.getBiomeAt(1024, 1024));
 		assertEquals(-1, f.getBiomeAt(1040, 1024));
-		f.setChunk(0, 1, Chunk.newChunk());
+		f.setChunk(0, 1, Chunk.newChunk(2201));
 		assertEquals(-1, f.getBiomeAt(1024, 1040));
 
 	}
@@ -197,9 +198,9 @@ public class MCAFileTest extends MCATestCase {
 		assertEquals(47, f.getChunk(64, 64).updateHandle(64, 64).getCompoundTag("Level").getIntArray("Biomes")[255]);
 		f.setBiomeAt(1040, 1024, 20);
 		int[] biomes = f.getChunk(65, 64).updateHandle(65, 64).getCompoundTag("Level").getIntArray("Biomes");
-		assertEquals(256, biomes.length);
-		for (int i = 0; i < 256; i++) {
-			assertTrue(i == 0 ? biomes[i] == 20 : biomes[i] == -1);
+		assertEquals(1024, biomes.length);
+		for (int i = 0; i < 1024; i++) {
+			assertTrue(i % 16 == 0 ? biomes[i] == 20 : biomes[i] == -1);
 		}
 	}
 

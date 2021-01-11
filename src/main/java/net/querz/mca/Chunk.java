@@ -16,9 +16,10 @@ import static net.querz.mca.LoadFlags.*;
 
 public class Chunk {
 
-	public static final int DEFAULT_DATA_VERSION = 1628;
+	public static final int DEFAULT_DATA_VERSION = 2567;
 
 	private boolean partial;
+	private boolean raw;
 
 	private int lastMCAUpdate;
 
@@ -59,6 +60,12 @@ public class Chunk {
 		if (data == null) {
 			throw new NullPointerException("data cannot be null");
 		}
+
+		if ((loadFlags != ALL_DATA) && (loadFlags & RAW) != 0) {
+			raw = true;
+			return;
+		}
+
 		CompoundTag level;
 		if ((level = data.getCompoundTag("Level")) == null) {
 			throw new IllegalArgumentException("data does not contain \"Level\" tag");
@@ -121,8 +128,6 @@ public class Chunk {
 		if (loadFlags != ALL_DATA) {
 			data = null;
 			partial = true;
-		} else {
-			partial = false;
 		}
 	}
 
@@ -224,6 +229,7 @@ public class Chunk {
 
 	@Deprecated
 	public void setBiomeAt(int blockX, int blockZ, int biomeID) {
+		checkRaw();
 		if (dataVersion < 2202) {
 			if (biomes == null || biomes.length != 256) {
 				biomes = new int[256];
@@ -254,6 +260,7 @@ public class Chunk {
 	  *                When set to a negative number, Minecraft will replace it with the block column's default biome.
 	  */
 	public void setBiomeAt(int blockX, int blockY, int blockZ, int biomeID) {
+		checkRaw();
 		if (dataVersion < 2202) {
 			if (biomes == null || biomes.length != 256) {
 				biomes = new int[256];
@@ -274,7 +281,7 @@ public class Chunk {
 	}
 
 	int getBiomeIndex(int biomeX, int biomeY, int biomeZ) {
-		return biomeY * 64 + biomeZ * 4 + biomeX;
+		return biomeY * 16 + biomeZ * 4 + biomeX;
 	}
 
 	public CompoundTag getBlockStateAt(int blockX, int blockY, int blockZ) {
@@ -297,6 +304,7 @@ public class Chunk {
 	 *                Recalculating the Palette should only be executed once right before saving the Chunk to file.
 	 */
 	public void setBlockStateAt(int blockX, int blockY, int blockZ, CompoundTag state, boolean cleanup) {
+		checkRaw();
 		int sectionIndex = MCAUtil.blockToChunk(blockY);
 		Section section = sections[sectionIndex];
 		if (section == null) {
@@ -318,6 +326,7 @@ public class Chunk {
 	 * @param dataVersion The DataVersion to be set.
 	 */
 	public void setDataVersion(int dataVersion) {
+		checkRaw();
 		this.dataVersion = dataVersion;
 	}
 
@@ -333,6 +342,7 @@ public class Chunk {
 	 * @param lastMCAUpdate The time in seconds since 1970-01-01.
 	 */
 	public void setLastMCAUpdate(int lastMCAUpdate) {
+		checkRaw();
 		this.lastMCAUpdate = lastMCAUpdate;
 	}
 
@@ -348,6 +358,7 @@ public class Chunk {
 	 * @param status The generation status of this chunk.
 	 */
 	public void setStatus(String status) {
+		checkRaw();
 		this.status = status;
 	}
 
@@ -366,6 +377,7 @@ public class Chunk {
 	 * @param section The section to be set.
 	 */
 	public void setSection(int sectionY, Section section) {
+		checkRaw();
 		sections[sectionY] = section;
 	}
 
@@ -381,6 +393,7 @@ public class Chunk {
 	 * @param lastUpdate The UNIX timestamp.
 	 */
 	public void setLastUpdate(long lastUpdate) {
+		checkRaw();
 		this.lastUpdate = lastUpdate;
 	}
 
@@ -396,6 +409,7 @@ public class Chunk {
 	 * @param inhabitedTime The time in ticks.
 	 */
 	public void setInhabitedTime(long inhabitedTime) {
+		checkRaw();
 		this.inhabitedTime = inhabitedTime;
 	}
 
@@ -413,6 +427,7 @@ public class Chunk {
 	 *                                  or is <code>null</code>
 	 */
 	public void setBiomes(int[] biomes) {
+		checkRaw();
 		if (biomes != null) {
 			if (dataVersion < 2202 && biomes.length != 256 || dataVersion >= 2202 && biomes.length != 1024) {
 				throw new IllegalArgumentException("biomes array must have a length of " + (dataVersion < 2202 ? "256" : "1024"));
@@ -433,6 +448,7 @@ public class Chunk {
 	 * @param heightMaps The height maps.
 	 */
 	public void setHeightMaps(CompoundTag heightMaps) {
+		checkRaw();
 		this.heightMaps = heightMaps;
 	}
 
@@ -448,6 +464,7 @@ public class Chunk {
 	 * @param carvingMasks The carving masks.
 	 */
 	public void setCarvingMasks(CompoundTag carvingMasks) {
+		checkRaw();
 		this.carvingMasks = carvingMasks;
 	}
 
@@ -463,6 +480,7 @@ public class Chunk {
 	 * @param entities The entities.
 	 */
 	public void setEntities(ListTag<CompoundTag> entities) {
+		checkRaw();
 		this.entities = entities;
 	}
 
@@ -478,6 +496,7 @@ public class Chunk {
 	 * @param tileEntities The tile entities of this chunk.
 	 */
 	public void setTileEntities(ListTag<CompoundTag> tileEntities) {
+		checkRaw();
 		this.tileEntities = tileEntities;
 	}
 
@@ -493,6 +512,7 @@ public class Chunk {
 	 * @param tileTicks Thee tile ticks.
 	 */
 	public void setTileTicks(ListTag<CompoundTag> tileTicks) {
+		checkRaw();
 		this.tileTicks = tileTicks;
 	}
 
@@ -508,6 +528,7 @@ public class Chunk {
 	 * @param liquidTicks The liquid ticks.
 	 */
 	public void setLiquidTicks(ListTag<CompoundTag> liquidTicks) {
+		checkRaw();
 		this.liquidTicks = liquidTicks;
 	}
 
@@ -523,11 +544,12 @@ public class Chunk {
 	 * @param lights The light sources.
 	 */
 	public void setLights(ListTag<ListTag<?>> lights) {
+		checkRaw();
 		this.lights = lights;
 	}
 
 	/**
-	 * @return THe liquids to be ticked in this chunk.
+	 * @return The liquids to be ticked in this chunk.
 	 */
 	public ListTag<ListTag<?>> getLiquidsToBeTicked() {
 		return liquidsToBeTicked;
@@ -538,6 +560,7 @@ public class Chunk {
 	 * @param liquidsToBeTicked The liquids to be ticked.
 	 */
 	public void setLiquidsToBeTicked(ListTag<ListTag<?>> liquidsToBeTicked) {
+		checkRaw();
 		this.liquidsToBeTicked = liquidsToBeTicked;
 	}
 
@@ -553,6 +576,7 @@ public class Chunk {
 	 * @param toBeTicked The stuff to be ticked.
 	 */
 	public void setToBeTicked(ListTag<ListTag<?>> toBeTicked) {
+		checkRaw();
 		this.toBeTicked = toBeTicked;
 	}
 
@@ -568,6 +592,7 @@ public class Chunk {
 	 * @param postProcessing The things to be post processed.
 	 */
 	public void setPostProcessing(ListTag<ListTag<?>> postProcessing) {
+		checkRaw();
 		this.postProcessing = postProcessing;
 	}
 
@@ -583,6 +608,7 @@ public class Chunk {
 	 * @param structures The data about structures.
 	 */
 	public void setStructures(CompoundTag structures) {
+		checkRaw();
 		this.structures = structures;
 	}
 
@@ -591,6 +617,7 @@ public class Chunk {
 	}
 
 	public void cleanupPalettesAndBlockStates() {
+		checkRaw();
 		for (Section section : sections) {
 			if (section != null) {
 				section.cleanupPaletteAndBlockStates();
@@ -598,16 +625,38 @@ public class Chunk {
 		}
 	}
 
+	private void checkRaw() {
+		if (raw) {
+			throw new UnsupportedOperationException("cannot update field when working with raw data");
+		}
+	}
+
 	public static Chunk newChunk() {
+		return newChunk(DEFAULT_DATA_VERSION);
+	}
+
+	public static Chunk newChunk(int dataVersion) {
 		Chunk c = new Chunk(0);
-		c.dataVersion = DEFAULT_DATA_VERSION;
+		c.dataVersion = dataVersion;
 		c.data = new CompoundTag();
 		c.data.put("Level", new CompoundTag());
 		c.status = "mobs_spawned";
 		return c;
 	}
 
+	/**
+	 * Provides a reference to the full chunk data.
+	 * @return The full chunk data or null if there is none, e.g. when this chunk has only been loaded partially.
+	 */
+	public CompoundTag getHandle() {
+		return data;
+	}
+
 	public CompoundTag updateHandle(int xPos, int zPos) {
+		if (raw) {
+			return data;
+		}
+
 		data.putInt("DataVersion", dataVersion);
 		CompoundTag level = data.getCompoundTag("Level");
 		level.putInt("xPos", xPos);
@@ -615,22 +664,48 @@ public class Chunk {
 		level.putLong("LastUpdate", lastUpdate);
 		level.putLong("InhabitedTime", inhabitedTime);
 		if (dataVersion < 2202) {
-			if (biomes != null && biomes.length == 256) level.putIntArray("Biomes", biomes);
+			if (biomes != null && biomes.length == 256) {
+				level.putIntArray("Biomes", biomes);
+			}
 		} else {
-			if (biomes != null && biomes.length == 1024) level.putIntArray("Biomes", biomes);
+			if (biomes != null && biomes.length == 1024) {
+				level.putIntArray("Biomes", biomes);
+			}
 		}
-		if (heightMaps != null) level.put("Heightmaps", heightMaps);
-		if (carvingMasks != null) level.put("CarvingMasks", carvingMasks);
-		if (entities != null) level.put("Entities", entities);
-		if (tileEntities != null) level.put("TileEntities", tileEntities);
-		if (tileTicks != null) level.put("TileTicks", tileTicks);
-		if (liquidTicks != null) level.put("LiquidTicks", liquidTicks);
-		if (lights != null) level.put("Lights", lights);
-		if (liquidsToBeTicked != null) level.put("LiquidsToBeTicked", liquidsToBeTicked);
-		if (toBeTicked != null) level.put("ToBeTicked", toBeTicked);
-		if (postProcessing != null) level.put("PostProcessing", postProcessing);
+		if (heightMaps != null) {
+			level.put("Heightmaps", heightMaps);
+		}
+		if (carvingMasks != null) {
+			level.put("CarvingMasks", carvingMasks);
+		}
+		if (entities != null) {
+			level.put("Entities", entities);
+		}
+		if (tileEntities != null) {
+			level.put("TileEntities", tileEntities);
+		}
+		if (tileTicks != null) {
+			level.put("TileTicks", tileTicks);
+		}
+		if (liquidTicks != null) {
+			level.put("LiquidTicks", liquidTicks);
+		}
+		if (lights != null) {
+			level.put("Lights", lights);
+		}
+		if (liquidsToBeTicked != null) {
+			level.put("LiquidsToBeTicked", liquidsToBeTicked);
+		}
+		if (toBeTicked != null) {
+			level.put("ToBeTicked", toBeTicked);
+		}
+		if (postProcessing != null) {
+			level.put("PostProcessing", postProcessing);
+		}
 		level.putString("Status", status);
-		if (structures != null) level.put("Structures", structures);
+		if (structures != null) {
+			level.put("Structures", structures);
+		}
 		ListTag<CompoundTag> sections = new ListTag<>(CompoundTag.class);
 		for (int i = 0; i < this.sections.length; i++) {
 			if (this.sections[i] != null) {
