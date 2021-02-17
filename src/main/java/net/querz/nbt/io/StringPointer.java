@@ -9,6 +9,14 @@ public class StringPointer {
 		this.value = value;
 	}
 
+	public int getIndex() {
+		return index;
+	}
+
+	public int size() {
+		return value.length();
+	}
+
 	public String parseSimpleString() {
 		int oldIndex = index;
 		while (hasNext() && isSimpleChar(currentChar())) {

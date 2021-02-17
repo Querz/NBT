@@ -34,28 +34,31 @@ public final class SNBTParser implements MaxDepthIO {
 
 	private StringPointer ptr;
 
-	private SNBTParser(String string) {
+	public SNBTParser(String string) {
 		this.ptr = new StringPointer(string);
 	}
 
-	public static Tag<?> parse(String string, int maxDepth) throws ParseException {
-		return parse(string, maxDepth, false);
-	}
-
-	public static Tag<?> parse(String string, int maxDepth, boolean lenient) throws ParseException {
-		SNBTParser parser = new SNBTParser(string);
-		Tag<?> tag = parser.parseAnything(maxDepth);
+	public Tag<?> parse(int maxDepth, boolean lenient) throws ParseException {
+		Tag<?> tag = parseAnything(maxDepth);
 		if (!lenient) {
-			parser.ptr.skipWhitespace();
-			if (parser.ptr.hasNext()) {
-				throw parser.ptr.parseException("invalid characters after end of snbt");
+			ptr.skipWhitespace();
+			if (ptr.hasNext()) {
+				throw ptr.parseException("invalid characters after end of snbt");
 			}
 		}
 		return tag;
 	}
 
-	public static Tag<?> parse(String string) throws ParseException {
-		return parse(string, Tag.DEFAULT_MAX_DEPTH);
+	public Tag<?> parse(int maxDepth) throws ParseException {
+		return parse(maxDepth, false);
+	}
+
+	public Tag<?> parse() throws ParseException {
+		return parse(Tag.DEFAULT_MAX_DEPTH, false);
+	}
+
+	public int getReadChars() {
+		return ptr.getIndex() + 1;
 	}
 
 	private Tag<?> parseAnything(int maxDepth) throws ParseException {
