@@ -12,4 +12,8 @@ public class SNBTUtil {
 	public static Tag<?> fromSNBT(String string) throws IOException {
 		return new SNBTDeserializer().fromString(string);
 	}
+
+	public static Tag<?> fromSNBT(String string, boolean lenient) throws IOException {
+		return SNBTParser.parse(string, Tag.DEFAULT_MAX_DEPTH, lenient);
+	}
 }
