@@ -7,7 +7,7 @@ import java.util.Arrays;
 public class SNBTParserTest extends NBTTestCase {
 
 	public void testParse() {
-		Tag<?> t = assertThrowsNoException(() -> SNBTParser.parse("{abc: def, blah: 4b, blubb: \"string\", \"foo\": 2s}"));
+		Tag<?> t = assertThrowsNoException(() -> new SNBTParser("{abc: def, blah: 4b, blubb: \"string\", \"foo\": 2s}").parse());
 		assertEquals(CompoundTag.class, t.getClass());
 		CompoundTag c = (CompoundTag) t;
 		assertEquals(4, c.size());
@@ -19,118 +19,118 @@ public class SNBTParserTest extends NBTTestCase {
 
 		// ------------------------------------------------- number tags
 
-		Tag<?> tb = assertThrowsNoException(() -> SNBTParser.parse("16b"));
+		Tag<?> tb = assertThrowsNoException(() -> new SNBTParser("16b").parse());
 		assertEquals(ByteTag.class, tb.getClass());
 		assertEquals((byte) 16, ((ByteTag) tb).asByte());
 
-		tb = assertThrowsNoException(() -> SNBTParser.parse("16B"));
+		tb = assertThrowsNoException(() -> new SNBTParser("16B").parse());
 		assertEquals(ByteTag.class, tb.getClass());
 		assertEquals((byte) 16, ((ByteTag) tb).asByte());
 
-		assertThrowsException((() -> SNBTParser.parse("-129b")), ParseException.class);
+		assertThrowsException((() -> new SNBTParser("-129b").parse()), ParseException.class);
 
-		Tag<?> ts = assertThrowsNoException(() -> SNBTParser.parse("17s"));
+		Tag<?> ts = assertThrowsNoException(() -> new SNBTParser("17s").parse());
 		assertEquals(ShortTag.class, ts.getClass());
 		assertEquals((short) 17, ((ShortTag) ts).asShort());
 
-		ts = assertThrowsNoException(() -> SNBTParser.parse("17S"));
+		ts = assertThrowsNoException(() -> new SNBTParser("17S").parse());
 		assertEquals(ShortTag.class, ts.getClass());
 		assertEquals((short) 17, ((ShortTag) ts).asShort());
 
-		assertThrowsException((() -> SNBTParser.parse("-32769s")), ParseException.class);
+		assertThrowsException((() -> new SNBTParser("-32769s").parse()), ParseException.class);
 
-		Tag<?> ti = assertThrowsNoException(() -> SNBTParser.parse("18"));
+		Tag<?> ti = assertThrowsNoException(() -> new SNBTParser("18").parse());
 		assertEquals(IntTag.class, ti.getClass());
 		assertEquals(18, ((IntTag) ti).asInt());
 
-		assertThrowsException((() -> SNBTParser.parse("-2147483649")), ParseException.class);
+		assertThrowsException((() -> new SNBTParser("-2147483649").parse()), ParseException.class);
 
-		Tag<?> tl = assertThrowsNoException(() -> SNBTParser.parse("19l"));
+		Tag<?> tl = assertThrowsNoException(() -> new SNBTParser("19l").parse());
 		assertEquals(LongTag.class, tl.getClass());
 		assertEquals(19L, ((LongTag) tl).asLong());
 
-		tl = assertThrowsNoException(() -> SNBTParser.parse("19L"));
+		tl = assertThrowsNoException(() -> new SNBTParser("19L").parse());
 		assertEquals(LongTag.class, tl.getClass());
 		assertEquals(19L, ((LongTag) tl).asLong());
 
-		assertThrowsException((() -> SNBTParser.parse("-9223372036854775809l")), ParseException.class);
+		assertThrowsException((() -> new SNBTParser("-9223372036854775809l").parse()), ParseException.class);
 
-		Tag<?> tf = assertThrowsNoException(() -> SNBTParser.parse("20.3f"));
+		Tag<?> tf = assertThrowsNoException(() -> new SNBTParser("20.3f").parse());
 		assertEquals(FloatTag.class, tf.getClass());
 		assertEquals(20.3f, ((FloatTag) tf).asFloat());
 
-		tf = assertThrowsNoException(() -> SNBTParser.parse("20.3F"));
+		tf = assertThrowsNoException(() -> new SNBTParser("20.3F").parse());
 		assertEquals(FloatTag.class, tf.getClass());
 		assertEquals(20.3f, ((FloatTag) tf).asFloat());
 
-		Tag<?> td = assertThrowsNoException(() -> SNBTParser.parse("21.3d"));
+		Tag<?> td = assertThrowsNoException(() -> new SNBTParser("21.3d").parse());
 		assertEquals(DoubleTag.class, td.getClass());
 		assertEquals(21.3d, ((DoubleTag) td).asDouble());
 
-		td = assertThrowsNoException(() -> SNBTParser.parse("21.3D"));
+		td = assertThrowsNoException(() -> new SNBTParser("21.3D").parse());
 		assertEquals(DoubleTag.class, td.getClass());
 		assertEquals(21.3d, ((DoubleTag) td).asDouble());
 
-		td = assertThrowsNoException(() -> SNBTParser.parse("21.3"));
+		td = assertThrowsNoException(() -> new SNBTParser("21.3").parse());
 		assertEquals(DoubleTag.class, td.getClass());
 		assertEquals(21.3d, ((DoubleTag) td).asDouble());
 
-		Tag<?> tbo = assertThrowsNoException(() -> SNBTParser.parse("true"));
+		Tag<?> tbo = assertThrowsNoException(() -> new SNBTParser("true").parse());
 		assertEquals(ByteTag.class, tbo.getClass());
 		assertEquals((byte) 1, ((ByteTag) tbo).asByte());
 
-		tbo = assertThrowsNoException(() -> SNBTParser.parse("false"));
+		tbo = assertThrowsNoException(() -> new SNBTParser("false").parse());
 		assertEquals(ByteTag.class, tbo.getClass());
 		assertEquals((byte) 0, ((ByteTag) tbo).asByte());
 
 		// ------------------------------------------------- arrays
 
-		Tag<?> ba = assertThrowsNoException(() -> SNBTParser.parse("[B; -128,0, 127]"));
+		Tag<?> ba = assertThrowsNoException(() -> new SNBTParser("[B; -128,0, 127]").parse());
 		assertEquals(ByteArrayTag.class, ba.getClass());
 		assertEquals(3, ((ByteArrayTag) ba).length());
 		assertTrue(Arrays.equals(new byte[]{-128, 0, 127}, ((ByteArrayTag) ba).getValue()));
 
-		Tag<?> ia = assertThrowsNoException(() -> SNBTParser.parse("[I; -2147483648, 0,2147483647]"));
+		Tag<?> ia = assertThrowsNoException(() -> new SNBTParser("[I; -2147483648, 0,2147483647]").parse());
 		assertEquals(IntArrayTag.class, ia.getClass());
 		assertEquals(3, ((IntArrayTag) ia).length());
 		assertTrue(Arrays.equals(new int[]{-2147483648, 0, 2147483647}, ((IntArrayTag) ia).getValue()));
 
-		Tag<?> la = assertThrowsNoException(() -> SNBTParser.parse("[L; -9223372036854775808, 0, 9223372036854775807 ]"));
+		Tag<?> la = assertThrowsNoException(() -> new SNBTParser("[L; -9223372036854775808, 0, 9223372036854775807 ]").parse());
 		assertEquals(LongArrayTag.class, la.getClass());
 		assertEquals(3, ((LongArrayTag) la).length());
 		assertTrue(Arrays.equals(new long[]{-9223372036854775808L, 0, 9223372036854775807L}, ((LongArrayTag) la).getValue()));
 
 		// ------------------------------------------------- invalid arrays
 
-		assertThrowsException((() -> SNBTParser.parse("[B; -129]")), ParseException.class);
-		assertThrowsException((() -> SNBTParser.parse("[I; -2147483649]")), ParseException.class);
-		assertThrowsException((() -> SNBTParser.parse("[L; -9223372036854775809]")), ParseException.class);
-		assertThrowsException((() -> SNBTParser.parse("[B; 123b]")), ParseException.class);
-		assertThrowsException((() -> SNBTParser.parse("[I; 123i]")), ParseException.class);
-		assertThrowsException((() -> SNBTParser.parse("[L; 123l]")), ParseException.class);
-		assertThrowsException((() -> SNBTParser.parse("[K; -129]")), ParseException.class);
+		assertThrowsException((() -> new SNBTParser("[B; -129]").parse()), ParseException.class);
+		assertThrowsException((() -> new SNBTParser("[I; -2147483649]").parse()), ParseException.class);
+		assertThrowsException((() -> new SNBTParser("[L; -9223372036854775809]").parse()), ParseException.class);
+		assertThrowsException((() -> new SNBTParser("[B; 123b]").parse()), ParseException.class);
+		assertThrowsException((() -> new SNBTParser("[I; 123i]").parse()), ParseException.class);
+		assertThrowsException((() -> new SNBTParser("[L; 123l]").parse()), ParseException.class);
+		assertThrowsException((() -> new SNBTParser("[K; -129]").parse()), ParseException.class);
 
 		// ------------------------------------------------- high level errors
 
-		assertThrowsException(() -> SNBTParser.parse("{20:10} {blah:blubb}"), ParseException.class);
+		assertThrowsException(() -> new SNBTParser("{20:10} {blah:blubb}").parse(), ParseException.class);
 
 		// ------------------------------------------------- string tag
 
-		Tag<?> st = assertThrowsNoException(() -> SNBTParser.parse("abc"));
+		Tag<?> st = assertThrowsNoException(() -> new SNBTParser("abc").parse());
 		assertEquals(StringTag.class, st.getClass());
 		assertEquals("abc", ((StringTag) st).getValue());
 
-		st = assertThrowsNoException(() -> SNBTParser.parse("\"abc\""));
+		st = assertThrowsNoException(() -> new SNBTParser("\"abc\"").parse());
 		assertEquals(StringTag.class, st.getClass());
 		assertEquals("abc", ((StringTag) st).getValue());
 
-		st = assertThrowsNoException(() -> SNBTParser.parse("123a"));
+		st = assertThrowsNoException(() -> new SNBTParser("123a").parse());
 		assertEquals(StringTag.class, st.getClass());
 		assertEquals("123a", ((StringTag) st).getValue());
 
 		// ------------------------------------------------- list tag
 
-		Tag<?> lt = assertThrowsNoException(() -> SNBTParser.parse("[abc, \"def\", \"123\" ]"));
+		Tag<?> lt = assertThrowsNoException(() -> new SNBTParser("[abc, \"def\", \"123\" ]").parse());
 		assertEquals(ListTag.class, lt.getClass());
 		assertEquals(StringTag.class, ((ListTag<?>) lt).getTypeClass());
 		assertEquals(3, ((ListTag<?>) lt).size());
@@ -138,12 +138,12 @@ public class SNBTParserTest extends NBTTestCase {
 		assertEquals("def", ((ListTag<?>) lt).asStringTagList().get(1).getValue());
 		assertEquals("123", ((ListTag<?>) lt).asStringTagList().get(2).getValue());
 
-		assertThrowsException(() -> SNBTParser.parse("[123, 456"), ParseException.class);
-		assertThrowsException(() -> SNBTParser.parse("[123, 456d]"), ParseException.class);
+		assertThrowsException(() -> new SNBTParser("[123, 456").parse(), ParseException.class);
+		assertThrowsException(() -> new SNBTParser("[123, 456d]").parse(), ParseException.class);
 
 		// ------------------------------------------------- compound tag
 
-		Tag<?> ct = assertThrowsNoException(() -> SNBTParser.parse("{abc: def,\"key\": 123d, blah: [L;123, 456], blubb: [123, 456]}"));
+		Tag<?> ct = assertThrowsNoException(() -> new SNBTParser("{abc: def,\"key\": 123d, blah: [L;123, 456], blubb: [123, 456]}").parse());
 		assertEquals(CompoundTag.class, ct.getClass());
 		assertEquals(4, ((CompoundTag) ct).size());
 		assertEquals("def", assertThrowsNoException(() -> ((CompoundTag) ct).getString("abc")));
@@ -152,8 +152,8 @@ public class SNBTParserTest extends NBTTestCase {
 		assertEquals(2, assertThrowsNoException(() -> ((CompoundTag) ct).getListTag("blubb")).size());
 		assertEquals(IntTag.class, ((CompoundTag) ct).getListTag("blubb").getTypeClass());
 
-		assertThrowsException(() -> SNBTParser.parse("{abc: def"), ParseException.class);
-		assertThrowsException(() -> SNBTParser.parse("{\"\":empty}"), ParseException.class);
-		assertThrowsException(() -> SNBTParser.parse("{empty:}"), ParseException.class);
+		assertThrowsException(() -> new SNBTParser("{abc: def").parse(), ParseException.class);
+		assertThrowsException(() -> new SNBTParser("{\"\":empty}").parse(), ParseException.class);
+		assertThrowsException(() -> new SNBTParser("{empty:}").parse(), ParseException.class);
 	}
 }

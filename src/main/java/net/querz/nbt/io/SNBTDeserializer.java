@@ -21,6 +21,6 @@ public class SNBTDeserializer implements StringDeserializer<Tag<?>> {
 		} else {
 			bufferedReader = new BufferedReader(reader);
 		}
-		return SNBTParser.parse(bufferedReader.lines().collect(Collectors.joining()), maxDepth);
+		return new SNBTParser(bufferedReader.lines().collect(Collectors.joining())).parse(maxDepth);
 	}
 }
