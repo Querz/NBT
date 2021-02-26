@@ -80,6 +80,14 @@ public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Ma
 		return getValue().get(key);
 	}
 
+	public NumberTag<?> getNumberTag(String key) {
+		return (NumberTag<?>) getValue().get(key);
+	}
+
+	public Number getNumber(String key) {
+		return getNumberTag(key).getValue();
+	}
+
 	public ByteTag getByteTag(String key) {
 		return get(key, ByteTag.class);
 	}
