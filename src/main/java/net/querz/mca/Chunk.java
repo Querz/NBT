@@ -328,6 +328,11 @@ public class Chunk {
 	public void setDataVersion(int dataVersion) {
 		checkRaw();
 		this.dataVersion = dataVersion;
+		for (Section section : sections) {
+			if (section != null) {
+				section.dataVersion = dataVersion;
+			}
+		}
 	}
 
 	/**
