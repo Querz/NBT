@@ -300,6 +300,25 @@ public class MCAFileTest extends MCATestCase {
 		assertEquals(256, sss.get(0).getLongArray("BlockStates").length);
 	}
 
+	public void testSetBlockDataAt2527() {
+		//test "line break" for DataVersion 2527
+		MCAFile f = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("r.2.2.mca")));
+		Chunk p = f.getChunk(0, 0);
+		p.setDataVersion(3000);
+		Section section = f.getChunk(0, 0).getSection(0);
+		assertEquals(10, section.getPalette().size());
+		assertEquals(0b0001000100010001000100010001000100010001000100010001000100010001L, section.getBlockStates()[0]);
+		f.setBlockStateAt(0, 0, 0, block("minecraft:custom"), false);
+		assertEquals(11, section.getPalette().size());
+		assertEquals(0b0001000100010001000100010001000100010001000100010001000100011010L, section.getBlockStates()[0]);
+		int y = 1;
+		for (int i = 12; i <= 17; i++) {
+			f.setBlockStateAt(0, y++, 0, block("minecraft:" + i), false);
+		}
+		assertEquals(17, section.getPalette().size());
+		assertEquals(342, section.getBlockStates().length);
+	}
+
 	public void testGetBlockDataAt() {
 		MCAFile f = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("r.2.2.mca")));
 		assertEquals(block("minecraft:bedrock"), f.getBlockStateAt(0, 0, 0));
