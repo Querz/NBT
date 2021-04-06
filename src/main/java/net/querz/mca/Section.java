@@ -18,7 +18,7 @@ public class Section {
 	private byte[] blockLight;
 	private long[] blockStates;
 	private byte[] skyLight;
-	private int dataVersion;
+	int dataVersion;
 
 	public Section(CompoundTag sectionRoot, int dataVersion) {
 		this(sectionRoot, dataVersion, ALL_DATA);
@@ -282,7 +282,7 @@ public class Section {
 		if (dataVersion < 2527) {
 			newBlockStates = newBits == blockStates.length / 64 ? blockStates : new long[newBits * 64];
 		} else {
-			int newLength = (int) Math.ceil(4096D / (64D / newBits));
+			int newLength = (int) Math.ceil(4096D / (Math.floor(64D / newBits)));
 			newBlockStates = newBits == blockStates.length / 64 ? blockStates : new long[newLength];
 		}
 		if (oldToNewMapping != null) {
