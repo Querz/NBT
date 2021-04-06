@@ -10,7 +10,7 @@ apply plugin: 'jacoco'
 
 group                        = 'net.querz.nbt'
 archivesBaseName             = 'nbt'
-version                      = '6.0'
+version                      = '6.1'
 sourceCompatibility          = '1.8'
 targetCompatibility          = '1.8'
 compileJava.options.encoding = 'UTF-8'
