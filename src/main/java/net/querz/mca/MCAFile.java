@@ -1,10 +1,15 @@
 package net.querz.mca;
 
 import net.querz.nbt.tag.CompoundTag;
+import net.querz.nbt.tag.Tag;
+
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Map;
 
-public class MCAFile {
+public class MCAFile implements Iterable<Chunk> {
 
 	/**
 	 * The default chunk data version used when no custom version is supplied.
@@ -291,5 +296,10 @@ public class MCAFile {
 				chunk.cleanupPalettesAndBlockStates();
 			}
 		}
+	}
+
+	@Override
+	public Iterator<Chunk> iterator() {
+		return Arrays.stream(chunks).iterator();
 	}
 }
