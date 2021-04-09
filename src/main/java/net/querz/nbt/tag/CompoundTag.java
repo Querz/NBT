@@ -1,7 +1,5 @@
 package net.querz.nbt.tag;
 
-import net.querz.io.MaxDepthIO;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -10,7 +8,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
-public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Map.Entry<String, Tag<?>>>, Comparable<CompoundTag>, MaxDepthIO {
+import net.querz.io.MaxDepthIO;
+
+public class CompoundTag extends Tag<Map<String, Tag<?>>>
+		implements Iterable<Map.Entry<String, Tag<?>>>, Comparable<CompoundTag>, MaxDepthIO {
 
 	public static final byte ID = 10;
 
@@ -193,6 +194,13 @@ public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Ma
 
 	public Tag<?> put(String key, Tag<?> tag) {
 		return getValue().put(Objects.requireNonNull(key), Objects.requireNonNull(tag));
+	}
+
+	public Tag<?> putIfNotNull(String key, Tag<?> tag) {
+		if (tag == null) {
+			return this;
+		}
+		return put(key, tag);
 	}
 
 	public Tag<?> putBoolean(String key, boolean value) {
