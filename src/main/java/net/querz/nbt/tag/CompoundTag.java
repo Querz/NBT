@@ -1,7 +1,5 @@
 package net.querz.nbt.tag;
 
-import net.querz.io.MaxDepthIO;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -10,12 +8,19 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
-public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Map.Entry<String, Tag<?>>>, Comparable<CompoundTag>, MaxDepthIO {
+import net.querz.io.MaxDepthIO;
+
+public class CompoundTag extends Tag<Map<String, Tag<?>>>
+		implements Iterable<Map.Entry<String, Tag<?>>>, Comparable<CompoundTag>, MaxDepthIO {
 
 	public static final byte ID = 10;
 
 	public CompoundTag() {
 		super(createEmptyValue());
+	}
+
+	public CompoundTag(int initialCapacity) {
+		super(new HashMap<>(initialCapacity));
 	}
 
 	@Override
