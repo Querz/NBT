@@ -200,6 +200,13 @@ public class CompoundTag extends Tag<Map<String, Tag<?>>>
 		return getValue().put(Objects.requireNonNull(key), Objects.requireNonNull(tag));
 	}
 
+	public Tag<?> putIfNotNull(String key, Tag<?> tag) {
+		if (tag == null) {
+			return this;
+		}
+		return put(key, tag);
+	}
+
 	public Tag<?> putBoolean(String key, boolean value) {
 		return put(key, new ByteTag(value));
 	}
