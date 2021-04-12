@@ -265,8 +265,10 @@ public class Section implements Comparable<Section> {
 	 * Recalculating the Palette should only be executed once right before saving the Section to file.
 	 */
 	public void cleanupPaletteAndBlockStates() {
-		Map<Integer, Integer> oldToNewMapping = cleanupPalette();
-		adjustBlockStateBits(oldToNewMapping, blockStates);
+		if (blockStates != null) {
+			Map<Integer, Integer> oldToNewMapping = cleanupPalette();
+			adjustBlockStateBits(oldToNewMapping, blockStates);
+		}
 	}
 
 	private Map<Integer, Integer> cleanupPalette() {
