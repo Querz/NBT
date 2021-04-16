@@ -320,7 +320,7 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	@SuppressWarnings("unchecked")
 	@Override
 	public ListTag<T> clone() {
-		ListTag<T> copy = new ListTag<>(((int) Math.ceil(this.size() * 1.75)) + 1);
+		ListTag<T> copy = new ListTag<>(this.size());
 		// assure type safety for clone
 		copy.typeClass = typeClass;
 		for (T t : getValue()) {
