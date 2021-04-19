@@ -282,7 +282,8 @@ public class CompoundTag extends Tag<Map<String, Tag<?>>>
 
 	@Override
 	public CompoundTag clone() {
-		CompoundTag copy = new CompoundTag((int) Math.ceil(getValue().size() * 1.33f));
+		// Choose initial capacity based on default load factor (0.75) so all entries fit in map without resizing
+		CompoundTag copy = new CompoundTag((int) Math.ceil(getValue().size() / 0.75f));
 		for (Map.Entry<String, Tag<?>> e : getValue().entrySet()) {
 			copy.put(e.getKey(), e.getValue().clone());
 		}
