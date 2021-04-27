@@ -1,7 +1,5 @@
 package net.querz.nbt.tag;
 
-import net.querz.io.MaxDepthIO;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -10,12 +8,19 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
-public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Map.Entry<String, Tag<?>>>, Comparable<CompoundTag>, MaxDepthIO {
+import net.querz.io.MaxDepthIO;
+
+public class CompoundTag extends Tag<Map<String, Tag<?>>>
+		implements Iterable<Map.Entry<String, Tag<?>>>, Comparable<CompoundTag>, MaxDepthIO {
 
 	public static final byte ID = 10;
 
 	public CompoundTag() {
 		super(createEmptyValue());
+	}
+
+	public CompoundTag(int initialCapacity) {
+		super(new HashMap<>(initialCapacity));
 	}
 
 	@Override
@@ -277,7 +282,8 @@ public class CompoundTag extends Tag<Map<String, Tag<?>>> implements Iterable<Ma
 
 	@Override
 	public CompoundTag clone() {
-		CompoundTag copy = new CompoundTag();
+		// Choose initial capacity based on default load factor (0.75) so all entries fit in map without resizing
+		CompoundTag copy = new CompoundTag((int) Math.ceil(getValue().size() / 0.75f));
 		for (Map.Entry<String, Tag<?>> e : getValue().entrySet()) {
 			copy.put(e.getKey(), e.getValue().clone());
 		}

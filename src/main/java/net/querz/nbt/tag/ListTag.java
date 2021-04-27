@@ -1,7 +1,5 @@
 package net.querz.nbt.tag;
 
-import net.querz.io.MaxDepthIO;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -10,38 +8,53 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import net.querz.io.MaxDepthIO;
+
 /**
  * ListTag represents a typed List in the nbt structure.
  * An empty {@link ListTag} will be of type {@link EndTag} (unknown type).
  * The type of an empty untyped {@link ListTag} can be set by using any of the {@code add()}
  * methods or any of the {@code as...List()} methods.
- * */
+ */
 public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<T>, Comparable<ListTag<T>>, MaxDepthIO {
 
 	public static final byte ID = 9;
 
 	private Class<?> typeClass = null;
 
-	private ListTag() {
-		super(createEmptyValue(3));
+	private ListTag(int initialCapacity) {
+		super(createEmptyValue(initialCapacity));
 	}
 
 	@Override
 	public byte getID() {
 		return ID;
 	}
-	
+
 	/**
-	 * <p>Creates a non-type-safe ListTag. Its element type will be set after the first 
+	 * <p>Creates a non-type-safe ListTag. Its element type will be set after the first
 	 * element was added.</p>
-	 * 
-	 * <p>This is an internal helper method for cases where the element type is not known 
+	 *
+	 * <p>This is an internal helper method for cases where the element type is not known
 	 * at construction time. Use {@link #ListTag(Class)} when the type is known.</p>
-	 * 
+	 *
 	 * @return A new non-type-safe ListTag
 	 */
 	public static ListTag<?> createUnchecked(Class<?> typeClass) {
-		ListTag<?> list = new ListTag<>();
+		return createUnchecked(typeClass, 3);
+	}
+
+	/**
+	 * <p>Creates a non-type-safe ListTag. Its element type will be set after the first
+	 * element was added.</p>
+	 *
+	 * <p>This is an internal helper method for cases where the element type is not known
+	 * at construction time. Use {@link #ListTag(Class)} when the type is known.</p>
+	 *
+	 * @return A new non-type-safe ListTag
+	 */
+	public static ListTag<?> createUnchecked(Class<?> typeClass, int initialCapacity) {
+		ListTag<?> list = new ListTag<>(initialCapacity);
 		list.typeClass = typeClass;
 		return list;
 	}
@@ -49,10 +62,10 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	/**
 	 * <p>Creates an empty mutable list to be used as empty value of ListTags.</p>
 	 *
-	 * @param <T> Type of the list elements
+	 * @param <T>             Type of the list elements
 	 * @param initialCapacity The initial capacity of the returned List
 	 * @return An instance of {@link java.util.List} with an initial capacity of 3
-	 * */
+	 */
 	private static <T> List<T> createEmptyValue(int initialCapacity) {
 		return new ArrayList<>(initialCapacity);
 	}
@@ -60,10 +73,20 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	/**
 	 * @param typeClass The exact class of the elements
 	 * @throws IllegalArgumentException When {@code typeClass} is {@link EndTag}{@code .class}
-	 * @throws NullPointerException When {@code typeClass} is {@code null}
+	 * @throws NullPointerException     When {@code typeClass} is {@code null}
 	 */
 	public ListTag(Class<? super T> typeClass) throws IllegalArgumentException, NullPointerException {
-		super(createEmptyValue(3));
+		this(typeClass, 3);
+	}
+
+	/**
+	 * @param typeClass       The exact class of the elements
+	 * @param initialCapacity Initial capacity of list
+	 * @throws IllegalArgumentException When {@code typeClass} is {@link EndTag}{@code .class}
+	 * @throws NullPointerException     When {@code typeClass} is {@code null}
+	 */
+	public ListTag(Class<? super T> typeClass, int initialCapacity) throws IllegalArgumentException, NullPointerException {
+		super(createEmptyValue(initialCapacity));
 		if (typeClass == EndTag.class) {
 			throw new IllegalArgumentException("cannot create ListTag with EndTag elements");
 		}
@@ -114,8 +137,9 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 
 	/**
 	 * Adds a Tag to this ListTag after the last index.
+	 *
 	 * @param t The element to be added.
-	 * */
+	 */
 	public void add(T t) {
 		add(size(), t);
 	}
@@ -271,7 +295,8 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 		if (this == other) {
 			return true;
 		}
-		if (!super.equals(other) || size() != ((ListTag<?>) other).size() || getTypeClass() != ((ListTag<?>) other).getTypeClass()) {
+		if (!super.equals(other) || size() != ((ListTag<?>) other).size() || getTypeClass() != ((ListTag<?>) other)
+				.getTypeClass()) {
 			return false;
 		}
 		for (int i = 0; i < size(); i++) {
@@ -295,7 +320,7 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 	@SuppressWarnings("unchecked")
 	@Override
 	public ListTag<T> clone() {
-		ListTag<T> copy = new ListTag<>();
+		ListTag<T> copy = new ListTag<>(this.size());
 		// assure type safety for clone
 		copy.typeClass = typeClass;
 		for (T t : getValue()) {
