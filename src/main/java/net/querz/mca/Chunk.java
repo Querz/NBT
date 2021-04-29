@@ -12,9 +12,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeMap;
+
 import static net.querz.mca.LoadFlags.*;
 
-public class Chunk {
+public class Chunk implements Iterable<Section> {
 
 	public static final int DEFAULT_DATA_VERSION = 2567;
 
@@ -31,7 +35,7 @@ public class Chunk {
 	private int[] biomes;
 	private CompoundTag heightMaps;
 	private CompoundTag carvingMasks;
-	private Section[] sections = new Section[16]; //always initialized with size = 16 for fast access
+	private Map<Integer, Section> sections = new TreeMap<>();
 	private ListTag<CompoundTag> entities;
 	private ListTag<CompoundTag> tileEntities;
 	private ListTag<CompoundTag> tileTicks;
@@ -112,15 +116,9 @@ public class Chunk {
 		}
 		if ((loadFlags & (BLOCK_LIGHTS|BLOCK_STATES|SKY_LIGHT)) != 0 && level.containsKey("Sections")) {
 			for (CompoundTag section : level.getListTag("Sections").asCompoundTagList()) {
-				int sectionIndex = section.getByte("Y");
-				if (sectionIndex > 15 || sectionIndex < 0) {
-					continue;
-				}
+				int sectionIndex = section.getNumber("Y").byteValue();
 				Section newSection = new Section(section, dataVersion, loadFlags);
-				if (newSection.isEmpty()) {
-					continue;
-				}
-				sections[sectionIndex] = newSection;
+				sections.put(sectionIndex, newSection);
 			}
 		}
 
@@ -285,7 +283,7 @@ public class Chunk {
 	}
 
 	public CompoundTag getBlockStateAt(int blockX, int blockY, int blockZ) {
-		Section section = sections[MCAUtil.blockToChunk(blockY)];
+		Section section = sections.get(MCAUtil.blockToChunk(blockY));
 		if (section == null) {
 			return null;
 		}
@@ -306,9 +304,9 @@ public class Chunk {
 	public void setBlockStateAt(int blockX, int blockY, int blockZ, CompoundTag state, boolean cleanup) {
 		checkRaw();
 		int sectionIndex = MCAUtil.blockToChunk(blockY);
-		Section section = sections[sectionIndex];
+		Section section = sections.get(sectionIndex);
 		if (section == null) {
-			section = sections[sectionIndex] = Section.newSection();
+			sections.put(sectionIndex, section = Section.newSection());
 		}
 		section.setBlockStateAt(blockX, blockY, blockZ, state, cleanup);
 	}
@@ -328,7 +326,7 @@ public class Chunk {
 	public void setDataVersion(int dataVersion) {
 		checkRaw();
 		this.dataVersion = dataVersion;
-		for (Section section : sections) {
+		for (Section section : sections.values()) {
 			if (section != null) {
 				section.dataVersion = dataVersion;
 			}
@@ -373,7 +371,7 @@ public class Chunk {
 	 * @return The Section.
 	 */
 	public Section getSection(int sectionY) {
-		return sections[sectionY];
+		return sections.get(sectionY);
 	}
 
 	/**
@@ -383,7 +381,7 @@ public class Chunk {
 	 */
 	public void setSection(int sectionY, Section section) {
 		checkRaw();
-		sections[sectionY] = section;
+		sections.put(sectionY, section);
 	}
 
 	/**
@@ -623,7 +621,7 @@ public class Chunk {
 
 	public void cleanupPalettesAndBlockStates() {
 		checkRaw();
-		for (Section section : sections) {
+		for (Section section : sections.values()) {
 			if (section != null) {
 				section.cleanupPaletteAndBlockStates();
 			}
@@ -712,12 +710,17 @@ public class Chunk {
 			level.put("Structures", structures);
 		}
 		ListTag<CompoundTag> sections = new ListTag<>(CompoundTag.class);
-		for (int i = 0; i < this.sections.length; i++) {
-			if (this.sections[i] != null) {
-				sections.add(this.sections[i].updateHandle(i));
+		for (Section section : this.sections.values()) {
+			if (section != null) {
+				sections.add(section.updateHandle());
 			}
 		}
 		level.put("Sections", sections);
 		return data;
+	}
+
+	@Override
+	public Iterator<Section> iterator() {
+		return sections.values().iterator();
 	}
 }

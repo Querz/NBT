@@ -7,10 +7,11 @@ import net.querz.nbt.tag.ListTag;
 import net.querz.nbt.tag.LongArrayTag;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class Section {
+public class Section implements Comparable<Section> {
 
 	private CompoundTag data;
 	private Map<String, List<PaletteIndex>> valueIndexedPalette = new HashMap<>();
@@ -18,6 +19,7 @@ public class Section {
 	private byte[] blockLight;
 	private long[] blockStates;
 	private byte[] skyLight;
+	private int height;
 	int dataVersion;
 
 	public Section(CompoundTag sectionRoot, int dataVersion) {
@@ -27,6 +29,8 @@ public class Section {
 	public Section(CompoundTag sectionRoot, int dataVersion, long loadFlags) {
 		data = sectionRoot;
 		this.dataVersion = dataVersion;
+		height = sectionRoot.getNumber("Y").byteValue();
+
 		ListTag<?> rawPalette = sectionRoot.getListTag("Palette");
 		if (rawPalette == null) {
 			return;
@@ -85,6 +89,14 @@ public class Section {
 		return null;
 	}
 
+	@Override
+	public int compareTo(Section o) {
+		if (o == null) {
+			return -1;
+		}
+		return Integer.compare(height, o.height);
+	}
+
 	private static class PaletteIndex {
 
 		CompoundTag data;
@@ -105,6 +117,17 @@ public class Section {
 	}
 
 	/**
+	* @return the Y value of this section.
+	* */
+	public int getHeight() {
+		return height;
+	}
+
+	public void setHeight(int height) {
+		this.height = height;
+	}
+
+	/**
 	 * Fetches a block state based on a block location from this section.
 	 * The coordinates represent the location of the block inside of this Section.
 	 * @param blockX The x-coordinate of the block in this Section
@@ -113,7 +136,10 @@ public class Section {
 	 * @return The block state data of this block.
 	 */
 	public CompoundTag getBlockStateAt(int blockX, int blockY, int blockZ) {
-		int index = getBlockIndex(blockX, blockY, blockZ);
+		return getBlockStateAt(getBlockIndex(blockX, blockY, blockZ));
+	}
+
+	private CompoundTag getBlockStateAt(int index) {
 		int paletteIndex = getPaletteIndex(index);
 		return palette.get(paletteIndex);
 	}
@@ -239,8 +265,10 @@ public class Section {
 	 * Recalculating the Palette should only be executed once right before saving the Section to file.
 	 */
 	public void cleanupPaletteAndBlockStates() {
-		Map<Integer, Integer> oldToNewMapping = cleanupPalette();
-		adjustBlockStateBits(oldToNewMapping, blockStates);
+		if (blockStates != null) {
+			Map<Integer, Integer> oldToNewMapping = cleanupPalette();
+			adjustBlockStateBits(oldToNewMapping, blockStates);
+		}
 	}
 
 	private Map<Integer, Integer> cleanupPalette() {
@@ -394,5 +422,52 @@ public class Section {
 			data.putByteArray("SkyLight", skyLight);
 		}
 		return data;
+	}
+
+	public CompoundTag updateHandle() {
+		return updateHandle(height);
+	}
+
+	/**
+	 * Creates an iterable that iterates over all blocks in this section, in order of their indices.
+	 * An index can be calculated using the following formula:
+	 * <pre>
+	 * {@code
+	 * index = (blockY & 0xF) * 256 + (blockZ & 0xF) * 16 + (blockX & 0xF);
+	 * }
+	 * </pre>
+	 * The CompoundTags are references to this Section's Palette and should only be modified if the intention is to
+	 * modify ALL blocks of the same type in this Section at the same time.
+	 * */
+	public Iterable<CompoundTag> blocksStates() {
+		return new BlockIterator(this);
+	}
+
+	private static class BlockIterator implements Iterable<CompoundTag>, Iterator<CompoundTag> {
+
+		private Section section;
+		private int currentIndex;
+
+		public BlockIterator(Section section) {
+			this.section = section;
+			currentIndex = 0;
+		}
+
+		@Override
+		public boolean hasNext() {
+			return currentIndex < 4096;
+		}
+
+		@Override
+		public CompoundTag next() {
+			CompoundTag blockState = section.getBlockStateAt(currentIndex);
+			currentIndex++;
+			return blockState;
+		}
+
+		@Override
+		public Iterator<CompoundTag> iterator() {
+			return this;
+		}
 	}
 }
