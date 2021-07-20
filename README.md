@@ -37,7 +37,7 @@ And then add it as a dependency as usual:
 ```
 dependencies {
 	...
-	compile 'com.github.Querz:NBT:6.1'
+	implementation 'com.github.Querz:NBT:6.1'
 }
 ```
 
