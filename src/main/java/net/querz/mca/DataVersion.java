@@ -47,20 +47,52 @@ public enum DataVersion {
     JAVA_1_16_5(2586, 16, 5),
 
     JAVA_1_17_0(2724, 17, 0),
-    JAVA_1_17_1(2730, 17, 1);
+    JAVA_1_17_1(2730, 17, 1),
+
+    JAVA_1_18_XS1(2825, 18, 0, false, "XS1"),
+    JAVA_1_18_21W44A(2845, 18, 0, false, "21w44a");
 
     private static final int[] ids = Arrays.stream(values()).mapToInt(DataVersion::id).toArray();
     private final int id;
     private final int minor;
     private final int patch;
+    private final boolean isFullRelease;
+    private final String buildDescription;
     private final String str;
 
     DataVersion(int id, int minor, int patch) {
+        this(id, minor, patch, true, null);
+    }
+
+    /**
+     * @param id data version
+     * @param minor minor version
+     * @param patch patch number
+     * @param isFullRelease indicates if this data version is from a full release or not
+     * @param buildDescription Suggested convention: <ul>
+     *                         <li>NULL for full release</li>
+     *                         <li>CT# for combat tests (e.g. CT6, CT6b)</li>
+     *                         <li>XS# for experimental snapshots(e.g. XS1, XS2)</li>
+     *                         <li>YYwWWz for weekly builds (e.g. 21w37a, 21w37b)</li>
+     *                         <li>PR# for pre-releases (e.g. PR1, PR2)</li>
+     *                         <li>RC# for release candidates (e.g. RC1, RC2)</li></ul>
+     */
+    DataVersion(int id, int minor, int patch, boolean isFullRelease, String buildDescription) {
+        if (!isFullRelease && (buildDescription == null || buildDescription.isEmpty()))
+            throw new IllegalArgumentException("buildDescription required for non-full releases");
+        if (isFullRelease && (buildDescription != null && !buildDescription.isEmpty()))
+            throw new IllegalArgumentException("buildDescription not allowed for full releases");
         this.id = id;
         this.minor = minor;
         this.patch = patch;
+        this.isFullRelease = isFullRelease;
+        this.buildDescription = isFullRelease ? "FINAL" : buildDescription;
         if (minor > 0) {
-            this.str = String.format("%d (1.%d.%d)", id, minor, patch);
+            StringBuilder sb = new StringBuilder();
+            sb.append(id).append(" (1.").append(minor);
+            if (patch > 0) sb.append('.').append(patch);
+            if (!isFullRelease) sb.append(' ').append(buildDescription);
+            this.str = sb.append(')').toString();
         } else {
             this.str = name();
         }
@@ -83,6 +115,29 @@ public enum DataVersion {
     }
 
     /**
+     * True for full release.
+     * False for all other builds (e.g. experimental, pre-releases, and release-candidates).
+     */
+    public boolean isFullRelease() {
+        return isFullRelease;
+    }
+
+    /**
+     * Description of the minecraft build which this {@link DataVersion} refers to.
+     * You'll find {@link #toString()} to be more useful in general.
+     * <p>Convention used: <ul>
+     * <li>"FULL" for full release</li>
+     * <li>YYwWWz for weekly builds (e.g. 21w37a, 21w37b)</li>
+     * <li>CT# for combat tests (e.g. CT6, CT6b)</li>
+     * <li>XS# for experimental snapshots(e.g. XS1, XS2)</li>
+     * <li>PR# for pre-releases (e.g. PR1, PR2)</li>
+     * <li>RC# for release candidates (e.g. RC1, RC2)</li></ul>
+     */
+    public String getBuildDescription() {
+        return buildDescription;
+    }
+
+    /**
      * TRUE as of 1.14
      * Indicates if point of interest .mca files exist. E.g. 'poi/r.0.0.mca'
      */
@@ -96,6 +151,13 @@ public enum DataVersion {
      */
     public boolean hasEntitiesMca() {
         return minor >= 17;
+    }
+
+    /**
+     * TRUE before 1.18, FALSE after
+     */
+    public boolean regionChunksHaveLevelTag() {
+        return minor < 18;
     }
 
     public static DataVersion bestFor(int dataVersion) {

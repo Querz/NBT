@@ -35,7 +35,9 @@ public class DataVersionTest extends TestCase {
     }
 
     public void testToString() {
-        assertEquals("2724 (1.17.0)", DataVersion.JAVA_1_17_0.toString());
+        assertEquals("2724 (1.17)", DataVersion.JAVA_1_17_0.toString());
+        assertEquals("2730 (1.17.1)", DataVersion.JAVA_1_17_1.toString());
         assertEquals("UNKNOWN", DataVersion.UNKNOWN.toString());
+        assertEquals("2845 (1.18 21w44a)", DataVersion.JAVA_1_18_21W44A.toString());
     }
 }
