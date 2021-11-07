@@ -4,9 +4,8 @@ import net.querz.nbt.tag.CompoundTag;
 import net.querz.nbt.tag.EndTag;
 import net.querz.nbt.tag.ListTag;
 import static net.querz.mca.LoadFlags.*;
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+
+import java.io.*;
 import java.util.Arrays;
 
 public class MCAFileTest extends MCATestCase {
@@ -232,6 +231,17 @@ public class MCAFileTest extends MCATestCase {
 		f.cleanupPalettesAndBlockStates();
 		assertEquals(16, s.getPalette().size());
 		assertEquals(256, s.updateHandle(0).getLongArray("BlockStates").length);
+	}
+
+	public void testMaxAndMinSectionY() {
+		MCAFile f = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("r.2.2.mca")));
+		Chunk c = f.getChunk(0, 0);
+		assertEquals(0, c.getMinSectionY());
+		assertEquals(5, c.getMaxSectionY());
+		c.setSection(-64 / 16, Section.newSection());
+		c.setSection((320 - 16) / 16, Section.newSection());
+		assertEquals(-4, c.getMinSectionY());
+		assertEquals(19, c.getMaxSectionY());
 	}
 
 	public void testSetBlockDataAt() {
