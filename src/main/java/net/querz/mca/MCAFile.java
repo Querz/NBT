@@ -32,6 +32,20 @@ public class MCAFile extends MCAFileBase<Chunk> implements Iterable<Chunk> {
 	/**
 	 * {@inheritDoc}
 	 */
+	public MCAFile(int regionX, int regionZ, int defaultDataVersion) {
+		super(regionX, regionZ, defaultDataVersion);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public MCAFile(int regionX, int regionZ, DataVersion defaultDataVersion) {
+		super(regionX, regionZ, defaultDataVersion);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Class<Chunk> chunkClass() {
 		return Chunk.class;
@@ -41,8 +55,8 @@ public class MCAFile extends MCAFileBase<Chunk> implements Iterable<Chunk> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected Chunk newChunk() {
-		return Chunk.newChunk();
+	public Chunk createChunk() {
+		return Chunk.newChunk(defaultDataVersion);
 	}
 
 	/**

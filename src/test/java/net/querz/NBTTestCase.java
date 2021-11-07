@@ -227,7 +227,6 @@ public abstract class NBTTestCase extends TestCase {
 		if (!dir.exists()) {
 			dir.mkdirs();
 		}
-		System.out.println("TEMP FILE: " + tmpPath);
 		return tmpPath.toFile();
 	}
 

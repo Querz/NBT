@@ -1,11 +1,12 @@
 package net.querz.mca;
 
 import java.util.Arrays;
+import java.util.Comparator;
 
 // source: version.json file, found in the root directory of the client and server jars
 // table of versions can also be found on https://minecraft.fandom.com/wiki/Data_version#List_of_data_versions
 public enum DataVersion {
-    // Must be kept in ASC order
+    // Kept in ASC order
     UNKNOWN(0, 0, 0),
     JAVA_1_9_0(169, 9, 0),
     JAVA_1_9_1(175, 9, 1),
@@ -29,16 +30,22 @@ public enum DataVersion {
     JAVA_1_13_1(1628, 13, 1),
     JAVA_1_13_2(1631, 13, 2),
 
+    // poi/r.X.Z.mca files introduced
     JAVA_1_14_0(1952, 14, 0),
     JAVA_1_14_1(1957, 14, 1),
     JAVA_1_14_2(1963, 14, 2),
     JAVA_1_14_3(1968, 14, 3),
     JAVA_1_14_4(1976, 14, 4),
 
+    // 3D Biomes added. Biomes array in the  Level tag for each chunk changed
+    // to contain 1024 integers instead of 256 see {@link Chunk}
+    JAVA_1_15_19W36A(2203, 10, -1, "19w36a"),
     JAVA_1_15_0(2225, 15, 0),
     JAVA_1_15_1(2227, 15, 1),
     JAVA_1_15_2(2230, 15, 2),
 
+    // block pallet packing changed in this version - see {@link Section}
+    JAVA_1_16_20W17A(2529, 16, -1, "20w17a"),
     JAVA_1_16_0(2566, 16, 0),
     JAVA_1_16_1(2567, 16, 1),
     JAVA_1_16_2(2578, 16, 2),
@@ -46,13 +53,17 @@ public enum DataVersion {
     JAVA_1_16_4(2584, 16, 4),
     JAVA_1_16_5(2586, 16, 5),
 
+    // entities/r.X.Z.mca files introduced
+    // entities no longer inside region/r.X.Z.mca - except in un-migrated chunks of course
     JAVA_1_17_0(2724, 17, 0),
     JAVA_1_17_1(2730, 17, 1),
 
-    JAVA_1_18_XS1(2825, 18, 0, false, "XS1"),
-    JAVA_1_18_21W44A(2845, 18, 0, false, "21w44a");
+    // fist experimental 1.18 build
+    // region mca chunk NBT no longer stored inside "Level" tag at some point before/by 21w44a (unsure when exactly)
+    JAVA_1_18_XS1(2825, 18, -1, "XS1");
 
-    private static final int[] ids = Arrays.stream(values()).mapToInt(DataVersion::id).toArray();
+    private static final int[] ids;
+    private static final DataVersion latestFullReleaseVersion;
     private final int id;
     private final int minor;
     private final int patch;
@@ -60,15 +71,22 @@ public enum DataVersion {
     private final String buildDescription;
     private final String str;
 
+    static {
+        ids = Arrays.stream(values()).sorted().mapToInt(DataVersion::id).toArray();
+        latestFullReleaseVersion = Arrays.stream(values())
+                .sorted(Comparator.reverseOrder())
+                .filter(DataVersion::isFullRelease)
+                .findFirst().get();
+    }
+
     DataVersion(int id, int minor, int patch) {
-        this(id, minor, patch, true, null);
+        this(id, minor, patch, null);
     }
 
     /**
      * @param id data version
      * @param minor minor version
-     * @param patch patch number
-     * @param isFullRelease indicates if this data version is from a full release or not
+     * @param patch patch number, LT0 to indicate this data version is not a full release version
      * @param buildDescription Suggested convention: <ul>
      *                         <li>NULL for full release</li>
      *                         <li>CT# for combat tests (e.g. CT6, CT6b)</li>
@@ -77,15 +95,15 @@ public enum DataVersion {
      *                         <li>PR# for pre-releases (e.g. PR1, PR2)</li>
      *                         <li>RC# for release candidates (e.g. RC1, RC2)</li></ul>
      */
-    DataVersion(int id, int minor, int patch, boolean isFullRelease, String buildDescription) {
+    DataVersion(int id, int minor, int patch, String buildDescription) {
+        this.isFullRelease = patch >= 0;
         if (!isFullRelease && (buildDescription == null || buildDescription.isEmpty()))
             throw new IllegalArgumentException("buildDescription required for non-full releases");
         if (isFullRelease && (buildDescription != null && !buildDescription.isEmpty()))
             throw new IllegalArgumentException("buildDescription not allowed for full releases");
         this.id = id;
         this.minor = minor;
-        this.patch = patch;
-        this.isFullRelease = isFullRelease;
+        this.patch = isFullRelease ? patch : -1;
         this.buildDescription = isFullRelease ? "FINAL" : buildDescription;
         if (minor > 0) {
             StringBuilder sb = new StringBuilder();
@@ -102,14 +120,24 @@ public enum DataVersion {
         return id;
     }
 
+    /**
+     * Version format: major.minor.patch
+     */
     public int major() {
         return 1;
     }
 
+    /**
+     * Version format: major.minor.patch
+     */
     public int minor() {
         return minor;
     }
 
+    /**
+     * Version format: major.minor.patch
+     * <p>This value will be &lt; 0 if this is not a full release version.</p>
+     */
     public int patch() {
         return patch;
     }
@@ -169,8 +197,11 @@ public enum DataVersion {
         return values()[found];
     }
 
+    /**
+     * @return The latest full release version defined.
+     */
     public static DataVersion latest() {
-        return values()[values().length - 1];
+        return latestFullReleaseVersion;
     }
 
     @Override

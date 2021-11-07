@@ -4,7 +4,6 @@ package net.querz.mca;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.lang.reflect.Array;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -16,18 +15,82 @@ public abstract class MCAFileBase<T extends Chunk> implements Iterable<T> {
 
 	protected int regionX, regionZ;
 	protected T[] chunks;
+	protected int minDataVersion;
+	protected int maxDataVersion;
+	protected int defaultDataVersion = DataVersion.latest().id();  // data version to use when creating new chunks
 
 	/**
 	 * MCAFile represents a world save file used by Minecraft to store world
 	 * data on the hard drive.
 	 * This constructor needs the x- and z-coordinates of the stored region,
 	 * which can usually be taken from the file name {@code r.x.z.mca}
+	 *
+	 * <p>Use this constructor when you plan to {@code deserialize(..)} an MCA file.
+	 * If you are creating an MCA file from scratch prefer {@link #MCAFileBase(int, int, int)}.
 	 * @param regionX The x-coordinate of this mca file in region coordinates.
 	 * @param regionZ The z-coordinate of this mca file in region coordinates.
 	 */
 	public MCAFileBase(int regionX, int regionZ) {
 		this.regionX = regionX;
 		this.regionZ = regionZ;
+	}
+
+	/**
+	 * Use this constructor to specify a default data version when creating MCA files without loading
+	 * from disk.
+	 *
+	 * @param regionX The x-coordinate of this mca file in region coordinates.
+	 * @param regionZ The z-coordinate of this mca file in region coordinates.
+	 * @param defaultDataVersion Data version which will be used when creating new chunks.
+	 */
+	public MCAFileBase(int regionX, int regionZ, int defaultDataVersion) {
+		this.regionX = regionX;
+		this.regionZ = regionZ;
+		this.defaultDataVersion = defaultDataVersion;
+		this.minDataVersion = defaultDataVersion;
+		this.maxDataVersion = defaultDataVersion;
+	}
+
+	/**
+	 * Use this constructor to specify a default data version when creating MCA files without loading
+	 * from disk.
+	 *
+	 * @param regionX The x-coordinate of this mca file in region coordinates.
+	 * @param regionZ The z-coordinate of this mca file in region coordinates.
+	 * @param defaultDataVersion Data version which will be used when creating new chunks.
+	 */
+	public MCAFileBase(int regionX, int regionZ, DataVersion defaultDataVersion) {
+		this(regionX, regionZ, defaultDataVersion.id());
+	}
+
+	/**
+	 * Get minimum data version of found in loaded chunk data
+	 */
+	public int getMinChunkDataVersion() {
+		return minDataVersion;
+	}
+
+	/**
+	 * Get maximum data version of found in loaded chunk data
+	 */
+	public int getMaxChunkDataVersion() {
+		return maxDataVersion;
+	}
+
+	/**
+	 * Get chunk version which will be used when automatically creating new chunks
+	 * and for chunks created by {@link #createChunk()}.
+	 */
+	public int getDefaultChunkDataVersion() {
+		return defaultDataVersion;
+	}
+
+	/**
+	 * Set chunk version which will be used when automatically creating new chunks
+	 * and for chunks created by {@link #createChunk()}.
+	 */
+	public void setDefaultChunkDataVersion(int defaultDataVersion) {
+		this.defaultDataVersion = defaultDataVersion;
 	}
 
 	/**
@@ -83,9 +146,10 @@ public abstract class MCAFileBase<T extends Chunk> implements Iterable<T> {
 	public abstract Class<T> chunkClass();
 
 	/**
-	 * Chunk creator.
+	 * Creates a new chunk properly initialized to be compatible with this MCA file. At a minimum the new
+	 * chunk will have an appropriate data version set.
 	 */
-	protected abstract T newChunk();
+	public abstract T createChunk();
 
 	/**
 	 * Called to deserialize a Chunk. Caller will have set the position of {@code raf} to start reading.
@@ -117,6 +181,8 @@ public abstract class MCAFileBase<T extends Chunk> implements Iterable<T> {
 	@SuppressWarnings("unchecked")
 	public void deserialize(RandomAccessFile raf, long loadFlags) throws IOException {
 		chunks = (T[]) Array.newInstance(chunkClass(), 1024);
+		minDataVersion = Integer.MAX_VALUE;
+		maxDataVersion = Integer.MIN_VALUE;
 		for (int i = 0; i < 1024; i++) {
 			raf.seek(i * 4);
 			int offset = raf.read() << 16;
@@ -128,8 +194,20 @@ public abstract class MCAFileBase<T extends Chunk> implements Iterable<T> {
 			raf.seek(4096 + i * 4);
 			int timestamp = raf.readInt();
 			raf.seek(4096L * offset + 4); //+4: skip data size
-			chunks[i] = deserializeChunk(raf, loadFlags, timestamp);
+			T chunk = deserializeChunk(raf, loadFlags, timestamp);
+			chunks[i] = chunk;
+			if (chunk != null && chunk.hasDataVersion()) {
+				if (chunk.getDataVersion() < minDataVersion) {
+					minDataVersion = chunk.getDataVersion();
+				}
+				if (chunk.getDataVersion() > maxDataVersion) {
+					maxDataVersion = chunk.getDataVersion();
+				}
+			}
 		}
+		maxDataVersion = Math.max(maxDataVersion, 0);
+		minDataVersion = Math.min(minDataVersion, maxDataVersion);
+		defaultDataVersion = maxDataVersion;
 	}
 
 	/**
@@ -276,7 +354,7 @@ public abstract class MCAFileBase<T extends Chunk> implements Iterable<T> {
 		int chunkX = MCAUtil.blockToChunk(blockX), chunkZ = MCAUtil.blockToChunk(blockZ);
 		T chunk = getChunk(chunkX, chunkZ);
 		if (chunk == null) {
-			chunk = newChunk();
+			chunk = createChunk();
 			setChunk(getChunkIndex(chunkX, chunkZ), chunk);
 		}
 		return chunk;

@@ -2,22 +2,10 @@ package net.querz.mca;
 
 import net.querz.nbt.tag.CompoundTag;
 import net.querz.nbt.tag.ListTag;
-import net.querz.nbt.io.NamedTag;
-import net.querz.nbt.io.NBTDeserializer;
-import net.querz.nbt.io.NBTSerializer;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
+import java.util.Arrays;
+
+import static net.querz.mca.DataVersion.JAVA_1_15_19W36A;
 import static net.querz.mca.LoadFlags.*;
 
 /**
@@ -28,12 +16,11 @@ public class Chunk extends SectionedChunkBase<Section> {
 
 	/**
 	 * The default chunk data version used when no custom version is supplied.
-	 * <p>Deprecated: use {@code DataVersion.latest().id()} instead.
+	 * @deprecated Use {@code DataVersion.latest().id()} instead.
 	 */
 	@Deprecated
 	public static final int DEFAULT_DATA_VERSION = DataVersion.latest().id();
 
-	protected int dataVersion;
 	protected long lastUpdate;
 	protected long inhabitedTime;
 	protected int[] biomes;
@@ -63,16 +50,16 @@ public class Chunk extends SectionedChunkBase<Section> {
 	}
 
 	@Override
-	protected void initReferences(long loadFlags) {
-		CompoundTag level;
-		if ((level = data.getCompoundTag("Level")) == null) {
+	protected void initReferences(final long loadFlags) {
+		CompoundTag level = getDataVersionEnum().regionChunksHaveLevelTag() ? data.getCompoundTag("Level") : data;
+		if (level == null) {
 			throw new IllegalArgumentException("data does not contain \"Level\" tag");
 		}
-		dataVersion = data.getInt("DataVersion");
 		inhabitedTime = level.getLong("InhabitedTime");
 		lastUpdate = level.getLong("LastUpdate");
 		if ((loadFlags & BIOMES) != 0) {
 			biomes = level.getIntArray("Biomes");
+			if (biomes.length == 0) biomes = null;
 		}
 		if ((loadFlags & HEIGHTMAPS) != 0) {
 			heightMaps = level.getCompoundTag("Heightmaps");
@@ -118,17 +105,19 @@ public class Chunk extends SectionedChunkBase<Section> {
 	}
 
 	/**
-	 * @deprecated Use {@link #getBiomeAt(int, int, int)} instead
+	 * May only be used for data versions LT 2203 which includes all of 1.14
+	 * and up until 19w36a (a 1.15 weekly snapshot).
+	 * @deprecated Use {@link #getBiomeAt(int, int, int)} instead for 1.15 and beyond
 	 */
 	@Deprecated
 	public int getBiomeAt(int blockX, int blockZ) {
-		if (dataVersion < 2202) {
+		if (dataVersion < JAVA_1_15_19W36A.id()) {
 			if (biomes == null || biomes.length != 256) {
 				return -1;
 			}
 			return biomes[getBlockIndex(blockX, blockZ)];
 		} else {
-			throw new IllegalStateException("cannot get biome using Chunk#getBiomeAt(int,int) from biome data with DataVersion of 2202 or higher, use Chunk#getBiomeAt(int,int,int) instead");
+			throw new IllegalStateException("cannot get biome using Chunk#getBiomeAt(int,int) from biome data with DataVersion of 2203 or higher, use Chunk#getBiomeAt(int,int,int) instead");
 		}
 	}
 
@@ -141,12 +130,7 @@ public class Chunk extends SectionedChunkBase<Section> {
 	 * @return The biome id or -1 if the biomes are not correctly initialized.
 	 */
 	public int getBiomeAt(int blockX, int blockY, int blockZ) {
-		if (dataVersion < 2202) {
-			if (biomes == null || biomes.length != 256) {
-				return -1;
-			}
-			return biomes[getBlockIndex(blockX, blockZ)];
-		} else {
+		if (dataVersion >= JAVA_1_15_19W36A.id()) {
 			if (biomes == null || biomes.length != 1024) {
 				return -1;
 			}
@@ -155,13 +139,15 @@ public class Chunk extends SectionedChunkBase<Section> {
 			int biomeZ = (blockZ & 0xF) >> 2;
 
 			return biomes[getBiomeIndex(biomeX, biomeY, biomeZ)];
+		} else {
+			return getBiomeAt(blockX, blockZ);
 		}
 	}
 
 	@Deprecated
 	public void setBiomeAt(int blockX, int blockZ, int biomeID) {
 		checkRaw();
-		if (dataVersion < 2202) {
+		if (dataVersion < JAVA_1_15_19W36A.id()) {
 			if (biomes == null || biomes.length != 256) {
 				biomes = new int[256];
 				Arrays.fill(biomes, -1);
@@ -192,13 +178,7 @@ public class Chunk extends SectionedChunkBase<Section> {
 	  */
 	public void setBiomeAt(int blockX, int blockY, int blockZ, int biomeID) {
 		checkRaw();
-		if (dataVersion < 2202) {  // pre-1.15
-			if (biomes == null || biomes.length != 256) {
-				biomes = new int[256];
-				Arrays.fill(biomes, -1);
-			}
-			biomes[getBlockIndex(blockX, blockZ)] = biomeID;
-		} else {
+		if (dataVersion >= JAVA_1_15_19W36A.id()) {
 			if (biomes == null || biomes.length != 1024) {
 				biomes = new int[1024];
 				Arrays.fill(biomes, -1);
@@ -208,6 +188,12 @@ public class Chunk extends SectionedChunkBase<Section> {
 			int biomeZ = (blockZ & 0xF) >> 2;
 
 			biomes[getBiomeIndex(biomeX, blockY, biomeZ)] = biomeID;
+		} else {
+			if (biomes == null || biomes.length != 256) {
+				biomes = new int[256];
+				Arrays.fill(biomes, -1);
+			}
+			biomes[getBlockIndex(blockX, blockZ)] = biomeID;
 		}
 	}
 
@@ -239,28 +225,28 @@ public class Chunk extends SectionedChunkBase<Section> {
 		int sectionIndex = MCAUtil.blockToChunk(blockY);
 		Section section = sections.get(sectionIndex);
 		if (section == null) {
-			sections.put(sectionIndex, section = Section.newSection());
+			sections.put(sectionIndex, section = createSection());
+			section.setDataVersion(dataVersion);
 		}
 		section.setBlockStateAt(blockX, blockY, blockZ, state, cleanup);
 	}
 
 	/**
-	 * @return The DataVersion of this chunk.
+	 * Creates a new section appropriately initialized for use inside this chunk.
 	 */
-	public int getDataVersion() {
-		return dataVersion;
+	public Section createSection() {
+		return new Section(dataVersion);
 	}
 
 	/**
-	 * Sets the DataVersion of this chunk. This does not check if the data of this chunk conforms
-	 * to that DataVersion, that is the responsibility of the developer.
-	 * @param dataVersion The DataVersion to be set.
+	 * {@inheritDoc}
 	 */
+	@Override
 	public void setDataVersion(int dataVersion) {
-		this.dataVersion = dataVersion;
+		super.setDataVersion(dataVersion);
 		for (Section section : sections.values()) {
 			if (section != null) {
-				section.dataVersion = dataVersion;
+				section.setDataVersion(dataVersion);
 			}
 		}
 	}
@@ -329,8 +315,9 @@ public class Chunk extends SectionedChunkBase<Section> {
 	public void setBiomes(int[] biomes) {
 		checkRaw();
 		if (biomes != null) {
-			if (dataVersion < 2202 && biomes.length != 256 || dataVersion >= 2202 && biomes.length != 1024) {
-				throw new IllegalArgumentException("biomes array must have a length of " + (dataVersion < 2202 ? "256" : "1024"));
+			final int requiredSize = dataVersion <= 0 || dataVersion >= JAVA_1_15_19W36A.id() ? 1024 : 256;
+			if (biomes.length != requiredSize) {
+				throw new IllegalArgumentException("biomes array must have a length of " + requiredSize);
 			}
 		}
 		this.biomes = biomes;
@@ -525,6 +512,11 @@ public class Chunk extends SectionedChunkBase<Section> {
 		}
 	}
 
+	/**
+	 * @deprecated Dangerous - assumes latest full release data version defined by {@link DataVersion}
+	 * prefer using {@link MCAFileBase#createChunk()} or {@link MCAFileBase#createChunkIfMissing(int, int)}.
+	 */
+	@Deprecated
 	public static Chunk newChunk() {
 		return Chunk.newChunk(DataVersion.latest().id());
 	}
@@ -543,21 +535,19 @@ public class Chunk extends SectionedChunkBase<Section> {
 		if (raw) {
 			return data;
 		}
-
-		data.putInt("DataVersion", dataVersion);
-		CompoundTag level = data.getCompoundTag("Level");
+		super.updateHandle(xPos, zPos);
+		CompoundTag level = getDataVersionEnum().regionChunksHaveLevelTag() ? data.getCompoundTag("Level") : data;
 		level.putInt("xPos", xPos);
 		level.putInt("zPos", zPos);
 		level.putLong("LastUpdate", lastUpdate);
 		level.putLong("InhabitedTime", inhabitedTime);
-		if (dataVersion < 2202) {
-			if (biomes != null && biomes.length == 256) {
-				level.putIntArray("Biomes", biomes);
-			}
-		} else {
-			if (biomes != null && biomes.length == 1024) {
-				level.putIntArray("Biomes", biomes);
-			}
+		if (biomes != null) {
+			final int requiredSize = dataVersion <= 0 || dataVersion >= JAVA_1_15_19W36A.id() ? 1024 : 256;
+			if (biomes.length != requiredSize)
+				throw new IllegalStateException(
+						String.format("Biomes array must be %d bytes for version %d, array size is %d",
+								requiredSize, dataVersion, biomes.length));
+			level.putIntArray("Biomes", biomes);
 		}
 		level.putIfNotNull("Heightmaps", heightMaps);
 		level.putIfNotNull("CarvingMasks", carvingMasks);

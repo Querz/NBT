@@ -112,6 +112,7 @@ public class MCAFileTest extends MCATestCase {
 		CompoundTag data = new CompoundTag();
 		CompoundTag level = new CompoundTag();
 		data.put("Level", level);
+		data.putInt("DataVersion", DataVersion.JAVA_1_16_5.id());
 		return new Chunk(data);
 	}
 
@@ -160,7 +161,7 @@ public class MCAFileTest extends MCATestCase {
 		assertEquals(getSomeListTagList(), f.getChunk(1023).getPostProcessing());
 		f.getChunk(1023).setStructures(getSomeCompoundTag());
 		assertEquals(getSomeCompoundTag(), f.getChunk(1023).getStructures());
-		Section s = new Section();
+		Section s = f.getChunk(1023).createSection();
 		f.getChunk(1023).setSection(0, s);
 		assertEquals(s, f.getChunk(1023).getSection(0));
 		assertThrowsRuntimeException(() -> f.getChunk(1023).getSection(0).setBlockStates(null), NullPointerException.class);
@@ -180,21 +181,32 @@ public class MCAFileTest extends MCATestCase {
 		assertThrowsNoRuntimeException(() -> f.getChunk(1023).getSection(0).setSkyLight(null));
 	}
 
-	public void testGetBiomeAt() {
+	public void testGetBiomeAt2D() {
 		MCAFile f = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("r.2.2.mca")));
 		assertEquals(21, f.getBiomeAt(1024, 1024));
 		assertEquals(-1, f.getBiomeAt(1040, 1024));
 		f.setChunk(0, 1, Chunk.newChunk(2201));
 		assertEquals(-1, f.getBiomeAt(1024, 1040));
-
 	}
 
-	public void testSetBiomeAt() {
-		MCAFile f = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("r.2.2.mca")), true);
+	public void testSetBiomeAt_2D_2dBiomeWorld() {
+		MCAFile f = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("r.2.2.mca")));
 		f.setBiomeAt(1024, 1024, 20);
 		assertEquals(20, f.getChunk(64, 64).updateHandle(64, 64).getCompoundTag("Level").getIntArray("Biomes")[0]);
 		f.setBiomeAt(1039, 1039, 47);
 		assertEquals(47, f.getChunk(64, 64).updateHandle(64, 64).getCompoundTag("Level").getIntArray("Biomes")[255]);
+		f.setBiomeAt(1040, 1024, 20);
+
+		int[] biomes = f.getChunk(65, 64).updateHandle(65, 64).getCompoundTag("Level").getIntArray("Biomes");
+		assertEquals(256, biomes.length);
+		assertEquals(20, biomes[0]);
+		for (int i = 1; i < 256; i++) {
+			assertEquals(-1, biomes[i]);
+		}
+	}
+
+	public void testSetBiomeAt_2D_3DBiomeWorld() {
+		MCAFile f = new MCAFile(2, 2, DataVersion.JAVA_1_15_0);
 		f.setBiomeAt(1040, 1024, 20);
 		int[] biomes = f.getChunk(65, 64).updateHandle(65, 64).getCompoundTag("Level").getIntArray("Biomes");
 		assertEquals(1024, biomes.length);
@@ -246,6 +258,8 @@ public class MCAFileTest extends MCATestCase {
 
 	public void testSetBlockDataAt() {
 		MCAFile f = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("r.2.2.mca")));
+		assertEquals(f.getMaxChunkDataVersion(), f.getMinChunkDataVersion());
+		assertTrue(f.getDefaultChunkDataVersion() > 0);
 		Section section = f.getChunk(0, 0).getSection(0);
 		assertEquals(10, section.getPalette().size());
 		assertEquals(0b0001000100010001000100010001000100010001000100010001000100010001L, section.getBlockStates()[0]);
@@ -270,6 +284,7 @@ public class MCAFileTest extends MCATestCase {
 		assertNull(f.getChunk(1, 0));
 		f.setBlockStateAt(17, 0, 0, block("minecraft:test"), false);
 		assertNotNull(f.getChunk(1, 0));
+		assertEquals(f.getDefaultChunkDataVersion(), f.getChunk(1, 0).getDataVersion());
 		ListTag<CompoundTag> s = f.getChunk(1, 0).updateHandle(65, 64).getCompoundTag("Level").getListTag("Sections").asCompoundTagList();
 		assertEquals(1, s.size());
 		assertEquals(2, s.get(0).getListTag("Palette").size());
@@ -446,7 +461,7 @@ public class MCAFileTest extends MCATestCase {
 		}
 	}
 
-	public void test1_15GetBiomeAt() throws IOException {
+	public void test1_15GetBiomeAt() {
 		MCAFile f = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("r.0.0.mca")));
 		assertEquals(162, f.getBiomeAt(31, 0, 63));
 		assertEquals(4, f.getBiomeAt(16, 0, 48));

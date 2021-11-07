@@ -1,5 +1,6 @@
 package net.querz.mca;
 
+import static net.querz.mca.DataVersion.JAVA_1_16_20W17A;
 import static net.querz.mca.LoadFlags.*;
 import net.querz.nbt.tag.ByteArrayTag;
 import net.querz.nbt.tag.CompoundTag;
@@ -16,7 +17,7 @@ import java.util.stream.StreamSupport;
  */
 public class Section extends SectionBase<Section> {
 
-	protected int dataVersion;
+	private int dataVersion;  // for internal use only - must be kept in sync with chunk data version
 	protected Map<String, List<PaletteIndex>> valueIndexedPalette = new HashMap<>();
 	protected ListTag<CompoundTag> palette;
 	protected byte[] blockLight;
@@ -41,6 +42,9 @@ public class Section extends SectionBase<Section> {
 
 	public Section(CompoundTag sectionRoot, int dataVersion, long loadFlags) {
 		super(sectionRoot);
+		if (dataVersion <= 0) {
+			throw new IllegalArgumentException("Invalid data version - must be GT 0");
+		}
 		this.dataVersion = dataVersion;
 		height = sectionRoot.getNumber("Y").byteValue();
 
@@ -68,7 +72,16 @@ public class Section extends SectionBase<Section> {
 		}
 	}
 
-	Section() {}
+	Section(int dataVersion) {
+		this.dataVersion = dataVersion;
+		blockLight = createBlockLightBuffer();
+		blockStates = createBlockStates();
+		skyLight = createSkyLightBuffer();
+		palette = new ListTag<>(CompoundTag.class);
+		CompoundTag air = new CompoundTag();
+		air.putString("Name", "minecraft:air");
+		palette.add(air);
+	}
 
 	private void assureBlockStates() {
 		if (blockStates == null) blockStates = createBlockStates();
@@ -190,7 +203,7 @@ public class Section extends SectionBase<Section> {
 		assureBlockStates();
 		int bits = blockStates.length >> 6;
 
-		if (dataVersion < 2527) {
+		if (dataVersion > 0 && dataVersion < JAVA_1_16_20W17A.id()) {
 			double blockStatesIndex = blockStateIndex / (4096D / blockStates.length);
 			int longIndex = (int) blockStatesIndex;
 			int startBit = (int) ((blockStatesIndex - Math.floor(blockStatesIndex)) * 64D);
@@ -219,7 +232,7 @@ public class Section extends SectionBase<Section> {
 		Objects.requireNonNull(blockStates, "blockStates must not be null");
 		int bits = blockStates.length >> 6;
 
-		if (dataVersion < 2527) {
+		if (dataVersion < JAVA_1_16_20W17A.id()) {
 			double blockStatesIndex = blockIndex / (4096D / blockStates.length);
 			int longIndex = (int) blockStatesIndex;
 			int startBit = (int) ((blockStatesIndex - Math.floor(longIndex)) * 64D);
@@ -235,6 +248,31 @@ public class Section extends SectionBase<Section> {
 			int startBit = (blockIndex % indicesPerLong) * bits;
 			blockStates[blockStatesIndex] = updateBits(blockStates[blockStatesIndex], paletteIndex, startBit, startBit + bits);
 		}
+	}
+
+	private void upgradeFromBefore20W17A(final int targetVersion) {
+		int newBits = 32 - Integer.numberOfLeadingZeros(palette.size() - 1);
+		newBits = Math.max(newBits, 4);
+		long[] newBlockStates;
+
+		int newLength = (int) Math.ceil(4096D / (Math.floor(64D / newBits)));
+		newBlockStates = newBits == blockStates.length / 64 ? blockStates : new long[newLength];
+
+		for (int i = 0; i < 4096; i++) {
+			setPaletteIndex(i, getPaletteIndex(i), newBlockStates);
+		}
+		this.blockStates = newBlockStates;
+		this.dataVersion = targetVersion;
+	}
+
+	protected void setDataVersion(int newDataVersion) {
+		if (newDataVersion <= 0) {
+			throw new IllegalArgumentException("Invalid data version - must be GT 0");
+		}
+		if (dataVersion < JAVA_1_16_20W17A.id() && newDataVersion >= JAVA_1_16_20W17A.id()) {
+			upgradeFromBefore20W17A(newDataVersion);
+		}
+		dataVersion = newDataVersion;
 	}
 
 	/**
@@ -318,7 +356,7 @@ public class Section extends SectionBase<Section> {
 
 		long[] newBlockStates;
 
-		if (dataVersion < 2527) {
+		if (dataVersion < JAVA_1_16_20W17A.id()) {
 			newBlockStates = newBits == blockStates.length / 64 ? blockStates : new long[newBits * 64];
 		} else {
 			int newLength = (int) Math.ceil(4096D / (Math.floor(64D / newBits)));
@@ -399,17 +437,11 @@ public class Section extends SectionBase<Section> {
 	/**
 	 * Creates an empty Section with base values.
 	 * @return An empty Section
+	 * @deprecated Dangerous - prefer using {@link Chunk#createSection()} instead.
 	 */
+	@Deprecated
 	public static Section newSection() {
-		Section s = new Section();
-		s.blockLight = createBlockLightBuffer();
-		s.blockStates = createBlockStates();
-		s.skyLight = createSkyLightBuffer();
-		s.palette = new ListTag<>(CompoundTag.class);
-		CompoundTag air = new CompoundTag();
-		air.putString("Name", "minecraft:air");
-		s.palette.add(air);
-		return s;
+		return new Section(DataVersion.latest().id());
 	}
 
 	/**
@@ -421,6 +453,8 @@ public class Section extends SectionBase<Section> {
 	 */
 	@Override
 	public CompoundTag updateHandle(int y) {
+		checkY(y);
+		// TODO(1.18): this data type changes in 1.18
 		data.putByte("Y", (byte) y);
 		if (palette != null) {
 			data.put("Palette", palette);
