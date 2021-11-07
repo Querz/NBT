@@ -11,7 +11,8 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 /**
- * Represents a REGION data chunk section.
+ * Represents a REGION data chunk section. Sections can be thought of as "sub-chunks"
+ * which are 16x16x16 block cubes stacked atop each other to create a "chunk".
  */
 public class Section extends SectionBase<Section> {
 
@@ -516,7 +517,7 @@ public class Section extends SectionBase<Section> {
 		}
 
 		@Override
-		public int currentWorldY() {
+		public int currentBlockY() {
 			return sectionWorldY + (currentIndex >> 8);
 		}
 	}

@@ -22,12 +22,59 @@ public abstract class MCAFileBase<T extends Chunk> implements Iterable<T> {
 	 * data on the hard drive.
 	 * This constructor needs the x- and z-coordinates of the stored region,
 	 * which can usually be taken from the file name {@code r.x.z.mca}
-	 * @param regionX The x-coordinate of this region.
-	 * @param regionZ The z-coordinate of this region.
+	 * @param regionX The x-coordinate of this mca file in region coordinates.
+	 * @param regionZ The z-coordinate of this mca file in region coordinates.
 	 */
 	public MCAFileBase(int regionX, int regionZ) {
 		this.regionX = regionX;
 		this.regionZ = regionZ;
+	}
+
+	/**
+	 * @return The x-value currently set for this mca file in region coordinates.
+	 */
+	public int getRegionX() {
+		return regionX;
+	}
+
+	/**
+	 * Sets a new x-value for this mca file in region coordinates.
+	 */
+	public void setRegionX(int regionX) {
+		this.regionX = regionX;
+	}
+
+	/**
+	 * @return The z-value currently set for this mca file in region coordinates.
+	 */
+	public int getRegionZ() {
+		return regionZ;
+	}
+
+	/**
+	 * Sets a new z-value for this mca file in region coordinates.
+	 */
+	public void setRegionZ(int regionZ) {
+		this.regionZ = regionZ;
+	}
+
+	/**
+	 * Sets both the x and z values for this mca file in region coordinates.
+	 * @param regionX New x-value for this mca file in region coordinates.
+	 * @param regionZ New z-value for this mca file in region coordinates.
+	 */
+	public void setRegionXZ(int regionX, int regionZ) {
+		this.regionX = regionX;
+		this.regionZ = regionZ;
+	}
+
+	/**
+	 * Returns result of calling {@link MCAUtil#createNameFromRegionLocation(int, int)}
+	 * with current region coordinate values.
+	 * @return A mca filename in the format "r.{regionX}.{regionZ}.mca"
+	 */
+	public String createRegionName() {
+		return MCAUtil.createNameFromRegionLocation(regionX, regionZ);
 	}
 
 	/**
@@ -159,6 +206,7 @@ public abstract class MCAFileBase<T extends Chunk> implements Iterable<T> {
 
 	/**
 	 * Set a specific Chunk at a specific index. The index must be in range of 0 - 1023.
+	 * Take care as the given chunk is NOT copied by this call.
 	 * @param index The index of the Chunk.
 	 * @param chunk The Chunk to be set.
 	 * @throws IndexOutOfBoundsException If index is not in the range.
@@ -241,16 +289,6 @@ public abstract class MCAFileBase<T extends Chunk> implements Iterable<T> {
 
 	public Stream<T> stream() {
 		return StreamSupport.stream(spliterator(), false);
-	}
-
-	public interface ChunkIterator<I extends Chunk> extends Iterator<I> {
-		void set(I chunk);
-		/** current block index (in range 0-4095) */
-		int currentIndex();
-		/** current chunk x within region (in range 0-31) */
-		int currentX();
-		/** current chunk z within region (in range 0-31) */
-		int currentZ();
 	}
 
 	protected static class ChunkIteratorImpl<I extends Chunk> implements ChunkIterator<I> {

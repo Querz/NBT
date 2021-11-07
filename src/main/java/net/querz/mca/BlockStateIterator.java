@@ -6,7 +6,7 @@ import java.util.Iterator;
 
 /**
  * Enhanced iterable/iterator for iterating over {@link Section} block data.
- * class name {@link Section#blocksStates()}.
+ * See {@link Section#blocksStates()}
  */
 public interface BlockStateIterator extends Iterable<CompoundTag>, Iterator<CompoundTag> {
     /**
@@ -32,5 +32,5 @@ public interface BlockStateIterator extends Iterable<CompoundTag>, Iterator<Comp
     /** current block y within section (in range 0-15) */
     int currentY();
     /** current block world level y */
-    int currentWorldY();
+    int currentBlockY();
 }

@@ -21,7 +21,8 @@ import java.util.stream.StreamSupport;
 import static net.querz.mca.LoadFlags.*;
 
 /**
- * Represents a REGION data mca chunk.
+ * Represents a REGION data mca chunk. Region chunks are composed of a set of {@link Section} where any empty/null
+ * section is filled with air blocks by the game.
  */
 public class Chunk extends SectionedChunkBase<Section> {
 
@@ -191,7 +192,7 @@ public class Chunk extends SectionedChunkBase<Section> {
 	  */
 	public void setBiomeAt(int blockX, int blockY, int blockZ, int biomeID) {
 		checkRaw();
-		if (dataVersion < 2202) {
+		if (dataVersion < 2202) {  // pre-1.15
 			if (biomes == null || biomes.length != 256) {
 				biomes = new int[256];
 				Arrays.fill(biomes, -1);

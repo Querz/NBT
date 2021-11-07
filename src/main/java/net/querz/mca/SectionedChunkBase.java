@@ -13,7 +13,11 @@ import java.util.stream.StreamSupport;
 
 import static net.querz.mca.LoadFlags.*;
 
-public abstract class SectionedChunkBase<T extends Section> implements Iterable<T> {
+/**
+ * Abstraction for the base of all chunk types which represent chunks composed of sub-chunks {@link SectionBase}.
+ * @param <T> Concrete type of section.
+ */
+public abstract class SectionedChunkBase<T extends SectionBase<?>> implements Iterable<T> {
 
 	protected boolean partial;
 	protected boolean raw;

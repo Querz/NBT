@@ -148,7 +148,7 @@ public final class MCAUtil {
 	}
 
 	/**
-	 * Creates a filename string from provided chunk coordinates.
+	 * Creates a filename string from provided region coordinates.
 	 * @param regionX The x-value of the location of the region.
 	 * @param regionZ The z-value of the location of the region.
 	 * @return A mca filename in the format "r.{regionX}.{regionZ}.mca"
