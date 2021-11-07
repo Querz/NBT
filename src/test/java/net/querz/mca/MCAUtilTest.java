@@ -85,7 +85,8 @@ public class MCAUtilTest extends MCATestCase {
 		// test overwriting file
 		MCAFile m = new MCAFile(0, 0);
 		m.setChunk(0, Chunk.newChunk());
-		assertThrowsNoException(() -> MCAUtil.write(m, getTmpFile("r.0.0.mca"), false), true);
-		assertThrowsNoException(() -> MCAUtil.write(m, getTmpFile("r.0.0.mca"), false), true);
+		File target = getNewTmpFile("r.0.0.mca");
+		assertThrowsNoException(() -> MCAUtil.write(m, target, false));
+		assertThrowsNoException(() -> MCAUtil.write(m, target, false));
 	}
 }
