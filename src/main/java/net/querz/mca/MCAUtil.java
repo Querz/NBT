@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 /**
  * Provides main and utility functions to read and write .mca files and
  * to convert block, chunk and region coordinates.
- * */
+ */
 public final class MCAUtil {
 
 	private MCAUtil() {}
@@ -21,7 +21,7 @@ public final class MCAUtil {
 	 * @param file The file to read the data from.
 	 * @return An in-memory representation of the MCA file with decompressed chunk data.
 	 * @throws IOException if something during deserialization goes wrong.
-	 * */
+	 */
 	public static MCAFile read(String file) throws IOException {
 		return read(new File(file), LoadFlags.ALL_DATA);
 	}
@@ -31,7 +31,7 @@ public final class MCAUtil {
 	 * @param file The file to read the data from.
 	 * @return An in-memory representation of the MCA file with decompressed chunk data.
 	 * @throws IOException if something during deserialization goes wrong.
-	 * */
+	 */
 	public static MCAFile read(File file) throws IOException {
 		return read(file, LoadFlags.ALL_DATA);
 	}
@@ -42,7 +42,7 @@ public final class MCAUtil {
 	 * @return An in-memory representation of the MCA file with decompressed chunk data.
 	 * @param loadFlags A logical or of {@link LoadFlags} constants indicating what data should be loaded
 	 * @throws IOException if something during deserialization goes wrong.
-	 * */
+	 */
 	public static MCAFile read(String file, long loadFlags) throws IOException {
 		return read(new File(file), loadFlags);
 	}
@@ -53,7 +53,7 @@ public final class MCAUtil {
 	 * @return An in-memory representation of the MCA file with decompressed chunk data
 	 * @param loadFlags A logical or of {@link LoadFlags} constants indicating what data should be loaded
 	 * @throws IOException if something during deserialization goes wrong.
-	 * */
+	 */
 	public static MCAFile read(File file, long loadFlags) throws IOException {
 		MCAFile mcaFile = newMCAFile(file);
 		try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
@@ -69,7 +69,7 @@ public final class MCAUtil {
 	 * @param mcaFile The data of the MCA file to write.
 	 * @return The amount of chunks written to the file.
 	 * @throws IOException If something goes wrong during serialization.
-	 * */
+	 */
 	public static int write(MCAFile mcaFile, String file) throws IOException {
 		return write(mcaFile, new File(file), false);
 	}
@@ -81,7 +81,7 @@ public final class MCAUtil {
 	 * @param mcaFile The data of the MCA file to write.
 	 * @return The amount of chunks written to the file.
 	 * @throws IOException If something goes wrong during serialization.
-	 * */
+	 */
 	public static int write(MCAFile mcaFile, File file) throws IOException {
 		return write(mcaFile, file, false);
 	}
@@ -93,7 +93,7 @@ public final class MCAUtil {
 	 * @param changeLastUpdate Whether to adjust the timestamps of when the file was saved.
 	 * @return The amount of chunks written to the file.
 	 * @throws IOException If something goes wrong during serialization.
-	 * */
+	 */
 	public static int write(MCAFile mcaFile, String file, boolean changeLastUpdate) throws IOException {
 		return write(mcaFile, new File(file), changeLastUpdate);
 	}
@@ -108,7 +108,7 @@ public final class MCAUtil {
 	 * @param changeLastUpdate Whether to adjust the timestamps of when the file was saved.
 	 * @return The amount of chunks written to the file.
 	 * @throws IOException If something goes wrong during serialization.
-	 * */
+	 */
 	public static int write(MCAFile mcaFile, File file, boolean changeLastUpdate) throws IOException {
 		File to = file;
 		if (file.exists()) {
@@ -131,7 +131,7 @@ public final class MCAUtil {
 	 * @param chunkX The x-value of the location of the chunk.
 	 * @param chunkZ The z-value of the location of the chunk.
 	 * @return A mca filename in the format "r.{regionX}.{regionZ}.mca"
-	 * */
+	 */
 	public static String createNameFromChunkLocation(int chunkX, int chunkZ) {
 		return createNameFromRegionLocation( chunkToRegion(chunkX), chunkToRegion(chunkZ));
 	}
@@ -142,7 +142,7 @@ public final class MCAUtil {
 	 * @param blockX The x-value of the location of the block.
 	 * @param blockZ The z-value of the location of the block.
 	 * @return A mca filename in the format "r.{regionX}.{regionZ}.mca"
-	 * */
+	 */
 	public static String createNameFromBlockLocation(int blockX, int blockZ) {
 		return createNameFromRegionLocation(blockToRegion(blockX), blockToRegion(blockZ));
 	}
@@ -152,7 +152,7 @@ public final class MCAUtil {
 	 * @param regionX The x-value of the location of the region.
 	 * @param regionZ The z-value of the location of the region.
 	 * @return A mca filename in the format "r.{regionX}.{regionZ}.mca"
-	 * */
+	 */
 	public static String createNameFromRegionLocation(int regionX, int regionZ) {
 		return "r." + regionX + "." + regionZ + ".mca";
 	}
@@ -161,7 +161,7 @@ public final class MCAUtil {
 	 * Turns a block coordinate value into a chunk coordinate value.
 	 * @param block The block coordinate value.
 	 * @return The chunk coordinate value.
-	 * */
+	 */
 	public static int blockToChunk(int block) {
 		return block >> 4;
 	}
@@ -170,7 +170,7 @@ public final class MCAUtil {
 	 * Turns a block coordinate value into a region coordinate value.
 	 * @param block The block coordinate value.
 	 * @return The region coordinate value.
-	 * */
+	 */
 	public static int blockToRegion(int block) {
 		return block >> 9;
 	}
@@ -179,7 +179,7 @@ public final class MCAUtil {
 	 * Turns a chunk coordinate value into a region coordinate value.
 	 * @param chunk The chunk coordinate value.
 	 * @return The region coordinate value.
-	 * */
+	 */
 	public static int chunkToRegion(int chunk) {
 		return chunk >> 5;
 	}
@@ -188,7 +188,7 @@ public final class MCAUtil {
 	 * Turns a region coordinate value into a chunk coordinate value.
 	 * @param region The region coordinate value.
 	 * @return The chunk coordinate value.
-	 * */
+	 */
 	public static int regionToChunk(int region) {
 		return region << 5;
 	}
@@ -197,7 +197,7 @@ public final class MCAUtil {
 	 * Turns a region coordinate value into a block coordinate value.
 	 * @param region The region coordinate value.
 	 * @return The block coordinate value.
-	 * */
+	 */
 	public static int regionToBlock(int region) {
 		return region << 9;
 	}
@@ -206,7 +206,7 @@ public final class MCAUtil {
 	 * Turns a chunk coordinate value into a block coordinate value.
 	 * @param chunk The chunk coordinate value.
 	 * @return The block coordinate value.
-	 * */
+	 */
 	public static int chunkToBlock(int chunk) {
 		return chunk << 4;
 	}

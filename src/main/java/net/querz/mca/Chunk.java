@@ -15,40 +15,42 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static net.querz.mca.LoadFlags.*;
 
-public class Chunk implements Iterable<Section> {
+/**
+ * Represents a REGION data mca chunk.
+ */
+public class Chunk extends SectionedChunkBase<Section> {
 
-	public static final int DEFAULT_DATA_VERSION = 2567;
+	/**
+	 * The default chunk data version used when no custom version is supplied.
+	 * <p>Deprecated: use {@code DataVersion.latest().id()} instead.
+	 */
+	@Deprecated
+	public static final int DEFAULT_DATA_VERSION = DataVersion.latest().id();
 
-	private boolean partial;
-	private boolean raw;
-
-	private int lastMCAUpdate;
-
-	private CompoundTag data;
-
-	private int dataVersion;
-	private long lastUpdate;
-	private long inhabitedTime;
-	private int[] biomes;
-	private CompoundTag heightMaps;
-	private CompoundTag carvingMasks;
-	private Map<Integer, Section> sections = new TreeMap<>();
-	private ListTag<CompoundTag> entities;
-	private ListTag<CompoundTag> tileEntities;
-	private ListTag<CompoundTag> tileTicks;
-	private ListTag<CompoundTag> liquidTicks;
-	private ListTag<ListTag<?>> lights;
-	private ListTag<ListTag<?>> liquidsToBeTicked;
-	private ListTag<ListTag<?>> toBeTicked;
-	private ListTag<ListTag<?>> postProcessing;
-	private String status;
-	private CompoundTag structures;
+	protected int dataVersion;
+	protected long lastUpdate;
+	protected long inhabitedTime;
+	protected int[] biomes;
+	protected CompoundTag heightMaps;
+	protected CompoundTag carvingMasks;
+	protected ListTag<CompoundTag> entities;  // never populated for versions >= 1.17
+	protected ListTag<CompoundTag> tileEntities;
+	protected ListTag<CompoundTag> tileTicks;
+	protected ListTag<CompoundTag> liquidTicks;
+	protected ListTag<ListTag<?>> lights;
+	protected ListTag<ListTag<?>> liquidsToBeTicked;
+	protected ListTag<ListTag<?>> toBeTicked;
+	protected ListTag<ListTag<?>> postProcessing;
+	protected String status;
+	protected CompoundTag structures;
 
 	Chunk(int lastMCAUpdate) {
-		this.lastMCAUpdate = lastMCAUpdate;
+		super(lastMCAUpdate);
 	}
 
 	/**
@@ -56,20 +58,11 @@ public class Chunk implements Iterable<Section> {
 	 * @param data The raw base data to be used.
 	 */
 	public Chunk(CompoundTag data) {
-		this.data = data;
-		initReferences(ALL_DATA);
+		super(data);
 	}
 
-	private void initReferences(long loadFlags) {
-		if (data == null) {
-			throw new NullPointerException("data cannot be null");
-		}
-
-		if ((loadFlags != ALL_DATA) && (loadFlags & RAW) != 0) {
-			raw = true;
-			return;
-		}
-
+	@Override
+	protected void initReferences(long loadFlags) {
 		CompoundTag level;
 		if ((level = data.getCompoundTag("Level")) == null) {
 			throw new IllegalArgumentException("data does not contain \"Level\" tag");
@@ -120,67 +113,6 @@ public class Chunk implements Iterable<Section> {
 				Section newSection = new Section(section, dataVersion, loadFlags);
 				sections.put(sectionIndex, newSection);
 			}
-		}
-
-		// If we haven't requested the full set of data we can drop the underlying raw data to let the GC handle it.
-		if (loadFlags != ALL_DATA) {
-			data = null;
-			partial = true;
-		}
-	}
-
-	/**
-	 * Serializes this chunk to a <code>RandomAccessFile</code>.
-	 * @param raf The RandomAccessFile to be written to.
-	 * @param xPos The x-coordinate of the chunk.
-	 * @param zPos The z-coodrinate of the chunk.
-	 * @return The amount of bytes written to the RandomAccessFile.
-	 * @throws UnsupportedOperationException When something went wrong during writing.
-	 * @throws IOException When something went wrong during writing.
-	 */
-	public int serialize(RandomAccessFile raf, int xPos, int zPos) throws IOException {
-		if (partial) {
-			throw new UnsupportedOperationException("Partially loaded chunks cannot be serialized");
-		}
-		ByteArrayOutputStream baos = new ByteArrayOutputStream(4096);
-		try (BufferedOutputStream nbtOut = new BufferedOutputStream(CompressionType.ZLIB.compress(baos))) {
-			new NBTSerializer(false).toStream(new NamedTag(null, updateHandle(xPos, zPos)), nbtOut);
-		}
-		byte[] rawData = baos.toByteArray();
-		raf.writeInt(rawData.length + 1); // including the byte to store the compression type
-		raf.writeByte(CompressionType.ZLIB.getID());
-		raf.write(rawData);
-		return rawData.length + 5;
-	}
-
-	/**
-	 * Reads chunk data from a RandomAccessFile. The RandomAccessFile must already be at the correct position.
-	 * @param raf The RandomAccessFile to read the chunk data from.
-	 * @throws IOException When something went wrong during reading.
-	 */
-	public void deserialize(RandomAccessFile raf) throws IOException {
-		deserialize(raf, ALL_DATA);
-	}
-
-	/**
-	 * Reads chunk data from a RandomAccessFile. The RandomAccessFile must already be at the correct position.
-	 * @param raf The RandomAccessFile to read the chunk data from.
-	 * @param loadFlags A logical or of {@link LoadFlags} constants indicating what data should be loaded
-	 * @throws IOException When something went wrong during reading.
-	 */
-	public void deserialize(RandomAccessFile raf, long loadFlags) throws IOException {
-		byte compressionTypeByte = raf.readByte();
-		CompressionType compressionType = CompressionType.getFromID(compressionTypeByte);
-		if (compressionType == null) {
-			throw new IOException("invalid compression type " + compressionTypeByte);
-		}
-		BufferedInputStream dis = new BufferedInputStream(compressionType.decompress(new FileInputStream(raf.getFD())));
-		NamedTag tag = new NBTDeserializer(false).fromStream(dis);
-		if (tag != null && tag.getTag() instanceof CompoundTag) {
-			data = (CompoundTag) tag.getTag();
-			initReferences(loadFlags);
-		} else {
-			throw new IOException("invalid data tag: " + (tag == null ? "null" : tag.getClass().getName()));
 		}
 	}
 
@@ -324,29 +256,12 @@ public class Chunk implements Iterable<Section> {
 	 * @param dataVersion The DataVersion to be set.
 	 */
 	public void setDataVersion(int dataVersion) {
-		checkRaw();
 		this.dataVersion = dataVersion;
 		for (Section section : sections.values()) {
 			if (section != null) {
 				section.dataVersion = dataVersion;
 			}
 		}
-	}
-
-	/**
-	 * @return The timestamp when this region file was last updated in seconds since 1970-01-01.
-	 */
-	public int getLastMCAUpdate() {
-		return lastMCAUpdate;
-	}
-
-	/**
-	 * Sets the timestamp when this region file was last updated in seconds since 1970-01-01.
-	 * @param lastMCAUpdate The time in seconds since 1970-01-01.
-	 */
-	public void setLastMCAUpdate(int lastMCAUpdate) {
-		checkRaw();
-		this.lastMCAUpdate = lastMCAUpdate;
 	}
 
 	/**
@@ -363,25 +278,6 @@ public class Chunk implements Iterable<Section> {
 	public void setStatus(String status) {
 		checkRaw();
 		this.status = status;
-	}
-
-	/**
-	 * Fetches the section at the given y-coordinate.
-	 * @param sectionY The y-coordinate of the section in this chunk ranging from 0 to 15.
-	 * @return The Section.
-	 */
-	public Section getSection(int sectionY) {
-		return sections.get(sectionY);
-	}
-
-	/**
-	 * Sets a section at a givesn y-coordinate
-	 * @param sectionY The y-coordinate of the section in this chunk ranging from 0 to 15.
-	 * @param section The section to be set.
-	 */
-	public void setSection(int sectionY, Section section) {
-		checkRaw();
-		sections.put(sectionY, section);
 	}
 
 	/**
@@ -628,14 +524,8 @@ public class Chunk implements Iterable<Section> {
 		}
 	}
 
-	private void checkRaw() {
-		if (raw) {
-			throw new UnsupportedOperationException("cannot update field when working with raw data");
-		}
-	}
-
 	public static Chunk newChunk() {
-		return newChunk(DEFAULT_DATA_VERSION);
+		return Chunk.newChunk(DataVersion.latest().id());
 	}
 
 	public static Chunk newChunk(int dataVersion) {
@@ -647,14 +537,7 @@ public class Chunk implements Iterable<Section> {
 		return c;
 	}
 
-	/**
-	 * Provides a reference to the full chunk data.
-	 * @return The full chunk data or null if there is none, e.g. when this chunk has only been loaded partially.
-	 */
-	public CompoundTag getHandle() {
-		return data;
-	}
-
+	@Override
 	public CompoundTag updateHandle(int xPos, int zPos) {
 		if (raw) {
 			return data;
@@ -675,40 +558,19 @@ public class Chunk implements Iterable<Section> {
 				level.putIntArray("Biomes", biomes);
 			}
 		}
-		if (heightMaps != null) {
-			level.put("Heightmaps", heightMaps);
-		}
-		if (carvingMasks != null) {
-			level.put("CarvingMasks", carvingMasks);
-		}
-		if (entities != null) {
-			level.put("Entities", entities);
-		}
-		if (tileEntities != null) {
-			level.put("TileEntities", tileEntities);
-		}
-		if (tileTicks != null) {
-			level.put("TileTicks", tileTicks);
-		}
-		if (liquidTicks != null) {
-			level.put("LiquidTicks", liquidTicks);
-		}
-		if (lights != null) {
-			level.put("Lights", lights);
-		}
-		if (liquidsToBeTicked != null) {
-			level.put("LiquidsToBeTicked", liquidsToBeTicked);
-		}
-		if (toBeTicked != null) {
-			level.put("ToBeTicked", toBeTicked);
-		}
-		if (postProcessing != null) {
-			level.put("PostProcessing", postProcessing);
-		}
+		level.putIfNotNull("Heightmaps", heightMaps);
+		level.putIfNotNull("CarvingMasks", carvingMasks);
+		level.putIfNotNull("Entities", entities);
+		level.putIfNotNull("TileEntities", tileEntities);
+		level.putIfNotNull("TileTicks", tileTicks);
+		level.putIfNotNull("LiquidTicks", liquidTicks);
+		level.putIfNotNull("Lights", lights);
+		level.putIfNotNull("LiquidsToBeTicked", liquidsToBeTicked);
+		level.putIfNotNull("ToBeTicked", toBeTicked);
+		level.putIfNotNull("PostProcessing", postProcessing);
 		level.putString("Status", status);
-		if (structures != null) {
-			level.put("Structures", structures);
-		}
+		level.putIfNotNull("Structures", structures);
+
 		ListTag<CompoundTag> sections = new ListTag<>(CompoundTag.class);
 		for (Section section : this.sections.values()) {
 			if (section != null) {
@@ -717,10 +579,5 @@ public class Chunk implements Iterable<Section> {
 		}
 		level.put("Sections", sections);
 		return data;
-	}
-
-	@Override
-	public Iterator<Section> iterator() {
-		return sections.values().iterator();
 	}
 }

@@ -36,6 +36,10 @@ public class CompoundTag extends Tag<Map<String, Tag<?>>>
 		return getValue().size();
 	}
 
+	public boolean isEmpty() {
+		return getValue().isEmpty();
+	}
+
 	public Tag<?> remove(String key) {
 		return getValue().remove(key);
 	}
