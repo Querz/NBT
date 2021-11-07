@@ -80,7 +80,7 @@ public abstract class MCAFileBase<T extends Chunk> implements Iterable<T> {
 			}
 			raf.seek(4096 + i * 4);
 			int timestamp = raf.readInt();
-			raf.seek(4096 * offset + 4); //+4: skip data size
+			raf.seek(4096L * offset + 4); //+4: skip data size
 			chunks[i] = deserializeChunk(raf, loadFlags, timestamp);
 		}
 	}
@@ -124,7 +124,7 @@ public abstract class MCAFileBase<T extends Chunk> implements Iterable<T> {
 				if (chunk == null) {
 					continue;
 				}
-				raf.seek(4096 * globalOffset);
+				raf.seek(4096L * globalOffset);
 				lastWritten = chunk.serialize(raf, chunkXOffset + cx, chunkZOffset + cz);
 
 				if (lastWritten == 0) {
@@ -135,14 +135,14 @@ public abstract class MCAFileBase<T extends Chunk> implements Iterable<T> {
 
 				int sectors = (lastWritten >> 12) + (lastWritten % 4096 == 0 ? 0 : 1);
 
-				raf.seek(index * 4);
+				raf.seek(index * 4L);
 				raf.writeByte(globalOffset >>> 16);
 				raf.writeByte(globalOffset >> 8 & 0xFF);
 				raf.writeByte(globalOffset & 0xFF);
 				raf.writeByte(sectors);
 
 				// write timestamp
-				raf.seek(index * 4 + 4096);
+				raf.seek(index * 4L + 4096);
 				raf.writeInt(changeLastUpdate ? timestamp : chunk.getLastMCAUpdate());
 
 				globalOffset += sectors;
@@ -151,7 +151,7 @@ public abstract class MCAFileBase<T extends Chunk> implements Iterable<T> {
 
 		// padding
 		if (lastWritten % 4096 != 0) {
-			raf.seek(globalOffset * 4096 - 1);
+			raf.seek(globalOffset * 4096L - 1);
 			raf.write(0);
 		}
 		return chunksWritten;
