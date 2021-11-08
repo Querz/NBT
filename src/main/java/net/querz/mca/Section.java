@@ -454,7 +454,6 @@ public class Section extends SectionBase<Section> {
 	@Override
 	public CompoundTag updateHandle(int y) {
 		checkY(y);
-		// TODO(1.18): this data type changes in 1.18
 		data.putByte("Y", (byte) y);
 		if (palette != null) {
 			data.put("Palette", palette);
