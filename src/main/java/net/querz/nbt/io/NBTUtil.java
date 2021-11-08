@@ -1,17 +1,23 @@
 package net.querz.nbt.io;
 
 import net.querz.nbt.tag.Tag;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PushbackInputStream;
+
+import java.io.*;
 import java.util.zip.GZIPInputStream;
 
 public final class NBTUtil {
 
 	private NBTUtil() {}
+
+	/**
+	 * Writes the value returned by {@link Tag#toString()} to the specified file.
+	 * <p>Useful for looking at large data structures, sorry it's not pretty printed.</p>
+	 */
+	public static void debugWrite(Tag<?> tag, File file) throws IOException {
+		try (PrintWriter pw = new PrintWriter(new FileOutputStream(file))) {
+			pw.write(tag.toString());
+		}
+	}
 
 	public static void write(NamedTag tag, File file, boolean compressed) throws IOException {
 		try (FileOutputStream fos = new FileOutputStream(file)) {
