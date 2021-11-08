@@ -26,6 +26,14 @@ public abstract class SectionedChunkBase<T extends SectionBase<?>> extends Chunk
 		super(data);
 	}
 
+	public boolean containsSection(int sectionY) {
+		return sections.containsKey(sectionY);
+	}
+
+	public boolean containsSection(T section) {
+		return sectionHeightLookup.containsKey(section);
+	}
+
 	/**
 	 * Sets the section at the specified section-y and synchronizes section-y by calling
 	 * {@code section.setHeight(sectionY);}.
@@ -58,13 +66,18 @@ public abstract class SectionedChunkBase<T extends SectionBase<?>> extends Chunk
 				final T oldSection = sections.remove(oldY);
 				sectionHeightLookup.remove(oldSection);
 				assert(oldSection == section);
+				assert(sections.size() == sectionHeightLookup.size());
 			}
 			section.syncHeight(sectionY);
 			sectionHeightLookup.put(section, sectionY);
-			return sections.put(sectionY, section);
+			final T oldSection = sections.put(sectionY, section);
+			if (oldSection != null) sectionHeightLookup.remove(oldSection);
+			assert(sections.size() == sectionHeightLookup.size());
+			return oldSection;
 		} else {
 			final T oldSection = sections.remove(sectionY);
 			sectionHeightLookup.remove(oldSection);
+			assert(sections.size() == sectionHeightLookup.size());
 			return oldSection;
 		}
 	}
@@ -123,7 +136,9 @@ public abstract class SectionedChunkBase<T extends SectionBase<?>> extends Chunk
 	 */
 	public int getSectionY(T section) {
 		if (section == null) return SectionBase.NO_HEIGHT_SENTINEL;
-		return sectionHeightLookup.getOrDefault(section, SectionBase.NO_HEIGHT_SENTINEL);
+		int y = sectionHeightLookup.getOrDefault(section, SectionBase.NO_HEIGHT_SENTINEL);
+		section.syncHeight(y);
+		return y;
 	}
 
 	/**
@@ -147,6 +162,15 @@ public abstract class SectionedChunkBase<T extends SectionBase<?>> extends Chunk
 		}
 		return SectionBase.NO_HEIGHT_SENTINEL;
 	}
+
+	/***
+	 * Creates a new section and places it in this chunk at the specified section-y
+	 * @param sectionY section y
+	 * @return new section
+	 * @throws IllegalArgumentException thrown if the specified y already has a section - basically throwns if
+	 * {@link #containsSection(int)} would return true.
+	 */
+	public abstract T createSection(int sectionY) throws IllegalArgumentException;
 
 	/**
 	 * Sections provided by {@link Iterator#next()} are guaranteed to have correct values returned from

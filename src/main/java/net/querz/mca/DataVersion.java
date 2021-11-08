@@ -5,6 +5,13 @@ import java.util.Comparator;
 
 // source: version.json file, found in the root directory of the client and server jars
 // table of versions can also be found on https://minecraft.fandom.com/wiki/Data_version#List_of_data_versions
+
+/**
+ * List of significant MC versions and MCA data versions.
+ * Non-full release versions are intended for use in data handling logic.
+ * The set of non-full release versions is not, and does not need to be, the complete set of all versions - only those
+ * which introduce changes to the MCA data structure are useful.
+ */
 public enum DataVersion {
     // Kept in ASC order
     UNKNOWN(0, 0, 0),

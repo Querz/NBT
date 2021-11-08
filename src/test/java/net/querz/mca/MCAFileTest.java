@@ -478,6 +478,70 @@ public class MCAFileTest extends MCATestCase {
 		assertEquals(162, f.getBiomeAt(31, 106, 48));
 	}
 
+	public void testChunkSectionPutSection() {
+		MCAFile mca = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("1_17_1/region/r.-3.-2.mca")));
+		Chunk chunk = mca.stream().filter(Objects::nonNull).findFirst().orElse(null);
+		assertNotNull(chunk);
+		final Section section2 = chunk.getSection(2);
+		assertNull(chunk.putSection(2, section2));  // no error to replace self
+		assertThrowsException(() -> chunk.putSection(3, section2), IllegalArgumentException.class);  // should fail
+		assertNotSame(section2, chunk.getSection(3));  // shouldn't have updated section 3
+		final Section newSection = chunk.createSection();
+		final Section prevSection2 = chunk.putSection(2, newSection);  // replace existing section 2 with the new one
+		assertNotNull(prevSection2);
+		assertSame(section2, prevSection2);  // check we got the existing section 2 when we replaced it
+		assertSame(newSection, chunk.getSection(2));  // verify we put section 2
+		assertEquals(2, newSection.getHeight());  // insertion should update section height
+		final Section section3 = chunk.putSection(3, section2);  // should be OK to put old section 2 into section 3 place now
+
+		final Section section1 = chunk.getSection(1);
+		final Section prevSection5 = chunk.putSection(5, section1, true);  // move section 1 into section 5
+		assertNotNull(prevSection5);
+		assertNull(chunk.getSection(1));  // verify we 'moved' section one out
+		assertNotSame(section1, prevSection5);  // make sure the return value isn't stupid
+		assertNull(chunk.putSection(1, prevSection5, true));  // moving 5 into empty slot is OK
+
+		// guard against section y default(0) case
+		final Section section0 = chunk.getSection(0);
+		final Section newSection0 = chunk.createSection();
+		assertSame(section0, chunk.putSection(0, newSection0));
+
+		// and finally direct removal via putting null
+		assertSame(newSection0, chunk.putSection(0, null));
+		assertNull(chunk.getSection(0));
+		assertNull(chunk.putSection(0, null));
+		chunk.putSection(0, section0);
+		assertSame(section0, chunk.putSection(0, null, true));
+		assertNull(chunk.getSection(0));
+
+		assertThrowsException(() -> chunk.putSection(Byte.MIN_VALUE - 1, chunk.createSection()), IllegalArgumentException.class);
+		assertThrowsException(() -> chunk.putSection(Byte.MAX_VALUE + 1, chunk.createSection()), IllegalArgumentException.class);
+
+		assertThrowsNoException(() -> chunk.putSection(Byte.MIN_VALUE, chunk.createSection()));
+		assertThrowsNoException(() -> chunk.putSection(Byte.MAX_VALUE, chunk.createSection()));
+	}
+
+	public void testChunkSectionGetSectionY() {
+		MCAFile mca = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("1_17_1/region/r.-3.-2.mca")));
+		Chunk chunk = mca.stream().filter(Objects::nonNull).findFirst().orElse(null);
+		assertNotNull(chunk);
+		assertEquals(SectionBase.NO_HEIGHT_SENTINEL, chunk.getSectionY(null));
+		assertEquals(SectionBase.NO_HEIGHT_SENTINEL, chunk.getSectionY(chunk.createSection()));
+		Section section = chunk.getSection(5);
+		section.setHeight(-5);
+		assertEquals(5, chunk.getSectionY(section));
+		assertEquals(5, section.getHeight());  // getSectionY should sync Y
+	}
+
+	public void testChunkSectionMinMaxSectionY() {
+		Chunk chunk = new Chunk(42);
+		chunk.setDataVersion(DataVersion.JAVA_1_17_1.id());
+		assertEquals(SectionBase.NO_HEIGHT_SENTINEL, chunk.getMinSectionY());
+		assertEquals(SectionBase.NO_HEIGHT_SENTINEL, chunk.getMaxSectionY());
+		Section section = chunk.createSection(3);
+
+	}
+
 	public void testMCAFileChunkIterator() {
 		MCAFile mca = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("1_17_1/region/r.-3.-2.mca")));
 		ChunkIterator<Chunk> iter = mca.iterator();
@@ -516,11 +580,12 @@ public class MCAFileTest extends MCATestCase {
 		final int maxY = chunk.getMaxSectionY();
 		assertNotNull(chunk.getSection(minY));
 		assertNotNull(chunk.getSection(maxY));
-		Iterator<Section> iter = chunk.iterator();
+		SectionIterator<Section> iter = chunk.iterator();
 		for (int y = minY; y <= maxY; y++) {
 			assertTrue(iter.hasNext());
 			Section section = iter.next();
 			assertNotNull(section);
+			assertEquals(y, iter.sectionY());
 			assertEquals(y, section.getHeight());
 			if (y > maxY - 2) {
 				iter.remove();

@@ -50,6 +50,17 @@ public class Chunk extends SectionedChunkBase<Section> {
 		super(data);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Section createSection(int sectionY) throws IllegalArgumentException {
+		if (containsSection(sectionY)) throw new IllegalArgumentException("section already exists at section-y " + sectionY);
+		Section section = createSection();
+		putSection(sectionY, section);
+		return section;
+	}
+
 	@Override
 	protected void initReferences(final long loadFlags) {
 		CompoundTag level = data.getCompoundTag("Level");

@@ -87,14 +87,6 @@ public class Section extends SectionBase<Section> {
 		if (blockStates == null) blockStates = createBlockStates();
 	}
 
-	private void assureBlockLight() {
-		if (blockLight == null) blockLight = createBlockLightBuffer();
-	}
-
-	private void assureSkyLight() {
-		if (skyLight == null) skyLight = createSkyLightBuffer();
-	}
-
 	private void assurePalette() {
 		if (palette == null) palette = new ListTag<>(CompoundTag.class);
 	}
