@@ -1,7 +1,6 @@
 package net.querz.mca;
 
 import net.querz.nbt.tag.CompoundTag;
-import net.querz.nbt.tag.EndTag;
 import net.querz.nbt.tag.ListTag;
 import static net.querz.mca.LoadFlags.*;
 
@@ -475,5 +474,34 @@ public class MCAFileTest extends MCATestCase {
 		assertEquals(4, f.getBiomeAt(16, 106, 48));
 		assertEquals(4, f.getBiomeAt(16, 106, 63));
 		assertEquals(162, f.getBiomeAt(31, 106, 48));
+	}
+
+	public void testChunkIterator() {
+		MCAFile mca = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("1_18/region/r.15.-9.mca")));
+		ChunkIterator<Chunk> iter = mca.iterator();
+		assertEquals(-1, iter.currentIndex());
+		final int populatedX = 483 & 0x1F;
+		final int populatedZ = -263 & 0x1F;
+		int i = 0;
+		for (int z = 0; z < 32; z++) {
+			for (int x = 0; x < 32; x++) {
+				assertTrue(iter.hasNext());
+				Chunk chunk = iter.next();
+				assertEquals(i, iter.currentIndex());
+				assertEquals(x, iter.currentX());
+				assertEquals(z, iter.currentZ());
+				if (x == populatedX && z == populatedZ) {
+					assertNotNull(chunk);
+				} else {
+					assertNull(chunk);
+				}
+				if (i == 1023) {
+					iter.set(mca.createChunk());
+				}
+				i++;
+			}
+		}
+		assertFalse(iter.hasNext());
+		assertNotNull(mca.getChunk(1023));
 	}
 }
