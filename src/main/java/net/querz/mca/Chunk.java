@@ -118,7 +118,7 @@ public class Chunk extends SectionedChunkBase<Section> {
 			}
 			return biomes[getBlockIndex(blockX, blockZ)];
 		} else {
-			throw new IllegalStateException("cannot get biome using Chunk#getBiomeAt(int,int) from biome data with DataVersion of 2203 or higher, use Chunk#getBiomeAt(int,int,int) instead");
+			throw new IllegalStateException("cannot get biome using Chunk#getBiomeAt(int,int) from biome data with DataVersion of 2203 or higher (1.15+), use Chunk#getBiomeAt(int,int,int) instead");
 		}
 	}
 
@@ -145,6 +145,11 @@ public class Chunk extends SectionedChunkBase<Section> {
 		}
 	}
 
+	/**
+	 * Should only be used for data versions LT 2203 which includes all of 1.14
+	 * and up until 19w36a (a 1.15 weekly snapshot).
+	 * @deprecated Use {@link #setBiomeAt(int, int, int, int)} instead for 1.15 and beyond
+	 */
 	@Deprecated
 	public void setBiomeAt(int blockX, int blockZ, int biomeID) {
 		checkRaw();
@@ -309,9 +314,9 @@ public class Chunk extends SectionedChunkBase<Section> {
 
 	/**
 	 * Sets the biome IDs for this chunk.
-	 * @param biomes The biome ID matrix of this chunk. Must have a length of <code>256</code>.
-	 * @throws IllegalArgumentException When the biome matrix does not have a length of <code>256</code>
-	 *                                  or is <code>null</code>
+	 * @param biomes The biome ID matrix of this chunk. Must have a length of {@code 1024} for 1.15+ or {@code 256}
+	 *                  for prior versions.
+	 * @throws IllegalArgumentException When the biome matrix is {@code null} or does not have a version appropriate length.
 	 */
 	public void setBiomes(int[] biomes) {
 		checkRaw();
