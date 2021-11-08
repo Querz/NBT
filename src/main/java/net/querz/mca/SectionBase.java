@@ -7,7 +7,6 @@ public abstract class SectionBase<T extends SectionBase<?>> implements Comparabl
 	protected static final int NO_HEIGHT_SENTINEL = Integer.MIN_VALUE;
 	protected final CompoundTag data;
 	protected int height = NO_HEIGHT_SENTINEL;
-	protected SectionContainer container;
 
 	public SectionBase(CompoundTag sectionRoot) {
 		Objects.requireNonNull(sectionRoot, "sectionRoot must not be null");
