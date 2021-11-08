@@ -4,6 +4,7 @@ import net.querz.nbt.tag.CompoundTag;
 import net.querz.nbt.tag.ListTag;
 
 import java.util.Arrays;
+import java.util.Map;
 
 import static net.querz.mca.DataVersion.JAVA_1_15_19W36A;
 import static net.querz.mca.LoadFlags.*;
@@ -563,9 +564,9 @@ public class Chunk extends SectionedChunkBase<Section> {
 		level.putIfNotNull("Structures", structures);
 
 		ListTag<CompoundTag> sections = new ListTag<>(CompoundTag.class);
-		for (Section section : this.sections.values()) {
-			if (section != null) {
-				sections.add(section.updateHandle());
+		for (Map.Entry<Integer, Section> entry : this.sections.entrySet()) {
+			if (entry.getValue() != null) {
+				sections.add(entry.getValue().updateHandle(entry.getKey()));
 			}
 		}
 		level.put("Sections", sections);
