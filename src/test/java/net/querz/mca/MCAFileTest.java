@@ -6,6 +6,8 @@ import static net.querz.mca.LoadFlags.*;
 
 import java.io.*;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Objects;
 
 public class MCAFileTest extends MCATestCase {
 
@@ -476,12 +478,12 @@ public class MCAFileTest extends MCATestCase {
 		assertEquals(162, f.getBiomeAt(31, 106, 48));
 	}
 
-	public void testChunkIterator() {
-		MCAFile mca = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("1_18/region/r.15.-9.mca")));
+	public void testMCAFileChunkIterator() {
+		MCAFile mca = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("1_17_1/region/r.-3.-2.mca")));
 		ChunkIterator<Chunk> iter = mca.iterator();
 		assertEquals(-1, iter.currentIndex());
-		final int populatedX = 483 & 0x1F;
-		final int populatedZ = -263 & 0x1F;
+		final int populatedX = -65 & 0x1F;
+		final int populatedZ = -42 & 0x1F;
 		int i = 0;
 		for (int z = 0; z < 32; z++) {
 			for (int x = 0; x < 32; x++) {
@@ -503,5 +505,32 @@ public class MCAFileTest extends MCATestCase {
 		}
 		assertFalse(iter.hasNext());
 		assertNotNull(mca.getChunk(1023));
+	}
+
+	public void testChunkSectionIterator() {
+		MCAFile mca = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("1_17_1/region/r.-3.-2.mca")));
+		assertEquals(1, mca.count());
+		Chunk chunk = mca.stream().filter(Objects::nonNull).findFirst().orElse(null);
+		assertNotNull(chunk);
+		final int minY = chunk.getMinSectionY();
+		final int maxY = chunk.getMaxSectionY();
+		assertNotNull(chunk.getSection(minY));
+		assertNotNull(chunk.getSection(maxY));
+		Iterator<Section> iter = chunk.iterator();
+		for (int y = minY; y <= maxY; y++) {
+			assertTrue(iter.hasNext());
+			Section section = iter.next();
+			assertNotNull(section);
+			assertEquals(y, section.getHeight());
+			if (y > maxY - 2) {
+				iter.remove();
+			}
+		}
+		assertFalse(iter.hasNext());
+		assertEquals(minY, chunk.getMinSectionY());
+		assertEquals(maxY - 2, chunk.getMaxSectionY());
+		assertNull(chunk.getSection(maxY));
+		assertNull(chunk.getSection(maxY - 1));
+		assertNotNull(chunk.getSection(maxY - 2));
 	}
 }

@@ -59,8 +59,30 @@ public enum DataVersion {
     JAVA_1_17_1(2730, 17, 1),
 
     // fist experimental 1.18 build
-    // region mca chunk NBT no longer stored inside "Level" tag at some point before/by 21w44a (unsure when exactly)
-    JAVA_1_18_XS1(2825, 18, -1, "XS1");
+    JAVA_1_18_XS1(2825, 18, -1, "XS1"),
+
+    // https://www.minecraft.net/en-us/article/minecraft-snapshot-21w39a
+    // Level.Sections[].BlockStates & Level.Sections[].Palette have moved to a container structure in Level.Sections[].block_states
+    // Level.Biomes are now paletted and live in a similar container structure in Level.Sections[].biomes
+    // Level.CarvingMasks[] is now long[] instead of byte[]
+    JAVA_1_18_21W39A(2836, 18, -1, "21w39a"),
+
+    // https://www.minecraft.net/en-us/article/minecraft-snapshot-21w43a
+    // Removed chunk’s Level and moved everything it contained up
+    // Chunk’s Level.Entities has moved to entities
+    // Chunk’s Level.TileEntities has moved to block_entities
+    // Chunk’s Level.TileTicks and Level.ToBeTicked have moved to block_ticks
+    // Chunk’s Level.LiquidTicks and Level.LiquidsToBeTicked have moved to fluid_ticks
+    // Chunk’s Level.Sections has moved to sections
+    // Chunk’s Level.Structures has moved to structures
+    // Chunk’s Level.Structures.Starts has moved to structures.starts
+    // Chunk’s Level.Sections[].BlockStates and Level.Sections[].Palette have moved to a container structure in sections[].block_states
+    // Chunk’s Level.Biomes are now paletted and live in a similar container structure in sections[].biomes
+    // Added yPos the minimum section y position in the chunk
+    // Added below_zero_retrogen containing data to support below zero generation
+    // Added blending_data containing data to support blending new world generation with existing chunks
+    JAVA_1_18_21W43A(2844, 18, -1, "21w43a");
+
 
     private static final int[] ids;
     private static final DataVersion latestFullReleaseVersion;
@@ -179,13 +201,6 @@ public enum DataVersion {
      */
     public boolean hasEntitiesMca() {
         return minor >= 17;
-    }
-
-    /**
-     * TRUE before 1.18, FALSE after
-     */
-    public boolean regionChunksHaveLevelTag() {
-        return minor < 18;
     }
 
     public static DataVersion bestFor(int dataVersion) {

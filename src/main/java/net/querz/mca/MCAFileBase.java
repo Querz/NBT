@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.lang.reflect.Array;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -61,6 +62,13 @@ public abstract class MCAFileBase<T extends Chunk> implements Iterable<T> {
 	 */
 	public MCAFileBase(int regionX, int regionZ, DataVersion defaultDataVersion) {
 		this(regionX, regionZ, defaultDataVersion.id());
+	}
+
+	/**
+	 * Gets the count of non-null chunks.
+	 */
+	public int count() {
+		return (int) stream().filter(Objects::nonNull).count();
 	}
 
 	/**

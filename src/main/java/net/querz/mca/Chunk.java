@@ -52,7 +52,7 @@ public class Chunk extends SectionedChunkBase<Section> {
 
 	@Override
 	protected void initReferences(final long loadFlags) {
-		CompoundTag level = getDataVersionEnum().regionChunksHaveLevelTag() ? data.getCompoundTag("Level") : data;
+		CompoundTag level = data.getCompoundTag("Level");
 		if (level == null) {
 			throw new IllegalArgumentException("data does not contain \"Level\" tag");
 		}
@@ -100,7 +100,7 @@ public class Chunk extends SectionedChunkBase<Section> {
 			for (CompoundTag section : level.getListTag("Sections").asCompoundTagList()) {
 				int sectionIndex = section.getNumber("Y").byteValue();
 				Section newSection = new Section(section, dataVersion, loadFlags);
-				sections.put(sectionIndex, newSection);
+				putSection(sectionIndex, newSection, false);
 			}
 		}
 	}
@@ -208,7 +208,7 @@ public class Chunk extends SectionedChunkBase<Section> {
 	}
 
 	public CompoundTag getBlockStateAt(int blockX, int blockY, int blockZ) {
-		Section section = sections.get(MCAUtil.blockToChunk(blockY));
+		Section section = getSection(MCAUtil.blockToChunk(blockY));
 		if (section == null) {
 			return null;
 		}
@@ -229,9 +229,9 @@ public class Chunk extends SectionedChunkBase<Section> {
 	public void setBlockStateAt(int blockX, int blockY, int blockZ, CompoundTag state, boolean cleanup) {
 		checkRaw();
 		int sectionIndex = MCAUtil.blockToChunk(blockY);
-		Section section = sections.get(sectionIndex);
+		Section section = getSection(sectionIndex);
 		if (section == null) {
-			sections.put(sectionIndex, section = createSection());
+			putSection(sectionIndex, section = createSection(), false);
 			section.setDataVersion(dataVersion);
 		}
 		section.setBlockStateAt(blockX, blockY, blockZ, state, cleanup);
@@ -250,7 +250,7 @@ public class Chunk extends SectionedChunkBase<Section> {
 	@Override
 	public void setDataVersion(int dataVersion) {
 		super.setDataVersion(dataVersion);
-		for (Section section : sections.values()) {
+		for (Section section : this) {
 			if (section != null) {
 				section.setDataVersion(dataVersion);
 			}
@@ -511,7 +511,7 @@ public class Chunk extends SectionedChunkBase<Section> {
 
 	public void cleanupPalettesAndBlockStates() {
 		checkRaw();
-		for (Section section : sections.values()) {
+		for (Section section : this) {
 			if (section != null) {
 				section.cleanupPaletteAndBlockStates();
 			}
@@ -542,7 +542,7 @@ public class Chunk extends SectionedChunkBase<Section> {
 			return data;
 		}
 		super.updateHandle(xPos, zPos);
-		CompoundTag level = getDataVersionEnum().regionChunksHaveLevelTag() ? data.getCompoundTag("Level") : data;
+		CompoundTag level = data.getCompoundTag("Level");
 		level.putInt("xPos", xPos);
 		level.putInt("zPos", zPos);
 		level.putLong("LastUpdate", lastUpdate);
@@ -569,9 +569,9 @@ public class Chunk extends SectionedChunkBase<Section> {
 		level.putIfNotNull("Structures", structures);
 
 		ListTag<CompoundTag> sections = new ListTag<>(CompoundTag.class);
-		for (Map.Entry<Integer, Section> entry : this.sections.entrySet()) {
-			if (entry.getValue() != null) {
-				sections.add(entry.getValue().updateHandle(entry.getKey()));
+		for (Section section : this) {
+			if (section != null) {
+				sections.add(section.updateHandle(section.getHeight() /* contract of iterator assures correctness */));
 			}
 		}
 		level.put("Sections", sections);

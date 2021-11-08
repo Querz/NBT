@@ -4,7 +4,7 @@ import net.querz.nbt.tag.CompoundTag;
 import java.util.*;
 
 public abstract class SectionBase<T extends SectionBase<?>> implements Comparable<T> {
-	protected static final int NO_HEIGHT_SENTINEL = Integer.MIN_VALUE;
+	public static final int NO_HEIGHT_SENTINEL = Integer.MIN_VALUE;
 	protected final CompoundTag data;
 	protected int height = NO_HEIGHT_SENTINEL;
 
@@ -34,13 +34,38 @@ public abstract class SectionBase<T extends SectionBase<?>> implements Comparabl
 	}
 
 	/**
-	* @return the Y value of this section. Multiply by 16 to get world Y value.
-	*/
+	 * Gets the height of the bottom of this section relative to Y0 as a section-y value, each 1 section-y is equal to
+	 * 16 blocks.
+	 * This library (as a whole) will attempt to keep the value returned by this function in sync with the actual
+	 * location it has been placed within its chunk.
+	 * <p>The value returned may be unreliable if this section is placed in multiple chunks at different heights.
+	 * or if user code calls {@link #syncHeight(int)} on a section which is referenced by any chunk.</p>
+	 *
+	 * @return The Y value of this section.
+	 * @deprecated Prefer using {@code chunk.getSectionY(section)} which will always be accurate
+	 * within the context of the chunk.
+	 */
 	public int getHeight() {
 		return height;
 	}
 
+	/**
+	 * This method should only be called from a container of Sections such as implementers of
+	 * {@link SectionedChunkBase} in an effort to keep the value accurate, or when building sections prior to adding
+	 * to a chunk where you want to use this section height property for the convenience of not having to track the
+	 * value separately.
+	 *
+	 * @deprecated To set section height (aka section-y) use
+	 * {@code chunk.putSection(int, SectionBase, boolean)} instead of this function. Setting the section height
+	 * by calling this function WILL NOT have any affect upon the sections height in the Chunk or or MCA data when
+	 * serialized.
+	 */
+	@Deprecated
 	public void setHeight(int height) {
+		syncHeight(height);
+	}
+
+	void syncHeight(int height) {
 		this.height = height;
 	}
 
