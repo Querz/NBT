@@ -12,7 +12,7 @@ import java.util.stream.StreamSupport;
 /**
  * An abstract representation of an mca file.
  */
-public abstract class MCAFileBase<T extends Chunk> implements Iterable<T> {
+public abstract class MCAFileBase<T extends ChunkBase> implements Iterable<T> {
 
 	protected int regionX, regionZ;
 	protected T[] chunks;
@@ -253,7 +253,7 @@ public abstract class MCAFileBase<T extends Chunk> implements Iterable<T> {
 		for (int cz = 0; cz < 32; cz++) {
 			for (int cx = 0; cx < 32; cx++) {
 				int index = getChunkIndex(cx, cz);
-				Chunk chunk = chunks[index];
+				T chunk = chunks[index];
 				if (chunk == null) {
 					continue;
 				}
@@ -377,7 +377,7 @@ public abstract class MCAFileBase<T extends Chunk> implements Iterable<T> {
 		return StreamSupport.stream(spliterator(), false);
 	}
 
-	protected static class ChunkIteratorImpl<I extends Chunk> implements ChunkIterator<I> {
+	protected static class ChunkIteratorImpl<I extends ChunkBase> implements ChunkIterator<I> {
 		private final MCAFileBase<I> owner;
 		private int currentIndex;
 
