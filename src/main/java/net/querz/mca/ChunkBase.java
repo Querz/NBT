@@ -14,7 +14,7 @@ import static net.querz.mca.LoadFlags.RAW;
 /**
  * Abstraction for the base of all chunk types which represent chunks composed of sub-chunks {@link SectionBase}.
  */
-public abstract class ChunkBase implements VersionedDataContainer {
+public abstract class ChunkBase implements VersionedDataContainer, TagWrapper {
 	protected int dataVersion;
 	protected boolean partial;
 	protected boolean raw;
@@ -31,7 +31,7 @@ public abstract class ChunkBase implements VersionedDataContainer {
 	 */
 	public ChunkBase(CompoundTag data) {
 		this.data = data;
-		initReferences(ALL_DATA);
+		initReferences0(ALL_DATA);
 	}
 
 	private void initReferences0(long loadFlags) {
@@ -76,7 +76,6 @@ public abstract class ChunkBase implements VersionedDataContainer {
 	public void setDataVersion(int dataVersion) {
 		this.dataVersion = Math.max(0, dataVersion);
 	}
-
 
 	/**
 	 * Serializes this chunk to a <code>RandomAccessFile</code>.
@@ -163,10 +162,16 @@ public abstract class ChunkBase implements VersionedDataContainer {
 		return data;
 	}
 
-	public CompoundTag updateHandle(int xPos, int zPos) {
+	public CompoundTag updateHandle() {
 		if (!raw) {
 			data.putInt("DataVersion", dataVersion);
 		}
 		return data;
+	}
+
+	// Note: Not all chunk formats store xz in their NBT, but {@link MCAFileBase} will call this update method
+	// to give them the chance to record them.
+	public CompoundTag updateHandle(int xPos, int zPos) {
+		return updateHandle();
 	}
 }
