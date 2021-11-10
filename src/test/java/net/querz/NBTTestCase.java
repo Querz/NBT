@@ -239,16 +239,18 @@ public abstract class NBTTestCase extends TestCase {
 		return tmpFile;
 	}
 
-	protected void cleanupTmpDir() {
-		String workingDir = System.getProperty("user.dir");
-		File tmpDir = new File(workingDir, "tmp");
-		File[] tmpFiles = tmpDir.listFiles();
-		if (tmpFiles != null && tmpFiles.length != 0) {
-			for (File file : tmpFiles) {
-				file.delete();
+	private void deleteRecursive(File deleteMe) {
+		File[] contents = deleteMe.listFiles();
+		if (contents != null) {
+			for (File file : contents) {
+				deleteRecursive(file);
 			}
 		}
-		tmpDir.delete();
+		deleteMe.delete();
+	}
+
+	protected void cleanupTmpDir() {
+		deleteRecursive(new File(System.getProperty("user.dir"), "tmp"));
 	}
 
 	protected String calculateFileMD5(File file) {
