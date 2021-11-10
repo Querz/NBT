@@ -141,6 +141,11 @@ public class CompoundTag extends Tag<Map<String, Tag<?>>>
 		return get(key, ListTag.class);
 	}
 
+	@SuppressWarnings("unchecked")
+	public <R extends ListTag<?>> R getListTagAutoCast(String key) {
+		return (R) get(key, ListTag.class);
+	}
+
 	public CompoundTag getCompoundTag(String key) {
 		return get(key, CompoundTag.class);
 	}
