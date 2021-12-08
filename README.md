@@ -74,7 +74,7 @@ An example how to use a `ListTag`:
 ```java
 ListTag<FloatTag> fl = new ListTag<>(FloatTag.class);
 
-fl.add(new FloatTag(1.234f);
+fl.add(new FloatTag(1.234f));
 fl.addFloat(5.678f);
 ```
 
