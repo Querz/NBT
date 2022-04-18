@@ -25,14 +25,14 @@ public class StringPointer {
 		return value.substring(oldIndex, index);
 	}
 
-	public String parseQuotedString() throws ParseException {
+	public String parseQuotedString(char quoteChar) throws ParseException {
 		int oldIndex = ++index; //ignore beginning quotes
 		StringBuilder sb = null;
 		boolean escape = false;
 		while (hasNext()) {
 			char c = next();
 			if (escape) {
-				if (c != '\\' && c != '"') {
+				if (c != '\\' && c != quoteChar) {
 					throw parseException("invalid escape of '" + c + "'");
 				}
 				escape = false;
@@ -45,7 +45,7 @@ public class StringPointer {
 					sb = new StringBuilder(value.substring(oldIndex, index - 1));
 					continue;
 				}
-				if (c == '"') {
+				if (c == quoteChar) {
 					return sb == null ? value.substring(oldIndex, index - 1) : sb.toString();
 				}
 			}
