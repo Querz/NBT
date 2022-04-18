@@ -77,8 +77,8 @@ public final class SNBTParser implements MaxDepthIO {
 
 	private Tag<?> parseStringOrLiteral() throws ParseException {
 		ptr.skipWhitespace();
-		if (ptr.currentChar() == '"') {
-			return new StringTag(ptr.parseQuotedString());
+		if (ptr.currentChar() == '"' || ptr.currentChar() == '\'') {
+			return new StringTag(ptr.parseQuotedString(ptr.currentChar()));
 		}
 		String s = ptr.parseSimpleString();
 		if (s.isEmpty()) {
@@ -130,7 +130,7 @@ public final class SNBTParser implements MaxDepthIO {
 		ptr.skipWhitespace();
 		while (ptr.hasNext() && ptr.currentChar() != '}') {
 			ptr.skipWhitespace();
-			String key = ptr.currentChar() == '"' ? ptr.parseQuotedString() : ptr.parseSimpleString();
+			String key = ptr.currentChar() == '"' ? ptr.parseQuotedString('"') : ptr.parseSimpleString();
 			if (key.isEmpty()) {
 				throw new ParseException("empty keys are not allowed");
 			}

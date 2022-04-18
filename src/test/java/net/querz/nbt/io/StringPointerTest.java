@@ -71,14 +71,16 @@ public class StringPointerTest extends NBTTestCase {
 	}
 
 	public void testParseQuotedString() {
-		StringPointer ptr = new StringPointer("\"abcdefg\"");
-		assertEquals("abcdefg", assertThrowsNoException(ptr::parseQuotedString));
-		ptr = new StringPointer("\"abc\\def\"");
-		assertThrowsException(ptr::parseQuotedString, ParseException.class);
-		ptr = new StringPointer("\"abc\\\\def\\\\\"");
-		assertEquals("abc\\def\\", assertThrowsNoException(ptr::parseQuotedString));
-		ptr = new StringPointer("\"abc");
-		assertThrowsException(ptr::parseQuotedString, ParseException.class);
+		StringPointer ptr0 = new StringPointer("\"abcdefg\"");
+		assertEquals("abcdefg", assertThrowsNoException(() -> ptr0.parseQuotedString('"')));
+		StringPointer ptr1 = new StringPointer("\"abc\\def\"");
+		assertThrowsException(() -> ptr1.parseQuotedString('"'), ParseException.class);
+		StringPointer ptr2 = new StringPointer("\"abc\\\\def\\\\\"");
+		assertEquals("abc\\def\\", assertThrowsNoException(() -> ptr2.parseQuotedString('"')));
+		StringPointer ptr3 = new StringPointer("'abc\\\\def\\\\'");
+		assertEquals("abc\\def\\", assertThrowsNoException(() -> ptr3.parseQuotedString('\'')));
+		StringPointer ptr4 = new StringPointer("\"abc");
+		assertThrowsException(() -> ptr4.parseQuotedString('"'), ParseException.class);
 	}
 
 	public void testParseSimpleString() {
