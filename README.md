@@ -1,31 +1,122 @@
 # NBT
-[![Build Status](https://travis-ci.org/Querz/NBT.svg?branch=master)](https://travis-ci.org/Querz/NBT) [![Coverage Status](https://img.shields.io/coveralls/github/Querz/NBT/master.svg)](https://coveralls.io/github/Querz/NBT?branch=master) [![Release](https://jitpack.io/v/Querz/NBT.svg)](https://jitpack.io/#Querz/NBT)
-#### A java implementation of the [NBT protocol](http://minecraft.gamepedia.com/NBT_format) for Minecraft Java Edition.
+
+#### A Java implementation of the [NBT protocol](http://minecraft.gamepedia.com/NBT_format) for Minecraft Java Edition.
 ---
-### Specification
-According to the [specification](https://minecraft.gamepedia.com/NBT_format), there are currently 13 different types of tags:
 
-| Tag class    | Superclass | ID | Payload |
-| ---------    | ---------- | -- | ----------- |
-| [EndTag](src/main/java/net/querz/nbt/EndTag.java)             | [Tag](src/main/java/net/querz/nbt/Tag.java)               | 0  | None |
-| [ByteTag](src/main/java/net/querz/nbt/ByteTag.java)           | [NumberTag](src/main/java/net/querz/nbt/NumberTag.java)   | 1  | 1 byte / 8 bits, signed |
-| [ShortTag](src/main/java/net/querz/nbt/ShortTag.java)         | [NumberTag](src/main/java/net/querz/nbt/NumberTag.java)   | 2  | 2 bytes / 16 bits, signed, big endian |
-| [IntTag](src/main/java/net/querz/nbt/IntTag.java)             | [NumberTag](src/main/java/net/querz/nbt/NumberTag.java)   | 3  | 4 bytes / 32 bits, signed, big endian |
-| [LongTag](src/main/java/net/querz/nbt/LongTag.java)           | [NumberTag](src/main/java/net/querz/nbt/NumberTag.java)   | 4  | 8 bytes / 64 bits, signed, big endian |
-| [FloatTag](src/main/java/net/querz/nbt/FloatTag.java)         | [NumberTag](src/main/java/net/querz/nbt/NumberTag.java)   | 5  | 4 bytes / 32 bits, signed, big endian, IEEE 754-2008, binary32 |
-| [DoubleTag](src/main/java/net/querz/nbt/DoubleTag.java)       | [NumberTag](src/main/java/net/querz/nbt/NumberTag.java)   | 6  | 8 bytes / 64 bits, signed, big endian, IEEE 754-2008, binary64 |
-| [ByteArrayTag](src/main/java/net/querz/nbt/ByteArrayTag.java) | [ArrayTag](src/main/java/net/querz/nbt/ArrayTag.java)     | 7  | `IntTag` payload *size*, then *size* `ByteTag` payloads |
-| [StringTag](src/main/java/net/querz/nbt/StringTag.java)       | [Tag](src/main/java/net/querz/nbt/Tag.java)               | 8  | `ShortTag` payload *length*, then a UTF-8 string with size *length* |
-| [ListTag](src/main/java/net/querz/nbt/ListTag.java)           | [Tag](src/main/java/net/querz/nbt/Tag.java)               | 9  | `ByteTag` payload *tagId*, then `IntTag` payload *size*, then *size* tags' payloads, all of type *tagId* |
-| [CompoundTag](src/main/java/net/querz/nbt/CompoundTag.java)   | [Tag](src/main/java/net/querz/nbt/Tag.java)               | 10 | Fully formed tags, followed by an `EndTag` |
-| [IntArrayTag](src/main/java/net/querz/nbt/IntArrayTag.java)   | [ArrayTag](src/main/java/net/querz/nbt/ArrayTag.java)     | 11 | `IntTag` payload *size*, then *size* `IntTag` payloads |
-| [LongArrayTag](src/main/java/net/querz/nbt/LongArrayTag.java) | [ArrayTag](src/main/java/net/querz/nbt/ArrayTag.java)     | 12 | `IntTag` payload *size*, then *size* `LongTag` payloads |
+## Description
 
-* The `EndTag` is only used to mark the end of a `CompoundTag` in its serialized state or an empty `ListTag`.
+This NBT library focuses on speed and memory efficiency and therefore uses heavy caching of the primitive types.
+It also contains a package to parse and manipulate MCA files with the ability to create custom implementations to
+parse individual aspects of their chunk format, or how to handle MCC files.
 
-* The maximum depth of the NBT structure is 512. If the depth exceeds this restriction during serialization, deserialization or String conversion, a `MaxDepthReachedException` is thrown. This usually happens when a circular reference exists in the NBT structure. The NBT specification does not allow circular references, as there is no tag to represent this.
+LittleEndian streams are also provided for the ability to read and write NBT data for Minecraft Bedrock.
 
-### Add the library as a dependency using Gradle:
+## Usage
+
+### Creating Tags
+
+Tags can be created by using their `valueOf` static methods for primitive types and Strings or their constructor:
+
+```java
+IntTag it = IntTag.valueOf(5);
+StringTag st = StringTag.valueOf("hello there");
+ByteArrayTag bat = new ByteArrayTag(new byte[]{1, 2, 3, 4, 5});
+CompoundTag tag = new CompoundTag();
+
+// tags can then be added to container tags
+tag.put("fingers", it);
+tag.put("general_kenobi", st);
+tag.put("one_to_five", bat);
+
+// or use the explicit helper functions
+tag.putFloat("levitation", 123.456f);
+
+// let's make a list!
+ListTag lt = new ListTag();
+lt.add(new StringTag("cough"));
+// now we can only add strings to the list
+lt.addString("4 arms");
+
+tag.put("so_uncivilized", lt);
+```
+
+### Converting tags to SNBT
+
+To convert a tag to SNBT use the helper functions provided in `NBTUtil`:
+```java
+String snbt = NBTUtil.toSNBT(tag, "\t");
+```
+Alternatively the `SNBTWriter` provides building methods to convert to String or write directly to a File or an `OutputStream`.
+
+### Parsing SNBT
+
+To parse an SNBT string to a `Tag` object, use the helper functions provided in `NBTUtil`:
+```java
+Tag tag = NBTUtil.fromSNBT(snbt);
+```
+Alternatively use the `SNBTReader` to read directly from a file or `InputStream`.
+
+### Writing tags to stream
+
+To write tags to file or stream, use the helper functions provided in `NBTUtil`:
+```java
+NBTUtil.write(new File("level.dat"), tag);
+```
+Alternatively the streams can be assembled using the `NBTWriter` builder class.
+Or everything can be done manually by calling the `Tag#write()` method on the `Tag` directly.
+
+### Reading tags from stream
+
+To read tags from file or stream, use the helper functions provided in `NBTUtil`:
+```java
+Tag tag = NBTUtil.read(new File("level.dat"));
+```
+Additional helper functions allow selectively loading NBT tags by specifying their paths and their type:
+```java
+Tag tag = NBTUtil.read(file, new TagSelector("Data", "WorldGenSettings", "dimensions", CompoundTag.TYPE));
+```
+Alternatively the streams can be assembled using the `NBTReader` builder class.
+Or everything can be done manually by calling the TagType implementations `TagType#read()` method.
+To have even more control over what is loaded and parsed, a custom implementation of `TagTypeVisitor` can be passed to `NBTUtil.parseStream()`.
+
+### Reading MCA files
+
+MCA files can be easily read like this:
+```java
+File file = new File("r.0.0.mca");
+MCAFile mcaFile = new MCAFile(file);
+mcaFile.load();
+```
+Individual chunks can be accessed either by using the `MCAFile#getChunkAt()` methods or by iterating over the `MCAFile` object.
+
+### Parse data from chunks and sections
+
+The `net.querz.mca.parsers` package provides some predefined data parsers for various kinds of data in a chunk. Some useful
+parsers are for example the `BlockParser` or the `HeightmapParser`.
+Here is an example for how to iterate over all block states in a chunk:
+```java
+for (CompoundTag section : chunk.getSectionParser()) {
+    for (CompoundTag blockState : ParserHandler.getBlockParser(chunk.getDataVersion(), section)) {
+		    // do something with the block state
+    }
+}
+```
+For automation, custom parsers can ge registered to DataVersions in the `ParserHandler` class. When calling the parsers getter
+functions, it will then automatically create a new instance of that parser for the desired DataVersion.
+
+### Handle MCC files
+
+The `MCAFile#load()` method allows explicit handling of MCC files (MCC files are files containing a single chunk if the
+size of the compressed chunk data exceeds a specific number):
+```java
+// replace MCCFileHandler.DEFAULT_HANDLER with the custom implementation of MCCFileHandler
+MCAFileHandle handle = new MCAFileHandle(file.getParentFile(), new SeekableFile(file, "r"), MCCFileHandler.DEFAULT_HANDLER);
+MCAFile mcaFile = new MCAFile(file);
+mcaFile.load(handle);
+```
+
+## Add the library as a dependency using Gradle:
+
 Add Jitpack to your `repositories`:
 ```
 repositories {
@@ -37,11 +128,11 @@ And then add it as a dependency as usual:
 ```
 dependencies {
 	...
-	compile 'com.github.Querz:NBT:6.1'
+	implementation 'com.github.Querz:NBT:7.0'
 }
 ```
 
-### Add the library as a dependency using Maven:
+## Add the library as a dependency using Maven:
 Add Jitpack:
 ```
 <repositories>
@@ -56,97 +147,6 @@ Dependency:
 <dependency>
 	<groupId>com.github.Querz</groupId>
 	<artifactId>NBT</artifactId>
-	<version>6.1</version>
+	<version>7.0</version>
 </dependency>
-```
-
----
-### Example usage:
-The following code snippet shows how to create a `CompoundTag`:
-```java
-CompoundTag ct = new CompoundTag();
-
-ct.put("byte", new ByteTag((byte) 1));
-ct.put("double", new DoubleTag(1.234));
-ct.putString("string", "stringValue");
-```
-An example how to use a `ListTag`:
-```java
-ListTag<FloatTag> fl = new ListTag<>(FloatTag.class);
-
-fl.add(new FloatTag(1.234f);
-fl.addFloat(5.678f);
-```
-
-#### Nesting
-All methods serializing instances or deserializing data track the nesting levels to prevent circular references or malicious data which could, when deserialized, result in thousands of instances causing a denial of service.
-
-These methods have a parameter for the maximum nesting depth they are allowed to traverse. A value of `0` means that only the object itself, but no nested object may be processed.
-
-If an instance is nested further than allowed, a [MaxDepthReachedException](src/main/java/net/querz/nbt/MaxDepthReachedException.java) will be thrown. A negative maximum depth will cause an `IllegalArgumentException`.
-
-Some methods do not provide a parameter to specify the maximum depth, but instead use `Tag.DEFAULT_MAX_DEPTH` (`512`) which is also the maximum used in Minecraft.
-
----
-### Utility
-There are several utility methods to make your life easier if you use this library.
-#### NBTUtil
-`NBTUtil.write()` lets you write a Tag into a gzip compressed or uncompressed file in one line (not counting exception handling). Files are gzip compressed by default.
-
-Example usage:
-```java
-NBTUtil.write(namedTag, "filename.dat");
-```
-`NBTUtil.read()` reads any file containing NBT data. No worry about compression, it will automatically uncompress gzip compressed files.
-
-Example usage:
-```java
-NamedTag namedTag = NBTUtil.read("filename.dat");
-```
-#### Playing Minecraft?
-Each tag can be converted into an NBT String (SNBT) used in Minecraft commands.
-
-Example usage:
-```java
-CompoundTag c = new CompoundTag();
-c.putByte("blah", (byte) 5);
-c.putString("foo", "bär");
-ListTag<StringTag> s = new ListTag<>(StringTag.class);
-s.addString("test");
-s.add(new StringTag("text"));
-c.add("list", s);
-System.out.println(SNBTUtil.toSNBT(c)); // {blah:5b,foo:"bär",list:[test,text]}
-
-```
-There is also a tool to read, change and write MCA files.
-
-Here are some examples:
-```java
-// This changes the InhabitedTime field of the chunk at x=68, z=81 to 0
-MCAFile mcaFile = MCAUtil.readMCAFile("r.2.2.mca");
-Chunk chunk = mcaFile.getChunk(68, 81);
-chunk.setInhabitedTime(0);
-MCAUtil.writeMCAFile("r.2.2.mca", mcaFile);
-```
-There is also an optimized api to retrieve and set block information (BlockStates) in MCA files.
-
-Example:
-```java
-// Retrieves block information from the MCA file
-CompoundTag blockState = mcaFile.getBlockStateAt(1090, 25, 1301);
-
-// Retrieves block information from a single chunk
-CompoundTag blockState = chunk.getBlockStateAt(2, 25, 5);
-
-// Set block information
-CompoundTag stone = new CompoundTag();
-stone.putString("Name", "minecraft:stone");
-mcaFile.setBlockStateAt(1090, 25, 1301, stone, false);
-```
-To ensure good performance even when setting a lot of blocks and / or editing sections with a huge palette of block states, the size of the BlockStates array is only updated when the size of the palette requires it. This means there might be blocks in the palette that are not actually used in the BlockStates array.
-You can trigger a cleanup process by calling one of the following three methods, depending on the desired depth:
-```java
-mcaFile.cleanupPalettesAndBlockStates();
-chunk.cleanupPalettesAndBlockStates();
-section.cleanupPaletteAndBlockStates();
 ```

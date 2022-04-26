@@ -1,56 +1,19 @@
 plugins {
-	id 'com.github.kt3k.coveralls' version '2.4.0'
-	id 'maven'
+    id 'java'
 }
 
-apply plugin: 'java'
-apply plugin: 'eclipse'
-apply plugin: 'idea'
-apply plugin: 'jacoco'
-
-group                        = 'net.querz.nbt'
-archivesBaseName             = 'nbt'
-version                      = '6.1'
-sourceCompatibility          = '1.8'
-targetCompatibility          = '1.8'
-compileJava.options.encoding = 'UTF-8'
+group 'net.querz'
+version '1.0'
 
 repositories {
-	jcenter()
+    mavenCentral()
 }
 
 dependencies {
-	testCompile 'junit:junit:4.12'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 }
 
-javadoc {
-	source = sourceSets.main.allJava
-	classpath = configurations.compile
-	destinationDir = file("./doc/")
-	options.windowTitle 'NBT'
-	options.encoding 'UTF-8'
-	options.linkSource true
-	options.links 'https://docs.oracle.com/javase/8/docs/api/'
-}
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-	classifier = 'sources'
-	from sourceSets.main.allSource
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-	classifier = 'javadoc'
-	from javadoc.destinationDir
-}
-
-jacocoTestReport {
-	reports {
-		xml.enabled = true
-		html.enabled = true
-	}
-}
-
-artifacts {
-	archives sourcesJar
-	archives javadocJar
+test {
+    useJUnitPlatform()
 }

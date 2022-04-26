@@ -1,266 +1,137 @@
 package net.querz;
 
-import junit.framework.TestCase;
-import net.querz.nbt.io.NBTDeserializer;
-import net.querz.nbt.io.NBTSerializer;
-import net.querz.nbt.io.NamedTag;
-import net.querz.nbt.tag.Tag;
+import net.querz.nbt.*;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.RandomAccessFile;
+import java.io.Reader;
+import java.lang.reflect.Field;
 import java.math.BigInteger;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.UUID;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
-public abstract class NBTTestCase extends TestCase {
+import static org.junit.jupiter.api.Assertions.*;
 
-	@Override
-	public void tearDown() throws Exception {
-		super.tearDown();
-		cleanupTmpDir();
+public abstract class NBTTestCase {
+
+	public static File getResourceFile(Object o, String resource) {
+		URL url = o.getClass().getClassLoader().getResource(o.getClass().getPackageName().replace('.', '/') + "/" + resource);
+		assertNotNull(url);
+		return new File(url.getFile());
 	}
 
-	protected byte[] serialize(Tag<?> tag) {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		try (DataOutputStream dos = new DataOutputStream(baos)) {
-			new NBTSerializer(false).toStream(new NamedTag(null, tag), dos);
-		} catch (IOException ex) {
-			ex.printStackTrace();
-			fail(ex.getMessage());
-		}
-		return baos.toByteArray();
+	public static RandomAccessFile getResourceAsRandomAccessFile(Object o, String resource) throws FileNotFoundException {
+		File file = getResourceFile(o, resource);
+		return new RandomAccessFile(file, "r");
 	}
 
-	protected Tag<?> deserialize(byte[] data) {
-		try (DataInputStream dis = new DataInputStream(new ByteArrayInputStream(data))) {
-			return new NBTDeserializer(false).fromStream(dis).getTag();
-		} catch (IOException ex) {
-			ex.printStackTrace();
-			fail(ex.getMessage());
-			return null;
-		}
-	}
-
-	protected File getResourceFile(String name) {
-		URL resource = getClass().getClassLoader().getResource(name);
-		assertNotNull(resource);
-		return new File(resource.getFile());
-	}
-
-	protected Tag<?> deserializeFromFile(String f) {
-		try (DataInputStream dis = new DataInputStream(new FileInputStream(getResourceFile(f)))) {
-			return new NBTDeserializer(false).fromStream(dis).getTag();
-		} catch (IOException ex) {
-			ex.printStackTrace();
-			fail(ex.getMessage());
-			return null;
-		}
-	}
-
-	protected <T> void invokeSetValue(Tag<T> tag, T value) {
-		try {
-			Class<?> c = tag.getClass();
-			Method m;
-			while (c != Object.class) {
-				try {
-					m = c.getDeclaredMethod("setValue", Object.class);
-					m.setAccessible(true);
-					m.invoke(tag, value);
-					return;
-				} catch (NoSuchMethodException ex) {
-					c = c.getSuperclass();
-				}
+	public static String readResourceString(Object o, String resource) throws IOException {
+		char[] buffer = new char[1024];
+		StringBuilder out = new StringBuilder();
+		try (Reader in = new InputStreamReader(o.getClass().getResourceAsStream(resource), StandardCharsets.UTF_8)) {
+			for (int read; (read = in.read(buffer, 0, buffer.length)) > 0; ) {
+				out.append(buffer, 0, read);
 			}
-		} catch (IllegalAccessException | InvocationTargetException e) {
-			fail("unable to invoke setValue() on " + tag.getClass().getSimpleName());
 		}
-		fail("could not find setValue()");
+		return out.toString();
 	}
 
-	@SuppressWarnings("unchecked")
-	protected <T> T invokeGetValue(Tag<T> tag) {
-		try {
-			Class<?> c = tag.getClass();
-			Method m;
-			while (c != Object.class) {
-				try {
-					m = c.getDeclaredMethod("getValue");
-					m.setAccessible(true);
-					return (T) m.invoke(tag);
-				} catch (NoSuchMethodException ex) {
-					c = c.getSuperclass();
-				}
-			}
-		} catch (IllegalAccessException | InvocationTargetException e) {
-			fail("unable to invoke getValue() on " + tag.getClass().getSimpleName());
-		}
-		fail("could not find getValue()");
-		return null;
+	public static byte[] readResourceBytes(Object o, String resource) throws IOException {
+		return o.getClass().getResourceAsStream(resource).readAllBytes();
 	}
 
-	protected <E extends Exception> void assertThrowsException(ExceptionRunnable<E> r, Class<? extends Exception> e) {
+	public static InputStream resourceAsStream(Object o, String resource) {
+		return o.getClass().getResourceAsStream(resource);
+	}
+
+	public static <E extends Throwable> void assertThrowsException(ExceptionRunnable<E> r, Class<? extends Exception> e) {
 		assertThrowsException(r, e, false);
 	}
 
-	protected <E extends Exception> void assertThrowsException(ExceptionRunnable<E> r, Class<? extends Exception> e, boolean printStackTrace) {
+	public static <E extends Throwable> void assertThrowsException(ExceptionRunnable<E> r, Class<? extends Exception> e, boolean printStackTrace) {
 		try {
 			r.run();
-			TestCase.fail();
-		} catch (Exception ex) {
+			fail("No exception was throws but expected " + e.getName());
+		} catch (Throwable ex) {
 			if (printStackTrace) {
 				ex.printStackTrace();
 			}
-			TestCase.assertEquals(ex.getClass(), e);
+			assertEquals(ex.getClass(), e);
 		}
 	}
 
-	protected <E extends Exception> void assertThrowsNoException(ExceptionRunnable<E> r) {
+	public static <E extends Throwable> void assertThrowsNoException(ExceptionRunnable<E> r) {
 		try {
 			r.run();
-		} catch (Exception ex) {
+		} catch (Throwable ex) {
+			fail("An exception was thrown but expected none");
 			ex.printStackTrace();
-			TestCase.fail("Threw exception " + ex.getClass().getName() + " with message \"" + ex.getMessage() + "\"");
 		}
 	}
 
-	protected <T, E extends Exception> void assertThrowsException(ExceptionSupplier<T, E> r, Class<? extends Exception> e) {
-		assertThrowsException(r, e, false);
-	}
-
-	protected <T, E extends Exception> void assertThrowsException(ExceptionSupplier<T, E> r, Class<? extends Exception> e, boolean printStackTrace) {
-		try {
-			r.run();
-			TestCase.fail();
-		} catch (Exception ex) {
-			if (printStackTrace) {
-				ex.printStackTrace();
-			}
-			TestCase.assertEquals(ex.getClass(), e);
-		}
-	}
-
-	protected <T, E extends Exception> T assertThrowsNoException(ExceptionSupplier<T, E> r) {
-		return assertThrowsNoException(r, false);
-	}
-
-	protected <T, E extends Exception> T assertThrowsNoException(ExceptionSupplier<T, E> r, boolean printStackTrace) {
+	public static <T, E extends Throwable> T assertThrowsNoException(ExceptionSupplier<T, E> r) {
 		try {
 			return r.run();
-		} catch (Exception ex) {
-			if (printStackTrace) {
-				ex.printStackTrace();
-			}
-			TestCase.fail("Threw exception " + ex.getClass().getName() + " with message \"" + ex.getMessage() + "\"");
+		} catch (Throwable ex) {
+			fail("An exception was thrown but expected none");
+			ex.printStackTrace();
 		}
 		return null;
 	}
 
-	protected void assertThrowsRuntimeException(Runnable r, Class<? extends Exception> e) {
+	public static void assertThrowsRuntimeException(Runnable r, Class<? extends RuntimeException> e) {
 		assertThrowsRuntimeException(r, e, false);
 	}
 
-	protected void assertThrowsRuntimeException(Runnable r, Class<? extends Exception> e, boolean printStackTrace) {
+	public static void assertThrowsRuntimeException(Runnable r, Class<? extends RuntimeException> e, boolean printStackTrace) {
 		try {
 			r.run();
-			TestCase.fail();
-		} catch (Exception ex) {
+			fail("No runtime exception was throws but expected " + e.getName());
+		} catch (RuntimeException ex) {
 			if (printStackTrace) {
 				ex.printStackTrace();
 			}
-			TestCase.assertEquals(e, ex.getClass());
+			assertEquals(e, ex.getClass());
 		}
 	}
 
-	protected void assertThrowsRuntimeException(Runnable r, boolean printStackTrace) {
+	public static void assertThrowsNoRuntimeException(Runnable r) {
 		try {
 			r.run();
-			TestCase.fail();
-		} catch (Exception ex) {
-			if (printStackTrace) {
-				ex.printStackTrace();
-			}
+		} catch (RuntimeException ex) {
+			fail("A runtime exception was thrown but expected none");
+			ex.printStackTrace();
 		}
 	}
 
-	@SuppressWarnings("unused")
-	protected void assertThrowsNoRuntimeException(Runnable r) {
-		Void v = assertThrowsNoRuntimeException(() -> {
-			r.run();
-			return null;
-		});
-	}
-
-	protected <T> T assertThrowsNoRuntimeException(Supplier<T> r) {
+	public static <T> T assertThrowsNoRuntimeException(Supplier<T> r) {
 		try {
 			return r.get();
-		} catch (Exception ex) {
+		} catch (RuntimeException ex) {
+			fail("A runtime exception was thrown but expected none");
 			ex.printStackTrace();
-			TestCase.fail("Threw exception " + ex.getClass().getName() + " with message \"" + ex.getMessage() + "\"");
 		}
 		return null;
 	}
 
-	protected File getNewTmpFile(String name) {
-		String workingDir = System.getProperty("user.dir");
-		File tmpDir = new File(workingDir, "tmp");
-		if (!tmpDir.exists()) {
-			tmpDir.mkdirs();
-		}
-		File tmpFile = new File(tmpDir, name);
-		if (tmpFile.exists()) {
-			tmpFile = new File(tmpDir, UUID.randomUUID() + name);
-		}
-		return tmpFile;
-	}
-
-	protected File getTmpFile(String name) {
-		String workingDir = System.getProperty("user.dir");
-		File tmpDir = new File(workingDir, "tmp");
-		if (!tmpDir.exists()) {
-			tmpDir.mkdirs();
-		}
-		return new File(tmpDir, name);
-	}
-
-	protected File copyResourceToTmp(String resource) {
-		URL resFileURL = getClass().getClassLoader().getResource(resource);
-		TestCase.assertNotNull(resFileURL);
-		File resFile = new File(resFileURL.getFile());
-		File tmpFile = getNewTmpFile(resource);
-		assertThrowsNoException(() -> Files.copy(resFile.toPath(), tmpFile.toPath()));
-		return tmpFile;
-	}
-
-	protected void cleanupTmpDir() {
-		String workingDir = System.getProperty("user.dir");
-		File tmpDir = new File(workingDir, "tmp");
-		File[] tmpFiles = tmpDir.listFiles();
-		if (tmpFiles != null && tmpFiles.length != 0) {
-			for (File file : tmpFiles) {
-				file.delete();
-			}
-		}
-		tmpDir.delete();
-	}
-
-	protected String calculateFileMD5(File file) {
+	public static String calculateFileMD5(File file) {
 		MessageDigest md = null;
 		try {
 			md = MessageDigest.getInstance("MD5");
 		} catch (NoSuchAlgorithmException ex) {
-			TestCase.fail(ex.getMessage());
+			fail(ex.getMessage());
 		}
 		try (BufferedInputStream bis = new BufferedInputStream(Files.newInputStream(file.toPath()))) {
 			byte[] buffer = new byte[8192];
@@ -272,13 +143,159 @@ public abstract class NBTTestCase extends TestCase {
 				}
 			} while (numRead != -1);
 		} catch (IOException ex) {
-			TestCase.fail(ex.getMessage());
+			fail(ex.getMessage());
 		}
 		return byteArrayToHexString(md.digest());
 	}
 
-	protected String byteArrayToHexString(byte[] bytes) {
+	public static String byteArrayToHexString(byte[] bytes) {
 		BigInteger bi = new BigInteger(1, bytes);
 		return String.format("%0" + (bytes.length << 1) + "X", bi);
+	}
+
+	public static String tagToCode(Tag tag, int c) {
+		return tagToCode(tag, new AtomicInteger(c));
+	}
+
+	public static <T> T getField(Object o, String fieldName, Class<T> type) {
+		try {
+			Field field = o.getClass().getDeclaredField(fieldName);
+			field.setAccessible(true);
+			return type.cast(field.get(o));
+		} catch (NoSuchFieldException e) {
+			fail("unknown field " + fieldName + " in object of type " + o.getClass().getName());
+		} catch (IllegalAccessException e) {
+			fail("failed to access field " + fieldName + " in object of type " + o.getClass().getName());
+		} catch (ClassCastException e) {
+			fail("field " + fieldName + " in object of type " + o.getClass().getName() + " does not match type " + type.getName());
+		}
+		fail("failed to get value of field " + fieldName + " from object of type " + o.getClass().getName());
+		return type.cast(null);
+	}
+
+	protected static String tagToCode(Tag tag, AtomicInteger c) {
+		StringBuilder sb = new StringBuilder();
+
+		switch (tag.getID()) {
+			case 0 -> {}
+			case 1 -> sb.append("ByteTag byteTag").append(c).append(" = ByteTag.valueOf((byte) ").append(((ByteTag) tag).asByte()).append(");");
+			case 2 -> sb.append("ShortTag shortTag").append(c).append(" = ShortTag.valueOf((short) ").append(((ShortTag) tag).asShort()).append(");");
+			case 3 -> sb.append("IntTag intTag").append(c).append(" = IntTag.valueOf(").append(((IntTag) tag).asInt()).append(");");
+			case 4 -> sb.append("LongTag longTag").append(c).append(" = LongTag.valueOf(").append(((LongTag) tag).asLong()).append("L);");
+			case 5 -> sb.append("FloatTag floatTag").append(c).append(" = FloatTag.valueOf(").append(((FloatTag) tag).asFloat()).append("F);");
+			case 6 -> sb.append("DoubleTag doubleTag").append(c).append(" = DoubleTag.valueOf(").append(((DoubleTag) tag).asDouble()).append("D);");
+			case 7 -> {
+				String asString = Arrays.toString(((ByteArrayTag) tag).getValue());
+				sb.append("ByteArrayTag byteArrayTag").append(c).append(" = new ByteArrayTag(new byte[]{").append(asString, 1, asString.length() - 1).append("});");
+			}
+			case 8 -> sb.append("StringTag stringTag").append(c).append(" = StringTag.valueOf(\"").append(((StringTag) tag).getValue().replace("\\", "\\\\").replace("\"", "\\\"")).append("\");");
+			case 9 -> {
+				String name = "listTag" + c.getAndIncrement();
+				sb.append("ListTag ").append(name).append(" = new ListTag();").append(((ListTag) tag).isEmpty() ? "" : "\n");;
+				int i = ((ListTag) tag).size();
+				for (Tag e : (ListTag) tag) {
+					c.incrementAndGet();
+					String es = tagToCode(e, c);
+					sb.append(es).append("\n");
+					String val = es.split(" ", 3)[1];
+					sb.append(name).append(".add(").append(val).append(");").append(--i > 0 ? "\n" : "");
+				}
+			} // list
+			case 10 -> {
+				String name = "compoundTag" + c.getAndIncrement();
+				sb.append("CompoundTag ").append(name).append(" = new CompoundTag();").append(((CompoundTag) tag).isEmpty() ? "" : "\n");
+				int i = ((CompoundTag) tag).size();
+				for (Map.Entry<String, Tag> e : (CompoundTag) tag) {
+					c.incrementAndGet();
+					String es = tagToCode(e.getValue(), c);
+					sb.append(es).append("\n");
+					String val = es.split(" ", 3)[1];
+					sb.append(name).append(".put(\"").append(e.getKey().replace("\\", "\\\\").replace("\"", "\\\"")).append("\", ").append(val).append(");").append(--i > 0 ? "\n" : "");
+				}
+
+			} // compound
+			case 11 -> {
+				String asString = Arrays.toString(((IntArrayTag) tag).getValue());
+				sb.append("IntArrayTag intArrayTag").append(c).append(" = new IntArrayTag(new int[]{").append(asString, 1, asString.length() - 1).append("});");
+			}
+			case 12 -> {
+				sb.append("LongArrayTag longArrayTag").append(c).append(" = new LongArrayTag(new long[]{");
+				long[] value = ((LongArrayTag) tag).getValue();
+				for (int i = 0; i < value.length; i++) {
+					sb.append(i == 0 ? "" : ", ").append(value[i]).append("L");
+				}
+				sb.append("});");
+			}
+
+		}
+		return sb.toString();
+	}
+
+	public static class TestTagVisitor implements TagVisitor {
+
+		@Override
+		public void visit(ByteTag t) throws Exception {
+
+		}
+
+		@Override
+		public void visit(ShortTag t) throws Exception {
+
+		}
+
+		@Override
+		public void visit(IntTag t) throws Exception {
+
+		}
+
+		@Override
+		public void visit(LongTag t) throws Exception {
+
+		}
+
+		@Override
+		public void visit(FloatTag t) throws Exception {
+
+		}
+
+		@Override
+		public void visit(DoubleTag t) throws Exception {
+
+		}
+
+		@Override
+		public void visit(StringTag t) throws Exception {
+
+		}
+
+		@Override
+		public void visit(ByteArrayTag t) throws Exception {
+
+		}
+
+		@Override
+		public void visit(IntArrayTag t) throws Exception {
+
+		}
+
+		@Override
+		public void visit(LongArrayTag t) throws Exception {
+
+		}
+
+		@Override
+		public void visit(ListTag t) throws Exception {
+
+		}
+
+		@Override
+		public void visit(CompoundTag t) throws Exception {
+
+		}
+
+		@Override
+		public void visit(EndTag t) throws Exception {
+
+		}
 	}
 }

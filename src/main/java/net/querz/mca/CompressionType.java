@@ -1,49 +1,89 @@
 package net.querz.mca;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.zip.DeflaterOutputStream;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-import java.util.zip.InflaterInputStream;
+import java.io.*;
+import java.util.zip.*;
 
 public enum CompressionType {
 
-	NONE(0, t -> t, t -> t),
-	GZIP(1, GZIPOutputStream::new, GZIPInputStream::new),
-	ZLIB(2, DeflaterOutputStream::new, InflaterInputStream::new);
+	NONE_EXT(0x80, null,     CompressionType::buffered,                               CompressionType::buffered),
+	GZIP_EXT(0x81, null,     GZIPInputStream::new,                                    CompressionType::buffered),
+	ZLIB_EXT(0x82, null,     (i, s) -> new InflaterInputStream(i, new Inflater(), s), CompressionType::buffered),
+	NONE    (0x0,  NONE_EXT, CompressionType::buffered,                               CompressionType::buffered),
+	GZIP    (0x1,  GZIP_EXT, GZIPInputStream::new,                                    GZIPOutputStream::new),
+	ZLIB    (0x2,  ZLIB_EXT, (i, s) -> new InflaterInputStream(i, new Inflater(), s), (o, s) -> new DeflaterOutputStream(o, new Deflater(), s));
 
-	private byte id;
-	private ExceptionFunction<OutputStream, ? extends OutputStream, IOException> compressor;
-	private ExceptionFunction<InputStream, ? extends InputStream, IOException> decompressor;
+	private final CompressionType external;
+	private final int id;
+	private final CompressionTypeInputWrapper inputWrapper;
+	private final CompressionTypeOutputWrapper outputWrapper;
 
-	CompressionType(int id,
-					ExceptionFunction<OutputStream, ? extends OutputStream, IOException> compressor,
-					ExceptionFunction<InputStream, ? extends InputStream, IOException> decompressor) {
-		this.id = (byte) id;
-		this.compressor = compressor;
-		this.decompressor = decompressor;
+	CompressionType(int id, CompressionType external, CompressionTypeInputWrapper inputWrapper, CompressionTypeOutputWrapper outputWrapper) {
+		this.id = id;
+		this.external = external;
+		this.inputWrapper = inputWrapper;
+		this.outputWrapper = outputWrapper;
 	}
 
-	public byte getID() {
+	public InputStream wrap(MCAFileHandle handle, int size) throws IOException {
+		return inputWrapper.accept(handle.seekableData().startInputStream(), size);
+	}
+
+	public InputStream wrap(InputStream in, int size) throws IOException {
+		return inputWrapper.accept(in, size);
+	}
+
+	public OutputStream wrap(OutputStream out, int size) throws IOException {
+		return outputWrapper.accept(out, size);
+	}
+
+	public boolean isExternal() {
+		return external == null;
+	}
+
+	public CompressionType getExternal() {
+		if (external == null) {
+			return this;
+		}
+		return external;
+	}
+
+	public int getID() {
 		return id;
 	}
 
-	public OutputStream compress(OutputStream out) throws IOException {
-		return compressor.accept(out);
+	public static CompressionType fromByte(int id) throws IOException {
+		return switch (id) {
+			case 0x0 -> NONE;
+			case 0x1 -> GZIP;
+			case 0x2 -> ZLIB;
+			case 0x80 -> NONE_EXT;
+			case 0x81 -> GZIP_EXT;
+			case 0x82 -> ZLIB_EXT;
+			default -> throw new IOException("invalid compression type " + id);
+		};
 	}
 
-	public InputStream decompress(InputStream in) throws IOException {
-		return decompressor.accept(in);
+	@FunctionalInterface
+	private interface CompressionTypeInputWrapper {
+		InputStream accept(InputStream in, int size) throws IOException;
 	}
 
-	public static CompressionType getFromID(byte id) {
-		for (CompressionType c : CompressionType.values()) {
-			if (c.id == id) {
-				return c;
-			}
+	@FunctionalInterface
+	private interface CompressionTypeOutputWrapper {
+		OutputStream accept(OutputStream out, int size) throws IOException;
+	}
+
+	private static OutputStream buffered(OutputStream out, int size) {
+		if (out instanceof BufferedOutputStream) {
+			return out;
 		}
-		return null;
+		return new BufferedOutputStream(out, size);
+	}
+
+	private static InputStream buffered(InputStream in, int size) {
+		if (in instanceof BufferedInputStream) {
+			return in;
+		}
+		return new BufferedInputStream(in, size);
 	}
 }

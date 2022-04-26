@@ -1,7 +1,7 @@
 package net.querz;
 
 @FunctionalInterface
-public interface ExceptionSupplier<T, E extends Exception> {
+public interface ExceptionSupplier<T, E extends Throwable> {
 
 	T run() throws E;
 }

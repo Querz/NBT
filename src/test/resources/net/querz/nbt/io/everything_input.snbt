@@ -1,0 +1,745 @@
+{
+	unquoted_key: 1b,
+	'single_quoted_key': 2b,
+	"double_quoted_key": 3b,
+	"hello there": 4b,
+	' ': 5b,
+	"\\'\"uncivilized\"'\\": 6b,
+	'\\\'"UNCIVILIZED"\'\\': 7b,
+	abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_+.: 8b,
+	'äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°': 9b,
+	"@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°äöüß": 10b,
+	negative_byte: -128b,
+	positive_byte: 127b,
+	zero_byte: 0b,
+	negative_short: -32768s,
+	positive_short: 32767s,
+	zero_short: 0s,
+	negative_int: -2147483648,
+	positive_int: 2147483647,
+	zero_int: 0,
+	negative_long: -9223372036854775808l,
+	positive_long: 9223372036854775807l,
+	zero_long: 0l,
+	negative_float: -123456.789f,
+	positive_float: 123456.789f,
+	zero_float: 0.0f,
+	no_decimal_float: 123456f,
+	negative_double: -123456.789d,
+	positive_double: 123456.789d,
+	zero_double: 0.0d,
+	no_decimal_double: 123456d,
+	double_quoted_empty_string: "",
+	single_quoted_empty_string: '',
+	double_quoted_string: "hello there",
+	unquoted_string: abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_+.,
+	single_quoted_string: 'general kenobi',
+	escaped_double_quoted_string: "\\'\"uncivilized\"'\\",
+	escaped_single_quoted_string: '\\\'"uncivilized"\'\\',
+	utf8_single_quoted_string: 'äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°',
+	utf8_double_quoted_string: "äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°",
+
+	empty_byte_array: [B;],
+	byte_array: [B; -128b, -1b, 0b, 1b, 127b],
+	empty_int_array: [I;],
+	int_array: [I; -2147483648, -1, 0, 1, 2147483647],
+	empty_long_array: [L;],
+	long_array: [L; -9223372036854775808l, -1l, 0l, 1l, 9223372036854775807l],
+
+	no_space_between_delimiter:foo,
+	more_spaces_after_delimiter:
+	bar,
+	no_spaces1:value1,no_spaces2:value2,no_spaces3:value3,
+
+	empty_list: [],
+	byte_list: [
+		-128b,
+		-1b,
+		0b,
+		1b,
+		127b
+	],
+	short_list: [
+		-32768s,
+		-1s,
+		0s,
+		1s,
+		32767s
+	],
+	int_list: [
+		-2147483648,
+		-1,
+		0,
+		1,
+		2147483647
+	],
+	long_list: [
+		-9223372036854775808l,
+		-1l,
+		0l,
+		1l,
+		9223372036854775807l
+	],
+	float_list: [
+		-123456.789f,
+		-1f,
+		0.0f,
+		1f,
+        123456.789f
+	],
+	double_list: [
+		-123456.789d,
+		-1d,
+		0.0d,
+		1d,
+        123456.789d
+	],
+	string_list: [
+		"",
+        '',
+        "hello there",
+        abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_+.,
+        'general kenobi',
+        "\\'\"uncivilized\"'\\",
+        '\\\'"uncivilized"\'\\',
+        'äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°',
+        "äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°"
+	],
+	string_list_starting_with_single_quoted_string: [
+		'',
+		"",
+		"hello there",
+		abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_+.,
+		'general kenobi',
+		"\\'\"uncivilized\"'\\",
+		'\\\'"uncivilized"\'\\',
+		'äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°',
+		"äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°"
+	],
+	string_list_starting_with_unquoted_string: [
+		abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_+.,
+		'',
+		"",
+		"hello there",
+		'general kenobi',
+		"\\'\"uncivilized\"'\\",
+		'\\\'"uncivilized"\'\\',
+		'äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°',
+		"äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°"
+	],
+	byte_array_list: [
+		[B; -128b, -1b, 0b, 1b, 127b],
+		[B;],
+		[B; 127b, 1b, 0b, -1b, -128b]
+	],
+	int_array_list: [
+		[I; -2147483648, -1, 0, 1, 2147483647],
+		[I;],
+		[I; 2147483647, 1, 0, -1, -2147483648]
+	],
+	long_array_list: [
+		[L; -9223372036854775808l, -1l, 0l, 1l, 9223372036854775807l],
+		[L;],
+		[L; 9223372036854775807l, 1l, 0l, -1l, -9223372036854775808l]
+	],
+	list_list: [
+		[],
+		[
+			-128b,
+			-1b,
+			0b,
+			1b,
+			127b
+		],
+		[
+			-32768s,
+			-1s,
+			0s,
+			1s,
+			32767s
+		],
+		[
+			-2147483648,
+			-1,
+			0,
+			1,
+			2147483647
+		],
+		[
+			-9223372036854775808l,
+			-1l,
+			0l,
+			1l,
+			9223372036854775807l
+		],
+		[
+			-123456.789f,
+			-1f,
+			0.0f,
+			1f,
+			123456.789f
+		],
+		[
+			-123456.789d,
+			-1d,
+			0.0d,
+			1d,
+			123456.789d
+		],
+		[
+			"",
+			'',
+			"hello there",
+			abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_+.,
+			'general kenobi',
+			"\\'\"uncivilized\"'\\",
+			'\\\'"uncivilized"\'\\',
+			'äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°',
+			"äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°"
+		],
+		[
+			'',
+			"",
+			"hello there",
+			abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_+.,
+			'general kenobi',
+			"\\'\"uncivilized\"'\\",
+			'\\\'"uncivilized"\'\\',
+			'äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°',
+			"äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°"
+		],
+		[
+			abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_+.,
+			'',
+			"",
+			"hello there",
+			'general kenobi',
+			"\\'\"uncivilized\"'\\",
+			'\\\'"uncivilized"\'\\',
+			'äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°',
+			"äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°"
+		],
+		[
+			[B; -128b, -1b, 0b, 1b, 127b],
+			[B;],
+			[B; 127b, 1b, 0b, -1b, -128b]
+		],
+		[
+			[I; -2147483648, -1, 0, 1, 2147483647],
+			[I;],
+			[I; 2147483647, 1, 0, -1, -2147483648]
+		],
+		[
+			[L; -9223372036854775808l, -1l, 0l, 1l, 9223372036854775807l],
+			[L;],
+			[L; 9223372036854775807l, 1l, 0l, -1l, -9223372036854775808l]
+		],
+		[
+			[],
+			[],
+			[],
+		]
+	],
+	compound_list: [
+		{
+			unquoted_key: 1b,
+			'single_quoted_key': 2b,
+			"double_quoted_key": 3b,
+			"hello there": 4b,
+			' ': 5b,
+			"\\'\"uncivilized\"'\\": 6b,
+			'\\\'"UNCIVILIZED"\'\\': 7b,
+			abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_+.: 8b,
+			'äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°': 9b,
+			"@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°äöüß": 10b,
+			negative_byte: -128b,
+			positive_byte: 127b,
+			zero_byte: 0b,
+			negative_short: -32768s,
+			positive_short: 32767s,
+			zero_short: 0s,
+			negative_int: -2147483648,
+			positive_int: 2147483647,
+			zero_int: 0,
+			negative_long: -9223372036854775808l,
+			positive_long: 9223372036854775807l,
+			zero_long: 0l,
+			negative_float: -123456.789f,
+			positive_float: 123456.789f,
+			zero_float: 0.0f,
+			no_decimal_float: 123456f,
+			negative_double: -123456.789d,
+			positive_double: 123456.789d,
+			zero_double: 0.0d,
+			no_decimal_double: 123456d,
+			double_quoted_empty_string: "",
+			single_quoted_empty_string: '',
+			double_quoted_string: "hello there",
+			unquoted_string: abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_+.,
+			single_quoted_string: 'general kenobi',
+			escaped_double_quoted_string: "\\'\"uncivilized\"'\\",
+			escaped_single_quoted_string: '\\\'"uncivilized"\'\\',
+			utf8_single_quoted_string: 'äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°',
+			utf8_double_quoted_string: "äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°",
+
+			empty_byte_array: [B;],
+			byte_array: [B; -128b, -1b, 0b, 1b, 127b],
+			empty_int_array: [I;],
+			int_array: [I; -2147483648, -1, 0, 1, 2147483647],
+			empty_long_array: [L;],
+			long_array: [L; -9223372036854775808l, -1l, 0l, 1l, 9223372036854775807l],
+
+			empty_list: [],
+			byte_list: [
+				-128b,
+				-1b,
+				0b,
+				1b,
+				127b
+			],
+			short_list: [
+				-32768s,
+				-1s,
+				0s,
+				1s,
+				32767s
+			],
+			int_list: [
+				-2147483648,
+				-1,
+				0,
+				1,
+				2147483647
+			],
+			long_list: [
+				-9223372036854775808l,
+				-1l,
+				0l,
+				1l,
+				9223372036854775807l
+			],
+			float_list: [
+				-123456.789f,
+				-1f,
+				0.0f,
+				1f,
+				123456.789f
+			],
+			double_list: [
+				-123456.789d,
+				-1d,
+				0.0d,
+				1d,
+				123456.789d
+			],
+			string_list: [
+				"",
+				'',
+				"hello there",
+				abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_+.,
+				'general kenobi',
+				"\\'\"uncivilized\"'\\",
+				'\\\'"uncivilized"\'\\',
+				'äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°',
+				"äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°"
+			],
+			string_list_starting_with_single_quoted_string: [
+				'',
+				"",
+				"hello there",
+				abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_+.,
+				'general kenobi',
+				"\\'\"uncivilized\"'\\",
+				'\\\'"uncivilized"\'\\',
+				'äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°',
+				"äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°"
+			],
+			string_list_starting_with_unquoted_string: [
+				abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_+.,
+				'',
+				"",
+				"hello there",
+				'general kenobi',
+				"\\'\"uncivilized\"'\\",
+				'\\\'"uncivilized"\'\\',
+				'äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°',
+				"äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°"
+			],
+			byte_array_list: [
+				[B; -128b, -1b, 0b, 1b, 127b],
+				[B;],
+				[B; 127b, 1b, 0b, -1b, -128b]
+			],
+			int_array_list: [
+				[I; -2147483648, -1, 0, 1, 2147483647],
+				[I;],
+				[I; 2147483647, 1, 0, -1, -2147483648]
+			],
+			long_array_list: [
+				[L; -9223372036854775808l, -1l, 0l, 1l, 9223372036854775807l],
+				[L;],
+				[L; 9223372036854775807l, 1l, 0l, -1l, -9223372036854775808l]
+			],
+			list_list: [
+				[],
+				[
+					-128b,
+					-1b,
+					0b,
+					1b,
+					127b
+				],
+				[
+					-32768s,
+					-1s,
+					0s,
+					1s,
+					32767s
+				],
+				[
+					-2147483648,
+					-1,
+					0,
+					1,
+					2147483647
+				],
+				[
+					-9223372036854775808l,
+					-1l,
+					0l,
+					1l,
+					9223372036854775807l
+				],
+				[
+					-123456.789f,
+					-1f,
+					0.0f,
+					1f,
+					123456.789f
+				],
+				[
+					-123456.789d,
+					-1d,
+					0.0d,
+					1d,
+					123456.789d
+				],
+				[
+					"",
+					'',
+					"hello there",
+					abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_+.,
+					'general kenobi',
+					"\\'\"uncivilized\"'\\",
+					'\\\'"uncivilized"\'\\',
+					'äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°',
+					"äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°"
+				],
+				[
+					'',
+					"",
+					"hello there",
+					abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_+.,
+					'general kenobi',
+					"\\'\"uncivilized\"'\\",
+					'\\\'"uncivilized"\'\\',
+					'äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°',
+					"äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°"
+				],
+				[
+					abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_+.,
+					'',
+					"",
+					"hello there",
+					'general kenobi',
+					"\\'\"uncivilized\"'\\",
+					'\\\'"uncivilized"\'\\',
+					'äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°',
+					"äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°"
+				],
+				[
+					[B; -128b, -1b, 0b, 1b, 127b],
+					[B;],
+					[B; 127b, 1b, 0b, -1b, -128b]
+				],
+				[
+					[I; -2147483648, -1, 0, 1, 2147483647],
+					[I;],
+					[I; 2147483647, 1, 0, -1, -2147483648]
+				],
+				[
+					[L; -9223372036854775808l, -1l, 0l, 1l, 9223372036854775807l],
+					[L;],
+					[L; 9223372036854775807l, 1l, 0l, -1l, -9223372036854775808l]
+				],
+				[
+					[    ],
+					[	],
+					[
+					],
+					[[],[],[]],
+				]
+			],
+			compound_list: [
+
+			],
+			empty_compound: {},
+			compound0: {
+				key1: {},
+				key2: {},
+				key3: {}
+			}
+		},
+		{},
+		{
+		}
+	],
+	empty_compound: {},
+	compound1: {
+		unquoted_key: 1b,
+		'single_quoted_key': 2b,
+		"double_quoted_key": 3b,
+		"hello there": 4b,
+		' ': 5b,
+		"\\'\"uncivilized\"'\\": 6b,
+		'\\\'"UNCIVILIZED"\'\\': 7b,
+		abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_+.: 8b,
+		'äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°': 9b,
+		"@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°äöüß": 10b,
+		negative_byte: -128b,
+		positive_byte: 127b,
+		zero_byte: 0b,
+		negative_short: -32768s,
+		positive_short: 32767s,
+		zero_short: 0s,
+		negative_int: -2147483648,
+		positive_int: 2147483647,
+		zero_int: 0,
+		negative_long: -9223372036854775808l,
+		positive_long: 9223372036854775807l,
+		zero_long: 0l,
+		negative_float: -123456.789f,
+		positive_float: 123456.789f,
+		zero_float: 0.0f,
+		no_decimal_float: 123456f,
+		negative_double: -123456.789d,
+		positive_double: 123456.789d,
+		zero_double: 0.0d,
+		no_decimal_double: 123456d,
+		double_quoted_empty_string: "",
+		single_quoted_empty_string: '',
+		double_quoted_string: "hello there",
+		unquoted_string: abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_+.,
+		single_quoted_string: 'general kenobi',
+		escaped_double_quoted_string: "\\'\"uncivilized\"'\\",
+		escaped_single_quoted_string: '\\\'"uncivilized"\'\\',
+		utf8_single_quoted_string: 'äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°',
+		utf8_double_quoted_string: "äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°",
+
+		empty_byte_array: [B;],
+		byte_array: [B; -128b, -1b, 0b, 1b, 127b],
+		empty_int_array: [I;],
+		int_array: [I; -2147483648, -1, 0, 1, 2147483647],
+		empty_long_array: [L;],
+		long_array: [L; -9223372036854775808l, -1l, 0l, 1l, 9223372036854775807l],
+
+		empty_list: [],
+		byte_list: [
+			-128b,
+			-1b,
+			0b,
+			1b,
+			127b
+		],
+		short_list: [
+			-32768s,
+			-1s,
+			0s,
+			1s,
+			32767s
+		],
+		int_list: [
+			-2147483648,
+			-1,
+			0,
+			1,
+			2147483647
+		],
+		long_list: [
+			-9223372036854775808l,
+			-1l,
+			0l,
+			1l,
+			9223372036854775807l
+		],
+		float_list: [
+			-123456.789f,
+			-1f,
+			0.0f,
+			1f,
+			123456.789f
+		],
+		double_list: [
+			-123456.789d,
+			-1d,
+			0.0d,
+			1d,
+			123456.789d
+		],
+		string_list: [
+			"",
+			'',
+			"hello there",
+			abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_+.,
+			'general kenobi',
+			"\\'\"uncivilized\"'\\",
+			'\\\'"uncivilized"\'\\',
+			'äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°',
+			"äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°"
+		],
+		string_list_starting_with_single_quoted_string: [
+			'',
+			"",
+			"hello there",
+			abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_+.,
+			'general kenobi',
+			"\\'\"uncivilized\"'\\",
+			'\\\'"uncivilized"\'\\',
+			'äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°',
+			"äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°"
+		],
+		string_list_starting_with_unquoted_string: [
+			abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_+.,
+			'',
+			"",
+			"hello there",
+			'general kenobi',
+			"\\'\"uncivilized\"'\\",
+			'\\\'"uncivilized"\'\\',
+			'äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°',
+			"äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°"
+		],
+		byte_array_list: [
+			[B; -128b, -1b, 0b, 1b, 127b],
+			[B;],
+			[B; 127b, 1b, 0b, -1b, -128b]
+		],
+		int_array_list: [
+			[I; -2147483648, -1, 0, 1, 2147483647],
+			[I;],
+			[I; 2147483647, 1, 0, -1, -2147483648]
+		],
+		long_array_list: [
+			[L; -9223372036854775808l, -1l, 0l, 1l, 9223372036854775807l],
+			[L;],
+			[L; 9223372036854775807l, 1l, 0l, -1l, -9223372036854775808l]
+		],
+		list_list: [
+			[],
+			[
+				-128b,
+				-1b,
+				0b,
+				1b,
+				127b
+			],
+			[
+				-32768s,
+				-1s,
+				0s,
+				1s,
+				32767s
+			],
+			[
+				-2147483648,
+				-1,
+				0,
+				1,
+				2147483647
+			],
+			[
+				-9223372036854775808l,
+				-1l,
+				0l,
+				1l,
+				9223372036854775807l
+			],
+			[
+				-123456.789f,
+				-1f,
+				0.0f,
+				1f,
+				123456.789f
+			],
+			[
+				-123456.789d,
+				-1d,
+				0.0d,
+				1d,
+				123456.789d
+			],
+			[
+				"",
+				'',
+				"hello there",
+				abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_+.,
+				'general kenobi',
+				"\\'\"uncivilized\"'\\",
+				'\\\'"uncivilized"\'\\',
+				'äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°',
+				"äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°"
+			],
+			[
+				'',
+				"",
+				"hello there",
+				abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_+.,
+				'general kenobi',
+				"\\'\"uncivilized\"'\\",
+				'\\\'"uncivilized"\'\\',
+				'äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°',
+				"äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°"
+			],
+			[
+				abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_+.,
+				'',
+				"",
+				"hello there",
+				'general kenobi',
+				"\\'\"uncivilized\"'\\",
+				'\\\'"uncivilized"\'\\',
+				'äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°',
+				"äöüß@~«∑€®†Ω¨¨øπ•å‚∂ƒ©ªº∆@œæ¥≈ç√∫∞…¡“¶¢[]|{}≠¿`´^°"
+			],
+			[
+				[B; -128b, -1b, 0b, 1b, 127b],
+				[B;],
+				[B; 127b, 1b, 0b, -1b, -128b]
+			],
+			[
+				[I; -2147483648, -1, 0, 1, 2147483647],
+				[I;],
+				[I; 2147483647, 1, 0, -1, -2147483648]
+			],
+			[
+				[L; -9223372036854775808l, -1l, 0l, 1l, 9223372036854775807l],
+				[L;],
+				[L; 9223372036854775807l, 1l, 0l, -1l, -9223372036854775808l]
+			],
+			[
+				[],
+				[],
+				[]
+			]
+		],
+		compound_list: [
+
+		],
+		empty_compound: {},
+		compound2: {
+			key1: {},
+			key2: {},
+			key3: {}
+		}
+	}
+}

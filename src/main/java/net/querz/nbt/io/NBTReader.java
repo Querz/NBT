@@ -1,0 +1,145 @@
+package net.querz.nbt.io;
+
+import net.querz.nbt.*;
+import net.querz.nbt.io.stream.LittleEndianInputStream;
+import net.querz.nbt.io.stream.SelectionStreamTagVisitor;
+import net.querz.nbt.io.stream.TagSelector;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.zip.GZIPInputStream;
+
+public final class NBTReader {
+
+	private boolean compression;
+	private boolean detectCompression;
+	private boolean littleEndian;
+	private List<TagSelector> selectors = null;
+
+	public NBTReader detectCompression() {
+		detectCompression = true;
+		return this;
+	}
+
+	public NBTReader compressed(boolean compressed) {
+		compression = compressed;
+		return this;
+	}
+
+	public NBTReader littleEndian() {
+		littleEndian = true;
+		return this;
+	}
+
+	public NBTReader bigEndian() {
+		littleEndian = false;
+		return this;
+	}
+
+	public NBTReader select(String name, TagType<?> type) {
+		if (selectors == null) {
+			selectors = new ArrayList<>();
+		}
+		selectors.add(new TagSelector(name, type));
+		return this;
+	}
+
+	public NBTReader select(String p1, String name, TagType<?> type) {
+		if (selectors == null) {
+			selectors = new ArrayList<>();
+		}
+		selectors.add(new TagSelector(p1, name, type));
+		return this;
+	}
+
+	public NBTReader select(String p1, String p2, String name, TagType<?> type) {
+		if (selectors == null) {
+			selectors = new ArrayList<>();
+		}
+		selectors.add(new TagSelector(p1, p2, name, type));
+		return this;
+	}
+
+	public NBTReader select(TagSelector... selection) {
+		for (TagSelector selector : selection) {
+			select(selector);
+		}
+		return this;
+	}
+
+	public NBTReader select(TagSelector selector) {
+		if (selectors == null) {
+			selectors = new ArrayList<>();
+		}
+		selectors.add(selector);
+		return this;
+	}
+
+	public NamedTag readNamed(InputStream in) throws IOException {
+		InputStream stream;
+		if (detectCompression) {
+			stream = new BufferedInputStream(detectDecompression(in));
+		} else {
+			if (compression) {
+				stream = new BufferedInputStream(new GZIPInputStream(in));
+			} else {
+				stream = new BufferedInputStream(in);
+			}
+		}
+
+		DataInput input;
+		if (littleEndian) {
+			input = new LittleEndianInputStream(stream);
+		} else {
+			input = new DataInputStream(stream);
+		}
+
+		if (selectors == null) {
+			TagType<?> type = TagTypes.get(input.readByte());
+			String name = input.readUTF();
+			return new NamedTag(name, type.read(input, 0));
+		} else {
+			SelectionStreamTagVisitor visitor = new SelectionStreamTagVisitor(selectors.toArray(new TagSelector[0]));
+			TagType<?> type = TagTypes.get(input.readByte());
+			String name = "";
+			if (type == EndTag.TYPE) {
+				if (visitor.visitRootEntry(EndTag.TYPE) == TagTypeVisitor.ValueResult.CONTINUE) {
+					visitor.visitEnd();
+				}
+			} else {
+				switch (visitor.visitRootEntry(type)) {
+					case BREAK -> {
+						name = input.readUTF();
+						type.skip(input);
+					}
+					case CONTINUE -> {
+						name = input.readUTF();
+						type.read(input, visitor);
+					}
+				}
+			}
+			return new NamedTag(name, visitor.getResult());
+		}
+	}
+
+	public Tag read(InputStream in) throws IOException {
+		return readNamed(in).tag();
+	}
+
+	public NamedTag readNamed(File file) throws IOException {
+		return readNamed(new FileInputStream(file));
+	}
+
+	public Tag read(File file) throws IOException {
+		return read(new FileInputStream(file));
+	}
+
+	private static InputStream detectDecompression(InputStream is) throws IOException {
+		PushbackInputStream pbis = new PushbackInputStream(is, 2);
+		int signature = (pbis.read() & 0xFF) + (pbis.read() << 8);
+		pbis.unread(signature >> 8);
+		pbis.unread(signature & 0xFF);
+		return signature == GZIPInputStream.GZIP_MAGIC ? new GZIPInputStream(pbis) : pbis;
+	}
+}
