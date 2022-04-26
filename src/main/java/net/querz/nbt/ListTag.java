@@ -4,6 +4,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -415,6 +416,44 @@ public class ListTag extends CollectionTag<Tag> {
 			}
 		}
 		return def;
+	}
+
+	public <T extends Tag> Iterable<T> iterateType() {
+		return new TypedIterable<>(this);
+	}
+
+	private static class TypedIterable<T extends Tag> implements Iterable<T> {
+
+		private final ListTag handle;
+
+		private TypedIterable(ListTag handle) {
+			this.handle = handle;
+		}
+
+		@Override
+		public Iterator<T> iterator() {
+			return new TypedList<>(handle);
+		}
+	}
+
+	private static class TypedList<T extends Tag> implements Iterator<T> {
+
+		private final Iterator<Tag> handle;
+
+		private TypedList(ListTag handle) {
+			this.handle = handle.iterator();
+		}
+
+		@Override
+		public boolean hasNext() {
+			return handle.hasNext();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public T next() {
+			return (T) handle.next();
+		}
 	}
 
 	public static final TagType<ListTag> TYPE = new TagType<>() {
