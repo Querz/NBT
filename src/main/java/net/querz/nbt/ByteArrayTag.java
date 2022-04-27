@@ -114,6 +114,10 @@ public class ByteArrayTag extends CollectionTag<ByteTag> {
 		return value;
 	}
 
+	public void setValue(byte[] value) {
+		this.value = value;
+	}
+
 	public static final TagType<ByteArrayTag> TYPE = new TagType<>() {
 
 		@Override

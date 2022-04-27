@@ -116,6 +116,10 @@ public class LongArrayTag extends CollectionTag<LongTag> {
 		return value;
 	}
 
+	public void setValue(long[] value) {
+		this.value = value;
+	}
+
 	public static final TagType<LongArrayTag> TYPE = new TagType<>() {
 
 		@Override

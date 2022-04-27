@@ -116,6 +116,10 @@ public class IntArrayTag extends CollectionTag<IntTag> {
 		return value;
 	}
 
+	public void setValue(int[] value) {
+		this.value = value;
+	}
+
 	public static final TagType<IntArrayTag> TYPE = new TagType<>() {
 
 		@Override

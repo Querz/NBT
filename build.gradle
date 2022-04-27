@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'net.querz'
-version '1.0'
+version '7.0'
 
 repositories {
     mavenCentral()
