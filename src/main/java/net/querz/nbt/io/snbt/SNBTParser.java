@@ -262,5 +262,7 @@ public class SNBTParser {
 		return false;
 	}
 
-
+	public int getReadChars() {
+		return ptr.getIndex() + 1;
+	}
 }
