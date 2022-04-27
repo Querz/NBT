@@ -418,18 +418,11 @@ public class ListTag extends CollectionTag<Tag> {
 		return def;
 	}
 
-	public <T extends Tag> Iterable<T> iterateType() {
+	public <T extends Tag> Iterable<T> iterateType(TagType<T> type) {
 		return new TypedIterable<>(this);
 	}
 
-	private static class TypedIterable<T extends Tag> implements Iterable<T> {
-
-		private final ListTag handle;
-
-		private TypedIterable(ListTag handle) {
-			this.handle = handle;
-		}
-
+	private record TypedIterable<T extends Tag>(ListTag handle) implements Iterable<T> {
 		@Override
 		public Iterator<T> iterator() {
 			return new TypedList<>(handle);
