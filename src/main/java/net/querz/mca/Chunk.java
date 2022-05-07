@@ -52,6 +52,7 @@ public class Chunk {
 		ExposedByteArrayOutputStream baos;
 		OutputStream nbtOutput = compressionType.wrap(baos = new ExposedByteArrayOutputStream(), 8196);
 		new NBTWriter().write(nbtOutput, data);
+		nbtOutput.close();
 
 		// check if we need to save the chunk as .mcc file
 		if (baos.size() > 1048576) {
