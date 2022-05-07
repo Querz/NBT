@@ -61,6 +61,8 @@ public class MCAFile implements Iterable<Chunk> {
 	public void load(MCAFileHandle handle, TagSelector... chunkTagSelectors) throws IOException {
 		SeekableData s = handle.seekableData();
 		chunks = new Chunk[1024];
+		int ox = x << 5;
+		int oz = z << 5;
 		for (int i = 0; i < 1024; i++) {
 			s.seek(i * 4);
 			int offset = s.read() << 16;
@@ -74,7 +76,7 @@ public class MCAFile implements Iterable<Chunk> {
 			int timestamp = s.readInt();
 			int cz = i >> 5;
 			int cx = i - cz * 32;
-			Chunk chunk = new Chunk(x << 5 + cx, z << 5 + cz, timestamp);
+			Chunk chunk = new Chunk(ox + cx, oz + cz, timestamp);
 			s.seek(4096L * offset + 4);
 			chunk.load(handle, chunkTagSelectors);
 			chunks[i] = chunk;
