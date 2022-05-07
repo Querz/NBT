@@ -350,6 +350,114 @@ public class CompoundTag implements Tag, Iterable<Map.Entry<String, Tag>> {
 		return def;
 	}
 
+	public ByteTag getByteTag(String key) {
+		try {
+			if (contains(key, BYTE)) {
+				return (ByteTag) value.get(key);
+			}
+		} catch (ClassCastException ex) {}
+		return null;
+	}
+
+	public ShortTag getShortTag(String key) {
+		try {
+			if (contains(key, SHORT)) {
+				return (ShortTag) value.get(key);
+			}
+		} catch (ClassCastException ex) {}
+		return null;
+	}
+
+	public IntTag getIntTag(String key) {
+		try {
+			if (contains(key, INT)) {
+				return (IntTag) value.get(key);
+			}
+		} catch (ClassCastException ex) {}
+		return null;
+	}
+
+	public LongTag getLongTag(String key) {
+		try {
+			if (contains(key, LONG)) {
+				return (LongTag) value.get(key);
+			}
+		} catch (ClassCastException ex) {}
+		return null;
+	}
+
+	public FloatTag getFloatTag(String key) {
+		try {
+			if (contains(key, FLOAT)) {
+				return (FloatTag) value.get(key);
+			}
+		} catch (ClassCastException ex) {}
+		return null;
+	}
+
+	public DoubleTag getDoubleTag(String key) {
+		try {
+			if (contains(key, DOUBLE)) {
+				return (DoubleTag) value.get(key);
+			}
+		} catch (ClassCastException ex) {}
+		return null;
+	}
+
+	public StringTag getStringTag(String key) {
+		try {
+			if (contains(key, STRING)) {
+				return (StringTag) value.get(key);
+			}
+		} catch (ClassCastException ex) {}
+		return null;
+	}
+
+	public ByteArrayTag getByteArrayTag(String key) {
+		try {
+			if (contains(key, BYTE_ARRAY)) {
+				return (ByteArrayTag) value.get(key);
+			}
+		} catch (ClassCastException ex) {}
+		return null;
+	}
+
+	public IntArrayTag getIntArrayTag(String key) {
+		try {
+			if (contains(key, INT_ARRAY)) {
+				return (IntArrayTag) value.get(key);
+			}
+		} catch (ClassCastException ex) {}
+		return null;
+	}
+
+	public LongArrayTag getLongArrayTag(String key) {
+		try {
+			if (contains(key, LONG_ARRAY)) {
+				return (LongArrayTag) value.get(key);
+			}
+		} catch (ClassCastException ex) {}
+		return null;
+	}
+
+	public ListTag getListTag(String key) {
+		try {
+			if (contains(key, LIST)) {
+				return (ListTag) value.get(key);
+			}
+		} catch (ClassCastException ex) {}
+		return null;
+	}
+
+	public CompoundTag getCompoundTag(String key) {
+		try {
+			if (contains(key, COMPOUND)) {
+				return (CompoundTag) value.get(key);
+			}
+		} catch (ClassCastException ex) {}
+		return null;
+	}
+
 	public boolean contains(String key, int type) {
 		Tag tag = value.get(key);
 		byte t = tag == null ? END : tag.getID();
