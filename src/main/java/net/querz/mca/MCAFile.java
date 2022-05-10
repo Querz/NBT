@@ -2,6 +2,7 @@ package net.querz.mca;
 
 import net.querz.mca.seekable.SeekableByteArray;
 import net.querz.mca.seekable.SeekableFile;
+import net.querz.nbt.io.stream.SelectionStreamTagVisitor;
 import net.querz.nbt.io.stream.TagSelector;
 import java.io.*;
 import java.util.Arrays;
@@ -49,16 +50,26 @@ public class MCAFile implements Iterable<Chunk> {
 	}
 
 	public void loadFromBytes(byte[] data, TagSelector... chunkTagSelectors) throws IOException {
-		load(new MCAFileHandle(file.getParentFile(), new SeekableByteArray(data, "r"), MCCFileHandler.DEFAULT_HANDLER), chunkTagSelectors);
+		load(new MCAFileHandle(
+			file.getParentFile(),
+			new SeekableByteArray(data, "r"),
+			MCCFileHandler.DEFAULT_HANDLER,
+			() -> new SelectionStreamTagVisitor(chunkTagSelectors)
+		));
 	}
 
 	public void load(TagSelector... chunkTagSelectors) throws IOException {
-		try (MCAFileHandle handle = new MCAFileHandle(file.getParentFile(), new SeekableFile(file, "r"), MCCFileHandler.DEFAULT_HANDLER)) {
-			load(handle, chunkTagSelectors);
+		try (MCAFileHandle handle = new MCAFileHandle(
+			file.getParentFile(),
+			new SeekableFile(file, "r"),
+			MCCFileHandler.DEFAULT_HANDLER,
+			() -> new SelectionStreamTagVisitor(chunkTagSelectors))) {
+
+			load(handle);
 		}
 	}
 
-	public void load(MCAFileHandle handle, TagSelector... chunkTagSelectors) throws IOException {
+	public void load(MCAFileHandle handle) throws IOException {
 		SeekableData s = handle.seekableData();
 		chunks = new Chunk[1024];
 		int ox = x << 5;
@@ -78,19 +89,19 @@ public class MCAFile implements Iterable<Chunk> {
 			int cx = i - cz * 32;
 			Chunk chunk = new Chunk(ox + cx, oz + cz, timestamp);
 			s.seek(4096L * offset + 4);
-			chunk.load(handle, chunkTagSelectors);
+			chunk.load(handle, handle.tagTypeVisitorSupplier());
 			chunks[i] = chunk;
 		}
 	}
 
 	public byte[] saveToBytes() throws IOException {
 		SeekableByteArray sba = new SeekableByteArray();
-		save(new MCAFileHandle(file.getParentFile(), sba, MCCFileHandler.DEFAULT_HANDLER));
+		save(new MCAFileHandle(file.getParentFile(), sba, MCCFileHandler.DEFAULT_HANDLER, null));
 		return sba.getBytes();
 	}
 
 	public void save() throws IOException {
-		try (MCAFileHandle handle = new MCAFileHandle(file.getParentFile(), new SeekableFile(file, "rw"), MCCFileHandler.DEFAULT_HANDLER)) {
+		try (MCAFileHandle handle = new MCAFileHandle(file.getParentFile(), new SeekableFile(file, "rw"), MCCFileHandler.DEFAULT_HANDLER, null)) {
 			save(handle);
 		}
 	}

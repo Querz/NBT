@@ -4,10 +4,14 @@ import net.querz.mca.parsers.SectionParser;
 import net.querz.nbt.CompoundTag;
 import net.querz.nbt.NBTUtil;
 import net.querz.nbt.Tag;
+import net.querz.nbt.TagTypeVisitor;
 import net.querz.nbt.io.NBTReader;
 import net.querz.nbt.io.NBTWriter;
+import net.querz.nbt.io.stream.StreamTagVisitor;
 import net.querz.nbt.io.stream.TagSelector;
 import java.io.*;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class Chunk {
 
@@ -26,7 +30,7 @@ public class Chunk {
 		this.timestamp = timestamp;
 	}
 
-	public void load(MCAFileHandle handle, TagSelector... chunkTagSelectors) throws IOException {
+	public void load(MCAFileHandle handle, Supplier<TagTypeVisitor> tagTypeVisitorSupplier) throws IOException {
 		SeekableData s = handle.seekableData();
 
 		compressionType = CompressionType.fromByte(s.read());
@@ -36,7 +40,7 @@ public class Chunk {
 			tag = handle.mccFileHandler().read(handle, x, z, compressionType);
 		} else {
 			InputStream nbtInput = compressionType.wrap(handle, 8196);
-			tag = new NBTReader().select(chunkTagSelectors).read(nbtInput);
+			tag = new NBTReader().withVisitor(tagTypeVisitorSupplier.get()).read(nbtInput);
 		}
 
 		if (tag == null || tag.getType() != CompoundTag.TYPE) {

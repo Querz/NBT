@@ -36,6 +36,8 @@ public interface TagTypeVisitor {
 
 	ValueResult visitRootEntry(TagType<?> type);
 
+	Tag getResult();
+
 	enum ValueResult {
 		CONTINUE,
 		BREAK,

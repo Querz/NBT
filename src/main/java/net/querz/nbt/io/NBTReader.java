@@ -4,7 +4,6 @@ import net.querz.nbt.*;
 import net.querz.nbt.io.stream.LittleEndianInputStream;
 import net.querz.nbt.io.stream.SelectionStreamTagVisitor;
 import net.querz.nbt.io.stream.TagSelector;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +15,8 @@ public final class NBTReader {
 	private boolean detectCompression;
 	private boolean littleEndian;
 	private List<TagSelector> selectors = null;
+
+	private TagTypeVisitor visitor = null;
 
 	public NBTReader detectCompression() {
 		detectCompression = true;
@@ -76,6 +77,11 @@ public final class NBTReader {
 		return this;
 	}
 
+	public NBTReader withVisitor(TagTypeVisitor visitor) {
+		this.visitor = visitor;
+		return this;
+	}
+
 	public NamedTag readNamed(InputStream in) throws IOException {
 		InputStream stream;
 		if (detectCompression) {
@@ -96,31 +102,38 @@ public final class NBTReader {
 		}
 
 		if (selectors == null) {
+			if (visitor != null) {
+				return readWithVisitor(input, visitor);
+			}
 			TagType<?> type = TagTypes.get(input.readByte());
 			String name = input.readUTF();
 			return new NamedTag(name, type.read(input, 0));
 		} else {
 			SelectionStreamTagVisitor visitor = new SelectionStreamTagVisitor(selectors.toArray(new TagSelector[0]));
-			TagType<?> type = TagTypes.get(input.readByte());
-			String name = "";
-			if (type == EndTag.TYPE) {
-				if (visitor.visitRootEntry(EndTag.TYPE) == TagTypeVisitor.ValueResult.CONTINUE) {
-					visitor.visitEnd();
+			return readWithVisitor(input, visitor);
+		}
+	}
+
+	private NamedTag readWithVisitor(DataInput input, TagTypeVisitor visitor) throws IOException {
+		TagType<?> type = TagTypes.get(input.readByte());
+		String name = "";
+		if (type == EndTag.TYPE) {
+			if (visitor.visitRootEntry(EndTag.TYPE) == TagTypeVisitor.ValueResult.CONTINUE) {
+				visitor.visitEnd();
+			}
+		} else {
+			switch (visitor.visitRootEntry(type)) {
+				case BREAK -> {
+					name = input.readUTF();
+					type.skip(input);
 				}
-			} else {
-				switch (visitor.visitRootEntry(type)) {
-					case BREAK -> {
-						name = input.readUTF();
-						type.skip(input);
-					}
-					case CONTINUE -> {
-						name = input.readUTF();
-						type.read(input, visitor);
-					}
+				case CONTINUE -> {
+					name = input.readUTF();
+					type.read(input, visitor);
 				}
 			}
-			return new NamedTag(name, visitor.getResult());
 		}
+		return new NamedTag(name, visitor.getResult());
 	}
 
 	public Tag read(InputStream in) throws IOException {
