@@ -70,52 +70,48 @@ public class Chunk implements Iterable<Section> {
 			return;
 		}
 
-		CompoundTag level;
-		if ((level = data.getCompoundTag("Level")) == null) {
-			throw new IllegalArgumentException("data does not contain \"Level\" tag");
-		}
 		dataVersion = data.getInt("DataVersion");
-		inhabitedTime = level.getLong("InhabitedTime");
-		lastUpdate = level.getLong("LastUpdate");
+		inhabitedTime = data.getLong("InhabitedTime");
+		lastUpdate = data.getLong("LastUpdate");
 		if ((loadFlags & BIOMES) != 0) {
-			biomes = level.getIntArray("Biomes");
+			biomes = data.getIntArray("Biomes");
 		}
 		if ((loadFlags & HEIGHTMAPS) != 0) {
-			heightMaps = level.getCompoundTag("Heightmaps");
+			heightMaps = data.getCompoundTag("Heightmaps");
 		}
 		if ((loadFlags & CARVING_MASKS) != 0) {
-			carvingMasks = level.getCompoundTag("CarvingMasks");
+			carvingMasks = data.getCompoundTag("CarvingMasks");
 		}
 		if ((loadFlags & ENTITIES) != 0) {
-			entities = level.containsKey("Entities") ? level.getListTag("Entities").asCompoundTagList() : null;
+			entities = data.containsKey("Entities") ? data.getListTag("Entities").asCompoundTagList() : null;
 		}
 		if ((loadFlags & TILE_ENTITIES) != 0) {
-			tileEntities = level.containsKey("TileEntities") ? level.getListTag("TileEntities").asCompoundTagList() : null;
+			tileEntities = data.containsKey("TileEntities") ? data.getListTag("TileEntities").asCompoundTagList() : null;
 		}
 		if ((loadFlags & TILE_TICKS) != 0) {
-			tileTicks = level.containsKey("TileTicks") ? level.getListTag("TileTicks").asCompoundTagList() : null;
+			tileTicks = data.containsKey("TileTicks") ? data.getListTag("TileTicks").asCompoundTagList() : null;
 		}
 		if ((loadFlags & LIQUID_TICKS) != 0) {
-			liquidTicks = level.containsKey("LiquidTicks") ? level.getListTag("LiquidTicks").asCompoundTagList() : null;
+			liquidTicks = data.containsKey("LiquidTicks") ? data.getListTag("LiquidTicks").asCompoundTagList() : null;
 		}
 		if ((loadFlags & LIGHTS) != 0) {
-			lights = level.containsKey("Lights") ? level.getListTag("Lights").asListTagList() : null;
+			lights = data.containsKey("Lights") ? data.getListTag("Lights").asListTagList() : null;
 		}
 		if ((loadFlags & LIQUIDS_TO_BE_TICKED) != 0) {
-			liquidsToBeTicked = level.containsKey("LiquidsToBeTicked") ? level.getListTag("LiquidsToBeTicked").asListTagList() : null;
+			liquidsToBeTicked = data.containsKey("LiquidsToBeTicked") ? data.getListTag("LiquidsToBeTicked").asListTagList() : null;
 		}
 		if ((loadFlags & TO_BE_TICKED) != 0) {
-			toBeTicked = level.containsKey("ToBeTicked") ? level.getListTag("ToBeTicked").asListTagList() : null;
+			toBeTicked = data.containsKey("ToBeTicked") ? data.getListTag("ToBeTicked").asListTagList() : null;
 		}
 		if ((loadFlags & POST_PROCESSING) != 0) {
-			postProcessing = level.containsKey("PostProcessing") ? level.getListTag("PostProcessing").asListTagList() : null;
+			postProcessing = data.containsKey("PostProcessing") ? data.getListTag("PostProcessing").asListTagList() : null;
 		}
-		status = level.getString("Status");
+		status = data.getString("Status");
 		if ((loadFlags & STRUCTURES) != 0) {
-			structures = level.getCompoundTag("Structures");
+			structures = data.getCompoundTag("Structures");
 		}
-		if ((loadFlags & (BLOCK_LIGHTS|BLOCK_STATES|SKY_LIGHT)) != 0 && level.containsKey("Sections")) {
-			for (CompoundTag section : level.getListTag("Sections").asCompoundTagList()) {
+		if ((loadFlags & (BLOCK_LIGHTS|BLOCK_STATES|SKY_LIGHT)) != 0 && data.containsKey("Sections")) {
+			for (CompoundTag section : data.getListTag("Sections").asCompoundTagList()) {
 				int sectionIndex = section.getNumber("Y").byteValue();
 				Section newSection = new Section(section, dataVersion, loadFlags);
 				sections.put(sectionIndex, newSection);
