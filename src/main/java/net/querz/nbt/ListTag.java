@@ -3,8 +3,8 @@ package net.querz.nbt;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.AbstractList;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -418,34 +418,38 @@ public class ListTag extends CollectionTag<Tag> {
 		return def;
 	}
 
-	public <T extends Tag> Iterable<T> iterateType(TagType<T> type) {
-		return new TypedIterable<>(this);
+	public <T extends Tag> List<T> iterateType(TagType<T> type) {
+		return new TypedListTag<>();
 	}
 
-	private record TypedIterable<T extends Tag>(ListTag handle) implements Iterable<T> {
+	private class TypedListTag<T extends Tag> extends AbstractList<T> {
+
+		@SuppressWarnings("unchecked")
 		@Override
-		public Iterator<T> iterator() {
-			return new TypedList<>(handle);
-		}
-	}
-
-	private static class TypedList<T extends Tag> implements Iterator<T> {
-
-		private final Iterator<Tag> handle;
-
-		private TypedList(ListTag handle) {
-			this.handle = handle.iterator();
+		public T get(int index) {
+			return (T) ListTag.this.value.get(index);
 		}
 
 		@Override
-		public boolean hasNext() {
-			return handle.hasNext();
+		public int size() {
+			return ListTag.this.value.size();
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public T next() {
-			return (T) handle.next();
+		public T set(int index, T element) {
+			return (T) ListTag.this.set(index, element);
+		}
+
+		@Override
+		public void add(int index, T element) {
+			ListTag.this.add(index, element);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public T remove(int index) {
+			return (T) ListTag.this.remove(index);
 		}
 	}
 
