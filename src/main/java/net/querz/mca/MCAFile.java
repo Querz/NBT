@@ -1,8 +1,8 @@
 package net.querz.mca;
 
-import net.querz.mca.seekable.SeekableByteArray;
-import net.querz.mca.seekable.SeekableData;
-import net.querz.mca.seekable.SeekableFile;
+import net.querz.io.seekable.SeekableByteArray;
+import net.querz.io.seekable.SeekableData;
+import net.querz.io.seekable.SeekableFile;
 import net.querz.nbt.io.stream.SelectionStreamTagVisitor;
 import net.querz.nbt.io.stream.TagSelector;
 import java.io.*;
