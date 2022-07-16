@@ -2,7 +2,7 @@ package net.querz.nbt.io;
 
 import net.querz.nbt.NamedTag;
 import net.querz.nbt.Tag;
-import net.querz.nbt.io.stream.LittleEndianOutputStream;
+import net.querz.io.LittleEndianOutputStream;
 
 import java.io.*;
 import java.util.zip.GZIPOutputStream;
