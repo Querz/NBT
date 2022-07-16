@@ -2,6 +2,8 @@ package net.querz.nbt;
 
 import net.querz.nbt.io.*;
 import net.querz.nbt.io.snbt.ParseException;
+import net.querz.nbt.io.snbt.SNBTReader;
+import net.querz.nbt.io.snbt.SNBTWriter;
 import net.querz.nbt.io.stream.SelectionStreamTagVisitor;
 import net.querz.nbt.io.stream.TagSelector;
 
