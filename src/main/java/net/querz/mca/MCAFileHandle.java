@@ -1,5 +1,6 @@
 package net.querz.mca;
 
+import net.querz.mca.seekable.SeekableData;
 import net.querz.nbt.TagTypeVisitor;
 
 import java.io.File;

@@ -1,6 +1,5 @@
 package net.querz.mca.seekable;
 
-import net.querz.mca.SeekableData;
 import java.io.*;
 
 public class SeekableFile extends RandomAccessFile implements SeekableData {

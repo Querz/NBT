@@ -1,4 +1,4 @@
-package net.querz.mca;
+package net.querz.mca.seekable;
 
 import java.io.*;
 

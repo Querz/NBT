@@ -1,6 +1,7 @@
 package net.querz.mca;
 
 import net.querz.mca.parsers.SectionParser;
+import net.querz.mca.seekable.SeekableData;
 import net.querz.nbt.CompoundTag;
 import net.querz.nbt.NBTUtil;
 import net.querz.nbt.Tag;
