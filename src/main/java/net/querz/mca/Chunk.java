@@ -1,5 +1,6 @@
 package net.querz.mca;
 
+import net.querz.io.ExposedByteArrayOutputStream;
 import net.querz.mca.parsers.SectionParser;
 import net.querz.mca.seekable.SeekableData;
 import net.querz.nbt.CompoundTag;
@@ -8,10 +9,8 @@ import net.querz.nbt.Tag;
 import net.querz.nbt.TagTypeVisitor;
 import net.querz.nbt.io.NBTReader;
 import net.querz.nbt.io.NBTWriter;
-import net.querz.nbt.io.stream.StreamTagVisitor;
-import net.querz.nbt.io.stream.TagSelector;
+
 import java.io.*;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class Chunk {
