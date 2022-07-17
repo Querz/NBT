@@ -1,8 +1,7 @@
-package net.querz.nbt.io;
+package net.querz.nbt.io.snbt;
 
 import net.querz.nbt.Tag;
-import net.querz.nbt.io.snbt.ParseException;
-import net.querz.nbt.io.snbt.SNBTParser;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 

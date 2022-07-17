@@ -1,8 +1,6 @@
-package net.querz.nbt.io;
+package net.querz.nbt.io.snbt;
 
 import net.querz.nbt.Tag;
-import net.querz.nbt.io.snbt.SNBTTagVisitor;
-import net.querz.nbt.io.snbt.SNBTTagVisitorWriter;
 
 import java.io.*;
 
