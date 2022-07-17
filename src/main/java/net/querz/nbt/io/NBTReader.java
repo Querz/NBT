@@ -1,7 +1,7 @@
 package net.querz.nbt.io;
 
 import net.querz.nbt.*;
-import net.querz.nbt.io.stream.LittleEndianInputStream;
+import net.querz.io.LittleEndianInputStream;
 import net.querz.nbt.io.stream.SelectionStreamTagVisitor;
 import net.querz.nbt.io.stream.TagSelector;
 import java.io.*;

@@ -1,6 +1,5 @@
-package net.querz.mca.seekable;
+package net.querz.io.seekable;
 
-import net.querz.mca.SeekableData;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;

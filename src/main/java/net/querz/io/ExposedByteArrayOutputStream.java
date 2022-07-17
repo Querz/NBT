@@ -1,8 +1,8 @@
-package net.querz.mca;
+package net.querz.io;
 
 import java.io.ByteArrayOutputStream;
 
-class ExposedByteArrayOutputStream extends ByteArrayOutputStream {
+public class ExposedByteArrayOutputStream extends ByteArrayOutputStream {
 
 	public ExposedByteArrayOutputStream() {
 		super();

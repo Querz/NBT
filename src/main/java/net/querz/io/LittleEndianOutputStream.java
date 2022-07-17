@@ -1,4 +1,4 @@
-package net.querz.nbt.io.stream;
+package net.querz.io;
 
 import java.io.DataOutput;
 import java.io.DataOutputStream;
