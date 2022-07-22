@@ -5,6 +5,9 @@ plugins {
 group 'net.querz'
 version '7.0'
 
+sourceCompatibility = JavaLanguageVersion.of(17)
+targetCompatibility = JavaLanguageVersion.of(17)
+
 repositories {
     mavenCentral()
 }
