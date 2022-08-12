@@ -4,12 +4,14 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Objects;
 
 public class LongArrayTag extends CollectionTag<LongTag> {
 
 	private long[] value;
 
 	public LongArrayTag(long[] l) {
+		Objects.requireNonNull(l);
 		value = l;
 	}
 

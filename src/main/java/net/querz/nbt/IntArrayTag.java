@@ -4,12 +4,14 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Objects;
 
 public class IntArrayTag extends CollectionTag<IntTag> {
 
 	private int[] value;
 
 	public IntArrayTag(int[] i) {
+		Objects.requireNonNull(i);
 		value = i;
 	}
 
