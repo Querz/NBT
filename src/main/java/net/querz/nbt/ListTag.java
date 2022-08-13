@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class ListTag extends CollectionTag<Tag> {
+public non-sealed class ListTag extends CollectionTag<Tag> {
 
 	private final List<Tag> value;
 	private byte type;

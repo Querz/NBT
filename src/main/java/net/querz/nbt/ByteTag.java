@@ -4,7 +4,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public class ByteTag extends NumberTag {
+public non-sealed class ByteTag extends NumberTag {
 
 	private final byte value;
 

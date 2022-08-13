@@ -5,7 +5,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.*;
 
-public class CompoundTag implements Tag, Iterable<Map.Entry<String, Tag>> {
+public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, Tag>> {
 
 	private final Map<String, Tag> value;
 
