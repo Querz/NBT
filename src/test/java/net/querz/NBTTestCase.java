@@ -176,7 +176,7 @@ public abstract class NBTTestCase {
 	protected static String tagToCode(Tag tag, AtomicInteger c) {
 		StringBuilder sb = new StringBuilder();
 
-		switch (tag.getID()) {
+		switch (tag.getType()) {
 			case END -> {}
 			case BYTE -> sb.append("ByteTag byteTag").append(c).append(" = ByteTag.valueOf((byte) ").append(((ByteTag) tag).asByte()).append(");");
 			case SHORT -> sb.append("ShortTag shortTag").append(c).append(" = ShortTag.valueOf((short) ").append(((ShortTag) tag).asShort()).append(");");

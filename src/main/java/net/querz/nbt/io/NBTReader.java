@@ -105,7 +105,7 @@ public final class NBTReader {
 			if (visitor != null) {
 				return readWithVisitor(input, visitor);
 			}
-			TagReader<?> reader = Tag.TypeId.valueOf(input.readByte()).reader;
+			TagReader<?> reader = Tag.Type.valueOf(input.readByte()).reader;
 			String name = input.readUTF();
 			return new NamedTag(name, reader.read(input, 0));
 		} else {
@@ -115,7 +115,7 @@ public final class NBTReader {
 	}
 
 	private NamedTag readWithVisitor(DataInput input, TagTypeVisitor visitor) throws IOException {
-		TagReader<?> reader = Tag.TypeId.valueOf(input.readByte()).reader;
+		TagReader<?> reader = Tag.Type.valueOf(input.readByte()).reader;
 		String name = "";
 		if (reader == EndTag.READER) {
 			if (visitor.visitRootEntry(EndTag.READER) == TagTypeVisitor.ValueResult.CONTINUE) {

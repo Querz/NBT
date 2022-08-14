@@ -55,8 +55,8 @@ public non-sealed class IntArrayTag extends CollectionTag<IntTag> {
 	}
 
 	@Override
-	public TypeId getElementType() {
-		return TypeId.INT;
+	public Type getElementType() {
+		return Type.INT;
 	}
 
 	@Override
@@ -73,8 +73,8 @@ public non-sealed class IntArrayTag extends CollectionTag<IntTag> {
 	}
 
 	@Override
-	public TypeId getID() {
-		return TypeId.INT_ARRAY;
+	public Type getType() {
+		return Type.INT_ARRAY;
 	}
 
 	@Override

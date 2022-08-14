@@ -8,18 +8,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static net.querz.nbt.Tag.TypeId.*;
+import static net.querz.nbt.Tag.Type.*;
 
 public non-sealed class ListTag extends CollectionTag<Tag> {
 
 	private final List<Tag> value;
-	private TypeId type;
+	private Type type;
 
 	public ListTag() {
 		this(new ArrayList<>(), END);
 	}
 
-	public ListTag(List<Tag> list, TypeId type) {
+	public ListTag(List<Tag> list, Type type) {
 		value = list;
 		this.type = type;
 	}
@@ -33,7 +33,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	public Tag set(int index, Tag tag) {
 		Tag old = value.get(index);
 		if (!updateType(tag)) {
-			throw new UnsupportedOperationException(String.format("trying to set tag of type %d in ListTag of %d", tag.getID().id, type.id));
+			throw new UnsupportedOperationException(String.format("trying to set tag of type %d in ListTag of %d", tag.getType().id, type.id));
 		}
 		value.set(index, tag);
 		return old;
@@ -42,7 +42,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	@Override
 	public void add(int index, Tag tag) {
 		if (!updateType(tag)) {
-			throw new UnsupportedOperationException(String.format("trying to add tag of type %d to ListTag of %d", tag.getID().id, type.id));
+			throw new UnsupportedOperationException(String.format("trying to add tag of type %d to ListTag of %d", tag.getType().id, type.id));
 		}
 		value.add(index, tag);
 	}
@@ -92,13 +92,13 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	}
 
 	private boolean updateType(Tag tag) {
-		if (tag.getID() == END) {
+		if (tag.getType() == END) {
 			return false;
 		} else if (type == END) {
-			type = tag.getID();
+			type = tag.getType();
 			return true;
 		} else {
-			return type == tag.getID();
+			return type == tag.getType();
 		}
 	}
 
@@ -112,7 +112,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	}
 
 	@Override
-	public TypeId getElementType() {
+	public Type getElementType() {
 		return type;
 	}
 
@@ -135,7 +135,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	}
 
 	@Override
-	public TypeId getID() {
+	public Type getType() {
 		return LIST;
 	}
 
@@ -234,7 +234,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	public String getString(int index) {
 		if (index >= 0 && index < value.size()) {
 			Tag tag = value.get(index);
-			if (tag.getID() == STRING) {
+			if (tag.getType() == STRING) {
 				return ((StringTag) tag).getValue();
 			}
 		}
@@ -244,7 +244,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	public byte[] getByteArray(int index) {
 		if (index >= 0 && index < value.size()) {
 			Tag tag = value.get(index);
-			if (tag.getID() == BYTE_ARRAY) {
+			if (tag.getType() == BYTE_ARRAY) {
 				return ((ByteArrayTag) tag).getValue();
 			}
 		}
@@ -254,7 +254,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	public int[] getIntArray(int index) {
 		if (index >= 0 && index < value.size()) {
 			Tag tag = value.get(index);
-			if (tag.getID() == INT_ARRAY) {
+			if (tag.getType() == INT_ARRAY) {
 				return ((IntArrayTag) tag).getValue();
 			}
 		}
@@ -264,7 +264,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	public long[] getLongArray(int index) {
 		if (index >= 0 && index < value.size()) {
 			Tag tag = value.get(index);
-			if (tag.getID() == LONG_ARRAY) {
+			if (tag.getType() == LONG_ARRAY) {
 				return ((LongArrayTag) tag).getValue();
 			}
 		}
@@ -274,7 +274,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	public CompoundTag getCompound(int index) {
 		if (index >= 0 && index < value.size()) {
 			Tag tag = value.get(index);
-			if (tag.getID() == COMPOUND) {
+			if (tag.getType() == COMPOUND) {
 				return (CompoundTag) tag;
 			}
 		}
@@ -284,7 +284,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	public ListTag getList(int index) {
 		if (index >= 0 && index < value.size()) {
 			Tag tag = value.get(index);
-			if (tag.getID() == LIST) {
+			if (tag.getType() == LIST) {
 				return (ListTag) tag;
 			}
 		}
@@ -358,7 +358,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	public String getStringOrDefault(int index, String def) {
 		if (index >= 0 && index < value.size()) {
 			Tag tag = value.get(index);
-			if (tag.getID() == STRING) {
+			if (tag.getType() == STRING) {
 				return ((StringTag) tag).getValue();
 			}
 		}
@@ -368,7 +368,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	public byte[] getByteArrayOrDefault(int index, byte[] def) {
 		if (index >= 0 && index < value.size()) {
 			Tag tag = value.get(index);
-			if (tag.getID() == BYTE_ARRAY) {
+			if (tag.getType() == BYTE_ARRAY) {
 				return ((ByteArrayTag) tag).getValue();
 			}
 		}
@@ -378,7 +378,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	public int[] getIntArrayOrDefault(int index, int[] def) {
 		if (index >= 0 && index < value.size()) {
 			Tag tag = value.get(index);
-			if (tag.getID() == INT_ARRAY) {
+			if (tag.getType() == INT_ARRAY) {
 				return ((IntArrayTag) tag).getValue();
 			}
 		}
@@ -388,7 +388,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	public long[] getLongArrayOrDefault(int index, long[] def) {
 		if (index >= 0 && index < value.size()) {
 			Tag tag = value.get(index);
-			if (tag.getID() == LONG_ARRAY) {
+			if (tag.getType() == LONG_ARRAY) {
 				return ((LongArrayTag) tag).getValue();
 			}
 		}
@@ -398,7 +398,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	public CompoundTag getCompoundOrDefault(int index, CompoundTag def) {
 		if (index >= 0 && index < value.size()) {
 			Tag tag = value.get(index);
-			if (tag.getID() == COMPOUND) {
+			if (tag.getType() == COMPOUND) {
 				return (CompoundTag) tag;
 			}
 		}
@@ -408,7 +408,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	public ListTag getListOrDefault(int index, ListTag def) {
 		if (index >= 0 && index < value.size()) {
 			Tag tag = value.get(index);
-			if (tag.getID() == LIST) {
+			if (tag.getType() == LIST) {
 				return (ListTag) tag;
 			}
 		}
@@ -464,7 +464,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 				for (int i = 0; i < length; i++) {
 					list.add(tagReader.read(in, depth + 1));
 				}
-				return new ListTag(list, TypeId.valueOf(type));
+				return new ListTag(list, Type.valueOf(type));
 			}
 		}
 

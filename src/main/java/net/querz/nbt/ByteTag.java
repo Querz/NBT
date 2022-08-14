@@ -74,8 +74,8 @@ public non-sealed class ByteTag extends NumberTag {
 	}
 
 	@Override
-	public TypeId getID() {
-		return TypeId.BYTE;
+	public Type getType() {
+		return Type.BYTE;
 	}
 
 	@Override

@@ -192,8 +192,8 @@ public class SNBTParser {
 			int start = ptr.getIndex();
 			Tag t = readValue();
 			if (reader == null) {
-				reader = t.getID().reader;
-			} else if (reader != t.getID().reader) {
+				reader = t.getType().reader;
+			} else if (reader != t.getType().reader) {
 				ptr.setIndex(start);
 				throw ptr.parseException("mixed types in ListTag");
 			}

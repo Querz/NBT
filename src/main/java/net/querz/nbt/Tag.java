@@ -7,7 +7,7 @@ public sealed interface Tag permits CollectionTag, CompoundTag, EndTag, NumberTa
 
 	int MAX_DEPTH = 512;
 
-	enum TypeId {
+	enum Type {
 		END(0, EndTag.READER, false),
 		BYTE(1, ByteTag.READER, true),
 		SHORT(2, ShortTag.READER, true),
@@ -26,16 +26,16 @@ public sealed interface Tag permits CollectionTag, CompoundTag, EndTag, NumberTa
 		public final TagReader<?> reader;
 		public final boolean isNumber;
 
-		TypeId(int id, TagReader<?> reader, boolean isNumber) {
+		Type(int id, TagReader<?> reader, boolean isNumber) {
 			this.id = (byte) id;
 			this.reader = reader;
 			this.isNumber = isNumber;
 		}
 
-		public static TypeId valueOf(byte b) {
-			for (TypeId id : values()) {
-				if (id.id == b) {
-					return id;
+		public static Type valueOf(byte b) {
+			for (Type type : values()) {
+				if (type.id == b) {
+					return type;
 				}
 			}
 			throw new IllegalArgumentException("No tag type corresponds to byte "+b);
@@ -47,7 +47,7 @@ public sealed interface Tag permits CollectionTag, CompoundTag, EndTag, NumberTa
 
 	String toString();
 
-	TypeId getID();
+	Type getType();
 
 	Tag copy();
 

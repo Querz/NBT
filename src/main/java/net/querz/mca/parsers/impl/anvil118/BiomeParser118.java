@@ -21,12 +21,12 @@ public class BiomeParser118 implements BiomeParser<String> {
 
 	public BiomeParser118(CompoundTag section) {
 		this.section = section;
-		if (section.contains("biomes", Tag.TypeId.COMPOUND)) {
+		if (section.contains("biomes", Tag.Type.COMPOUND)) {
 			CompoundTag biomes = section.getCompound("biomes");
-			if (biomes.contains("palette", Tag.TypeId.LIST)) {
+			if (biomes.contains("palette", Tag.Type.LIST)) {
 				palette = biomes.getList("palette").copy();
 			}
-			if (biomes.contains("data", Tag.TypeId.LONG_ARRAY)) {
+			if (biomes.contains("data", Tag.Type.LONG_ARRAY)) {
 				data = biomes.getLongArray("data");
 			}
 		}

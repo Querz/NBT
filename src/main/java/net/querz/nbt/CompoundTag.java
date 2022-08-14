@@ -5,7 +5,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.*;
 
-import static net.querz.nbt.Tag.TypeId.*;
+import static net.querz.nbt.Tag.Type.*;
 
 public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, Tag>> {
 
@@ -23,8 +23,8 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 	public void write(DataOutput out) throws IOException {
 		for (String key : value.keySet()) {
 			Tag tag = value.get(key);
-			out.writeByte(tag.getID().id);
-			if (tag.getID() != END) {
+			out.writeByte(tag.getType().id);
+			if (tag.getType() != END) {
 				out.writeUTF(key);
 				tag.write(out);
 			}
@@ -33,7 +33,7 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 	}
 
 	@Override
-	public TypeId getID() {
+	public Type getType() {
 		return COMPOUND;
 	}
 
@@ -455,14 +455,14 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 		return null;
 	}
 
-	public boolean contains(String key, TypeId type) {
+	public boolean contains(String key, Type type) {
 		Tag tag = value.get(key);
-		return tag.getID() == type;
+		return tag.getType() == type;
 	}
 
 	public boolean containsNumber(String key) {
 		Tag tag = value.get(key);
-		return tag != null && tag.getID().isNumber;
+		return tag != null && tag.getType().isNumber;
 	}
 
 	public boolean containsKey(String key) {

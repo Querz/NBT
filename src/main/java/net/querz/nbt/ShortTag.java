@@ -67,8 +67,8 @@ public non-sealed class ShortTag extends NumberTag {
 	}
 
 	@Override
-	public TypeId getID() {
-		return TypeId.SHORT;
+	public Type getType() {
+		return Type.SHORT;
 	}
 
 	@Override
