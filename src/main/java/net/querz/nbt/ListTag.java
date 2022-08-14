@@ -422,6 +422,9 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	}
 
 	public <T extends Tag> List<T> iterateType(Class<T> tagClass) {
+		if (tagClass != type.tagClass) {
+			throw new IllegalArgumentException("Incorrect tagClass "+tagClass.getName()+", list is of type "+type.tagClass.getName());
+		}
 		return new TypedListTag<>(tagClass);
 	}
 
