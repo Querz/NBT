@@ -127,51 +127,99 @@ public class CompoundTag implements Tag, Iterable<Map.Entry<String, Tag>> {
 	}
 
 	public byte getByte(String key) {
-		return getByteOrDefault(key, (byte) 0);
+		NumberTag tag = getNumberTag(key);
+		if (tag == null) {
+			throw new NoSuchElementException("No numeric tag with key '"+key+"'");
+		}
+		return tag.asByte();
 	}
 
 	public short getShort(String key) {
-		return getShortOrDefault(key, (short) 0);
+		NumberTag tag = getNumberTag(key);
+		if (tag == null) {
+			throw new NoSuchElementException("No numeric tag with key '"+key+"'");
+		}
+		return tag.asShort();
 	}
 
 	public int getInt(String key) {
-		return getIntOrDefault(key, 0);
+		NumberTag tag = getNumberTag(key);
+		if (tag == null) {
+			throw new NoSuchElementException("No numeric tag with key '"+key+"'");
+		}
+		return tag.asInt();
 	}
 
 	public long getLong(String key) {
-		return getLongOrDefault(key, 0);
+		NumberTag tag = getNumberTag(key);
+		if (tag == null) {
+			throw new NoSuchElementException("No numeric tag with key '"+key+"'");
+		}
+		return tag.asLong();
 	}
 
 	public float getFloat(String key) {
-		return getFloatOrDefault(key, 0);
+		NumberTag tag = getNumberTag(key);
+		if (tag == null) {
+			throw new NoSuchElementException("No numeric tag with key '"+key+"'");
+		}
+		return tag.asFloat();
 	}
 
 	public double getDouble(String key) {
-		return getDoubleOrDefault(key, 0);
+		NumberTag tag = getNumberTag(key);
+		if (tag == null) {
+			throw new NoSuchElementException("No numeric tag with key '"+key+"'");
+		}
+		return tag.asDouble();
 	}
 
 	public String getString(String key) {
-		return getStringOrDefault(key, "");
+		StringTag tag = getStringTag(key);
+		if (tag == null) {
+			throw new NoSuchElementException("No string tag with key '"+key+"'");
+		}
+		return tag.getValue();
 	}
 
 	public byte[] getByteArray(String key) {
-		return getByteArrayOrDefault(key, new byte[0]);
+		ByteArrayTag tag = getByteArrayTag(key);
+		if (tag == null) {
+			throw new NoSuchElementException("No byte array tag with key '"+key+"'");
+		}
+		return tag.getValue();
 	}
 
 	public int[] getIntArray(String key) {
-		return getIntArrayOrDefault(key, new int[0]);
+		IntArrayTag tag = getIntArrayTag(key);
+		if (tag == null) {
+			throw new NoSuchElementException("No int array tag with key '"+key+"'");
+		}
+		return tag.getValue();
 	}
 
 	public long[] getLongArray(String key) {
-		return getLongArrayOrDefault(key, new long[0]);
+		LongArrayTag tag = getLongArrayTag(key);
+		if (tag == null) {
+			throw new NoSuchElementException("No long array tag with key '"+key+"'");
+		}
+		return tag.getValue();
 	}
 
 	public CompoundTag getCompound(String key) {
-		return getCompoundOrDefault(key, new CompoundTag());
+		CompoundTag tag = getCompoundTag(key);
+		if (tag == null) {
+			throw new NoSuchElementException("No compound tag with key '"+key+"'");
+		}
+		return tag;
 	}
 
 	public ListTag getList(String key) {
-		return getListOrDefault(key, new ListTag());
+		ListTag tag = getListTag(key);
+		if (tag == null) {
+			throw new NoSuchElementException("No byte array tag with key '"+key+"'");
+		}
+		return tag;
 	}
 
 	public boolean getBoolean(String key) {
