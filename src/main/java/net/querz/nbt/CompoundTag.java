@@ -183,87 +183,106 @@ public class CompoundTag implements Tag, Iterable<Map.Entry<String, Tag>> {
 	}
 
 	public byte getByteOrDefault(String key, byte def) {
-		if (contains(key, NUMBER)) {
-			return ((NumberTag) value.get(key)).asByte();
+		NumberTag tag = getNumberTag(key);
+		if (tag == null) {
+			return def;
 		}
-		return def;
+		return tag.asByte();
 	}
 
 	public short getShortOrDefault(String key, short def) {
-		if (contains(key, NUMBER)) {
-			return ((NumberTag) value.get(key)).asShort();
+		NumberTag tag = getNumberTag(key);
+		if (tag == null) {
+			return def;
 		}
-		return def;
+		return tag.asShort();
 	}
 
 	public int getIntOrDefault(String key, int def) {
-		if (contains(key, NUMBER)) {
-			return ((NumberTag) value.get(key)).asInt();
+		NumberTag tag = getNumberTag(key);
+		if (tag == null) {
+			return def;
 		}
-		return def;
+		return tag.asInt();
 	}
 
 	public long getLongOrDefault(String key, long def) {
-		if (contains(key, NUMBER)) {
-			return ((NumberTag) value.get(key)).asLong();
+		NumberTag tag = getNumberTag(key);
+		if (tag == null) {
+			return def;
 		}
-		return def;
+		return tag.asLong();
 	}
 
 	public float getFloatOrDefault(String key, float def) {
-		if (contains(key, NUMBER)) {
-			return ((NumberTag) value.get(key)).asFloat();
+		NumberTag tag = getNumberTag(key);
+		if (tag == null) {
+			return def;
 		}
-		return def;
+		return tag.asFloat();
 	}
 
 	public double getDoubleOrDefault(String key, double def) {
-		if (contains(key, NUMBER)) {
-			return ((NumberTag) value.get(key)).asDouble();
+		NumberTag tag = getNumberTag(key);
+		if (tag == null) {
+			return def;
 		}
-		return def;
+		return tag.asDouble();
 	}
 
 	public String getStringOrDefault(String key, String def) {
-		if (contains(key, STRING)) {
-			return ((StringTag) value.get(key)).getValue();
+		StringTag tag = getStringTag(key);
+		if (tag == null) {
+			return def;
 		}
-		return def;
+		return tag.getValue();
 	}
 
 	public byte[] getByteArrayOrDefault(String key, byte[] def) {
-		if (contains(key, BYTE_ARRAY)) {
-			return ((ByteArrayTag) value.get(key)).getValue();
+		ByteArrayTag tag = getByteArrayTag(key);
+		if (tag == null) {
+			return def;
 		}
-		return def;
+		return tag.getValue();
 	}
 
 	public int[] getIntArrayOrDefault(String key, int[] def) {
-		if (contains(key, INT_ARRAY)) {
-			return ((IntArrayTag) value.get(key)).getValue();
+		IntArrayTag tag = getIntArrayTag(key);
+		if (tag == null) {
+			return def;
 		}
-		return def;
+		return tag.getValue();
 	}
 
 	public long[] getLongArrayOrDefault(String key, long[] def) {
-		if (contains(key, LONG_ARRAY)) {
-			return ((LongArrayTag) value.get(key)).getValue();
+		LongArrayTag tag = getLongArrayTag(key);
+		if (tag == null) {
+			return def;
 		}
-		return def;
+		return tag.getValue();
 	}
 
 	public CompoundTag getCompoundOrDefault(String key, CompoundTag def) {
-		if (contains(key, COMPOUND)) {
-			return (CompoundTag) value.get(key);
+		CompoundTag tag = getCompoundTag(key);
+		if (tag == null) {
+			return def;
 		}
-		return def;
+		return tag;
 	}
 
 	public ListTag getListOrDefault(String key, ListTag def) {
-		if (contains(key, LIST)) {
-			return (ListTag) value.get(key);
+		ListTag tag = getListTag(key);
+		if (tag == null) {
+			return def;
 		}
-		return def;
+		return tag;
+	}
+
+	public NumberTag getNumberTag(String key) {
+		if (contains(key, NUMBER)) {
+			return (NumberTag) value.get(key);
+		}
+		return null;
 	}
 
 	public ByteTag getByteTag(String key) {
