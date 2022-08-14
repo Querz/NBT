@@ -67,8 +67,8 @@ public non-sealed class LongTag extends NumberTag {
 	}
 
 	@Override
-	public byte getID() {
-		return LONG;
+	public TypeId getID() {
+		return TypeId.LONG;
 	}
 
 	@Override

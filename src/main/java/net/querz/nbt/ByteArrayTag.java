@@ -55,8 +55,8 @@ public non-sealed class ByteArrayTag extends CollectionTag<ByteTag> {
 	}
 
 	@Override
-	public byte getElementType() {
-		return BYTE;
+	public TypeId getElementType() {
+		return TypeId.BYTE;
 	}
 
 	@Override
@@ -71,8 +71,8 @@ public non-sealed class ByteArrayTag extends CollectionTag<ByteTag> {
 	}
 
 	@Override
-	public byte getID() {
-		return BYTE_ARRAY;
+	public TypeId getID() {
+		return TypeId.BYTE_ARRAY;
 	}
 
 	@Override

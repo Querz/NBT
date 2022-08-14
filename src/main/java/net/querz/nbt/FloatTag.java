@@ -64,8 +64,8 @@ public non-sealed class FloatTag extends NumberTag {
 	}
 
 	@Override
-	public byte getID() {
-		return FLOAT;
+	public TypeId getID() {
+		return TypeId.FLOAT;
 	}
 
 	@Override

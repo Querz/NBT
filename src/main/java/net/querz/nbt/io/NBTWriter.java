@@ -50,8 +50,8 @@ public final class NBTWriter {
 			output = new DataOutputStream(stream);
 		}
 
-		output.writeByte(tag.getID());
-		if (tag.getID() != Tag.END) {
+		output.writeByte(tag.getID().id);
+		if (tag.getID() != Tag.TypeId.END) {
 			output.writeUTF(name);
 			tag.write(output);
 		}

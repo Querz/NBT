@@ -12,5 +12,6 @@ public sealed abstract class CollectionTag<T extends Tag> extends AbstractList<T
 
 	public abstract T remove(int index);
 
-	public abstract byte getElementType();
+	public abstract TypeId getElementType();
+
 }

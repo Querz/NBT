@@ -67,8 +67,8 @@ public non-sealed class IntTag extends NumberTag {
 	}
 
 	@Override
-	public byte getID() {
-		return INT;
+	public TypeId getID() {
+		return TypeId.INT;
 	}
 
 	@Override

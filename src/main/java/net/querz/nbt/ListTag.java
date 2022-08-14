@@ -8,16 +8,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static net.querz.nbt.Tag.TypeId.*;
+
 public non-sealed class ListTag extends CollectionTag<Tag> {
 
 	private final List<Tag> value;
-	private byte type;
+	private TypeId type;
 
 	public ListTag() {
 		this(new ArrayList<>(), END);
 	}
 
-	public ListTag(List<Tag> list, byte type) {
+	public ListTag(List<Tag> list, TypeId type) {
 		value = list;
 		this.type = type;
 	}
@@ -31,7 +33,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	public Tag set(int index, Tag tag) {
 		Tag old = value.get(index);
 		if (!updateType(tag)) {
-			throw new UnsupportedOperationException(String.format("trying to set tag of type %d in ListTag of %d", tag.getID(), type));
+			throw new UnsupportedOperationException(String.format("trying to set tag of type %d in ListTag of %d", tag.getID().id, type.id));
 		}
 		value.set(index, tag);
 		return old;
@@ -40,7 +42,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	@Override
 	public void add(int index, Tag tag) {
 		if (!updateType(tag)) {
-			throw new UnsupportedOperationException(String.format("trying to add tag of type %d to ListTag of %d", tag.getID(), type));
+			throw new UnsupportedOperationException(String.format("trying to add tag of type %d to ListTag of %d", tag.getID().id, type.id));
 		}
 		value.add(index, tag);
 	}
@@ -110,7 +112,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	}
 
 	@Override
-	public byte getElementType() {
+	public TypeId getElementType() {
 		return type;
 	}
 
@@ -125,7 +127,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 
 	@Override
 	public void write(DataOutput out) throws IOException {
-		out.writeByte(type);
+		out.writeByte(type.id);
 		out.writeInt(value.size());
 		for (Tag tag : value) {
 			tag.write(out);
@@ -133,7 +135,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	}
 
 	@Override
-	public byte getID() {
+	public TypeId getID() {
 		return LIST;
 	}
 
@@ -459,7 +461,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 		public ListTag read(DataInput in, int depth) throws IOException {
 			byte type = in.readByte();
 			int length = in.readInt();
-			if (type == END && length > 0) {
+			if (type == END.id && length > 0) {
 				throw new RuntimeException("missing type on ListTag");
 			} else {
 				TagType<?> tagType = TagTypes.get(type);
@@ -467,7 +469,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 				for (int i = 0; i < length; i++) {
 					list.add(tagType.read(in, depth + 1));
 				}
-				return new ListTag(list, type);
+				return new ListTag(list, TypeId.valueOf(type));
 			}
 		}
 

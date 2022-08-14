@@ -5,6 +5,8 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.*;
 
+import static net.querz.nbt.Tag.TypeId.*;
+
 public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, Tag>> {
 
 	private final Map<String, Tag> value;
@@ -21,17 +23,17 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 	public void write(DataOutput out) throws IOException {
 		for (String key : value.keySet()) {
 			Tag tag = value.get(key);
-			out.writeByte(tag.getID());
+			out.writeByte(tag.getID().id);
 			if (tag.getID() != END) {
 				out.writeUTF(key);
 				tag.write(out);
 			}
 		}
-		out.writeByte(END);
+		out.writeByte(END.id);
 	}
 
 	@Override
-	public byte getID() {
+	public TypeId getID() {
 		return COMPOUND;
 	}
 
@@ -128,7 +130,7 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 
 	public byte getByte(String key) {
 		try {
-			if (contains(key, NUMBER)) {
+			if (containsNumber(key)) {
 				return ((NumberTag) value.get(key)).asByte();
 			}
 		} catch (ClassCastException ex) {}
@@ -137,7 +139,7 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 
 	public short getShort(String key) {
 		try {
-			if (contains(key, NUMBER)) {
+			if (containsNumber(key)) {
 				return ((NumberTag) value.get(key)).asShort();
 			}
 		} catch (ClassCastException ex) {}
@@ -146,7 +148,7 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 
 	public int getInt(String key) {
 		try {
-			if (contains(key, NUMBER)) {
+			if (containsNumber(key)) {
 				return ((NumberTag) value.get(key)).asInt();
 			}
 		} catch (ClassCastException ex) {}
@@ -155,7 +157,7 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 
 	public long getLong(String key) {
 		try {
-			if (contains(key, NUMBER)) {
+			if (containsNumber(key)) {
 				return ((NumberTag) value.get(key)).asLong();
 			}
 		} catch (ClassCastException ex) {}
@@ -164,7 +166,7 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 
 	public float getFloat(String key) {
 		try {
-			if (contains(key, NUMBER)) {
+			if (containsNumber(key)) {
 				return ((NumberTag) value.get(key)).asFloat();
 			}
 		} catch (ClassCastException ex) {}
@@ -173,7 +175,7 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 
 	public double getDouble(String key) {
 		try {
-			if (contains(key, NUMBER)) {
+			if (containsNumber(key)) {
 				return ((NumberTag) value.get(key)).asDouble();
 			}
 		} catch (ClassCastException ex) {}
@@ -244,7 +246,7 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 
 	public byte getByteOrDefault(String key, byte def) {
 		try {
-			if (contains(key, NUMBER)) {
+			if (containsNumber(key)) {
 				return ((NumberTag) value.get(key)).asByte();
 			}
 		} catch (ClassCastException ex) {}
@@ -253,7 +255,7 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 
 	public short getShortOrDefault(String key, short def) {
 		try {
-			if (contains(key, NUMBER)) {
+			if (containsNumber(key)) {
 				return ((NumberTag) value.get(key)).asShort();
 			}
 		} catch (ClassCastException ex) {}
@@ -262,7 +264,7 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 
 	public int getIntOrDefault(String key, int def) {
 		try {
-			if (contains(key, NUMBER)) {
+			if (containsNumber(key)) {
 				return ((NumberTag) value.get(key)).asInt();
 			}
 		} catch (ClassCastException ex) {}
@@ -271,7 +273,7 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 
 	public long getLongOrDefault(String key, long def) {
 		try {
-			if (contains(key, NUMBER)) {
+			if (containsNumber(key)) {
 				return ((NumberTag) value.get(key)).asLong();
 			}
 		} catch (ClassCastException ex) {}
@@ -280,7 +282,7 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 
 	public float getFloatOrDefault(String key, float def) {
 		try {
-			if (contains(key, NUMBER)) {
+			if (containsNumber(key)) {
 				return ((NumberTag) value.get(key)).asFloat();
 			}
 		} catch (ClassCastException ex) {}
@@ -289,7 +291,7 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 
 	public double getDoubleOrDefault(String key, double def) {
 		try {
-			if (contains(key, NUMBER)) {
+			if (containsNumber(key)) {
 				return ((NumberTag) value.get(key)).asDouble();
 			}
 		} catch (ClassCastException ex) {}
@@ -458,16 +460,14 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 		return null;
 	}
 
-	public boolean contains(String key, int type) {
+	public boolean contains(String key, TypeId type) {
 		Tag tag = value.get(key);
-		byte t = tag == null ? END : tag.getID();
-		if (t == type) {
-			return true;
-		} else if (type != NUMBER) {
-			return false;
-		} else {
-			return t >= BYTE && t <= DOUBLE;
-		}
+		return tag.getID() == type;
+	}
+
+	public boolean containsNumber(String key) {
+		Tag tag = value.get(key);
+		return tag != null && tag.getID().isNumber;
 	}
 
 	public boolean containsKey(String key) {
@@ -504,7 +504,7 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 			}
 			Map<String, Tag> map = new HashMap<>();
 			byte type;
-			while ((type = in.readByte()) != END) {
+			while ((type = in.readByte()) != END.id) {
 				String key = in.readUTF();
 				TagType<?> tagType = TagTypes.get(type);
 				Tag tag = tagType.read(in, depth + 1);
@@ -517,7 +517,7 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 		public TagTypeVisitor.ValueResult read(DataInput in, TagTypeVisitor visitor) throws IOException {
 			for (;;) {
 				byte id;
-				if ((id = in.readByte()) != END) {
+				if ((id = in.readByte()) != END.id) {
 					TagType<?> type = TagTypes.get(id);
 					switch (visitor.visitEntry(type)) {
 						case RETURN -> {
@@ -556,8 +556,8 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 				}
 
 				// skip remaining tags
-				if (id != END) {
-					while ((id = in.readByte()) != END) {
+				if (id != END.id) {
+					while ((id = in.readByte()) != END.id) {
 						StringTag.skipUTF(in);
 						TagTypes.get(id).skip(in);
 					}
@@ -570,7 +570,7 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 		@Override
 		public void skip(DataInput in) throws IOException {
 			byte type;
-			while ((type = in.readByte()) != END) {
+			while ((type = in.readByte()) != END.id) {
 				in.skipBytes(in.readUnsignedShort());
 				TagTypes.get(type).skip(in);
 			}

@@ -55,8 +55,8 @@ public non-sealed class LongArrayTag extends CollectionTag<LongTag> {
 	}
 
 	@Override
-	public byte getElementType() {
-		return 4;
+	public TypeId getElementType() {
+		return TypeId.LONG;
 	}
 
 	@Override
@@ -73,8 +73,8 @@ public non-sealed class LongArrayTag extends CollectionTag<LongTag> {
 	}
 
 	@Override
-	public byte getID() {
-		return LONG_ARRAY;
+	public TypeId getID() {
+		return TypeId.LONG_ARRAY;
 	}
 
 	@Override

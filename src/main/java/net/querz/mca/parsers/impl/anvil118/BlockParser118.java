@@ -18,12 +18,12 @@ public class BlockParser118 implements BlockParser<CompoundTag> {
 
 	public BlockParser118(CompoundTag section) {
 		this.section = section;
-		if (section.contains("block_states", Tag.COMPOUND)) {
+		if (section.contains("block_states", Tag.TypeId.COMPOUND)) {
 			CompoundTag blockStates = section.getCompound("block_states");
-			if (blockStates.contains("palette", Tag.LIST)) {
+			if (blockStates.contains("palette", Tag.TypeId.LIST)) {
 				palette = blockStates.getList("palette").copy();
 			}
-			if (blockStates.contains("data", Tag.LONG_ARRAY)) {
+			if (blockStates.contains("data", Tag.TypeId.LONG_ARRAY)) {
 				data = blockStates.getLongArray("data");
 			}
 		}

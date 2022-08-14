@@ -28,8 +28,8 @@ public non-sealed class StringTag implements Tag {
 	}
 
 	@Override
-	public byte getID() {
-		return STRING;
+	public TypeId getID() {
+		return TypeId.STRING;
 	}
 
 	@Override

@@ -6,26 +6,46 @@ import java.io.IOException;
 public sealed interface Tag permits CollectionTag, CompoundTag, EndTag, NumberTag, StringTag {
 
 	int MAX_DEPTH = 512;
-	byte END = 0;
-	byte BYTE = 1;
-	byte SHORT = 2;
-	byte INT = 3;
-	byte LONG = 4;
-	byte FLOAT = 5;
-	byte DOUBLE = 6;
-	byte BYTE_ARRAY = 7;
-	byte STRING = 8;
-	byte LIST = 9;
-	byte COMPOUND = 10;
-	byte INT_ARRAY = 11;
-	byte LONG_ARRAY = 12;
-	byte NUMBER = 99;
+
+	enum TypeId {
+		END(0, false),
+		BYTE(1, true),
+		SHORT(2, true),
+		INT(3, true),
+		LONG(4, true),
+		FLOAT(5, true),
+		DOUBLE(6, true),
+		BYTE_ARRAY(7, false),
+		STRING(8, false),
+		LIST(9, false),
+		COMPOUND(10, false),
+		INT_ARRAY(11, false),
+		LONG_ARRAY(12, false);
+
+		public final byte id;
+		public final boolean isNumber;
+
+		TypeId(int id, boolean isNumber) {
+			this.id = (byte) id;
+			this.isNumber = isNumber;
+		}
+
+		public static TypeId valueOf(byte b) {
+			for (TypeId id : values()) {
+				if (id.id == b) {
+					return id;
+				}
+			}
+			throw new IllegalArgumentException("No tag type corresponds to byte "+b);
+		}
+
+	}
 
 	void write(DataOutput out) throws IOException;
 
 	String toString();
 
-	byte getID();
+	TypeId getID();
 
 	TagType<?> getType();
 

@@ -64,8 +64,8 @@ public non-sealed class DoubleTag extends NumberTag {
 	}
 
 	@Override
-	public byte getID() {
-		return DOUBLE;
+	public TypeId getID() {
+		return TypeId.DOUBLE;
 	}
 
 	@Override
