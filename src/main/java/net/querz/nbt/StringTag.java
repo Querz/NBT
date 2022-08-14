@@ -4,7 +4,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public class StringTag implements Tag {
+public non-sealed class StringTag implements Tag {
 
 	private final String value;
 

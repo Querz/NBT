@@ -5,7 +5,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Arrays;
 
-public class ByteArrayTag extends CollectionTag<ByteTag> {
+public non-sealed class ByteArrayTag extends CollectionTag<ByteTag> {
 
 	private byte[] value;
 

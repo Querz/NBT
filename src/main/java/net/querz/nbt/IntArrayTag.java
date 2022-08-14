@@ -5,7 +5,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Arrays;
 
-public class IntArrayTag extends CollectionTag<IntTag> {
+public non-sealed class IntArrayTag extends CollectionTag<IntTag> {
 
 	private int[] value;
 

@@ -5,7 +5,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Arrays;
 
-public class LongArrayTag extends CollectionTag<LongTag> {
+public non-sealed class LongArrayTag extends CollectionTag<LongTag> {
 
 	private long[] value;
 
