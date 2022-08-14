@@ -278,6 +278,10 @@ public class CompoundTag implements Tag, Iterable<Map.Entry<String, Tag>> {
 		return tag;
 	}
 
+	public boolean getBooleanOrDefault(String key, boolean b) {
+		return getByteOrDefault(key, (byte)(b ? 1 : 0)) != 0;
+	}
+
 	public NumberTag getNumberTag(String key) {
 		if (contains(key, NUMBER)) {
 			return (NumberTag) value.get(key);
