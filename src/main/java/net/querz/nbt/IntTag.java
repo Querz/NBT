@@ -72,11 +72,6 @@ public non-sealed class IntTag extends NumberTag {
 	}
 
 	@Override
-	public TagReader<?> getReader() {
-		return READER;
-	}
-
-	@Override
 	public IntTag copy() {
 		return this;
 	}

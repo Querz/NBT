@@ -69,11 +69,6 @@ public non-sealed class FloatTag extends NumberTag {
 	}
 
 	@Override
-	public TagReader<?> getReader() {
-		return READER;
-	}
-
-	@Override
 	public FloatTag copy() {
 		return this;
 	}

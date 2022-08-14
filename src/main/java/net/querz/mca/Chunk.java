@@ -43,7 +43,7 @@ public class Chunk {
 			tag = new NBTReader().withVisitor(tagTypeVisitorSupplier.get()).read(nbtInput);
 		}
 
-		if (tag == null || tag.getReader() != CompoundTag.READER) {
+		if (tag == null || tag.getID().reader != CompoundTag.READER) {
 			throw new IOException("chunk data root tag is not a CompoundTag");
 		}
 

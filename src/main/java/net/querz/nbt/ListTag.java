@@ -140,11 +140,6 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	}
 
 	@Override
-	public TagReader<?> getReader() {
-		return READER;
-	}
-
-	@Override
 	public ListTag copy() {
 		List<Tag> copy = new ArrayList<>(value.size());
 		value.forEach(t -> copy.add(t.copy()));
@@ -464,7 +459,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 			if (type == END.id && length > 0) {
 				throw new RuntimeException("missing type on ListTag");
 			} else {
-				TagReader<?> tagReader = TagReaders.get(type);
+				TagReader<?> tagReader = valueOf(type).reader;
 				List<Tag> list = new ArrayList<>(length);
 				for (int i = 0; i < length; i++) {
 					list.add(tagReader.read(in, depth + 1));
@@ -475,7 +470,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 
 		@Override
 		public TagTypeVisitor.ValueResult read(DataInput in, TagTypeVisitor visitor) throws IOException {
-			TagReader<?> reader = TagReaders.get(in.readByte());
+			TagReader<?> reader = valueOf(in.readByte()).reader;
 			int length = in.readInt();
 			switch (visitor.visitList(reader, length)) {
 				case RETURN -> {
@@ -526,7 +521,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 
 		@Override
 		public void skip(DataInput in) throws IOException {
-			TagReader<?> tagReader = TagReaders.get(in.readByte());
+			TagReader<?> tagReader = valueOf(in.readByte()).reader;
 			int length = in.readInt();
 			for (int i = 0; i < length; i++) {
 				tagReader.skip(in);

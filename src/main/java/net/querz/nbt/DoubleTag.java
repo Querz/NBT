@@ -69,11 +69,6 @@ public non-sealed class DoubleTag extends NumberTag {
 	}
 
 	@Override
-	public TagReader<?> getReader() {
-		return READER;
-	}
-
-	@Override
 	public DoubleTag copy() {
 		return this;
 	}

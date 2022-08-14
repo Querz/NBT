@@ -72,11 +72,6 @@ public non-sealed class LongTag extends NumberTag {
 	}
 
 	@Override
-	public TagReader<?> getReader() {
-		return READER;
-	}
-
-	@Override
 	public LongTag copy() {
 		return this;
 	}

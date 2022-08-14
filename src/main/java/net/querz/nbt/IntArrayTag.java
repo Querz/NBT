@@ -78,11 +78,6 @@ public non-sealed class IntArrayTag extends CollectionTag<IntTag> {
 	}
 
 	@Override
-	public TagReader<?> getReader() {
-		return READER;
-	}
-
-	@Override
 	public IntArrayTag copy() {
 		int[] copy = new int[value.length];
 		System.arraycopy(value, 0, copy, 0, value.length);

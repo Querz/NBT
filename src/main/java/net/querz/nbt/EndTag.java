@@ -19,11 +19,6 @@ public non-sealed class EndTag implements Tag {
 	}
 
 	@Override
-	public TagReader<?> getReader() {
-		return READER;
-	}
-
-	@Override
 	public EndTag copy() {
 		return this;
 	}

@@ -76,11 +76,6 @@ public non-sealed class ByteArrayTag extends CollectionTag<ByteTag> {
 	}
 
 	@Override
-	public TagReader<?> getReader() {
-		return READER;
-	}
-
-	@Override
 	public ByteArrayTag copy() {
 		byte[] copy = new byte[value.length];
 		System.arraycopy(value, 0, copy, 0, value.length);

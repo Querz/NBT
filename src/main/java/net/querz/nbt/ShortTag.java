@@ -72,11 +72,6 @@ public non-sealed class ShortTag extends NumberTag {
 	}
 
 	@Override
-	public TagReader<?> getReader() {
-		return READER;
-	}
-
-	@Override
 	public ShortTag copy() {
 		return this;
 	}

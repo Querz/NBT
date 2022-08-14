@@ -33,11 +33,6 @@ public non-sealed class StringTag implements Tag {
 	}
 
 	@Override
-	public TagReader<?> getReader() {
-		return READER;
-	}
-
-	@Override
 	public StringTag copy() {
 		return this;
 	}

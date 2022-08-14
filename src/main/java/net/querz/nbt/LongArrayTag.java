@@ -78,11 +78,6 @@ public non-sealed class LongArrayTag extends CollectionTag<LongTag> {
 	}
 
 	@Override
-	public TagReader<?> getReader() {
-		return READER;
-	}
-
-	@Override
 	public LongArrayTag copy() {
 		long[] copy = new long[value.length];
 		System.arraycopy(value, 0, copy, 0, value.length);

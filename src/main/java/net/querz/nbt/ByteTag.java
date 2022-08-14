@@ -79,11 +79,6 @@ public non-sealed class ByteTag extends NumberTag {
 	}
 
 	@Override
-	public TagReader<?> getReader() {
-		return READER;
-	}
-
-	@Override
 	public ByteTag copy() {
 		return this; // ByteTag is immutable
 	}

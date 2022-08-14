@@ -38,11 +38,6 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 	}
 
 	@Override
-	public TagReader<?> getReader() {
-		return READER;
-	}
-
-	@Override
 	public CompoundTag copy() {
 		Map<String, Tag> copy = new HashMap<>();
 		value.forEach((k, v) -> copy.put(k, v.copy()));
@@ -506,7 +501,7 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 			byte type;
 			while ((type = in.readByte()) != END.id) {
 				String key = in.readUTF();
-				TagReader<?> tagReader = TagReaders.get(type);
+				TagReader<?> tagReader = valueOf(type).reader;
 				Tag tag = tagReader.read(in, depth + 1);
 				map.put(key, tag);
 			}
@@ -518,7 +513,7 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 			for (;;) {
 				byte id;
 				if ((id = in.readByte()) != END.id) {
-					TagReader<?> reader = TagReaders.get(id);
+					TagReader<?> reader = valueOf(id).reader;
 					switch (visitor.visitEntry(reader)) {
 						case RETURN -> {
 							return TagTypeVisitor.ValueResult.RETURN;
@@ -559,7 +554,7 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 				if (id != END.id) {
 					while ((id = in.readByte()) != END.id) {
 						StringTag.skipUTF(in);
-						TagReaders.get(id).skip(in);
+						valueOf(id).reader.skip(in);
 					}
 				}
 
@@ -572,7 +567,7 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 			byte type;
 			while ((type = in.readByte()) != END.id) {
 				in.skipBytes(in.readUnsignedShort());
-				TagReaders.get(type).skip(in);
+				valueOf(type).reader.skip(in);
 			}
 		}
 	};
