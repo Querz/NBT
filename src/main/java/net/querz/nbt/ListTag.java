@@ -18,6 +18,12 @@ public class ListTag extends CollectionTag<Tag> {
 	}
 
 	public ListTag(List<Tag> list, byte type) {
+		for (int i = 0; i < list.size(); i++) {
+			if (list.get(i).getID() != type) {
+				throw new IllegalArgumentException("Incorrect tag type "+list.get(i).getID()+" at index "+i+" (expected "+type+")");
+			}
+		}
+
 		value = list;
 		this.type = type;
 	}
