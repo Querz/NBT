@@ -10,29 +10,33 @@ public sealed interface Tag permits CollectionTag, CompoundTag, EndTag, NumberTa
 	int MAX_DEPTH = 512;
 
 	enum Type {
-		END(0, EndTag.class, EndTag.READER),
-		BYTE(1, ByteTag.class, ByteTag.READER),
-		SHORT(2, ShortTag.class, ShortTag.READER),
-		INT(3, IntTag.class, IntTag.READER),
-		LONG(4, LongTag.class, LongTag.READER),
-		FLOAT(5, FloatTag.class, FloatTag.READER),
-		DOUBLE(6, DoubleTag.class, DoubleTag.READER),
-		BYTE_ARRAY(7, ByteArrayTag.class, ByteArrayTag.READER),
-		STRING(8, StringTag.class, StringTag.READER),
-		LIST(9, ListTag.class, ListTag.READER),
-		COMPOUND(10, CompoundTag.class, CompoundTag.READER),
-		INT_ARRAY(11, IntArrayTag.class, IntArrayTag.READER),
-		LONG_ARRAY(12, LongArrayTag.class, LongArrayTag.READER);
+		END(0, EndTag.class),
+		BYTE(1, ByteTag.class),
+		SHORT(2, ShortTag.class),
+		INT(3, IntTag.class),
+		LONG(4, LongTag.class),
+		FLOAT(5, FloatTag.class),
+		DOUBLE(6, DoubleTag.class),
+		BYTE_ARRAY(7, ByteArrayTag.class),
+		STRING(8, StringTag.class),
+		LIST(9, ListTag.class),
+		COMPOUND(10, CompoundTag.class),
+		INT_ARRAY(11, IntArrayTag.class),
+		LONG_ARRAY(12, LongArrayTag.class);
 
 		public final byte id;
 		public final Class<? extends Tag> tagClass;
 		public final TagReader<?> reader;
 		public final boolean isNumber;
 
-		Type(int id, Class<? extends Tag> tagClass, TagReader<?> reader) {
+		Type(int id, Class<? extends Tag> tagClass) {
 			this.id = (byte) id;
 			this.tagClass = tagClass;
-			this.reader = reader;
+			try {
+				this.reader = (TagReader<?>) tagClass.getDeclaredField("READER").get(null);
+			} catch (ReflectiveOperationException ex) {
+				throw new RuntimeException("Malformed tag class: could not find reader", ex);
+			}
 			this.isNumber = NumberTag.class.isAssignableFrom(tagClass);
 		}
 
