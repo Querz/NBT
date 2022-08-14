@@ -16,10 +16,14 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	private Type type;
 
 	public ListTag() {
-		this(new ArrayList<>(), END);
+		this(new ArrayList<>(), null);
 	}
 
 	public ListTag(List<Tag> list, Type type) {
+		if (type == END) {
+			throw new IllegalArgumentException("ListTag can not be of type END");
+		}
+
 		value = list;
 		this.type = type;
 	}
@@ -92,9 +96,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	}
 
 	private boolean updateType(Tag tag) {
-		if (tag.getType() == END) {
-			return false;
-		} else if (type == END) {
+		if (type == null && tag.getType() != END) {
 			type = tag.getType();
 			return true;
 		} else {
@@ -106,7 +108,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	public Tag remove(int index) {
 		Tag old = value.remove(index);
 		if (value.isEmpty()) {
-			type = END;
+			type = null;
 		}
 		return old;
 	}
@@ -127,7 +129,11 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 
 	@Override
 	public void write(DataOutput out) throws IOException {
-		out.writeByte(type.id);
+		if (type != null) {
+			out.writeByte(type.id);
+		} else {
+			out.writeByte(0);
+		}
 		out.writeInt(value.size());
 		for (Tag tag : value) {
 			tag.write(out);
@@ -168,7 +174,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	@Override
 	public void clear() {
 		value.clear();
-		type = END;
+		type = null;
 	}
 
 	public byte getByte(int index) {
@@ -464,7 +470,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 				for (int i = 0; i < length; i++) {
 					list.add(tagReader.read(in, depth + 1));
 				}
-				return new ListTag(list, Type.valueOf(type));
+				return new ListTag(list, type == 0 ? null : Type.valueOf(type));
 			}
 		}
 
