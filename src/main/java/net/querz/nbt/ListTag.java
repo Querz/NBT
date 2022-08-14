@@ -421,16 +421,20 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 		return def;
 	}
 
-	public <T extends Tag> List<T> iterateType(TagReader<T> reader) {
-		return new TypedListTag<>();
+	public <T extends Tag> List<T> iterateType(Class<T> tagClass) {
+		return new TypedListTag<>(tagClass);
 	}
 
 	private class TypedListTag<T extends Tag> extends AbstractList<T> {
+		private final Class<T> tagClass;
 
-		@SuppressWarnings("unchecked")
+		private TypedListTag(Class<T> tagClass) {
+			this.tagClass = tagClass;
+		}
+
 		@Override
 		public T get(int index) {
-			return (T) ListTag.this.value.get(index);
+			return tagClass.cast(ListTag.this.value.get(index));
 		}
 
 		@Override
@@ -438,10 +442,9 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 			return ListTag.this.value.size();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		public T set(int index, T element) {
-			return (T) ListTag.this.set(index, element);
+			return tagClass.cast(ListTag.this.set(index, element));
 		}
 
 		@Override
@@ -449,11 +452,11 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 			ListTag.this.add(index, element);
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		public T remove(int index) {
-			return (T) ListTag.this.remove(index);
+			return tagClass.cast(ListTag.this.remove(index));
 		}
+
 	}
 
 	public static final TagReader<ListTag> READER = new TagReader<>() {
