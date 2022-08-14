@@ -183,218 +183,170 @@ public class CompoundTag implements Tag, Iterable<Map.Entry<String, Tag>> {
 	}
 
 	public byte getByteOrDefault(String key, byte def) {
-		try {
-			if (contains(key, NUMBER)) {
-				return ((NumberTag) value.get(key)).asByte();
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, NUMBER)) {
+			return ((NumberTag) value.get(key)).asByte();
+		}
 		return def;
 	}
 
 	public short getShortOrDefault(String key, short def) {
-		try {
-			if (contains(key, NUMBER)) {
-				return ((NumberTag) value.get(key)).asShort();
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, NUMBER)) {
+			return ((NumberTag) value.get(key)).asShort();
+		}
 		return def;
 	}
 
 	public int getIntOrDefault(String key, int def) {
-		try {
-			if (contains(key, NUMBER)) {
-				return ((NumberTag) value.get(key)).asInt();
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, NUMBER)) {
+			return ((NumberTag) value.get(key)).asInt();
+		}
 		return def;
 	}
 
 	public long getLongOrDefault(String key, long def) {
-		try {
-			if (contains(key, NUMBER)) {
-				return ((NumberTag) value.get(key)).asLong();
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, NUMBER)) {
+			return ((NumberTag) value.get(key)).asLong();
+		}
 		return def;
 	}
 
 	public float getFloatOrDefault(String key, float def) {
-		try {
-			if (contains(key, NUMBER)) {
-				return ((NumberTag) value.get(key)).asFloat();
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, NUMBER)) {
+			return ((NumberTag) value.get(key)).asFloat();
+		}
 		return def;
 	}
 
 	public double getDoubleOrDefault(String key, double def) {
-		try {
-			if (contains(key, NUMBER)) {
-				return ((NumberTag) value.get(key)).asDouble();
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, NUMBER)) {
+			return ((NumberTag) value.get(key)).asDouble();
+		}
 		return def;
 	}
 
 	public String getStringOrDefault(String key, String def) {
-		try {
-			if (contains(key, STRING)) {
-				return ((StringTag) value.get(key)).getValue();
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, STRING)) {
+			return ((StringTag) value.get(key)).getValue();
+		}
 		return def;
 	}
 
 	public byte[] getByteArrayOrDefault(String key, byte[] def) {
-		try {
-			if (contains(key, BYTE_ARRAY)) {
-				return ((ByteArrayTag) value.get(key)).getValue();
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, BYTE_ARRAY)) {
+			return ((ByteArrayTag) value.get(key)).getValue();
+		}
 		return def;
 	}
 
 	public int[] getIntArrayOrDefault(String key, int[] def) {
-		try {
-			if (contains(key, INT_ARRAY)) {
-				return ((IntArrayTag) value.get(key)).getValue();
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, INT_ARRAY)) {
+			return ((IntArrayTag) value.get(key)).getValue();
+		}
 		return def;
 	}
 
 	public long[] getLongArrayOrDefault(String key, long[] def) {
-		try {
-			if (contains(key, LONG_ARRAY)) {
-				return ((LongArrayTag) value.get(key)).getValue();
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, LONG_ARRAY)) {
+			return ((LongArrayTag) value.get(key)).getValue();
+		}
 		return def;
 	}
 
 	public CompoundTag getCompoundOrDefault(String key, CompoundTag def) {
-		try {
-			if (contains(key, COMPOUND)) {
-				return (CompoundTag) value.get(key);
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, COMPOUND)) {
+			return (CompoundTag) value.get(key);
+		}
 		return def;
 	}
 
 	public ListTag getListOrDefault(String key, ListTag def) {
-		try {
-			if (contains(key, LIST)) {
-				return (ListTag) value.get(key);
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, LIST)) {
+			return (ListTag) value.get(key);
+		}
 		return def;
 	}
 
 	public ByteTag getByteTag(String key) {
-		try {
-			if (contains(key, BYTE)) {
-				return (ByteTag) value.get(key);
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, BYTE)) {
+			return (ByteTag) value.get(key);
+		}
 		return null;
 	}
 
 	public ShortTag getShortTag(String key) {
-		try {
-			if (contains(key, SHORT)) {
-				return (ShortTag) value.get(key);
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, SHORT)) {
+			return (ShortTag) value.get(key);
+		}
 		return null;
 	}
 
 	public IntTag getIntTag(String key) {
-		try {
-			if (contains(key, INT)) {
-				return (IntTag) value.get(key);
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, INT)) {
+			return (IntTag) value.get(key);
+		}
 		return null;
 	}
 
 	public LongTag getLongTag(String key) {
-		try {
-			if (contains(key, LONG)) {
-				return (LongTag) value.get(key);
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, LONG)) {
+			return (LongTag) value.get(key);
+		}
 		return null;
 	}
 
 	public FloatTag getFloatTag(String key) {
-		try {
-			if (contains(key, FLOAT)) {
-				return (FloatTag) value.get(key);
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, FLOAT)) {
+			return (FloatTag) value.get(key);
+		}
 		return null;
 	}
 
 	public DoubleTag getDoubleTag(String key) {
-		try {
-			if (contains(key, DOUBLE)) {
-				return (DoubleTag) value.get(key);
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, DOUBLE)) {
+			return (DoubleTag) value.get(key);
+		}
 		return null;
 	}
 
 	public StringTag getStringTag(String key) {
-		try {
-			if (contains(key, STRING)) {
-				return (StringTag) value.get(key);
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, STRING)) {
+			return (StringTag) value.get(key);
+		}
 		return null;
 	}
 
 	public ByteArrayTag getByteArrayTag(String key) {
-		try {
-			if (contains(key, BYTE_ARRAY)) {
-				return (ByteArrayTag) value.get(key);
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, BYTE_ARRAY)) {
+			return (ByteArrayTag) value.get(key);
+		}
 		return null;
 	}
 
 	public IntArrayTag getIntArrayTag(String key) {
-		try {
-			if (contains(key, INT_ARRAY)) {
-				return (IntArrayTag) value.get(key);
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, INT_ARRAY)) {
+			return (IntArrayTag) value.get(key);
+		}
 		return null;
 	}
 
 	public LongArrayTag getLongArrayTag(String key) {
-		try {
-			if (contains(key, LONG_ARRAY)) {
-				return (LongArrayTag) value.get(key);
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, LONG_ARRAY)) {
+			return (LongArrayTag) value.get(key);
+		}
 		return null;
 	}
 
 	public ListTag getListTag(String key) {
-		try {
-			if (contains(key, LIST)) {
-				return (ListTag) value.get(key);
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, LIST)) {
+			return (ListTag) value.get(key);
+		}
 		return null;
 	}
 
 	public CompoundTag getCompoundTag(String key) {
-		try {
-			if (contains(key, COMPOUND)) {
-				return (CompoundTag) value.get(key);
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, COMPOUND)) {
+			return (CompoundTag) value.get(key);
+		}
 		return null;
 	}
 
