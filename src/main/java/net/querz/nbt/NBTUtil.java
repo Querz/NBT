@@ -240,20 +240,20 @@ public final class NBTUtil {
 	// ---------------------------------------------
 
 	public static void parseStream(DataInput in, TagTypeVisitor visitor) throws IOException {
-		TagType<?> type = TagTypes.get(in.readByte());
-		if (type == EndTag.TYPE) {
-			if (visitor.visitRootEntry(EndTag.TYPE) == TagTypeVisitor.ValueResult.CONTINUE) {
+		TagReader<?> reader = TagReaders.get(in.readByte());
+		if (reader == EndTag.READER) {
+			if (visitor.visitRootEntry(EndTag.READER) == TagTypeVisitor.ValueResult.CONTINUE) {
 				visitor.visitEnd();
 			}
 		} else {
-			switch (visitor.visitRootEntry(type)) {
+			switch (visitor.visitRootEntry(reader)) {
 				case BREAK -> {
 					StringTag.skipUTF(in);
-					type.skip(in);
+					reader.skip(in);
 				}
 				case CONTINUE -> {
 					StringTag.skipUTF(in);
-					type.read(in, visitor);
+					reader.read(in, visitor);
 				}
 			}
 		}

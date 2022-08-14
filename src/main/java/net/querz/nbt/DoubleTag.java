@@ -69,8 +69,8 @@ public non-sealed class DoubleTag extends NumberTag {
 	}
 
 	@Override
-	public TagType<?> getType() {
-		return TYPE;
+	public TagReader<?> getReader() {
+		return READER;
 	}
 
 	@Override
@@ -98,7 +98,7 @@ public non-sealed class DoubleTag extends NumberTag {
 		return (int) (l ^ l >>> 32);
 	}
 
-	public static final TagType<DoubleTag> TYPE = new TagType<>() {
+	public static final TagReader<DoubleTag> READER = new TagReader<>() {
 
 		@Override
 		public DoubleTag read(DataInput in, int depth) throws IOException {

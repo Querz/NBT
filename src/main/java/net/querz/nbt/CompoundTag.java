@@ -38,8 +38,8 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 	}
 
 	@Override
-	public TagType<?> getType() {
-		return TYPE;
+	public TagReader<?> getReader() {
+		return READER;
 	}
 
 	@Override
@@ -495,7 +495,7 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 		return value.keySet();
 	}
 
-	public static final TagType<CompoundTag> TYPE = new TagType<>() {
+	public static final TagReader<CompoundTag> READER = new TagReader<>() {
 
 		@Override
 		public CompoundTag read(DataInput in, int depth) throws IOException {
@@ -506,8 +506,8 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 			byte type;
 			while ((type = in.readByte()) != END.id) {
 				String key = in.readUTF();
-				TagType<?> tagType = TagTypes.get(type);
-				Tag tag = tagType.read(in, depth + 1);
+				TagReader<?> tagReader = TagReaders.get(type);
+				Tag tag = tagReader.read(in, depth + 1);
 				map.put(key, tag);
 			}
 			return new CompoundTag(map);
@@ -518,33 +518,33 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 			for (;;) {
 				byte id;
 				if ((id = in.readByte()) != END.id) {
-					TagType<?> type = TagTypes.get(id);
-					switch (visitor.visitEntry(type)) {
+					TagReader<?> reader = TagReaders.get(id);
+					switch (visitor.visitEntry(reader)) {
 						case RETURN -> {
 							return TagTypeVisitor.ValueResult.RETURN;
 						}
 						case BREAK -> {
 							StringTag.skipUTF(in);
-							type.skip(in);
+							reader.skip(in);
 						}
 						case SKIP -> {
 							StringTag.skipUTF(in);
-							type.skip(in);
+							reader.skip(in);
 							continue;
 						}
 						default -> {
 							String name = in.readUTF();
-							switch (visitor.visitEntry(type, name)) {
+							switch (visitor.visitEntry(reader, name)) {
 								case RETURN -> {
 									return TagTypeVisitor.ValueResult.RETURN;
 								}
-								case BREAK -> type.skip(in);
+								case BREAK -> reader.skip(in);
 								case SKIP -> {
-									type.skip(in);
+									reader.skip(in);
 									continue;
 								}
 								case ENTER -> {
-									if (type.read(in, visitor) == TagTypeVisitor.ValueResult.RETURN) {
+									if (reader.read(in, visitor) == TagTypeVisitor.ValueResult.RETURN) {
 										return TagTypeVisitor.ValueResult.RETURN;
 									} else {
 										continue;
@@ -559,7 +559,7 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 				if (id != END.id) {
 					while ((id = in.readByte()) != END.id) {
 						StringTag.skipUTF(in);
-						TagTypes.get(id).skip(in);
+						TagReaders.get(id).skip(in);
 					}
 				}
 
@@ -572,7 +572,7 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 			byte type;
 			while ((type = in.readByte()) != END.id) {
 				in.skipBytes(in.readUnsignedShort());
-				TagTypes.get(type).skip(in);
+				TagReaders.get(type).skip(in);
 			}
 		}
 	};

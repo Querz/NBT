@@ -140,8 +140,8 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	}
 
 	@Override
-	public TagType<?> getType() {
-		return TYPE;
+	public TagReader<?> getReader() {
+		return READER;
 	}
 
 	@Override
@@ -420,7 +420,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 		return def;
 	}
 
-	public <T extends Tag> List<T> iterateType(TagType<T> type) {
+	public <T extends Tag> List<T> iterateType(TagReader<T> reader) {
 		return new TypedListTag<>();
 	}
 
@@ -455,7 +455,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 		}
 	}
 
-	public static final TagType<ListTag> TYPE = new TagType<>() {
+	public static final TagReader<ListTag> READER = new TagReader<>() {
 
 		@Override
 		public ListTag read(DataInput in, int depth) throws IOException {
@@ -464,10 +464,10 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 			if (type == END.id && length > 0) {
 				throw new RuntimeException("missing type on ListTag");
 			} else {
-				TagType<?> tagType = TagTypes.get(type);
+				TagReader<?> tagReader = TagReaders.get(type);
 				List<Tag> list = new ArrayList<>(length);
 				for (int i = 0; i < length; i++) {
-					list.add(tagType.read(in, depth + 1));
+					list.add(tagReader.read(in, depth + 1));
 				}
 				return new ListTag(list, TypeId.valueOf(type));
 			}
@@ -475,31 +475,31 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 
 		@Override
 		public TagTypeVisitor.ValueResult read(DataInput in, TagTypeVisitor visitor) throws IOException {
-			TagType<?> type = TagTypes.get(in.readByte());
+			TagReader<?> reader = TagReaders.get(in.readByte());
 			int length = in.readInt();
-			switch (visitor.visitList(type, length)) {
+			switch (visitor.visitList(reader, length)) {
 				case RETURN -> {
 					return TagTypeVisitor.ValueResult.RETURN;
 				}
 				case BREAK -> {
-					type.skip(in);
+					reader.skip(in);
 					return visitor.visitContainerEnd();
 				}
 				default -> {
 					int i = 0;
 					loop:
 					for (; i < length; i++) {
-						switch (visitor.visitElement(type, i)) {
+						switch (visitor.visitElement(reader, i)) {
 							case RETURN -> {
 								return TagTypeVisitor.ValueResult.RETURN;
 							}
 							case BREAK -> {
-								type.skip(in);
+								reader.skip(in);
 								break loop;
 							}
-							case SKIP -> type.skip(in);
+							case SKIP -> reader.skip(in);
 							case ENTER -> {
-								switch (type.read(in, visitor)) {
+								switch (reader.read(in, visitor)) {
 									case RETURN -> {
 										return TagTypeVisitor.ValueResult.RETURN;
 									}
@@ -526,10 +526,10 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 
 		@Override
 		public void skip(DataInput in) throws IOException {
-			TagType<?> tagType = TagTypes.get(in.readByte());
+			TagReader<?> tagReader = TagReaders.get(in.readByte());
 			int length = in.readInt();
 			for (int i = 0; i < length; i++) {
-				tagType.skip(in);
+				tagReader.skip(in);
 			}
 		}
 	};

@@ -15,7 +15,7 @@ public class TestBiomeParser118 extends NBTTestCase {
 	public void testHeightmapParser() throws IOException {
 		File file = getResourceFile(this, "r.0.0.mca");
 		MCAFile mcaFile = new MCAFile(file);
-		mcaFile.load(new TagSelector("Heightmaps", CompoundTag.TYPE), new TagSelector("DataVersion", IntTag.TYPE));
+		mcaFile.load(new TagSelector("Heightmaps", CompoundTag.READER), new TagSelector("DataVersion", IntTag.READER));
 
 		System.out.println(NBTUtil.toSNBT(mcaFile.getChunkAt(3, 0).getData(), "\t"));
 

@@ -76,8 +76,8 @@ public non-sealed class ByteArrayTag extends CollectionTag<ByteTag> {
 	}
 
 	@Override
-	public TagType<?> getType() {
-		return TYPE;
+	public TagReader<?> getReader() {
+		return READER;
 	}
 
 	@Override
@@ -118,7 +118,7 @@ public non-sealed class ByteArrayTag extends CollectionTag<ByteTag> {
 		this.value = value;
 	}
 
-	public static final TagType<ByteArrayTag> TYPE = new TagType<>() {
+	public static final TagReader<ByteArrayTag> READER = new TagReader<>() {
 
 		@Override
 		public ByteArrayTag read(DataInput in, int depth) throws IOException {

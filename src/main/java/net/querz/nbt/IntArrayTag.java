@@ -78,8 +78,8 @@ public non-sealed class IntArrayTag extends CollectionTag<IntTag> {
 	}
 
 	@Override
-	public TagType<?> getType() {
-		return TYPE;
+	public TagReader<?> getReader() {
+		return READER;
 	}
 
 	@Override
@@ -120,7 +120,7 @@ public non-sealed class IntArrayTag extends CollectionTag<IntTag> {
 		this.value = value;
 	}
 
-	public static final TagType<IntArrayTag> TYPE = new TagType<>() {
+	public static final TagReader<IntArrayTag> READER = new TagReader<>() {
 
 		@Override
 		public IntArrayTag read(DataInput in, int depth) throws IOException {

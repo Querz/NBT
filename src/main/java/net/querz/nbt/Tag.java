@@ -47,7 +47,7 @@ public sealed interface Tag permits CollectionTag, CompoundTag, EndTag, NumberTa
 
 	TypeId getID();
 
-	TagType<?> getType();
+	TagReader<?> getReader();
 
 	Tag copy();
 

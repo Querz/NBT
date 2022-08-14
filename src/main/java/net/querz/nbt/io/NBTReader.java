@@ -38,27 +38,27 @@ public final class NBTReader {
 		return this;
 	}
 
-	public NBTReader select(String name, TagType<?> type) {
+	public NBTReader select(String name, TagReader<?> reader) {
 		if (selectors == null) {
 			selectors = new ArrayList<>();
 		}
-		selectors.add(new TagSelector(name, type));
+		selectors.add(new TagSelector(name, reader));
 		return this;
 	}
 
-	public NBTReader select(String p1, String name, TagType<?> type) {
+	public NBTReader select(String p1, String name, TagReader<?> reader) {
 		if (selectors == null) {
 			selectors = new ArrayList<>();
 		}
-		selectors.add(new TagSelector(p1, name, type));
+		selectors.add(new TagSelector(p1, name, reader));
 		return this;
 	}
 
-	public NBTReader select(String p1, String p2, String name, TagType<?> type) {
+	public NBTReader select(String p1, String p2, String name, TagReader<?> reader) {
 		if (selectors == null) {
 			selectors = new ArrayList<>();
 		}
-		selectors.add(new TagSelector(p1, p2, name, type));
+		selectors.add(new TagSelector(p1, p2, name, reader));
 		return this;
 	}
 
@@ -105,9 +105,9 @@ public final class NBTReader {
 			if (visitor != null) {
 				return readWithVisitor(input, visitor);
 			}
-			TagType<?> type = TagTypes.get(input.readByte());
+			TagReader<?> reader = TagReaders.get(input.readByte());
 			String name = input.readUTF();
-			return new NamedTag(name, type.read(input, 0));
+			return new NamedTag(name, reader.read(input, 0));
 		} else {
 			SelectionStreamTagVisitor visitor = new SelectionStreamTagVisitor(selectors.toArray(new TagSelector[0]));
 			return readWithVisitor(input, visitor);
@@ -115,21 +115,21 @@ public final class NBTReader {
 	}
 
 	private NamedTag readWithVisitor(DataInput input, TagTypeVisitor visitor) throws IOException {
-		TagType<?> type = TagTypes.get(input.readByte());
+		TagReader<?> reader = TagReaders.get(input.readByte());
 		String name = "";
-		if (type == EndTag.TYPE) {
-			if (visitor.visitRootEntry(EndTag.TYPE) == TagTypeVisitor.ValueResult.CONTINUE) {
+		if (reader == EndTag.READER) {
+			if (visitor.visitRootEntry(EndTag.READER) == TagTypeVisitor.ValueResult.CONTINUE) {
 				visitor.visitEnd();
 			}
 		} else {
-			switch (visitor.visitRootEntry(type)) {
+			switch (visitor.visitRootEntry(reader)) {
 				case BREAK -> {
 					name = input.readUTF();
-					type.skip(input);
+					reader.skip(input);
 				}
 				case CONTINUE -> {
 					name = input.readUTF();
-					type.read(input, visitor);
+					reader.read(input, visitor);
 				}
 			}
 		}

@@ -72,8 +72,8 @@ public non-sealed class IntTag extends NumberTag {
 	}
 
 	@Override
-	public TagType<?> getType() {
-		return TYPE;
+	public TagReader<?> getReader() {
+		return READER;
 	}
 
 	@Override
@@ -100,7 +100,7 @@ public non-sealed class IntTag extends NumberTag {
 		return value;
 	}
 
-	public static final TagType<IntTag> TYPE = new TagType<>() {
+	public static final TagReader<IntTag> READER = new TagReader<>() {
 
 		@Override
 		public IntTag read(DataInput in, int depth) throws IOException {

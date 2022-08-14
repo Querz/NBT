@@ -24,17 +24,17 @@ public interface TagTypeVisitor {
 
 	ValueResult visit(long[] l);
 
-	ValueResult visitList(TagType<?> type, int length);
+	ValueResult visitList(TagReader<?> reader, int length);
 
-	EntryResult visitEntry(TagType<?> type);
+	EntryResult visitEntry(TagReader<?> reader);
 
-	EntryResult visitEntry(TagType<?> type, String name);
+	EntryResult visitEntry(TagReader<?> reader, String name);
 
-	EntryResult visitElement(TagType<?> type, int index);
+	EntryResult visitElement(TagReader<?> reader, int index);
 
 	ValueResult visitContainerEnd();
 
-	ValueResult visitRootEntry(TagType<?> type);
+	ValueResult visitRootEntry(TagReader<?> reader);
 
 	Tag getResult();
 

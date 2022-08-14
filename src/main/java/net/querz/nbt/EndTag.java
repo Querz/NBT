@@ -19,8 +19,8 @@ public non-sealed class EndTag implements Tag {
 	}
 
 	@Override
-	public TagType<?> getType() {
-		return TYPE;
+	public TagReader<?> getReader() {
+		return READER;
 	}
 
 	@Override
@@ -33,7 +33,7 @@ public non-sealed class EndTag implements Tag {
 		visitor.visit(this);
 	}
 
-	public static final TagType<EndTag> TYPE = new TagType<>() {
+	public static final TagReader<EndTag> READER = new TagReader<>() {
 
 		@Override
 		public EndTag read(DataInput in, int depth) throws IOException {
