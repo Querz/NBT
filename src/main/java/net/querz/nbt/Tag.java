@@ -2,6 +2,8 @@ package net.querz.nbt;
 
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public sealed interface Tag permits CollectionTag, CompoundTag, EndTag, NumberTag, StringTag {
 
@@ -34,22 +36,32 @@ public sealed interface Tag permits CollectionTag, CompoundTag, EndTag, NumberTa
 			this.isNumber = isNumber;
 		}
 
-		public static Type valueOf(byte b) {
+		// Using an array instead of a map saves us from boxing, assuming tag ids stay continuous
+		private static final Type[] idCache;
+		private static final Map<Class<? extends Tag>, Type> tagClassCache;
+
+		static {
+			idCache = new Type[values().length];
+			tagClassCache = new HashMap<>();
+
 			for (Type type : values()) {
-				if (type.id == b) {
-					return type;
-				}
+				idCache[type.id] = type;
+				tagClassCache.put(type.tagClass, type);
 			}
-			throw new IllegalArgumentException("No tag type corresponds to byte "+b);
+		}
+
+		public static Type valueOf(byte b) {
+			if (b < 0 || b >= idCache.length) {
+				throw new IllegalArgumentException("No tag type corresponds to byte "+b);
+			}
+			return idCache[b];
 		}
 
 		public static Type valueOf(Class<? extends Tag> clazz) {
-			for (Type type : values()) {
-				if (type.tagClass == clazz) {
-					return type;
-				}
+			if (!tagClassCache.containsKey(clazz)) {
+				throw new IllegalArgumentException("No tag type corresponds to class "+clazz.getName());
 			}
-			throw new IllegalArgumentException("No tag type corresponds to class "+clazz.getName());
+			return tagClassCache.get(clazz);
 		}
 
 	}
