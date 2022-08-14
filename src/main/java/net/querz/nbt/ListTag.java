@@ -174,52 +174,56 @@ public class ListTag extends CollectionTag<Tag> {
 		type = END;
 	}
 
+	private NumberTag getNumber(int index) {
+		return (NumberTag) value.get(index);
+	}
+
 	public byte getByte(int index) {
-		return getByteOrDefault(index, (byte) 0);
+		return getNumber(index).asByte();
 	}
 
 	public short getShort(int index) {
-		return getShortOrDefault(index, (short) 0);
+		return getNumber(index).asShort();
 	}
 
 	public int getInt(int index) {
-		return getIntOrDefault(index, 0);
+		return getNumber(index).asInt();
 	}
 
 	public long getLong(int index) {
-		return getLongOrDefault(index, 0);
+		return getNumber(index).asLong();
 	}
 
 	public float getFloat(int index) {
-		return getFloatOrDefault(index, 0);
+		return getNumber(index).asFloat();
 	}
 
 	public double getDouble(int index) {
-		return getDoubleOrDefault(index, 0);
+		return getNumber(index).asDouble();
 	}
 
 	public String getString(int index) {
-		return getStringOrDefault(index, "");
+		return ((StringTag) value.get(index)).getValue();
 	}
 
 	public byte[] getByteArray(int index) {
-		return getByteArrayOrDefault(index, new byte[0]);
+		return ((ByteArrayTag) value.get(index)).getValue();
 	}
 
 	public int[] getIntArray(int index) {
-		return getIntArrayOrDefault(index, new int[0]);
+		return ((IntArrayTag) value.get(index)).getValue();
 	}
 
 	public long[] getLongArray(int index) {
-		return getLongArrayOrDefault(index, new long[0]);
+		return ((LongArrayTag) value.get(index)).getValue();
 	}
 
 	public CompoundTag getCompound(int index) {
-		return getCompoundOrDefault(index, new CompoundTag());
+		return (CompoundTag) value.get(index);
 	}
 
 	public ListTag getList(int index) {
-		return getListOrDefault(index, new ListTag());
+		return (ListTag) value.get(index);
 	}
 
 	public boolean getBoolean(int index) {
