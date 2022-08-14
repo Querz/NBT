@@ -33,11 +33,6 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 	}
 
 	@Override
-	public Type getType() {
-		return COMPOUND;
-	}
-
-	@Override
 	public CompoundTag copy() {
 		Map<String, Tag> copy = new HashMap<>();
 		value.forEach((k, v) -> copy.put(k, v.copy()));

@@ -74,11 +74,6 @@ public non-sealed class ByteTag extends NumberTag {
 	}
 
 	@Override
-	public Type getType() {
-		return Type.BYTE;
-	}
-
-	@Override
 	public ByteTag copy() {
 		return this; // ByteTag is immutable
 	}

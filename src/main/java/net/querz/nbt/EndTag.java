@@ -14,11 +14,6 @@ public non-sealed class EndTag implements Tag {
 	public void write(DataOutput out) throws IOException {}
 
 	@Override
-	public Type getType() {
-		return Type.END;
-	}
-
-	@Override
 	public EndTag copy() {
 		return this;
 	}

@@ -28,11 +28,6 @@ public non-sealed class StringTag implements Tag {
 	}
 
 	@Override
-	public Type getType() {
-		return Type.STRING;
-	}
-
-	@Override
 	public StringTag copy() {
 		return this;
 	}

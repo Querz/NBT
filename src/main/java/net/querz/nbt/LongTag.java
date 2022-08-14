@@ -67,11 +67,6 @@ public non-sealed class LongTag extends NumberTag {
 	}
 
 	@Override
-	public Type getType() {
-		return Type.LONG;
-	}
-
-	@Override
 	public LongTag copy() {
 		return this;
 	}

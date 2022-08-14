@@ -141,11 +141,6 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	}
 
 	@Override
-	public Type getType() {
-		return LIST;
-	}
-
-	@Override
 	public ListTag copy() {
 		List<Tag> copy = new ArrayList<>(value.size());
 		value.forEach(t -> copy.add(t.copy()));

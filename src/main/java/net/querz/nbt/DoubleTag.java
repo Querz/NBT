@@ -64,11 +64,6 @@ public non-sealed class DoubleTag extends NumberTag {
 	}
 
 	@Override
-	public Type getType() {
-		return Type.DOUBLE;
-	}
-
-	@Override
 	public DoubleTag copy() {
 		return this;
 	}

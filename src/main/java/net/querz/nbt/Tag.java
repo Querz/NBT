@@ -43,13 +43,24 @@ public sealed interface Tag permits CollectionTag, CompoundTag, EndTag, NumberTa
 			throw new IllegalArgumentException("No tag type corresponds to byte "+b);
 		}
 
+		public static Type valueOf(Class<? extends Tag> clazz) {
+			for (Type type : values()) {
+				if (type.tagClass == clazz) {
+					return type;
+				}
+			}
+			throw new IllegalArgumentException("No tag type corresponds to class "+clazz.getName());
+		}
+
 	}
 
 	void write(DataOutput out) throws IOException;
 
 	String toString();
 
-	Type getType();
+	default Type getType() {
+		return Type.valueOf(getClass());
+	}
 
 	Tag copy();
 

@@ -64,11 +64,6 @@ public non-sealed class FloatTag extends NumberTag {
 	}
 
 	@Override
-	public Type getType() {
-		return Type.FLOAT;
-	}
-
-	@Override
 	public FloatTag copy() {
 		return this;
 	}
