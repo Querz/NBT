@@ -127,111 +127,51 @@ public class CompoundTag implements Tag, Iterable<Map.Entry<String, Tag>> {
 	}
 
 	public byte getByte(String key) {
-		try {
-			if (contains(key, NUMBER)) {
-				return ((NumberTag) value.get(key)).asByte();
-			}
-		} catch (ClassCastException ex) {}
-		return 0;
+		return getByteOrDefault(key, (byte) 0);
 	}
 
 	public short getShort(String key) {
-		try {
-			if (contains(key, NUMBER)) {
-				return ((NumberTag) value.get(key)).asShort();
-			}
-		} catch (ClassCastException ex) {}
-		return 0;
+		return getShortOrDefault(key, (short) 0);
 	}
 
 	public int getInt(String key) {
-		try {
-			if (contains(key, NUMBER)) {
-				return ((NumberTag) value.get(key)).asInt();
-			}
-		} catch (ClassCastException ex) {}
-		return 0;
+		return getIntOrDefault(key, 0);
 	}
 
 	public long getLong(String key) {
-		try {
-			if (contains(key, NUMBER)) {
-				return ((NumberTag) value.get(key)).asLong();
-			}
-		} catch (ClassCastException ex) {}
-		return 0;
+		return getLongOrDefault(key, 0);
 	}
 
 	public float getFloat(String key) {
-		try {
-			if (contains(key, NUMBER)) {
-				return ((NumberTag) value.get(key)).asFloat();
-			}
-		} catch (ClassCastException ex) {}
-		return 0.0f;
+		return getFloatOrDefault(key, 0);
 	}
 
 	public double getDouble(String key) {
-		try {
-			if (contains(key, NUMBER)) {
-				return ((NumberTag) value.get(key)).asDouble();
-			}
-		} catch (ClassCastException ex) {}
-		return 0.0;
+		return getDoubleOrDefault(key, 0);
 	}
 
 	public String getString(String key) {
-		try {
-			if (contains(key, STRING)) {
-				return ((StringTag) value.get(key)).getValue();
-			}
-		} catch (ClassCastException ex) {}
-		return "";
+		return getStringOrDefault(key, "");
 	}
 
 	public byte[] getByteArray(String key) {
-		try {
-			if (contains(key, BYTE_ARRAY)) {
-				return ((ByteArrayTag) value.get(key)).getValue();
-			}
-		} catch (ClassCastException ex) {}
-		return new byte[0];
+		return getByteArrayOrDefault(key, new byte[0]);
 	}
 
 	public int[] getIntArray(String key) {
-		try {
-			if (contains(key, INT_ARRAY)) {
-				return ((IntArrayTag) value.get(key)).getValue();
-			}
-		} catch (ClassCastException ex) {}
-		return new int[0];
+		return getIntArrayOrDefault(key, new int[0]);
 	}
 
 	public long[] getLongArray(String key) {
-		try {
-			if (contains(key, LONG_ARRAY)) {
-				return ((LongArrayTag) value.get(key)).getValue();
-			}
-		} catch (ClassCastException ex) {}
-		return new long[0];
+		return getLongArrayOrDefault(key, new long[0]);
 	}
 
 	public CompoundTag getCompound(String key) {
-		try {
-			if (contains(key, COMPOUND)) {
-				return (CompoundTag) value.get(key);
-			}
-		} catch (ClassCastException ex) {}
-		return new CompoundTag();
+		return getCompoundOrDefault(key, new CompoundTag());
 	}
 
 	public ListTag getList(String key) {
-		try {
-			if (contains(key, LIST)) {
-				return (ListTag) value.get(key);
-			}
-		} catch (ClassCastException ex) {}
-		return new ListTag();
+		return getListOrDefault(key, new ListTag());
 	}
 
 	public boolean getBoolean(String key) {

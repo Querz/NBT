@@ -175,123 +175,51 @@ public class ListTag extends CollectionTag<Tag> {
 	}
 
 	public byte getByte(int index) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag instanceof NumberTag) {
-				return ((NumberTag) tag).asByte();
-			}
-		}
-		return 0;
+		return getByteOrDefault(index, (byte) 0);
 	}
 
 	public short getShort(int index) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag instanceof NumberTag) {
-				return ((NumberTag) tag).asShort();
-			}
-		}
-		return 0;
+		return getShortOrDefault(index, (short) 0);
 	}
 
 	public int getInt(int index) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag instanceof NumberTag) {
-				return ((NumberTag) tag).asInt();
-			}
-		}
-		return 0;
+		return getIntOrDefault(index, 0);
 	}
 
 	public long getLong(int index) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag instanceof NumberTag) {
-				return ((NumberTag) tag).asLong();
-			}
-		}
-		return 0;
+		return getLongOrDefault(index, 0);
 	}
 
 	public float getFloat(int index) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag instanceof NumberTag) {
-				return ((NumberTag) tag).asFloat();
-			}
-		}
-		return 0.0f;
+		return getFloatOrDefault(index, 0);
 	}
 
 	public double getDouble(int index) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag instanceof NumberTag) {
-				return ((NumberTag) tag).asDouble();
-			}
-		}
-		return 0.0;
+		return getDoubleOrDefault(index, 0);
 	}
 
 	public String getString(int index) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag.getID() == STRING) {
-				return ((StringTag) tag).getValue();
-			}
-		}
-		return "";
+		return getStringOrDefault(index, "");
 	}
 
 	public byte[] getByteArray(int index) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag.getID() == BYTE_ARRAY) {
-				return ((ByteArrayTag) tag).getValue();
-			}
-		}
-		return new byte[0];
+		return getByteArrayOrDefault(index, new byte[0]);
 	}
 
 	public int[] getIntArray(int index) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag.getID() == INT_ARRAY) {
-				return ((IntArrayTag) tag).getValue();
-			}
-		}
-		return new int[0];
+		return getIntArrayOrDefault(index, new int[0]);
 	}
 
 	public long[] getLongArray(int index) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag.getID() == LONG_ARRAY) {
-				return ((LongArrayTag) tag).getValue();
-			}
-		}
-		return new long[0];
+		return getLongArrayOrDefault(index, new long[0]);
 	}
 
 	public CompoundTag getCompound(int index) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag.getID() == COMPOUND) {
-				return (CompoundTag) tag;
-			}
-		}
-		return new CompoundTag();
+		return getCompoundOrDefault(index, new CompoundTag());
 	}
 
 	public ListTag getList(int index) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag.getID() == LIST) {
-				return (ListTag) tag;
-			}
-		}
-		return new ListTag();
+		return getListOrDefault(index, new ListTag());
 	}
 
 	public boolean getBoolean(int index) {
