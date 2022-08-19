@@ -14,4 +14,9 @@ public sealed abstract class CollectionTag<T extends Tag> extends AbstractList<T
 
 	public abstract Type getElementType();
 
+	@SuppressWarnings("unchecked")
+	public T castElementType(Tag tag) {
+		return (T) getElementType().tagClass.cast(tag);
+	}
+
 }
