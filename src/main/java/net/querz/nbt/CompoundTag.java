@@ -5,7 +5,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.*;
 
-public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, Tag>> {
+public non-sealed class CompoundTag implements Tag, Map<String, Tag>, Iterable<Map.Entry<String, Tag>> {
 
 	private final Map<String, Tag> value;
 
@@ -66,16 +66,26 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 		return value.hashCode();
 	}
 
+	@Override
 	public int size() {
 		return value.size();
 	}
 
+	@Override
 	public void clear() {
 		value.clear();
 	}
 
+	@Override
 	public Tag put(String key, Tag tag) {
 		return value.put(key, tag);
+	}
+
+	@Override
+	public void putAll(Map<? extends String, ? extends Tag> m) {
+		for (Map.Entry<? extends String, ? extends Tag> entry : m.entrySet()) {
+			put(entry.getKey(), entry.getValue());
+		}
 	}
 
 	public void putByte(String key, byte b) {
@@ -124,6 +134,12 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 
 	public Tag get(String key) {
 		return value.get(key);
+	}
+
+	@Deprecated
+	@Override
+	public Tag get(Object key) {
+		return get((String) key);
 	}
 
 	public byte getByte(String key) {
@@ -474,14 +490,33 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 		return value.containsKey(key);
 	}
 
+	@Deprecated
+	@Override
+	public boolean containsKey(Object key) {
+		return containsKey((String) key);
+	}
+
 	public boolean containsValue(Tag value) {
 		return this.value.containsValue(value);
+	}
+
+	@Deprecated
+	@Override
+	public boolean containsValue(Object value) {
+		return containsValue((Tag) value);
 	}
 
 	public Tag remove(String key) {
 		return value.remove(key);
 	}
 
+	@Deprecated
+	@Override
+	public Tag remove(Object key) {
+		return remove((String) key);
+	}
+
+	@Override
 	public boolean isEmpty() {
 		return value.isEmpty();
 	}
@@ -491,8 +526,19 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 		return value.entrySet().iterator();
 	}
 
+	@Override
 	public Set<String> keySet() {
 		return value.keySet();
+	}
+
+	@Override
+	public Collection<Tag> values() {
+		return value.values();
+	}
+
+	@Override
+	public Set<Entry<String, Tag>> entrySet() {
+		return value.entrySet();
 	}
 
 	public static final TagType<CompoundTag> TYPE = new TagType<>() {
