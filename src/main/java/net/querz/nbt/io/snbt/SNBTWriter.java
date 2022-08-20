@@ -18,7 +18,7 @@ public final class SNBTWriter {
 	}
 
 	public void write(File file, Tag tag) throws IOException {
-		new SNBTTagVisitorWriter(new PrintWriter(new FileOutputStream(file)), indent).visit(tag);
+		write(new FileOutputStream(file), tag);
 	}
 
 	public String toString(Tag tag) {
