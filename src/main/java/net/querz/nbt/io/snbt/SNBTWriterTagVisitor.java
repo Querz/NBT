@@ -183,7 +183,4 @@ public class SNBTWriterTagVisitor implements TagVisitor {
 	@Override
 	public void visit(EndTag t) {}
 
-	public void visit(Tag tag) {
-		tag.accept(this);
-	}
 }
