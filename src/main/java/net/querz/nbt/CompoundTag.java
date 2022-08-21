@@ -77,6 +77,9 @@ public class CompoundTag implements Tag, Iterable<Map.Entry<String, Tag>> {
 	public Tag put(String key, Tag tag) {
 		Objects.requireNonNull(key);
 		Objects.requireNonNull(tag);
+		if (tag.getID() == END) {
+			throw new IllegalArgumentException("Can't insert end tag into CompoundTag");
+		}
 		return value.put(key, tag);
 	}
 
