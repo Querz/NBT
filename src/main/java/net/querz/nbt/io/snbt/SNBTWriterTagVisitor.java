@@ -130,7 +130,7 @@ public class SNBTWriterTagVisitor implements TagVisitor {
 		}
 
 		writer.write(open);
-		writeNewline();
+		writeSpacing();
 
 		while (iterator.hasNext()) {
 			T el = iterator.next();
@@ -140,18 +140,20 @@ public class SNBTWriterTagVisitor implements TagVisitor {
 			new SNBTWriterTagVisitor(writer, indent, depth + 1).visit(tag);
 
 			if (iterator.hasNext()) {
-				writer.write(", ");
+				writer.write(',');
 			}
-			writeNewline();
+			writeSpacing();
 		}
 
 		writeIndent(depth);
 		writer.write(close);
 	}
 
-	private void writeNewline() throws IOException {
+	private void writeSpacing() throws IOException {
 		if (!indent.isEmpty()) {
 			writer.write('\n');
+		} else {
+			writer.write(' ');
 		}
 	}
 
