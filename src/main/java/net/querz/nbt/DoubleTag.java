@@ -98,6 +98,11 @@ public class DoubleTag extends NumberTag {
 		return (int) (l ^ l >>> 32);
 	}
 
+	@Override
+	public String toString() {
+		return value + "d";
+	}
+
 	public static final TagType<DoubleTag> TYPE = new TagType<>() {
 
 		@Override

@@ -29,34 +29,40 @@ public class SNBTWriterTagVisitor implements TagVisitor {
 		this.depth = depth;
 	}
 
+	// region primitives
+	
 	@Override
 	public void visit(ByteTag t) throws IOException {
-		writer.write(t.asNumber() + "b");
+		writeNumber(t);
 	}
 
 	@Override
 	public void visit(ShortTag t) throws IOException {
-		writer.write(t.asNumber() + "s");
+		writeNumber(t);
 	}
 
 	@Override
 	public void visit(IntTag t) throws IOException {
-		writer.write(String.valueOf(t.asNumber()));
+		writeNumber(t);
 	}
 
 	@Override
 	public void visit(LongTag t) throws IOException {
-		writer.write(t.asNumber() + "L");
+		writeNumber(t);
 	}
 
 	@Override
 	public void visit(FloatTag t) throws IOException {
-		writer.write(t.asNumber() + "f");
+		writeNumber(t);
 	}
 
 	@Override
 	public void visit(DoubleTag t) throws IOException {
-		writer.write(t.asNumber() + "d");
+		writeNumber(t);
+	}
+
+	private void writeNumber(NumberTag t) throws IOException {
+		writer.write(t.toString());
 	}
 
 	@Override
@@ -64,104 +70,108 @@ public class SNBTWriterTagVisitor implements TagVisitor {
 		writer.write(StringTag.escapeString(t.getValue()));
 	}
 
+	// endregion
+
+	// region arrays
+	
 	@Override
 	public void visit(ByteArrayTag t) throws IOException {
-		writer.write("[B;");
-		for (int i = 0; i < t.size(); i++) {
-			writer.write(" ");
-			writer.write(String.valueOf(t.getValue()[i]));
-			writer.write("B");
-			if (i < t.size() - 1) {
-				writer.write(",");
-			}
-		}
-		writer.write("]");
+		writeArray(t, "B");
 	}
 
 	@Override
 	public void visit(IntArrayTag t) throws IOException {
-		writer.write("[I;");
-		for (int i = 0; i < t.size(); i++) {
-			writer.write(" ");
-			writer.write(String.valueOf(t.getValue()[i]));
-			if (i < t.size() - 1) {
-				writer.write(",");
-			}
-		}
-		writer.write("]");
+		writeArray(t, "I");
 	}
 
 	@Override
 	public void visit(LongArrayTag t) throws IOException {
-		writer.write("[L;");
+		writeArray(t, "L");
+	}
+
+	private void writeArray(CollectionTag<? extends NumberTag> t, String prefix) throws IOException {
+		writer.write("["+prefix+";");
 		for (int i = 0; i < t.size(); i++) {
 			writer.write(" ");
-			writer.write(String.valueOf(t.getValue()[i]));
-			writer.write("L");
+			writeNumber(t.get(i));
 			if (i < t.size() - 1) {
 				writer.write(",");
 			}
 		}
 		writer.write("]");
 	}
+	
+	// endregion
+
+	// region hierarchies
 
 	@Override
 	public void visit(ListTag t) throws IOException {
 		if (t.isEmpty()) {
 			writer.write("[]");
-		} else {
-			writer.write("[");
-			if (!indent.isEmpty()) {
-				writer.write('\n');
-			}
-			for (int i = 0; i < t.size(); i++) {
-				Tag tag = t.get(i);
-				writer.write(indent.repeat(depth + 1));
-				new SNBTWriterTagVisitor(writer, indent, depth + 1).visit(tag);
-				if (i < t.size() - 1) {
-					writer.write(", ");
-				}
-				if (!indent.isEmpty()) {
-					writer.write('\n');
-				}
-			}
-			if (!indent.isEmpty()) {
-				writer.write(indent.repeat(depth));
-			}
-			writer.write(']');
+			return;
 		}
+
+		writer.write("[");
+		writeNewline();
+
+		for (int i = 0; i < t.size(); i++) {
+			writeIndent(depth + 1);
+			new SNBTWriterTagVisitor(writer, indent, depth + 1).visit(t.get(i));
+
+			if (i < t.size() - 1) {
+				writer.write(", ");
+			}
+			writeNewline();
+		}
+
+		writeIndent(depth);
+		writer.write(']');
 	}
 
 	@Override
 	public void visit(CompoundTag t) throws IOException {
 		if (t.isEmpty()) {
 			writer.write("{}");
-		} else {
-			writer.write("{");
-			if (!indent.isEmpty()) {
-				writer.write('\n');
+			return;
+		}
+
+		writer.write("{");
+		writeNewline();
+
+		Iterator<Map.Entry<String, Tag>> iterator = t.iterator();
+		while (iterator.hasNext()) {
+			Map.Entry<String, Tag> entry = iterator.next();
+			String key = entry.getKey();
+			Tag tag = t.get(entry.getKey());
+			String escapedKey = NO_ESCAPE.matcher(key).matches() ? key : StringTag.escapeString(key);
+
+			writeIndent(depth + 1);
+			writer.write(escapedKey);
+			writer.write(": ");
+			new SNBTWriterTagVisitor(writer, indent, depth + 1).visit(tag);
+
+			if (iterator.hasNext()) {
+				writer.write(", ");
 			}
-			Iterator<Map.Entry<String, Tag>> iterator = t.iterator();
-			while (iterator.hasNext()) {
-				Map.Entry<String, Tag> entry = iterator.next();
-				String key = entry.getKey();
-				Tag tag = t.get(entry.getKey());
-				String escapedKey = NO_ESCAPE.matcher(key).matches() ? key : StringTag.escapeString(key);
-				writer.write(indent.repeat(depth + 1));
-				writer.write(escapedKey);
-				writer.write(": ");
-				new SNBTWriterTagVisitor(writer, indent, depth + 1).visit(tag);
-				if (iterator.hasNext()) {
-					writer.write(", ");
-				}
-				if (!indent.isEmpty()) {
-					writer.write("\n");
-				}
-			}
-			writer.write(indent.repeat(depth));
-			writer.write("}");
+			writeNewline();
+		}
+
+		writeIndent(depth);
+		writer.write("}");
+	}
+
+	private void writeNewline() throws IOException {
+		if (!indent.isEmpty()) {
+			writer.write('\n');
 		}
 	}
+
+	private void writeIndent(int depth) throws IOException {
+		writer.write(indent.repeat(depth));
+	}
+
+	// endregion
 
 	@Override
 	public void visit(EndTag t) throws IOException {}

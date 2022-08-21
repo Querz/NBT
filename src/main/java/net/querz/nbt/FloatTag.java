@@ -97,6 +97,11 @@ public class FloatTag extends NumberTag {
 		return Float.floatToIntBits(value);
 	}
 
+	@Override
+	public String toString() {
+		return value + "f";
+	}
+
 	public static final TagType<FloatTag> TYPE = new TagType<>() {
 
 		@Override

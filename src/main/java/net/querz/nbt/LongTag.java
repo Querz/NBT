@@ -100,6 +100,11 @@ public class LongTag extends NumberTag {
 		return (int) (value ^ value >>> 32);
 	}
 
+	@Override
+	public String toString() {
+		return value + "L";
+	}
+
 	public static final TagType<LongTag> TYPE = new TagType<>() {
 
 		@Override

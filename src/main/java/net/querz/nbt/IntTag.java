@@ -100,6 +100,11 @@ public class IntTag extends NumberTag {
 		return value;
 	}
 
+	@Override
+	public String toString() {
+		return String.valueOf(value);
+	}
+
 	public static final TagType<IntTag> TYPE = new TagType<>() {
 
 		@Override

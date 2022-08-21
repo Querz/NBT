@@ -103,6 +103,11 @@ public class ByteTag extends NumberTag {
 		return value;
 	}
 
+	@Override
+	public String toString() {
+		return value + "b";
+	}
+
 	public static final TagType<ByteTag> TYPE = new TagType<>() {
 
 		@Override

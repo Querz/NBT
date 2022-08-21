@@ -100,6 +100,11 @@ public class ShortTag extends NumberTag {
 		return value;
 	}
 
+	@Override
+	public String toString() {
+		return value + "s";
+	}
+
 	public static final TagType<ShortTag> TYPE = new TagType<>() {
 
 		@Override

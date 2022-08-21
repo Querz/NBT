@@ -15,4 +15,7 @@ public abstract class NumberTag implements Tag {
 	public abstract double asDouble();
 
 	public abstract Number asNumber();
+
+	public abstract String toString();
+
 }
