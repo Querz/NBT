@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-public class SNBTTagVisitorWriter implements TagVisitor {
+public class SNBTWriterTagVisitor implements TagVisitor {
 
 	private static final Pattern NO_ESCAPE = Pattern.compile("[a-zA-Z0-9._+-]+");
 
@@ -15,15 +15,15 @@ public class SNBTTagVisitorWriter implements TagVisitor {
 	private final int depth;
 	private final Writer writer;
 
-	public SNBTTagVisitorWriter(Writer writer) {
+	public SNBTWriterTagVisitor(Writer writer) {
 		this(writer, "", 0);
 	}
 
-	public SNBTTagVisitorWriter(Writer writer, String indent) {
+	public SNBTWriterTagVisitor(Writer writer, String indent) {
 		this(writer, indent, 0);
 	}
 
-	private SNBTTagVisitorWriter(Writer writer, String indent, int depth) {
+	private SNBTWriterTagVisitor(Writer writer, String indent, int depth) {
 		this.writer = writer;
 		this.indent = indent;
 		this.depth = depth;
@@ -117,7 +117,7 @@ public class SNBTTagVisitorWriter implements TagVisitor {
 			for (int i = 0; i < t.size(); i++) {
 				Tag tag = t.get(i);
 				writer.write(indent.repeat(depth + 1));
-				new SNBTTagVisitorWriter(writer, indent, depth + 1).visit(tag);
+				new SNBTWriterTagVisitor(writer, indent, depth + 1).visit(tag);
 				if (i < t.size() - 1) {
 					writer.write(", ");
 				}
@@ -150,7 +150,7 @@ public class SNBTTagVisitorWriter implements TagVisitor {
 				writer.write(indent.repeat(depth + 1));
 				writer.write(escapedKey);
 				writer.write(": ");
-				new SNBTTagVisitorWriter(writer, indent, depth + 1).visit(tag);
+				new SNBTWriterTagVisitor(writer, indent, depth + 1).visit(tag);
 				if (iterator.hasNext()) {
 					writer.write(", ");
 				}
