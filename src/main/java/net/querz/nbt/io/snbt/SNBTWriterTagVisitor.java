@@ -1,10 +1,10 @@
 package net.querz.nbt.io.snbt;
 
+import net.querz.io.util.ThrowingFunction;
 import net.querz.nbt.*;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 public class SNBTWriterTagVisitor implements TagVisitor {
@@ -107,48 +107,36 @@ public class SNBTWriterTagVisitor implements TagVisitor {
 
 	@Override
 	public void visit(ListTag t) throws IOException {
-		if (t.isEmpty()) {
-			writer.write("[]");
-			return;
-		}
-
-		writer.write("[");
-		writeNewline();
-
-		for (int i = 0; i < t.size(); i++) {
-			writeIndent(depth + 1);
-			new SNBTWriterTagVisitor(writer, indent, depth + 1).visit(t.get(i));
-
-			if (i < t.size() - 1) {
-				writer.write(", ");
-			}
-			writeNewline();
-		}
-
-		writeIndent(depth);
-		writer.write(']');
+		writeHierarchy(t, "[", "]", ThrowingFunction.identity());
 	}
 
 	@Override
 	public void visit(CompoundTag t) throws IOException {
-		if (t.isEmpty()) {
-			writer.write("{}");
+		writeHierarchy(t, "{", "}", entry -> {
+			String key = entry.getKey();
+			String escapedKey = NO_ESCAPE.matcher(key).matches() ? key : StringTag.escapeString(key);
+			writer.write(escapedKey);
+			writer.write(": ");
+			return entry.getValue();
+		});
+	}
+
+	private <T> void writeHierarchy(Iterable<T> hierarchy, String open, String close, ThrowingFunction<T, Tag, IOException> elementHandler) throws IOException {
+		Iterator<T> iterator = hierarchy.iterator();
+
+		if (!iterator.hasNext()) {
+			writer.write(open + close);
 			return;
 		}
 
-		writer.write("{");
+		writer.write(open);
 		writeNewline();
 
-		Iterator<Map.Entry<String, Tag>> iterator = t.iterator();
 		while (iterator.hasNext()) {
-			Map.Entry<String, Tag> entry = iterator.next();
-			String key = entry.getKey();
-			Tag tag = t.get(entry.getKey());
-			String escapedKey = NO_ESCAPE.matcher(key).matches() ? key : StringTag.escapeString(key);
+			T el = iterator.next();
 
 			writeIndent(depth + 1);
-			writer.write(escapedKey);
-			writer.write(": ");
+			Tag tag = elementHandler.apply(el);
 			new SNBTWriterTagVisitor(writer, indent, depth + 1).visit(tag);
 
 			if (iterator.hasNext()) {
@@ -158,7 +146,7 @@ public class SNBTWriterTagVisitor implements TagVisitor {
 		}
 
 		writeIndent(depth);
-		writer.write("}");
+		writer.write(close);
 	}
 
 	private void writeNewline() throws IOException {
