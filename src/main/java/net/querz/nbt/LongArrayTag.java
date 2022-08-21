@@ -90,7 +90,7 @@ public class LongArrayTag extends CollectionTag<LongTag> {
 	}
 
 	@Override
-	public void accept(TagVisitor visitor) throws Exception {
+	public void accept(TagVisitor visitor) {
 		visitor.visit(this);
 	}
 

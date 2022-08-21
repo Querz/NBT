@@ -82,7 +82,7 @@ public class IntTag extends NumberTag {
 	}
 
 	@Override
-	public void accept(TagVisitor visitor) throws Exception {
+	public void accept(TagVisitor visitor) {
 		visitor.visit(this);
 	}
 

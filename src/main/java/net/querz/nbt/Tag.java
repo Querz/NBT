@@ -31,5 +31,5 @@ public interface Tag {
 
 	Tag copy();
 
-	void accept(TagVisitor visitor) throws Exception;
+	void accept(TagVisitor visitor);
 }

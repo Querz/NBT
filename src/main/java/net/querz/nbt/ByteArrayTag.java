@@ -88,7 +88,7 @@ public class ByteArrayTag extends CollectionTag<ByteTag> {
 	}
 
 	@Override
-	public void accept(TagVisitor visitor) throws Exception {
+	public void accept(TagVisitor visitor) {
 		visitor.visit(this);
 	}
 

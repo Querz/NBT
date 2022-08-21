@@ -3,6 +3,7 @@ package net.querz.nbt.io.snbt;
 import net.querz.io.util.ThrowingFunction;
 import net.querz.nbt.*;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.util.Iterator;
 import java.util.regex.Pattern;
@@ -32,42 +33,50 @@ public class SNBTWriterTagVisitor implements TagVisitor {
 	// region primitives
 	
 	@Override
-	public void visit(ByteTag t) throws IOException {
+	public void visit(ByteTag t) {
 		writeNumber(t);
 	}
 
 	@Override
-	public void visit(ShortTag t) throws IOException {
+	public void visit(ShortTag t) {
 		writeNumber(t);
 	}
 
 	@Override
-	public void visit(IntTag t) throws IOException {
+	public void visit(IntTag t) {
 		writeNumber(t);
 	}
 
 	@Override
-	public void visit(LongTag t) throws IOException {
+	public void visit(LongTag t) {
 		writeNumber(t);
 	}
 
 	@Override
-	public void visit(FloatTag t) throws IOException {
+	public void visit(FloatTag t) {
 		writeNumber(t);
 	}
 
 	@Override
-	public void visit(DoubleTag t) throws IOException {
+	public void visit(DoubleTag t) {
 		writeNumber(t);
 	}
 
-	private void writeNumber(NumberTag t) throws IOException {
-		writer.write(t.toString());
+	private void writeNumber(NumberTag t) {
+		try {
+			writer.write(t.toString());
+		} catch (IOException ex) {
+			throw new UncheckedIOException(ex);
+		}
 	}
 
 	@Override
-	public void visit(StringTag t) throws IOException {
-		writer.write(StringTag.escapeString(t.getValue()));
+	public void visit(StringTag t) {
+		try {
+			writer.write(StringTag.escapeString(t.getValue()));
+		} catch (IOException ex) {
+			throw new UncheckedIOException(ex);
+		}
 	}
 
 	// endregion
@@ -75,30 +84,34 @@ public class SNBTWriterTagVisitor implements TagVisitor {
 	// region arrays
 	
 	@Override
-	public void visit(ByteArrayTag t) throws IOException {
+	public void visit(ByteArrayTag t) {
 		writeArray(t, "B");
 	}
 
 	@Override
-	public void visit(IntArrayTag t) throws IOException {
+	public void visit(IntArrayTag t) {
 		writeArray(t, "I");
 	}
 
 	@Override
-	public void visit(LongArrayTag t) throws IOException {
+	public void visit(LongArrayTag t) {
 		writeArray(t, "L");
 	}
 
-	private void writeArray(CollectionTag<? extends NumberTag> t, String prefix) throws IOException {
-		writer.write("["+prefix+";");
-		for (int i = 0; i < t.size(); i++) {
-			writer.write(" ");
-			writeNumber(t.get(i));
-			if (i < t.size() - 1) {
-				writer.write(",");
+	private void writeArray(CollectionTag<? extends NumberTag> t, String prefix) {
+		try {
+			writer.write("["+prefix+";");
+			for (int i = 0; i < t.size(); i++) {
+				writer.write(" ");
+				writeNumber(t.get(i));
+				if (i < t.size() - 1) {
+					writer.write(",");
+				}
 			}
+			writer.write("]");
+		} catch (IOException ex) {
+			throw new UncheckedIOException(ex);
 		}
-		writer.write("]");
 	}
 	
 	// endregion
@@ -106,12 +119,12 @@ public class SNBTWriterTagVisitor implements TagVisitor {
 	// region hierarchies
 
 	@Override
-	public void visit(ListTag t) throws IOException {
+	public void visit(ListTag t) {
 		writeHierarchy(t, "[", "]", ThrowingFunction.identity());
 	}
 
 	@Override
-	public void visit(CompoundTag t) throws IOException {
+	public void visit(CompoundTag t) {
 		writeHierarchy(t, "{", "}", entry -> {
 			String key = entry.getKey();
 			String escapedKey = NO_ESCAPE.matcher(key).matches() ? key : StringTag.escapeString(key);
@@ -121,32 +134,36 @@ public class SNBTWriterTagVisitor implements TagVisitor {
 		});
 	}
 
-	private <T> void writeHierarchy(Iterable<T> hierarchy, String open, String close, ThrowingFunction<T, Tag, IOException> elementHandler) throws IOException {
-		Iterator<T> iterator = hierarchy.iterator();
+	private <T> void writeHierarchy(Iterable<T> hierarchy, String open, String close, ThrowingFunction<T, Tag, IOException> elementHandler) {
+		try {
+			Iterator<T> iterator = hierarchy.iterator();
 
-		if (!iterator.hasNext()) {
-			writer.write(open + close);
-			return;
-		}
-
-		writer.write(open);
-		writeSpacing();
-
-		while (iterator.hasNext()) {
-			T el = iterator.next();
-
-			writeIndent(depth + 1);
-			Tag tag = elementHandler.apply(el);
-			new SNBTWriterTagVisitor(writer, indent, depth + 1).visit(tag);
-
-			if (iterator.hasNext()) {
-				writer.write(',');
+			if (!iterator.hasNext()) {
+				writer.write(open + close);
+				return;
 			}
-			writeSpacing();
-		}
 
-		writeIndent(depth);
-		writer.write(close);
+			writer.write(open);
+			writeSpacing();
+
+			while (iterator.hasNext()) {
+				T el = iterator.next();
+
+				writeIndent(depth + 1);
+				Tag tag = elementHandler.apply(el);
+				tag.accept(new SNBTWriterTagVisitor(writer, indent, depth + 1));
+
+				if (iterator.hasNext()) {
+					writer.write(',');
+				}
+				writeSpacing();
+			}
+
+			writeIndent(depth);
+			writer.write(close);
+		} catch (IOException ex) {
+			throw new UncheckedIOException(ex);
+		}
 	}
 
 	private void writeSpacing() throws IOException {
@@ -164,13 +181,9 @@ public class SNBTWriterTagVisitor implements TagVisitor {
 	// endregion
 
 	@Override
-	public void visit(EndTag t) throws IOException {}
+	public void visit(EndTag t) {}
 
-	public void visit(Tag tag) throws IOException {
-		try {
-			tag.accept(this);
-		} catch (Exception ex) {
-			throw new IOException(ex);
-		}
+	public void visit(Tag tag) {
+		tag.accept(this);
 	}
 }
