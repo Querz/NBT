@@ -25,10 +25,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 
 	public ListTag(List<Tag> list, Type type) {
 		Objects.requireNonNull(list);
-
-		if (type == END) {
-			throw new IllegalArgumentException("ListTag can not be of type END");
-		}
+		assimilateType(type);
 
 		for (int i = 0; i < list.size(); i++) {
 			Objects.requireNonNull(list.get(i));
@@ -39,7 +36,16 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 		}
 
 		value = list;
-		this.type = type;
+	}
+
+	private void assimilateType(Type type) {
+		if (type == END) {
+			throw new IllegalArgumentException("ListTag can not contain tags of type END");
+		} else if (this.type == null) {
+			this.type = type;
+		} else if (this.type != type) {
+			throw new UnsupportedOperationException(String.format("incompatible tag type, ListTag is of type %s, got %s", this.type, type));
+		}
 	}
 
 	@Override
@@ -50,11 +56,9 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	@Override
 	public Tag set(int index, Tag tag) {
 		Objects.requireNonNull(tag);
+		assimilateType(tag.getType());
 
 		Tag old = value.get(index);
-		if (!updateType(tag)) {
-			throw new UnsupportedOperationException(String.format("trying to set tag of type %s in ListTag of %s", tag.getType(), type));
-		}
 		value.set(index, tag);
 		return old;
 	}
@@ -62,10 +66,8 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	@Override
 	public void add(int index, Tag tag) {
 		Objects.requireNonNull(tag);
+		assimilateType(tag.getType());
 
-		if (!updateType(tag)) {
-			throw new UnsupportedOperationException(String.format("trying to add tag of type %s to ListTag of %s", tag.getType(), type));
-		}
 		value.add(index, tag);
 	}
 
@@ -113,22 +115,9 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 		add(new LongArrayTag(l));
 	}
 
-	private boolean updateType(Tag tag) {
-		if (type == null && tag.getType() != END) {
-			type = tag.getType();
-			return true;
-		} else {
-			return type == tag.getType();
-		}
-	}
-
 	@Override
 	public Tag remove(int index) {
-		Tag old = value.remove(index);
-		if (value.isEmpty()) {
-			type = null;
-		}
-		return old;
+		return value.remove(index);
 	}
 
 	@Override
@@ -147,7 +136,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 
 	@Override
 	public void write(DataOutput out) throws IOException {
-		if (type != null) {
+		if (value.size() > 0) {
 			out.writeByte(type.id);
 		} else {
 			out.writeByte(0);
@@ -187,7 +176,6 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	@Override
 	public void clear() {
 		value.clear();
-		type = null;
 	}
 
 	private NumberTag getNumber(int index) {
