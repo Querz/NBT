@@ -339,123 +339,63 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	}
 
 	public byte getByteOrDefault(int index, byte def) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag instanceof NumberTag) {
-				return ((NumberTag) tag).asByte();
-			}
-		}
-		return def;
+		NumberTag tag = getNumberTagOrNull(index);
+		return tag == null ? def : tag.asByte();
 	}
 
 	public short getShortOrDefault(int index, short def) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag instanceof NumberTag) {
-				return ((NumberTag) tag).asShort();
-			}
-		}
-		return def;
+		NumberTag tag = getNumberTagOrNull(index);
+		return tag == null ? def : tag.asShort();
 	}
 
 	public int getIntOrDefault(int index, int def) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag instanceof NumberTag) {
-				return ((NumberTag) tag).asInt();
-			}
-		}
-		return def;
+		NumberTag tag = getNumberTagOrNull(index);
+		return tag == null ? def : tag.asInt();
 	}
 
 	public long getLongOrDefault(int index, long def) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag instanceof NumberTag) {
-				return ((NumberTag) tag).asLong();
-			}
-		}
-		return def;
+		NumberTag tag = getNumberTagOrNull(index);
+		return tag == null ? def : tag.asLong();
 	}
 
 	public float getFloatOrDefault(int index, float def) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag instanceof NumberTag) {
-				return ((NumberTag) tag).asFloat();
-			}
-		}
-		return def;
+		NumberTag tag = getNumberTagOrNull(index);
+		return tag == null ? def : tag.asFloat();
 	}
 
 	public double getDoubleOrDefault(int index, double def) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag instanceof NumberTag) {
-				return ((NumberTag) tag).asDouble();
-			}
-		}
-		return def;
+		NumberTag tag = getNumberTagOrNull(index);
+		return tag == null ? def : tag.asDouble();
 	}
 
 	public String getStringOrDefault(int index, String def) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag.getType() == STRING) {
-				return ((StringTag) tag).getValue();
-			}
-		}
-		return def;
+		StringTag tag = getStringTagOrNull(index);
+		return tag == null ? def : tag.getValue();
 	}
 
 	public byte[] getByteArrayOrDefault(int index, byte[] def) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag.getType() == BYTE_ARRAY) {
-				return ((ByteArrayTag) tag).getValue();
-			}
-		}
-		return def;
+		ByteArrayTag tag = getByteArrayTagOrNull(index);
+		return tag == null ? def : tag.getValue();
 	}
 
 	public int[] getIntArrayOrDefault(int index, int[] def) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag.getType() == INT_ARRAY) {
-				return ((IntArrayTag) tag).getValue();
-			}
-		}
-		return def;
+		IntArrayTag tag = getIntArrayTagOrNull(index);
+		return tag == null ? def : tag.getValue();
 	}
 
 	public long[] getLongArrayOrDefault(int index, long[] def) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag.getType() == LONG_ARRAY) {
-				return ((LongArrayTag) tag).getValue();
-			}
-		}
-		return def;
+		LongArrayTag tag = getLongArrayTagOrNull(index);
+		return tag == null ? def : tag.getValue();
 	}
 
 	public CompoundTag getCompoundOrDefault(int index, CompoundTag def) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag.getType() == COMPOUND) {
-				return (CompoundTag) tag;
-			}
-		}
-		return def;
+		CompoundTag tag = getCompoundOrNull(index);
+		return tag == null ? def : tag;
 	}
 
 	public ListTag getListOrDefault(int index, ListTag def) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag.getType() == LIST) {
-				return (ListTag) tag;
-			}
-		}
-		return def;
+		ListTag tag = getListOrNull(index);
+		return tag == null ? def : tag;
 	}
 
 	public <T extends Tag> List<T> asList(Class<T> tagClass) {
