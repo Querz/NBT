@@ -14,7 +14,11 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	private byte type;
 
 	public ListTag() {
-		this(new ArrayList<>(), END);
+		this(END);
+	}
+
+	public ListTag(byte type) {
+		this(new ArrayList<>(), type);
 	}
 
 	public ListTag(List<Tag> list, byte type) {
