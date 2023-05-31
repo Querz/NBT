@@ -4,12 +4,14 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Objects;
 
 public non-sealed class IntArrayTag extends CollectionTag<IntTag> {
 
 	private int[] value;
 
 	public IntArrayTag(int[] i) {
+		Objects.requireNonNull(i);
 		value = i;
 	}
 
@@ -80,7 +82,7 @@ public non-sealed class IntArrayTag extends CollectionTag<IntTag> {
 	}
 
 	@Override
-	public void accept(TagVisitor visitor) throws Exception {
+	public void accept(TagVisitor visitor) {
 		visitor.visit(this);
 	}
 

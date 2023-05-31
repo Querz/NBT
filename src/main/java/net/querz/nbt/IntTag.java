@@ -72,7 +72,7 @@ public non-sealed class IntTag extends NumberTag {
 	}
 
 	@Override
-	public void accept(TagVisitor visitor) throws Exception {
+	public void accept(TagVisitor visitor) {
 		visitor.visit(this);
 	}
 
@@ -88,6 +88,11 @@ public non-sealed class IntTag extends NumberTag {
 	@Override
 	public int hashCode() {
 		return value;
+	}
+
+	@Override
+	public String toString() {
+		return String.valueOf(value);
 	}
 
 	public static final TagReader<IntTag> READER = new TagReader<>() {

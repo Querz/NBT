@@ -72,7 +72,7 @@ public non-sealed class LongTag extends NumberTag {
 	}
 
 	@Override
-	public void accept(TagVisitor visitor) throws Exception {
+	public void accept(TagVisitor visitor) {
 		visitor.visit(this);
 	}
 
@@ -88,6 +88,11 @@ public non-sealed class LongTag extends NumberTag {
 	@Override
 	public int hashCode() {
 		return (int) (value ^ value >>> 32);
+	}
+
+	@Override
+	public String toString() {
+		return value + "L";
 	}
 
 	public static final TagReader<LongTag> READER = new TagReader<>() {

@@ -79,7 +79,7 @@ public non-sealed class ByteTag extends NumberTag {
 	}
 
 	@Override
-	public void accept(TagVisitor visitor) throws Exception {
+	public void accept(TagVisitor visitor) {
 		visitor.visit(this);
 	}
 
@@ -91,6 +91,11 @@ public non-sealed class ByteTag extends NumberTag {
 	@Override
 	public int hashCode() {
 		return value;
+	}
+
+	@Override
+	public String toString() {
+		return value + "b";
 	}
 
 	public static final TagReader<ByteTag> READER = new TagReader<>() {

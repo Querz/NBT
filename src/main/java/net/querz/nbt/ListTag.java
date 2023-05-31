@@ -16,12 +16,26 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	private Type type;
 
 	public ListTag() {
-		this(new ArrayList<>(), null);
+		this(null);
+	}
+
+	public ListTag(Type type) {
+		this(new ArrayList<>(), type);
 	}
 
 	public ListTag(List<Tag> list, Type type) {
+		Objects.requireNonNull(list);
+
 		if (type == END) {
 			throw new IllegalArgumentException("ListTag can not be of type END");
+		}
+
+		for (int i = 0; i < list.size(); i++) {
+			Objects.requireNonNull(list.get(i));
+
+			if (list.get(i).getType() != type) {
+				throw new IllegalArgumentException("Incorrect tag type "+list.get(i).getType()+" at index "+i+" (expected "+type+")");
+			}
 		}
 
 		value = list;
@@ -35,6 +49,8 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 
 	@Override
 	public Tag set(int index, Tag tag) {
+		Objects.requireNonNull(tag);
+
 		Tag old = value.get(index);
 		if (!updateType(tag)) {
 			throw new UnsupportedOperationException(String.format("trying to set tag of type %d in ListTag of %d", tag.getType().id, type.id));
@@ -45,6 +61,8 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 
 	@Override
 	public void add(int index, Tag tag) {
+		Objects.requireNonNull(tag);
+
 		if (!updateType(tag)) {
 			throw new UnsupportedOperationException(String.format("trying to add tag of type %d to ListTag of %d", tag.getType().id, type.id));
 		}
@@ -148,7 +166,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	}
 
 	@Override
-	public void accept(TagVisitor visitor) throws Exception {
+	public void accept(TagVisitor visitor) {
 		visitor.visit(this);
 	}
 
@@ -157,7 +175,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 		if (this == other) {
 			return true;
 		} else {
-			return other instanceof ListTag && Objects.equals(value, ((ListTag) other).value);
+			return other instanceof ListTag otherList && value.equals(otherList.value);
 		}
 	}
 
@@ -172,124 +190,56 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 		type = null;
 	}
 
+	private NumberTag getNumber(int index) {
+		return (NumberTag) value.get(index);
+	}
+
 	public byte getByte(int index) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag instanceof NumberTag) {
-				return ((NumberTag) tag).asByte();
-			}
-		}
-		return 0;
+		return getNumber(index).asByte();
 	}
 
 	public short getShort(int index) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag instanceof NumberTag) {
-				return ((NumberTag) tag).asShort();
-			}
-		}
-		return 0;
+		return getNumber(index).asShort();
 	}
 
 	public int getInt(int index) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag instanceof NumberTag) {
-				return ((NumberTag) tag).asInt();
-			}
-		}
-		return 0;
+		return getNumber(index).asInt();
 	}
 
 	public long getLong(int index) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag instanceof NumberTag) {
-				return ((NumberTag) tag).asLong();
-			}
-		}
-		return 0;
+		return getNumber(index).asLong();
 	}
 
 	public float getFloat(int index) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag instanceof NumberTag) {
-				return ((NumberTag) tag).asFloat();
-			}
-		}
-		return 0.0f;
+		return getNumber(index).asFloat();
 	}
 
 	public double getDouble(int index) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag instanceof NumberTag) {
-				return ((NumberTag) tag).asDouble();
-			}
-		}
-		return 0.0;
+		return getNumber(index).asDouble();
 	}
 
 	public String getString(int index) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag.getType() == STRING) {
-				return ((StringTag) tag).getValue();
-			}
-		}
-		return "";
+		return ((StringTag) value.get(index)).getValue();
 	}
 
 	public byte[] getByteArray(int index) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag.getType() == BYTE_ARRAY) {
-				return ((ByteArrayTag) tag).getValue();
-			}
-		}
-		return new byte[0];
+		return ((ByteArrayTag) value.get(index)).getValue();
 	}
 
 	public int[] getIntArray(int index) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag.getType() == INT_ARRAY) {
-				return ((IntArrayTag) tag).getValue();
-			}
-		}
-		return new int[0];
+		return ((IntArrayTag) value.get(index)).getValue();
 	}
 
 	public long[] getLongArray(int index) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag.getType() == LONG_ARRAY) {
-				return ((LongArrayTag) tag).getValue();
-			}
-		}
-		return new long[0];
+		return ((LongArrayTag) value.get(index)).getValue();
 	}
 
 	public CompoundTag getCompound(int index) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag.getType() == COMPOUND) {
-				return (CompoundTag) tag;
-			}
-		}
-		return new CompoundTag();
+		return (CompoundTag) value.get(index);
 	}
 
 	public ListTag getList(int index) {
-		if (index >= 0 && index < value.size()) {
-			Tag tag = value.get(index);
-			if (tag.getType() == LIST) {
-				return (ListTag) tag;
-			}
-		}
-		return new ListTag();
+		return (ListTag) value.get(index);
 	}
 
 	public boolean getBoolean(int index) {
@@ -442,11 +392,13 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 
 		@Override
 		public T set(int index, T element) {
+			Objects.requireNonNull(element);
 			return tagClass.cast(ListTag.this.set(index, element));
 		}
 
 		@Override
 		public void add(int index, T element) {
+			Objects.requireNonNull(element);
 			ListTag.this.add(index, element);
 		}
 

@@ -4,12 +4,14 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Objects;
 
 public non-sealed class ByteArrayTag extends CollectionTag<ByteTag> {
 
 	private byte[] value;
 
 	public ByteArrayTag(byte[] b) {
+		Objects.requireNonNull(b);
 		value = b;
 	}
 
@@ -78,7 +80,7 @@ public non-sealed class ByteArrayTag extends CollectionTag<ByteTag> {
 	}
 
 	@Override
-	public void accept(TagVisitor visitor) throws Exception {
+	public void accept(TagVisitor visitor) {
 		visitor.visit(this);
 	}
 

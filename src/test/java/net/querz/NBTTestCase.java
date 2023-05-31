@@ -234,67 +234,67 @@ public abstract class NBTTestCase {
 	public static class TestTagVisitor implements TagVisitor {
 
 		@Override
-		public void visit(ByteTag t) throws Exception {
+		public void visit(ByteTag t) {
 
 		}
 
 		@Override
-		public void visit(ShortTag t) throws Exception {
+		public void visit(ShortTag t) {
 
 		}
 
 		@Override
-		public void visit(IntTag t) throws Exception {
+		public void visit(IntTag t) {
 
 		}
 
 		@Override
-		public void visit(LongTag t) throws Exception {
+		public void visit(LongTag t) {
 
 		}
 
 		@Override
-		public void visit(FloatTag t) throws Exception {
+		public void visit(FloatTag t) {
 
 		}
 
 		@Override
-		public void visit(DoubleTag t) throws Exception {
+		public void visit(DoubleTag t) {
 
 		}
 
 		@Override
-		public void visit(StringTag t) throws Exception {
+		public void visit(StringTag t) {
 
 		}
 
 		@Override
-		public void visit(ByteArrayTag t) throws Exception {
+		public void visit(ByteArrayTag t) {
 
 		}
 
 		@Override
-		public void visit(IntArrayTag t) throws Exception {
+		public void visit(IntArrayTag t) {
 
 		}
 
 		@Override
-		public void visit(LongArrayTag t) throws Exception {
+		public void visit(LongArrayTag t) {
 
 		}
 
 		@Override
-		public void visit(ListTag t) throws Exception {
+		public void visit(ListTag t) {
 
 		}
 
 		@Override
-		public void visit(CompoundTag t) throws Exception {
+		public void visit(CompoundTag t) {
 
 		}
 
 		@Override
-		public void visit(EndTag t) throws Exception {
+		public void visit(EndTag t) {
 
 		}
 	}

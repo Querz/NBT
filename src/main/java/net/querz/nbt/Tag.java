@@ -80,5 +80,5 @@ public sealed interface Tag permits CollectionTag, CompoundTag, EndTag, NumberTa
 
 	Tag copy();
 
-	void accept(TagVisitor visitor) throws Exception;
+	void accept(TagVisitor visitor);
 }

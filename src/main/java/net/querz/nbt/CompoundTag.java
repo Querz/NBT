@@ -7,7 +7,7 @@ import java.util.*;
 
 import static net.querz.nbt.Tag.Type.*;
 
-public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, Tag>> {
+public non-sealed class CompoundTag implements Tag, Map<String, Tag>, Iterable<Map.Entry<String, Tag>> {
 
 	private final Map<String, Tag> value;
 
@@ -40,7 +40,7 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 	}
 
 	@Override
-	public void accept(TagVisitor visitor) throws Exception {
+	public void accept(TagVisitor visitor) {
 		visitor.visit(this);
 	}
 
@@ -58,172 +58,181 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 		return value.hashCode();
 	}
 
+	@Override
 	public int size() {
 		return value.size();
 	}
 
+	@Override
 	public void clear() {
 		value.clear();
 	}
 
+	@Override
 	public Tag put(String key, Tag tag) {
+		Objects.requireNonNull(key);
+		Objects.requireNonNull(tag);
+		if (tag.getType() == END) {
+			throw new IllegalArgumentException("Can't insert end tag into CompoundTag");
+		}
 		return value.put(key, tag);
 	}
 
+	@Override
+	public void putAll(Map<? extends String, ? extends Tag> m) {
+		for (Map.Entry<? extends String, ? extends Tag> entry : m.entrySet()) {
+			put(entry.getKey(), entry.getValue());
+		}
+	}
+
 	public void putByte(String key, byte b) {
-		value.put(key, ByteTag.valueOf(b));
+		put(key, ByteTag.valueOf(b));
 	}
 
 	public void putShort(String key, short s) {
-		value.put(key, ShortTag.valueOf(s));
+		put(key, ShortTag.valueOf(s));
 	}
 
 	public void putInt(String key, int i) {
-		value.put(key, IntTag.valueOf(i));
+		put(key, IntTag.valueOf(i));
 	}
 
 	public void putLong(String key, long l) {
-		value.put(key, LongTag.valueOf(l));
+		put(key, LongTag.valueOf(l));
 	}
 
 	public void putFloat(String key, float f) {
-		value.put(key, FloatTag.valueOf(f));
+		put(key, FloatTag.valueOf(f));
 	}
 
 	public void putDouble(String key, double d) {
-		value.put(key, DoubleTag.valueOf(d));
+		put(key, DoubleTag.valueOf(d));
 	}
 
 	public void putString(String key, String s) {
-		value.put(key, StringTag.valueOf(s));
+		put(key, StringTag.valueOf(s));
 	}
 
 	public void putByteArray(String key, byte[] b) {
-		value.put(key, new ByteArrayTag(b));
+		put(key, new ByteArrayTag(b));
 	}
 
 	public void putIntArray(String key, int[] i) {
-		value.put(key, new IntArrayTag(i));
+		put(key, new IntArrayTag(i));
 	}
 
 	public void putLongArray(String key, long[] l) {
-		value.put(key, new LongArrayTag(l));
+		put(key, new LongArrayTag(l));
 	}
 
 	public void putBoolean(String key, boolean b) {
-		value.put(key, ByteTag.valueOf(b));
+		put(key, ByteTag.valueOf(b));
 	}
 
 	public Tag get(String key) {
 		return value.get(key);
 	}
 
+	@Deprecated
+	@Override
+	public Tag get(Object key) {
+		return get((String) key);
+	}
+
 	public byte getByte(String key) {
-		try {
-			if (containsNumber(key)) {
-				return ((NumberTag) value.get(key)).asByte();
-			}
-		} catch (ClassCastException ex) {}
-		return 0;
+		NumberTag tag = getNumberTag(key);
+		if (tag == null) {
+			throw new NoSuchElementException("No numeric tag with key '"+key+"'");
+		}
+		return tag.asByte();
 	}
 
 	public short getShort(String key) {
-		try {
-			if (containsNumber(key)) {
-				return ((NumberTag) value.get(key)).asShort();
-			}
-		} catch (ClassCastException ex) {}
-		return 0;
+		NumberTag tag = getNumberTag(key);
+		if (tag == null) {
+			throw new NoSuchElementException("No numeric tag with key '"+key+"'");
+		}
+		return tag.asShort();
 	}
 
 	public int getInt(String key) {
-		try {
-			if (containsNumber(key)) {
-				return ((NumberTag) value.get(key)).asInt();
-			}
-		} catch (ClassCastException ex) {}
-		return 0;
+		NumberTag tag = getNumberTag(key);
+		if (tag == null) {
+			throw new NoSuchElementException("No numeric tag with key '"+key+"'");
+		}
+		return tag.asInt();
 	}
 
 	public long getLong(String key) {
-		try {
-			if (containsNumber(key)) {
-				return ((NumberTag) value.get(key)).asLong();
-			}
-		} catch (ClassCastException ex) {}
-		return 0;
+		NumberTag tag = getNumberTag(key);
+		if (tag == null) {
+			throw new NoSuchElementException("No numeric tag with key '"+key+"'");
+		}
+		return tag.asLong();
 	}
 
 	public float getFloat(String key) {
-		try {
-			if (containsNumber(key)) {
-				return ((NumberTag) value.get(key)).asFloat();
-			}
-		} catch (ClassCastException ex) {}
-		return 0.0f;
+		NumberTag tag = getNumberTag(key);
+		if (tag == null) {
+			throw new NoSuchElementException("No numeric tag with key '"+key+"'");
+		}
+		return tag.asFloat();
 	}
 
 	public double getDouble(String key) {
-		try {
-			if (containsNumber(key)) {
-				return ((NumberTag) value.get(key)).asDouble();
-			}
-		} catch (ClassCastException ex) {}
-		return 0.0;
+		NumberTag tag = getNumberTag(key);
+		if (tag == null) {
+			throw new NoSuchElementException("No numeric tag with key '"+key+"'");
+		}
+		return tag.asDouble();
 	}
 
 	public String getString(String key) {
-		try {
-			if (contains(key, STRING)) {
-				return ((StringTag) value.get(key)).getValue();
-			}
-		} catch (ClassCastException ex) {}
-		return "";
+		StringTag tag = getStringTag(key);
+		if (tag == null) {
+			throw new NoSuchElementException("No string tag with key '"+key+"'");
+		}
+		return tag.getValue();
 	}
 
 	public byte[] getByteArray(String key) {
-		try {
-			if (contains(key, BYTE_ARRAY)) {
-				return ((ByteArrayTag) value.get(key)).getValue();
-			}
-		} catch (ClassCastException ex) {}
-		return new byte[0];
+		ByteArrayTag tag = getByteArrayTag(key);
+		if (tag == null) {
+			throw new NoSuchElementException("No byte array tag with key '"+key+"'");
+		}
+		return tag.getValue();
 	}
 
 	public int[] getIntArray(String key) {
-		try {
-			if (contains(key, INT_ARRAY)) {
-				return ((IntArrayTag) value.get(key)).getValue();
-			}
-		} catch (ClassCastException ex) {}
-		return new int[0];
+		IntArrayTag tag = getIntArrayTag(key);
+		if (tag == null) {
+			throw new NoSuchElementException("No int array tag with key '"+key+"'");
+		}
+		return tag.getValue();
 	}
 
 	public long[] getLongArray(String key) {
-		try {
-			if (contains(key, LONG_ARRAY)) {
-				return ((LongArrayTag) value.get(key)).getValue();
-			}
-		} catch (ClassCastException ex) {}
-		return new long[0];
+		LongArrayTag tag = getLongArrayTag(key);
+		if (tag == null) {
+			throw new NoSuchElementException("No long array tag with key '"+key+"'");
+		}
+		return tag.getValue();
 	}
 
 	public CompoundTag getCompound(String key) {
-		try {
-			if (contains(key, COMPOUND)) {
-				return (CompoundTag) value.get(key);
-			}
-		} catch (ClassCastException ex) {}
-		return new CompoundTag();
+		CompoundTag tag = getCompoundTag(key);
+		if (tag == null) {
+			throw new NoSuchElementException("No compound tag with key '"+key+"'");
+		}
+		return tag;
 	}
 
 	public ListTag getList(String key) {
-		try {
-			if (contains(key, LIST)) {
-				return (ListTag) value.get(key);
-			}
-		} catch (ClassCastException ex) {}
-		return new ListTag();
+		ListTag tag = getListTag(key);
+		if (tag == null) {
+			throw new NoSuchElementException("No byte array tag with key '"+key+"'");
+		}
+		return tag;
 	}
 
 	public boolean getBoolean(String key) {
@@ -235,218 +244,193 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 	}
 
 	public byte getByteOrDefault(String key, byte def) {
-		try {
-			if (containsNumber(key)) {
-				return ((NumberTag) value.get(key)).asByte();
-			}
-		} catch (ClassCastException ex) {}
-		return def;
+		NumberTag tag = getNumberTag(key);
+		if (tag == null) {
+			return def;
+		}
+		return tag.asByte();
 	}
 
 	public short getShortOrDefault(String key, short def) {
-		try {
-			if (containsNumber(key)) {
-				return ((NumberTag) value.get(key)).asShort();
-			}
-		} catch (ClassCastException ex) {}
-		return def;
+		NumberTag tag = getNumberTag(key);
+		if (tag == null) {
+			return def;
+		}
+		return tag.asShort();
 	}
 
 	public int getIntOrDefault(String key, int def) {
-		try {
-			if (containsNumber(key)) {
-				return ((NumberTag) value.get(key)).asInt();
-			}
-		} catch (ClassCastException ex) {}
-		return def;
+		NumberTag tag = getNumberTag(key);
+		if (tag == null) {
+			return def;
+		}
+		return tag.asInt();
 	}
 
 	public long getLongOrDefault(String key, long def) {
-		try {
-			if (containsNumber(key)) {
-				return ((NumberTag) value.get(key)).asLong();
-			}
-		} catch (ClassCastException ex) {}
-		return def;
+		NumberTag tag = getNumberTag(key);
+		if (tag == null) {
+			return def;
+		}
+		return tag.asLong();
 	}
 
 	public float getFloatOrDefault(String key, float def) {
-		try {
-			if (containsNumber(key)) {
-				return ((NumberTag) value.get(key)).asFloat();
-			}
-		} catch (ClassCastException ex) {}
-		return def;
+		NumberTag tag = getNumberTag(key);
+		if (tag == null) {
+			return def;
+		}
+		return tag.asFloat();
 	}
 
 	public double getDoubleOrDefault(String key, double def) {
-		try {
-			if (containsNumber(key)) {
-				return ((NumberTag) value.get(key)).asDouble();
-			}
-		} catch (ClassCastException ex) {}
-		return def;
+		NumberTag tag = getNumberTag(key);
+		if (tag == null) {
+			return def;
+		}
+		return tag.asDouble();
 	}
 
 	public String getStringOrDefault(String key, String def) {
-		try {
-			if (contains(key, STRING)) {
-				return ((StringTag) value.get(key)).getValue();
-			}
-		} catch (ClassCastException ex) {}
-		return def;
+		StringTag tag = getStringTag(key);
+		if (tag == null) {
+			return def;
+		}
+		return tag.getValue();
 	}
 
 	public byte[] getByteArrayOrDefault(String key, byte[] def) {
-		try {
-			if (contains(key, BYTE_ARRAY)) {
-				return ((ByteArrayTag) value.get(key)).getValue();
-			}
-		} catch (ClassCastException ex) {}
-		return def;
+		ByteArrayTag tag = getByteArrayTag(key);
+		if (tag == null) {
+			return def;
+		}
+		return tag.getValue();
 	}
 
 	public int[] getIntArrayOrDefault(String key, int[] def) {
-		try {
-			if (contains(key, INT_ARRAY)) {
-				return ((IntArrayTag) value.get(key)).getValue();
-			}
-		} catch (ClassCastException ex) {}
-		return def;
+		IntArrayTag tag = getIntArrayTag(key);
+		if (tag == null) {
+			return def;
+		}
+		return tag.getValue();
 	}
 
 	public long[] getLongArrayOrDefault(String key, long[] def) {
-		try {
-			if (contains(key, LONG_ARRAY)) {
-				return ((LongArrayTag) value.get(key)).getValue();
-			}
-		} catch (ClassCastException ex) {}
-		return def;
+		LongArrayTag tag = getLongArrayTag(key);
+		if (tag == null) {
+			return def;
+		}
+		return tag.getValue();
 	}
 
 	public CompoundTag getCompoundOrDefault(String key, CompoundTag def) {
-		try {
-			if (contains(key, COMPOUND)) {
-				return (CompoundTag) value.get(key);
-			}
-		} catch (ClassCastException ex) {}
-		return def;
+		CompoundTag tag = getCompoundTag(key);
+		if (tag == null) {
+			return def;
+		}
+		return tag;
 	}
 
 	public ListTag getListOrDefault(String key, ListTag def) {
-		try {
-			if (contains(key, LIST)) {
-				return (ListTag) value.get(key);
-			}
-		} catch (ClassCastException ex) {}
-		return def;
+		ListTag tag = getListTag(key);
+		if (tag == null) {
+			return def;
+		}
+		return tag;
+	}
+
+	public boolean getBooleanOrDefault(String key, boolean b) {
+		return getByteOrDefault(key, (byte)(b ? 1 : 0)) != 0;
+	}
+
+	public NumberTag getNumberTag(String key) {
+		if (containsNumber(key)) {
+			return (NumberTag) value.get(key);
+		}
+		return null;
 	}
 
 	public ByteTag getByteTag(String key) {
-		try {
-			if (contains(key, BYTE)) {
-				return (ByteTag) value.get(key);
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, BYTE)) {
+			return (ByteTag) value.get(key);
+		}
 		return null;
 	}
 
 	public ShortTag getShortTag(String key) {
-		try {
-			if (contains(key, SHORT)) {
-				return (ShortTag) value.get(key);
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, SHORT)) {
+			return (ShortTag) value.get(key);
+		}
 		return null;
 	}
 
 	public IntTag getIntTag(String key) {
-		try {
-			if (contains(key, INT)) {
-				return (IntTag) value.get(key);
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, INT)) {
+			return (IntTag) value.get(key);
+		}
 		return null;
 	}
 
 	public LongTag getLongTag(String key) {
-		try {
-			if (contains(key, LONG)) {
-				return (LongTag) value.get(key);
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, LONG)) {
+			return (LongTag) value.get(key);
+		}
 		return null;
 	}
 
 	public FloatTag getFloatTag(String key) {
-		try {
-			if (contains(key, FLOAT)) {
-				return (FloatTag) value.get(key);
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, FLOAT)) {
+			return (FloatTag) value.get(key);
+		}
 		return null;
 	}
 
 	public DoubleTag getDoubleTag(String key) {
-		try {
-			if (contains(key, DOUBLE)) {
-				return (DoubleTag) value.get(key);
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, DOUBLE)) {
+			return (DoubleTag) value.get(key);
+		}
 		return null;
 	}
 
 	public StringTag getStringTag(String key) {
-		try {
-			if (contains(key, STRING)) {
-				return (StringTag) value.get(key);
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, STRING)) {
+			return (StringTag) value.get(key);
+		}
 		return null;
 	}
 
 	public ByteArrayTag getByteArrayTag(String key) {
-		try {
-			if (contains(key, BYTE_ARRAY)) {
-				return (ByteArrayTag) value.get(key);
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, BYTE_ARRAY)) {
+			return (ByteArrayTag) value.get(key);
+		}
 		return null;
 	}
 
 	public IntArrayTag getIntArrayTag(String key) {
-		try {
-			if (contains(key, INT_ARRAY)) {
-				return (IntArrayTag) value.get(key);
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, INT_ARRAY)) {
+			return (IntArrayTag) value.get(key);
+		}
 		return null;
 	}
 
 	public LongArrayTag getLongArrayTag(String key) {
-		try {
-			if (contains(key, LONG_ARRAY)) {
-				return (LongArrayTag) value.get(key);
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, LONG_ARRAY)) {
+			return (LongArrayTag) value.get(key);
+		}
 		return null;
 	}
 
 	public ListTag getListTag(String key) {
-		try {
-			if (contains(key, LIST)) {
-				return (ListTag) value.get(key);
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, LIST)) {
+			return (ListTag) value.get(key);
+		}
 		return null;
 	}
 
 	public CompoundTag getCompoundTag(String key) {
-		try {
-			if (contains(key, COMPOUND)) {
-				return (CompoundTag) value.get(key);
-			}
-		} catch (ClassCastException ex) {}
+		if (contains(key, COMPOUND)) {
+			return (CompoundTag) value.get(key);
+		}
 		return null;
 	}
 
@@ -464,14 +448,33 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 		return value.containsKey(key);
 	}
 
+	@Deprecated
+	@Override
+	public boolean containsKey(Object key) {
+		return containsKey((String) key);
+	}
+
 	public boolean containsValue(Tag value) {
 		return this.value.containsValue(value);
+	}
+
+	@Deprecated
+	@Override
+	public boolean containsValue(Object value) {
+		return containsValue((Tag) value);
 	}
 
 	public Tag remove(String key) {
 		return value.remove(key);
 	}
 
+	@Deprecated
+	@Override
+	public Tag remove(Object key) {
+		return remove((String) key);
+	}
+
+	@Override
 	public boolean isEmpty() {
 		return value.isEmpty();
 	}
@@ -481,8 +484,19 @@ public non-sealed class CompoundTag implements Tag, Iterable<Map.Entry<String, T
 		return value.entrySet().iterator();
 	}
 
+	@Override
 	public Set<String> keySet() {
 		return value.keySet();
+	}
+
+	@Override
+	public Collection<Tag> values() {
+		return value.values();
+	}
+
+	@Override
+	public Set<Entry<String, Tag>> entrySet() {
+		return value.entrySet();
 	}
 
 	public static final TagReader<CompoundTag> READER = new TagReader<>() {

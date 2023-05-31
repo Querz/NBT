@@ -72,7 +72,7 @@ public non-sealed class ShortTag extends NumberTag {
 	}
 
 	@Override
-	public void accept(TagVisitor visitor) throws Exception {
+	public void accept(TagVisitor visitor) {
 		visitor.visit(this);
 	}
 
@@ -88,6 +88,11 @@ public non-sealed class ShortTag extends NumberTag {
 	@Override
 	public int hashCode() {
 		return value;
+	}
+
+	@Override
+	public String toString() {
+		return value + "s";
 	}
 
 	public static final TagReader<ShortTag> READER = new TagReader<>() {
