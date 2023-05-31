@@ -139,7 +139,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 		if (value.size() > 0) {
 			out.writeByte(type.id);
 		} else {
-			out.writeByte(0);
+			out.writeByte(END.id);
 		}
 		out.writeInt(value.size());
 		for (Tag tag : value) {
