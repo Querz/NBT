@@ -278,6 +278,66 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 		return getByte(index) != 0;
 	}
 
+	public Tag getTagOrNull(int index) {
+		if (index < value.size()) {
+			return value.get(index);
+		} else {
+			return null;
+		}
+	}
+
+	public ByteTag getByteTagOrNull(int index) {
+		return (ByteTag) getTagOrNull(index);
+	}
+
+	public ShortTag getShortTagOrNull(int index) {
+		return (ShortTag) getTagOrNull(index);
+	}
+
+	public IntTag getIntTagOrNull(int index) {
+		return (IntTag) getTagOrNull(index);
+	}
+
+	public LongTag getLongTagOrNull(int index) {
+		return (LongTag) getTagOrNull(index);
+	}
+
+	public FloatTag getFloatTagOrNull(int index) {
+		return (FloatTag) getTagOrNull(index);
+	}
+
+	public DoubleTag getDoubleTagOrNull(int index) {
+		return (DoubleTag) getTagOrNull(index);
+	}
+
+	public StringTag getStringTagOrNull(int index) {
+		return (StringTag) getTagOrNull(index);
+	}
+
+	public ByteArrayTag getByteArrayTagOrNull(int index) {
+		return (ByteArrayTag) getTagOrNull(index);
+	}
+
+	public IntArrayTag getIntArrayTagOrNull(int index) {
+		return (IntArrayTag) getTagOrNull(index);
+	}
+
+	public LongArrayTag getLongArrayTagOrNull(int index) {
+		return (LongArrayTag) getTagOrNull(index);
+	}
+
+	public NumberTag getNumberTagOrNull(int index) {
+		return (NumberTag) getTagOrNull(index);
+	}
+
+	public CompoundTag getCompoundOrNull(int index) {
+		return (CompoundTag) getTagOrNull(index);
+	}
+
+	public ListTag getListOrNull(int index) {
+		return (ListTag) getTagOrNull(index);
+	}
+
 	public byte getByteOrDefault(int index, byte def) {
 		if (index >= 0 && index < value.size()) {
 			Tag tag = value.get(index);
