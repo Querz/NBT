@@ -70,6 +70,17 @@ public class MCAFile implements Iterable<Chunk> {
 		}
 	}
 
+	public void load() throws IOException {
+		try (MCAFileHandle handle = new MCAFileHandle(
+				file.getParentFile(),
+				new SeekableFile(file, "r"),
+				MCCFileHandler.DEFAULT_HANDLER,
+				() -> null)) {
+
+			load(handle);
+		}
+	}
+
 	public void load(MCAFileHandle handle) throws IOException {
 		SeekableData s = handle.seekableData();
 		chunks = new Chunk[1024];

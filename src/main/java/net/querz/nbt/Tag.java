@@ -3,7 +3,7 @@ package net.querz.nbt;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public interface Tag {
+public sealed interface Tag permits CollectionTag, CompoundTag, EndTag, NumberTag, StringTag {
 
 	int MAX_DEPTH = 512;
 	byte END = 0;
@@ -31,5 +31,5 @@ public interface Tag {
 
 	Tag copy();
 
-	void accept(TagVisitor visitor) throws Exception;
+	void accept(TagVisitor visitor);
 }

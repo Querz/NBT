@@ -4,7 +4,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public class IntTag extends NumberTag {
+public non-sealed class IntTag extends NumberTag {
 
 	private final int value;
 
@@ -82,7 +82,7 @@ public class IntTag extends NumberTag {
 	}
 
 	@Override
-	public void accept(TagVisitor visitor) throws Exception {
+	public void accept(TagVisitor visitor) {
 		visitor.visit(this);
 	}
 
@@ -98,6 +98,11 @@ public class IntTag extends NumberTag {
 	@Override
 	public int hashCode() {
 		return value;
+	}
+
+	@Override
+	public String toString() {
+		return String.valueOf(value);
 	}
 
 	public static final TagType<IntTag> TYPE = new TagType<>() {

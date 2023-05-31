@@ -4,7 +4,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public class FloatTag extends NumberTag {
+public non-sealed class FloatTag extends NumberTag {
 
 	private final float value;
 
@@ -79,7 +79,7 @@ public class FloatTag extends NumberTag {
 	}
 
 	@Override
-	public void accept(TagVisitor visitor) throws Exception {
+	public void accept(TagVisitor visitor) {
 		visitor.visit(this);
 	}
 
@@ -95,6 +95,11 @@ public class FloatTag extends NumberTag {
 	@Override
 	public int hashCode() {
 		return Float.floatToIntBits(value);
+	}
+
+	@Override
+	public String toString() {
+		return value + "f";
 	}
 
 	public static final TagType<FloatTag> TYPE = new TagType<>() {

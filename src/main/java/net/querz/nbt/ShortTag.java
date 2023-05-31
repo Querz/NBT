@@ -4,7 +4,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public class ShortTag extends NumberTag {
+public non-sealed class ShortTag extends NumberTag {
 
 	private final short value;
 
@@ -82,7 +82,7 @@ public class ShortTag extends NumberTag {
 	}
 
 	@Override
-	public void accept(TagVisitor visitor) throws Exception {
+	public void accept(TagVisitor visitor) {
 		visitor.visit(this);
 	}
 
@@ -98,6 +98,11 @@ public class ShortTag extends NumberTag {
 	@Override
 	public int hashCode() {
 		return value;
+	}
+
+	@Override
+	public String toString() {
+		return value + "s";
 	}
 
 	public static final TagType<ShortTag> TYPE = new TagType<>() {

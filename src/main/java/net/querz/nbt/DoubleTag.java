@@ -4,7 +4,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public class DoubleTag extends NumberTag {
+public non-sealed class DoubleTag extends NumberTag {
 
 	private final double value;
 
@@ -79,7 +79,7 @@ public class DoubleTag extends NumberTag {
 	}
 
 	@Override
-	public void accept(TagVisitor visitor) throws Exception {
+	public void accept(TagVisitor visitor) {
 		visitor.visit(this);
 	}
 
@@ -96,6 +96,11 @@ public class DoubleTag extends NumberTag {
 	public int hashCode() {
 		long l = Double.doubleToLongBits(value);
 		return (int) (l ^ l >>> 32);
+	}
+
+	@Override
+	public String toString() {
+		return value + "d";
 	}
 
 	public static final TagType<DoubleTag> TYPE = new TagType<>() {
