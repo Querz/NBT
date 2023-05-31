@@ -274,6 +274,10 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 		return (ListTag) value.get(index);
 	}
 
+	public Number getNumber(int index) {
+		return getNumberTag(index).asNumber();
+	}
+
 	public boolean getBoolean(int index) {
 		return getByte(index) != 0;
 	}
