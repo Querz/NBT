@@ -1,7 +1,7 @@
 package net.querz.nbt.io.stream;
 
 import net.querz.nbt.CompoundTag;
-import net.querz.nbt.TagType;
+import net.querz.nbt.TagReader;
 import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.Deque;
@@ -11,12 +11,12 @@ import java.util.Set;
 public class SelectionStreamTagVisitor extends StreamTagVisitor {
 
 	private int remainingNumberOfFields;
-	private final Set<TagType<?>> wantedTypes;
+	private final Set<TagReader<?>> wantedTypes;
 	private final Deque<TagTree> stack = new ArrayDeque<>();
 
 	public SelectionStreamTagVisitor(TagSelector... selectors) {
 		remainingNumberOfFields = selectors.length;
-		Set<TagType<?>> wt = new HashSet<>();
+		Set<TagReader<?>> wt = new HashSet<>();
 		TagTree tree = new TagTree();
 
 		for (TagSelector selector : selectors) {
@@ -25,41 +25,41 @@ public class SelectionStreamTagVisitor extends StreamTagVisitor {
 		}
 
 		stack.push(tree);
-		wt.add(CompoundTag.TYPE);
+		wt.add(CompoundTag.READER);
 		wantedTypes = Collections.unmodifiableSet(wt);
 	}
 
 	@Override
-	public ValueResult visitRootEntry(TagType<?> type) {
-		return type != CompoundTag.TYPE ? ValueResult.RETURN : super.visitRootEntry(type);
+	public ValueResult visitRootEntry(TagReader<?> reader) {
+		return reader != CompoundTag.READER ? ValueResult.RETURN : super.visitRootEntry(reader);
 	}
 
 	@Override
-	public EntryResult visitEntry(TagType<?> type) {
+	public EntryResult visitEntry(TagReader<?> reader) {
 		TagTree tree = stack.element();
 		if (depth() > tree.depth()) {
-			return super.visitEntry(type);
+			return super.visitEntry(reader);
 		} else if (remainingNumberOfFields <= 0) {
 			return EntryResult.RETURN;
 		} else {
-			return !wantedTypes.contains(type) ? EntryResult.SKIP : super.visitEntry(type);
+			return !wantedTypes.contains(reader) ? EntryResult.SKIP : super.visitEntry(reader);
 		}
 	}
 
 	@Override
-	public EntryResult visitEntry(TagType<?> type, String name) {
+	public EntryResult visitEntry(TagReader<?> reader, String name) {
 		TagTree tree = stack.element();
 		if (depth() > tree.depth()) {
-			return super.visitEntry(type, name);
-		} else if (tree.selected().remove(name, type)) {
+			return super.visitEntry(reader, name);
+		} else if (tree.selected().remove(name, reader)) {
 			remainingNumberOfFields--;
-			return super.visitEntry(type, name);
+			return super.visitEntry(reader, name);
 		} else {
-			if (type == CompoundTag.TYPE) {
+			if (reader == CompoundTag.READER) {
 				TagTree child = tree.tree().get(name);
 				if (child != null) {
 					stack.push(child);
-					return super.visitEntry(type, name);
+					return super.visitEntry(reader, name);
 				}
 			}
 			return EntryResult.SKIP;

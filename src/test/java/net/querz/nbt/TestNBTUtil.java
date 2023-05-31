@@ -41,7 +41,7 @@ public class TestNBTUtil extends NBTTestCase {
 		}
 
 		try (DataInputStream dis = new DataInputStream(new ByteArrayInputStream(raw))) {
-			t = NBTUtil.parseStream(dis, new TagSelector(List.of("Data", "Player", "Attributes"), "Name", StringTag.TYPE));
+			t = NBTUtil.parseStream(dis, new TagSelector(List.of("Data", "Player", "Attributes"), "Name", StringTag.READER));
 
 			System.out.println(NBTUtil.toSNBT(t, "\t"));
 		}
@@ -94,7 +94,7 @@ public class TestNBTUtil extends NBTTestCase {
 
 		ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
 //		Tag result = NBTUtil.read(bais, false);
-		Tag result = NBTUtil.read(bais, false, new TagSelector("level0", "level1", ByteTag.TYPE));
+		Tag result = NBTUtil.read(bais, false, new TagSelector("level0", "level1", ByteTag.READER));
 
 		System.out.println(NBTUtil.toSNBT(result, "\t"));
 	}

@@ -14,7 +14,7 @@ import net.querz.nbt.LongTag;
 import net.querz.nbt.ShortTag;
 import net.querz.nbt.StringTag;
 import net.querz.nbt.Tag;
-import net.querz.nbt.TagType;
+import net.querz.nbt.TagReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -187,13 +187,13 @@ public class SNBTParser {
 		ptr.expectChar('[');
 		ListTag tag = new ListTag();
 		ptr.skipWhitespace();
-		TagType<?> type = null;
+		TagReader<?> reader = null;
 		while (ptr.hasNext() && ptr.currentChar() != ']') {
 			int start = ptr.getIndex();
 			Tag t = readValue();
-			if (type == null) {
-				type = t.getType();
-			} else if (type != t.getType()) {
+			if (reader == null) {
+				reader = t.getType().reader;
+			} else if (reader != t.getType().reader) {
 				ptr.setIndex(start);
 				throw ptr.parseException("mixed types in ListTag");
 			}

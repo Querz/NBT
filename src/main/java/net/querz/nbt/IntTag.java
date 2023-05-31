@@ -67,16 +67,6 @@ public non-sealed class IntTag extends NumberTag {
 	}
 
 	@Override
-	public byte getID() {
-		return INT;
-	}
-
-	@Override
-	public TagType<?> getType() {
-		return TYPE;
-	}
-
-	@Override
 	public IntTag copy() {
 		return this;
 	}
@@ -105,7 +95,7 @@ public non-sealed class IntTag extends NumberTag {
 		return String.valueOf(value);
 	}
 
-	public static final TagType<IntTag> TYPE = new TagType<>() {
+	public static final TagReader<IntTag> READER = new TagReader<>() {
 
 		@Override
 		public IntTag read(DataInput in, int depth) throws IOException {

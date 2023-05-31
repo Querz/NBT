@@ -64,16 +64,6 @@ public non-sealed class FloatTag extends NumberTag {
 	}
 
 	@Override
-	public byte getID() {
-		return FLOAT;
-	}
-
-	@Override
-	public TagType<?> getType() {
-		return TYPE;
-	}
-
-	@Override
 	public FloatTag copy() {
 		return this;
 	}
@@ -102,7 +92,7 @@ public non-sealed class FloatTag extends NumberTag {
 		return value + "f";
 	}
 
-	public static final TagType<FloatTag> TYPE = new TagType<>() {
+	public static final TagReader<FloatTag> READER = new TagReader<>() {
 
 		@Override
 		public FloatTag read(DataInput in, int depth) throws IOException {

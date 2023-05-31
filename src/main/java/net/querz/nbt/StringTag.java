@@ -28,16 +28,6 @@ public non-sealed class StringTag implements Tag {
 	}
 
 	@Override
-	public byte getID() {
-		return STRING;
-	}
-
-	@Override
-	public TagType<?> getType() {
-		return TYPE;
-	}
-
-	@Override
 	public StringTag copy() {
 		return this;
 	}
@@ -65,7 +55,7 @@ public non-sealed class StringTag implements Tag {
 		return value;
 	}
 
-	public static final TagType<StringTag> TYPE = new TagType<>() {
+	public static final TagReader<StringTag> READER = new TagReader<>() {
 
 		@Override
 		public StringTag read(DataInput in, int depth) throws IOException {

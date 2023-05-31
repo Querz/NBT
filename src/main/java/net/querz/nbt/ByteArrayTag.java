@@ -57,8 +57,8 @@ public non-sealed class ByteArrayTag extends CollectionTag<ByteTag> {
 	}
 
 	@Override
-	public byte getElementType() {
-		return BYTE;
+	public Type getElementType() {
+		return Type.BYTE;
 	}
 
 	@Override
@@ -70,16 +70,6 @@ public non-sealed class ByteArrayTag extends CollectionTag<ByteTag> {
 	public void write(DataOutput out) throws IOException {
 		out.writeInt(value.length);
 		out.write(value);
-	}
-
-	@Override
-	public byte getID() {
-		return BYTE_ARRAY;
-	}
-
-	@Override
-	public TagType<?> getType() {
-		return TYPE;
 	}
 
 	@Override
@@ -120,7 +110,7 @@ public non-sealed class ByteArrayTag extends CollectionTag<ByteTag> {
 		this.value = value;
 	}
 
-	public static final TagType<ByteArrayTag> TYPE = new TagType<>() {
+	public static final TagReader<ByteArrayTag> READER = new TagReader<>() {
 
 		@Override
 		public ByteArrayTag read(DataInput in, int depth) throws IOException {

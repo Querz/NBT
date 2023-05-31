@@ -14,7 +14,7 @@ import net.querz.nbt.LongTag;
 import net.querz.nbt.ShortTag;
 import net.querz.nbt.StringTag;
 import net.querz.nbt.Tag;
-import net.querz.nbt.TagType;
+import net.querz.nbt.TagReader;
 import net.querz.nbt.TagTypeVisitor;
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -107,25 +107,25 @@ public class StreamTagVisitor implements TagTypeVisitor {
 	}
 
 	@Override
-	public ValueResult visitList(TagType<?> type, int length) {
+	public ValueResult visitList(TagReader<?> reader, int length) {
 		return ValueResult.CONTINUE;
 	}
 
 	@Override
-	public EntryResult visitEntry(TagType<?> type) {
+	public EntryResult visitEntry(TagReader<?> reader) {
 		return EntryResult.ENTER;
 	}
 
 	@Override
-	public EntryResult visitEntry(TagType<?> type, String name) {
+	public EntryResult visitEntry(TagReader<?> reader, String name) {
 		lastName = name;
-		enterContainer(type);
+		enterContainer(reader);
 		return EntryResult.ENTER;
 	}
 
 	@Override
-	public EntryResult visitElement(TagType<?> type, int index) {
-		enterContainer(type);
+	public EntryResult visitElement(TagReader<?> reader, int index) {
+		enterContainer(reader);
 		return EntryResult.ENTER;
 	}
 
@@ -136,12 +136,12 @@ public class StreamTagVisitor implements TagTypeVisitor {
 	}
 
 	@Override
-	public ValueResult visitRootEntry(TagType<?> type) {
-		if (type == ListTag.TYPE) {
+	public ValueResult visitRootEntry(TagReader<?> reader) {
+		if (reader == ListTag.READER) {
 			ListTag l = new ListTag();
 			tag = l;
 			consumers.addLast(l::add);
-		} else if (type == CompoundTag.TYPE) {
+		} else if (reader == CompoundTag.READER) {
 			CompoundTag c = new CompoundTag();
 			tag = c;
 			consumers.addLast(v -> c.put(lastName, v));
@@ -151,12 +151,12 @@ public class StreamTagVisitor implements TagTypeVisitor {
 		return ValueResult.CONTINUE;
 	}
 
-	private void enterContainer(TagType<?> type) {
-		if (type == ListTag.TYPE) {
+	private void enterContainer(TagReader<?> reader) {
+		if (reader == ListTag.READER) {
 			ListTag l = new ListTag();
 			appendEntry(l);
 			consumers.addLast(l::add);
-		} else if (type == CompoundTag.TYPE) {
+		} else if (reader == CompoundTag.READER) {
 			CompoundTag c = new CompoundTag();
 			appendEntry(c);
 			consumers.addLast(v -> c.put(lastName, v));

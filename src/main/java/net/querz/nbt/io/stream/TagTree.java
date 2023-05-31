@@ -1,13 +1,13 @@
 package net.querz.nbt.io.stream;
 
-import net.querz.nbt.TagType;
+import net.querz.nbt.TagReader;
 import java.util.HashMap;
 import java.util.Map;
 
 public record TagTree(
 	int depth,
 	Map<String, TagTree> tree,
-	Map<String, TagType<?>> selected) {
+	Map<String, TagReader<?>> selected) {
 
 	/**
 	 * Creates a new TagTree root element with {@code depth = 1}.
@@ -33,12 +33,12 @@ public record TagTree(
 	}
 
 	/**
-	 * Checks if a tag with a specific name and type is selected on this depth of the TagTree.
+	 * Checks if a tag with a specific name and reader is selected on this depth of the TagTree.
 	 * @param name The name of the selected tag
-	 * @param type The type of the selected tag
-	 * @return {@code true} if the TagTree contains the tag with the specified type on the current depth.
+	 * @param reader The reader of the selected tag
+	 * @return {@code true} if the TagTree contains the tag with the specified reader on the current depth.
 	 */
-	public boolean isSelected(String name, TagType<?> type) {
-		return type.equals(selected.get(name));
+	public boolean isSelected(String name, TagReader<?> reader) {
+		return reader.equals(selected.get(name));
 	}
 }

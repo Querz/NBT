@@ -67,16 +67,6 @@ public non-sealed class LongTag extends NumberTag {
 	}
 
 	@Override
-	public byte getID() {
-		return LONG;
-	}
-
-	@Override
-	public TagType<?> getType() {
-		return TYPE;
-	}
-
-	@Override
 	public LongTag copy() {
 		return this;
 	}
@@ -105,7 +95,7 @@ public non-sealed class LongTag extends NumberTag {
 		return value + "L";
 	}
 
-	public static final TagType<LongTag> TYPE = new TagType<>() {
+	public static final TagReader<LongTag> READER = new TagReader<>() {
 
 		@Override
 		public LongTag read(DataInput in, int depth) throws IOException {

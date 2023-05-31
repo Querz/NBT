@@ -14,16 +14,6 @@ public non-sealed class EndTag implements Tag {
 	public void write(DataOutput out) throws IOException {}
 
 	@Override
-	public byte getID() {
-		return END;
-	}
-
-	@Override
-	public TagType<?> getType() {
-		return TYPE;
-	}
-
-	@Override
 	public EndTag copy() {
 		return this;
 	}
@@ -33,7 +23,7 @@ public non-sealed class EndTag implements Tag {
 		visitor.visit(this);
 	}
 
-	public static final TagType<EndTag> TYPE = new TagType<>() {
+	public static final TagReader<EndTag> READER = new TagReader<>() {
 
 		@Override
 		public EndTag read(DataInput in, int depth) throws IOException {

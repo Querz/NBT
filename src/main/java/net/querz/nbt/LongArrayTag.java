@@ -57,8 +57,8 @@ public non-sealed class LongArrayTag extends CollectionTag<LongTag> {
 	}
 
 	@Override
-	public byte getElementType() {
-		return 4;
+	public Type getElementType() {
+		return Type.LONG;
 	}
 
 	@Override
@@ -72,16 +72,6 @@ public non-sealed class LongArrayTag extends CollectionTag<LongTag> {
 		for (long l : value) {
 			out.writeLong(l);
 		}
-	}
-
-	@Override
-	public byte getID() {
-		return LONG_ARRAY;
-	}
-
-	@Override
-	public TagType<?> getType() {
-		return TYPE;
 	}
 
 	@Override
@@ -122,7 +112,7 @@ public non-sealed class LongArrayTag extends CollectionTag<LongTag> {
 		this.value = value;
 	}
 
-	public static final TagType<LongArrayTag> TYPE = new TagType<>() {
+	public static final TagReader<LongArrayTag> READER = new TagReader<>() {
 
 		@Override
 		public LongArrayTag read(DataInput in, int depth) throws IOException {

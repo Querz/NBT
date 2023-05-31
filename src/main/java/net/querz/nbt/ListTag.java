@@ -8,27 +8,33 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static net.querz.nbt.Tag.Type.*;
+
 public non-sealed class ListTag extends CollectionTag<Tag> {
 
 	private final List<Tag> value;
-	private byte type;
+	private Type type;
 
 	public ListTag() {
-		this(END);
+		this(null);
 	}
 
-	public ListTag(byte type) {
+	public ListTag(Type type) {
 		this(new ArrayList<>(), type);
 	}
 
-	public ListTag(List<Tag> list, byte type) {
+	public ListTag(List<Tag> list, Type type) {
 		Objects.requireNonNull(list);
+
+		if (type == END) {
+			throw new IllegalArgumentException("ListTag can not be of type END");
+		}
 
 		for (int i = 0; i < list.size(); i++) {
 			Objects.requireNonNull(list.get(i));
 
-			if (list.get(i).getID() != type) {
-				throw new IllegalArgumentException("Incorrect tag type "+list.get(i).getID()+" at index "+i+" (expected "+type+")");
+			if (list.get(i).getType() != type) {
+				throw new IllegalArgumentException("Incorrect tag type "+list.get(i).getType()+" at index "+i+" (expected "+type+")");
 			}
 		}
 
@@ -47,7 +53,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 
 		Tag old = value.get(index);
 		if (!updateType(tag)) {
-			throw new UnsupportedOperationException(String.format("trying to set tag of type %d in ListTag of %d", tag.getID(), type));
+			throw new UnsupportedOperationException(String.format("trying to set tag of type %s in ListTag of %s", tag.getType(), type));
 		}
 		value.set(index, tag);
 		return old;
@@ -58,7 +64,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 		Objects.requireNonNull(tag);
 
 		if (!updateType(tag)) {
-			throw new UnsupportedOperationException(String.format("trying to add tag of type %d to ListTag of %d", tag.getID(), type));
+			throw new UnsupportedOperationException(String.format("trying to add tag of type %s to ListTag of %s", tag.getType(), type));
 		}
 		value.add(index, tag);
 	}
@@ -108,13 +114,11 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	}
 
 	private boolean updateType(Tag tag) {
-		if (tag.getID() == END) {
-			return false;
-		} else if (type == END) {
-			type = tag.getID();
+		if (type == null && tag.getType() != END) {
+			type = tag.getType();
 			return true;
 		} else {
-			return type == tag.getID();
+			return type == tag.getType();
 		}
 	}
 
@@ -122,13 +126,13 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	public Tag remove(int index) {
 		Tag old = value.remove(index);
 		if (value.isEmpty()) {
-			type = END;
+			type = null;
 		}
 		return old;
 	}
 
 	@Override
-	public byte getElementType() {
+	public Type getElementType() {
 		return type;
 	}
 
@@ -143,21 +147,15 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 
 	@Override
 	public void write(DataOutput out) throws IOException {
-		out.writeByte(type);
+		if (type != null) {
+			out.writeByte(type.id);
+		} else {
+			out.writeByte(0);
+		}
 		out.writeInt(value.size());
 		for (Tag tag : value) {
 			tag.write(out);
 		}
-	}
-
-	@Override
-	public byte getID() {
-		return LIST;
-	}
-
-	@Override
-	public TagType<?> getType() {
-		return TYPE;
 	}
 
 	@Override
@@ -189,7 +187,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	@Override
 	public void clear() {
 		value.clear();
-		type = END;
+		type = null;
 	}
 
 	private NumberTag getNumber(int index) {
@@ -311,7 +309,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	public String getStringOrDefault(int index, String def) {
 		if (index >= 0 && index < value.size()) {
 			Tag tag = value.get(index);
-			if (tag.getID() == STRING) {
+			if (tag.getType() == STRING) {
 				return ((StringTag) tag).getValue();
 			}
 		}
@@ -321,7 +319,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	public byte[] getByteArrayOrDefault(int index, byte[] def) {
 		if (index >= 0 && index < value.size()) {
 			Tag tag = value.get(index);
-			if (tag.getID() == BYTE_ARRAY) {
+			if (tag.getType() == BYTE_ARRAY) {
 				return ((ByteArrayTag) tag).getValue();
 			}
 		}
@@ -331,7 +329,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	public int[] getIntArrayOrDefault(int index, int[] def) {
 		if (index >= 0 && index < value.size()) {
 			Tag tag = value.get(index);
-			if (tag.getID() == INT_ARRAY) {
+			if (tag.getType() == INT_ARRAY) {
 				return ((IntArrayTag) tag).getValue();
 			}
 		}
@@ -341,7 +339,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	public long[] getLongArrayOrDefault(int index, long[] def) {
 		if (index >= 0 && index < value.size()) {
 			Tag tag = value.get(index);
-			if (tag.getID() == LONG_ARRAY) {
+			if (tag.getType() == LONG_ARRAY) {
 				return ((LongArrayTag) tag).getValue();
 			}
 		}
@@ -351,7 +349,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	public CompoundTag getCompoundOrDefault(int index, CompoundTag def) {
 		if (index >= 0 && index < value.size()) {
 			Tag tag = value.get(index);
-			if (tag.getID() == COMPOUND) {
+			if (tag.getType() == COMPOUND) {
 				return (CompoundTag) tag;
 			}
 		}
@@ -361,23 +359,30 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	public ListTag getListOrDefault(int index, ListTag def) {
 		if (index >= 0 && index < value.size()) {
 			Tag tag = value.get(index);
-			if (tag.getID() == LIST) {
+			if (tag.getType() == LIST) {
 				return (ListTag) tag;
 			}
 		}
 		return def;
 	}
 
-	public <T extends Tag> List<T> iterateType(TagType<T> type) {
-		return new TypedListTag<>();
+	public <T extends Tag> List<T> iterateType(Class<T> tagClass) {
+		if (type != null && type.tagClass != tagClass) {
+			throw new IllegalArgumentException("Incorrect tagClass "+tagClass.getName()+", list is of type "+type.tagClass.getName());
+		}
+		return new TypedListTag<>(tagClass);
 	}
 
 	private class TypedListTag<T extends Tag> extends AbstractList<T> {
+		private final Class<T> tagClass;
 
-		@SuppressWarnings("unchecked")
+		private TypedListTag(Class<T> tagClass) {
+			this.tagClass = tagClass;
+		}
+
 		@Override
 		public T get(int index) {
-			return (T) ListTag.this.value.get(index);
+			return tagClass.cast(ListTag.this.value.get(index));
 		}
 
 		@Override
@@ -385,11 +390,10 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 			return ListTag.this.value.size();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		public T set(int index, T element) {
 			Objects.requireNonNull(element);
-			return (T) ListTag.this.set(index, element);
+			return tagClass.cast(ListTag.this.set(index, element));
 		}
 
 		@Override
@@ -398,58 +402,58 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 			ListTag.this.add(index, element);
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		public T remove(int index) {
-			return (T) ListTag.this.remove(index);
+			return tagClass.cast(ListTag.this.remove(index));
 		}
+
 	}
 
-	public static final TagType<ListTag> TYPE = new TagType<>() {
+	public static final TagReader<ListTag> READER = new TagReader<>() {
 
 		@Override
 		public ListTag read(DataInput in, int depth) throws IOException {
 			byte type = in.readByte();
 			int length = in.readInt();
-			if (type == END && length > 0) {
+			if (type == END.id && length > 0) {
 				throw new RuntimeException("missing type on ListTag");
 			} else {
-				TagType<?> tagType = TagTypes.get(type);
+				TagReader<?> tagReader = valueOf(type).reader;
 				List<Tag> list = new ArrayList<>(length);
 				for (int i = 0; i < length; i++) {
-					list.add(tagType.read(in, depth + 1));
+					list.add(tagReader.read(in, depth + 1));
 				}
-				return new ListTag(list, type);
+				return new ListTag(list, type == 0 ? null : Type.valueOf(type));
 			}
 		}
 
 		@Override
 		public TagTypeVisitor.ValueResult read(DataInput in, TagTypeVisitor visitor) throws IOException {
-			TagType<?> type = TagTypes.get(in.readByte());
+			TagReader<?> reader = valueOf(in.readByte()).reader;
 			int length = in.readInt();
-			switch (visitor.visitList(type, length)) {
+			switch (visitor.visitList(reader, length)) {
 				case RETURN -> {
 					return TagTypeVisitor.ValueResult.RETURN;
 				}
 				case BREAK -> {
-					type.skip(in);
+					reader.skip(in);
 					return visitor.visitContainerEnd();
 				}
 				default -> {
 					int i = 0;
 					loop:
 					for (; i < length; i++) {
-						switch (visitor.visitElement(type, i)) {
+						switch (visitor.visitElement(reader, i)) {
 							case RETURN -> {
 								return TagTypeVisitor.ValueResult.RETURN;
 							}
 							case BREAK -> {
-								type.skip(in);
+								reader.skip(in);
 								break loop;
 							}
-							case SKIP -> type.skip(in);
+							case SKIP -> reader.skip(in);
 							case ENTER -> {
-								switch (type.read(in, visitor)) {
+								switch (reader.read(in, visitor)) {
 									case RETURN -> {
 										return TagTypeVisitor.ValueResult.RETURN;
 									}
@@ -476,10 +480,10 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 
 		@Override
 		public void skip(DataInput in) throws IOException {
-			TagType<?> tagType = TagTypes.get(in.readByte());
+			TagReader<?> tagReader = valueOf(in.readByte()).reader;
 			int length = in.readInt();
 			for (int i = 0; i < length; i++) {
-				tagType.skip(in);
+				tagReader.skip(in);
 			}
 		}
 	};

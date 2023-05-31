@@ -64,16 +64,6 @@ public non-sealed class DoubleTag extends NumberTag {
 	}
 
 	@Override
-	public byte getID() {
-		return DOUBLE;
-	}
-
-	@Override
-	public TagType<?> getType() {
-		return TYPE;
-	}
-
-	@Override
 	public DoubleTag copy() {
 		return this;
 	}
@@ -103,7 +93,7 @@ public non-sealed class DoubleTag extends NumberTag {
 		return value + "d";
 	}
 
-	public static final TagType<DoubleTag> TYPE = new TagType<>() {
+	public static final TagReader<DoubleTag> READER = new TagReader<>() {
 
 		@Override
 		public DoubleTag read(DataInput in, int depth) throws IOException {

@@ -67,16 +67,6 @@ public non-sealed class ShortTag extends NumberTag {
 	}
 
 	@Override
-	public byte getID() {
-		return SHORT;
-	}
-
-	@Override
-	public TagType<?> getType() {
-		return TYPE;
-	}
-
-	@Override
 	public ShortTag copy() {
 		return this;
 	}
@@ -105,7 +95,7 @@ public non-sealed class ShortTag extends NumberTag {
 		return value + "s";
 	}
 
-	public static final TagType<ShortTag> TYPE = new TagType<>() {
+	public static final TagReader<ShortTag> READER = new TagReader<>() {
 
 		@Override
 		public ShortTag read(DataInput in, int depth) throws IOException {

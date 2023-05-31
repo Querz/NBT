@@ -5,6 +5,8 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.*;
 
+import static net.querz.nbt.Tag.Type.*;
+
 public non-sealed class CompoundTag implements Tag, Map<String, Tag>, Iterable<Map.Entry<String, Tag>> {
 
 	private final Map<String, Tag> value;
@@ -21,23 +23,13 @@ public non-sealed class CompoundTag implements Tag, Map<String, Tag>, Iterable<M
 	public void write(DataOutput out) throws IOException {
 		for (String key : value.keySet()) {
 			Tag tag = value.get(key);
-			out.writeByte(tag.getID());
-			if (tag.getID() != END) {
+			out.writeByte(tag.getType().id);
+			if (tag.getType() != END) {
 				out.writeUTF(key);
 				tag.write(out);
 			}
 		}
-		out.writeByte(END);
-	}
-
-	@Override
-	public byte getID() {
-		return COMPOUND;
-	}
-
-	@Override
-	public TagType<?> getType() {
-		return TYPE;
+		out.writeByte(END.id);
 	}
 
 	@Override
@@ -80,7 +72,7 @@ public non-sealed class CompoundTag implements Tag, Map<String, Tag>, Iterable<M
 	public Tag put(String key, Tag tag) {
 		Objects.requireNonNull(key);
 		Objects.requireNonNull(tag);
-		if (tag.getID() == END) {
+		if (tag.getType() == END) {
 			throw new IllegalArgumentException("Can't insert end tag into CompoundTag");
 		}
 		return value.put(key, tag);
@@ -352,7 +344,7 @@ public non-sealed class CompoundTag implements Tag, Map<String, Tag>, Iterable<M
 	}
 
 	public NumberTag getNumberTag(String key) {
-		if (contains(key, NUMBER)) {
+		if (containsNumber(key)) {
 			return (NumberTag) value.get(key);
 		}
 		return null;
@@ -442,16 +434,14 @@ public non-sealed class CompoundTag implements Tag, Map<String, Tag>, Iterable<M
 		return null;
 	}
 
-	public boolean contains(String key, int type) {
+	public boolean contains(String key, Type type) {
 		Tag tag = value.get(key);
-		byte t = tag == null ? END : tag.getID();
-		if (t == type) {
-			return true;
-		} else if (type != NUMBER) {
-			return false;
-		} else {
-			return t >= BYTE && t <= DOUBLE;
-		}
+		return tag != null && tag.getType() == type;
+	}
+
+	public boolean containsNumber(String key) {
+		Tag tag = value.get(key);
+		return tag != null && tag.getType().isNumber;
 	}
 
 	public boolean containsKey(String key) {
@@ -509,7 +499,7 @@ public non-sealed class CompoundTag implements Tag, Map<String, Tag>, Iterable<M
 		return value.entrySet();
 	}
 
-	public static final TagType<CompoundTag> TYPE = new TagType<>() {
+	public static final TagReader<CompoundTag> READER = new TagReader<>() {
 
 		@Override
 		public CompoundTag read(DataInput in, int depth) throws IOException {
@@ -518,10 +508,10 @@ public non-sealed class CompoundTag implements Tag, Map<String, Tag>, Iterable<M
 			}
 			Map<String, Tag> map = new HashMap<>();
 			byte type;
-			while ((type = in.readByte()) != END) {
+			while ((type = in.readByte()) != END.id) {
 				String key = in.readUTF();
-				TagType<?> tagType = TagTypes.get(type);
-				Tag tag = tagType.read(in, depth + 1);
+				TagReader<?> tagReader = valueOf(type).reader;
+				Tag tag = tagReader.read(in, depth + 1);
 				map.put(key, tag);
 			}
 			return new CompoundTag(map);
@@ -531,34 +521,34 @@ public non-sealed class CompoundTag implements Tag, Map<String, Tag>, Iterable<M
 		public TagTypeVisitor.ValueResult read(DataInput in, TagTypeVisitor visitor) throws IOException {
 			for (;;) {
 				byte id;
-				if ((id = in.readByte()) != END) {
-					TagType<?> type = TagTypes.get(id);
-					switch (visitor.visitEntry(type)) {
+				if ((id = in.readByte()) != END.id) {
+					TagReader<?> reader = valueOf(id).reader;
+					switch (visitor.visitEntry(reader)) {
 						case RETURN -> {
 							return TagTypeVisitor.ValueResult.RETURN;
 						}
 						case BREAK -> {
 							StringTag.skipUTF(in);
-							type.skip(in);
+							reader.skip(in);
 						}
 						case SKIP -> {
 							StringTag.skipUTF(in);
-							type.skip(in);
+							reader.skip(in);
 							continue;
 						}
 						default -> {
 							String name = in.readUTF();
-							switch (visitor.visitEntry(type, name)) {
+							switch (visitor.visitEntry(reader, name)) {
 								case RETURN -> {
 									return TagTypeVisitor.ValueResult.RETURN;
 								}
-								case BREAK -> type.skip(in);
+								case BREAK -> reader.skip(in);
 								case SKIP -> {
-									type.skip(in);
+									reader.skip(in);
 									continue;
 								}
 								case ENTER -> {
-									if (type.read(in, visitor) == TagTypeVisitor.ValueResult.RETURN) {
+									if (reader.read(in, visitor) == TagTypeVisitor.ValueResult.RETURN) {
 										return TagTypeVisitor.ValueResult.RETURN;
 									} else {
 										continue;
@@ -570,10 +560,10 @@ public non-sealed class CompoundTag implements Tag, Map<String, Tag>, Iterable<M
 				}
 
 				// skip remaining tags
-				if (id != END) {
-					while ((id = in.readByte()) != END) {
+				if (id != END.id) {
+					while ((id = in.readByte()) != END.id) {
 						StringTag.skipUTF(in);
-						TagTypes.get(id).skip(in);
+						valueOf(id).reader.skip(in);
 					}
 				}
 
@@ -584,9 +574,9 @@ public non-sealed class CompoundTag implements Tag, Map<String, Tag>, Iterable<M
 		@Override
 		public void skip(DataInput in) throws IOException {
 			byte type;
-			while ((type = in.readByte()) != END) {
+			while ((type = in.readByte()) != END.id) {
 				in.skipBytes(in.readUnsignedShort());
-				TagTypes.get(type).skip(in);
+				valueOf(type).reader.skip(in);
 			}
 		}
 	};
