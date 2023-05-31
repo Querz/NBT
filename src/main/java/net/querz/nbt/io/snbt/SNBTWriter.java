@@ -15,11 +15,13 @@ public final class SNBTWriter {
 	}
 
 	public void write(OutputStream out, Tag tag) throws IOException {
-		tag.accept(new SNBTWriterTagVisitor(new PrintWriter(out), indent));
+		PrintWriter writer = new PrintWriter(out, false, StandardCharsets.UTF_8);
+		tag.accept(new SNBTWriterTagVisitor(writer, indent));
+		writer.flush();
 	}
 
 	public void write(File file, Tag tag) throws IOException {
-		tag.accept(new SNBTWriterTagVisitor(new PrintWriter(new FileOutputStream(file)), indent));
+		write(new FileOutputStream(file), tag);
 	}
 
 	public String toString(Tag tag) {

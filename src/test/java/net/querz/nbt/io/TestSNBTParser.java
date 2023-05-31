@@ -15,9 +15,9 @@ public class TestSNBTParser extends NBTTestCase {
 
 	@Test
 	public void testEverything() throws IOException {
-		String snbt = readResourceString(this, "everything_input.snbt");
+		String snbt = readResourceString(this, "everything.snbt");
 		Tag tag = new SNBTParser(snbt).parse();
-		Tag expected = NBTUtil.read(resourceAsStream(this, "everything_output.nbt"));
+		Tag expected = NBTUtil.read(resourceAsStream(this, "everything.nbt"));
 		assertEquals(expected, tag);
 	}
 
