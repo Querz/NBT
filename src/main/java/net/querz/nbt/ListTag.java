@@ -177,49 +177,93 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	public void clear() {
 		value.clear();
 	}
+	
+	public Tag getTag(int index) {
+		return value.get(index);
+	}
 
-	private NumberTag getNumber(int index) {
-		return (NumberTag) value.get(index);
+	public ByteTag getByteTag(int index) {
+		return (ByteTag) getTag(index);
+	}
+
+	public ShortTag getShortTag(int index) {
+		return (ShortTag) getTag(index);
+	}
+
+	public IntTag getIntTag(int index) {
+		return (IntTag) getTag(index);
+	}
+
+	public LongTag getLongTag(int index) {
+		return (LongTag) getTag(index);
+	}
+
+	public FloatTag getFloatTag(int index) {
+		return (FloatTag) getTag(index);
+	}
+
+	public DoubleTag getDoubleTag(int index) {
+		return (DoubleTag) getTag(index);
+	}
+
+	public StringTag getStringTag(int index) {
+		return (StringTag) getTag(index);
+	}
+
+	public ByteArrayTag getByteArrayTag(int index) {
+		return (ByteArrayTag) getTag(index);
+	}
+
+	public IntArrayTag getIntArrayTag(int index) {
+		return (IntArrayTag) getTag(index);
+	}
+
+	public LongArrayTag getLongArrayTag(int index) {
+		return (LongArrayTag) getTag(index);
+	}
+
+	public NumberTag getNumberTag(int index) {
+		return (NumberTag) getTag(index);
 	}
 
 	public byte getByte(int index) {
-		return getNumber(index).asByte();
+		return getNumberTag(index).asByte();
 	}
 
 	public short getShort(int index) {
-		return getNumber(index).asShort();
+		return getNumberTag(index).asShort();
 	}
 
 	public int getInt(int index) {
-		return getNumber(index).asInt();
+		return getNumberTag(index).asInt();
 	}
 
 	public long getLong(int index) {
-		return getNumber(index).asLong();
+		return getNumberTag(index).asLong();
 	}
 
 	public float getFloat(int index) {
-		return getNumber(index).asFloat();
+		return getNumberTag(index).asFloat();
 	}
 
 	public double getDouble(int index) {
-		return getNumber(index).asDouble();
+		return getNumberTag(index).asDouble();
 	}
 
 	public String getString(int index) {
-		return ((StringTag) value.get(index)).getValue();
+		return getStringTag(index).getValue();
 	}
 
 	public byte[] getByteArray(int index) {
-		return ((ByteArrayTag) value.get(index)).getValue();
+		return getByteArrayTag(index).getValue();
 	}
 
 	public int[] getIntArray(int index) {
-		return ((IntArrayTag) value.get(index)).getValue();
+		return getIntArrayTag(index).getValue();
 	}
 
 	public long[] getLongArray(int index) {
-		return ((LongArrayTag) value.get(index)).getValue();
+		return getLongArrayTag(index).getValue();
 	}
 
 	public CompoundTag getCompound(int index) {
