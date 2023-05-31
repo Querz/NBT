@@ -5,6 +5,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -12,7 +13,7 @@ import static net.querz.nbt.Tag.Type.*;
 
 public non-sealed class ListTag extends CollectionTag<Tag> {
 
-	private final List<Tag> value;
+	private final List<Tag> value = new ArrayList<>();
 	private Type type;
 
 	public ListTag() {
@@ -20,22 +21,13 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	}
 
 	public ListTag(Type type) {
-		this(new ArrayList<>(), type);
+		this(List.of(), type);
 	}
 
-	public ListTag(List<Tag> list, Type type) {
+	public ListTag(Collection<Tag> list, Type type) {
 		Objects.requireNonNull(list);
 		assimilateType(type);
-
-		for (int i = 0; i < list.size(); i++) {
-			Objects.requireNonNull(list.get(i));
-
-			if (list.get(i).getType() != type) {
-				throw new IllegalArgumentException("Incorrect tag type "+list.get(i).getType()+" at index "+i+" (expected "+type+")");
-			}
-		}
-
-		value = list;
+		addAll(list);
 	}
 
 	private void assimilateType(Type type) {
