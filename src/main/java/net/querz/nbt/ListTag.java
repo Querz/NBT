@@ -53,7 +53,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 
 		Tag old = value.get(index);
 		if (!updateType(tag)) {
-			throw new UnsupportedOperationException(String.format("trying to set tag of type %d in ListTag of %d", tag.getType().id, type.id));
+			throw new UnsupportedOperationException(String.format("trying to set tag of type %s in ListTag of %s", tag.getType(), type));
 		}
 		value.set(index, tag);
 		return old;
@@ -64,7 +64,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 		Objects.requireNonNull(tag);
 
 		if (!updateType(tag)) {
-			throw new UnsupportedOperationException(String.format("trying to add tag of type %d to ListTag of %d", tag.getType().id, type.id));
+			throw new UnsupportedOperationException(String.format("trying to add tag of type %s to ListTag of %s", tag.getType(), type));
 		}
 		value.add(index, tag);
 	}
@@ -367,7 +367,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	}
 
 	public <T extends Tag> List<T> iterateType(Class<T> tagClass) {
-		if (tagClass != type.tagClass) {
+		if (type != null && type.tagClass != tagClass) {
 			throw new IllegalArgumentException("Incorrect tagClass "+tagClass.getName()+", list is of type "+type.tagClass.getName());
 		}
 		return new TypedListTag<>(tagClass);

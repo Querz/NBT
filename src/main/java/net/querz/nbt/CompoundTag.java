@@ -436,7 +436,7 @@ public non-sealed class CompoundTag implements Tag, Map<String, Tag>, Iterable<M
 
 	public boolean contains(String key, Type type) {
 		Tag tag = value.get(key);
-		return tag.getType() == type;
+		return tag != null && tag.getType() == type;
 	}
 
 	public boolean containsNumber(String key) {
