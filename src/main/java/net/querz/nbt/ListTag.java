@@ -22,6 +22,16 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 	}
 
 	public ListTag(List<Tag> list, byte type) {
+		Objects.requireNonNull(list);
+
+		for (int i = 0; i < list.size(); i++) {
+			Objects.requireNonNull(list.get(i));
+
+			if (list.get(i).getID() != type) {
+				throw new IllegalArgumentException("Incorrect tag type "+list.get(i).getID()+" at index "+i+" (expected "+type+")");
+			}
+		}
+
 		value = list;
 		this.type = type;
 	}
@@ -33,6 +43,8 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 
 	@Override
 	public Tag set(int index, Tag tag) {
+		Objects.requireNonNull(tag);
+
 		Tag old = value.get(index);
 		if (!updateType(tag)) {
 			throw new UnsupportedOperationException(String.format("trying to set tag of type %d in ListTag of %d", tag.getID(), type));
@@ -43,6 +55,8 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 
 	@Override
 	public void add(int index, Tag tag) {
+		Objects.requireNonNull(tag);
+
 		if (!updateType(tag)) {
 			throw new UnsupportedOperationException(String.format("trying to add tag of type %d to ListTag of %d", tag.getID(), type));
 		}
@@ -163,7 +177,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 		if (this == other) {
 			return true;
 		} else {
-			return other instanceof ListTag && Objects.equals(value, ((ListTag) other).value);
+			return other instanceof ListTag otherList && value.equals(otherList.value);
 		}
 	}
 
@@ -374,11 +388,13 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 		@SuppressWarnings("unchecked")
 		@Override
 		public T set(int index, T element) {
+			Objects.requireNonNull(element);
 			return (T) ListTag.this.set(index, element);
 		}
 
 		@Override
 		public void add(int index, T element) {
+			Objects.requireNonNull(element);
 			ListTag.this.add(index, element);
 		}
 

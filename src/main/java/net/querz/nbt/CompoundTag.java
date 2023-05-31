@@ -78,6 +78,11 @@ public non-sealed class CompoundTag implements Tag, Map<String, Tag>, Iterable<M
 
 	@Override
 	public Tag put(String key, Tag tag) {
+		Objects.requireNonNull(key);
+		Objects.requireNonNull(tag);
+		if (tag.getID() == END) {
+			throw new IllegalArgumentException("Can't insert end tag into CompoundTag");
+		}
 		return value.put(key, tag);
 	}
 
@@ -89,47 +94,47 @@ public non-sealed class CompoundTag implements Tag, Map<String, Tag>, Iterable<M
 	}
 
 	public void putByte(String key, byte b) {
-		value.put(key, ByteTag.valueOf(b));
+		put(key, ByteTag.valueOf(b));
 	}
 
 	public void putShort(String key, short s) {
-		value.put(key, ShortTag.valueOf(s));
+		put(key, ShortTag.valueOf(s));
 	}
 
 	public void putInt(String key, int i) {
-		value.put(key, IntTag.valueOf(i));
+		put(key, IntTag.valueOf(i));
 	}
 
 	public void putLong(String key, long l) {
-		value.put(key, LongTag.valueOf(l));
+		put(key, LongTag.valueOf(l));
 	}
 
 	public void putFloat(String key, float f) {
-		value.put(key, FloatTag.valueOf(f));
+		put(key, FloatTag.valueOf(f));
 	}
 
 	public void putDouble(String key, double d) {
-		value.put(key, DoubleTag.valueOf(d));
+		put(key, DoubleTag.valueOf(d));
 	}
 
 	public void putString(String key, String s) {
-		value.put(key, StringTag.valueOf(s));
+		put(key, StringTag.valueOf(s));
 	}
 
 	public void putByteArray(String key, byte[] b) {
-		value.put(key, new ByteArrayTag(b));
+		put(key, new ByteArrayTag(b));
 	}
 
 	public void putIntArray(String key, int[] i) {
-		value.put(key, new IntArrayTag(i));
+		put(key, new IntArrayTag(i));
 	}
 
 	public void putLongArray(String key, long[] l) {
-		value.put(key, new LongArrayTag(l));
+		put(key, new LongArrayTag(l));
 	}
 
 	public void putBoolean(String key, boolean b) {
-		value.put(key, ByteTag.valueOf(b));
+		put(key, ByteTag.valueOf(b));
 	}
 
 	public Tag get(String key) {
