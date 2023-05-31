@@ -90,7 +90,7 @@ public non-sealed class IntArrayTag extends CollectionTag<IntTag> {
 	}
 
 	@Override
-	public void accept(TagVisitor visitor) throws Exception {
+	public void accept(TagVisitor visitor) {
 		visitor.visit(this);
 	}
 

@@ -3,6 +3,7 @@ package net.querz.nbt.io.snbt;
 import net.querz.nbt.Tag;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 public final class SNBTWriter {
 
@@ -14,14 +15,20 @@ public final class SNBTWriter {
 	}
 
 	public void write(OutputStream out, Tag tag) throws IOException {
-		new SNBTTagVisitorWriter(new PrintWriter(out), indent).visit(tag);
+		tag.accept(new SNBTWriterTagVisitor(new PrintWriter(out), indent));
 	}
 
 	public void write(File file, Tag tag) throws IOException {
-		new SNBTTagVisitorWriter(new PrintWriter(new FileOutputStream(file)), indent).visit(tag);
+		tag.accept(new SNBTWriterTagVisitor(new PrintWriter(new FileOutputStream(file)), indent));
 	}
 
 	public String toString(Tag tag) {
-		return new SNBTTagVisitor(indent).visit(tag);
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			write(baos, tag);
+			return baos.toString(StandardCharsets.UTF_8);
+		} catch (IOException ex) {
+			throw new UncheckedIOException(ex);
+		}
 	}
 }

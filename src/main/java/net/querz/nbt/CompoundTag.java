@@ -48,7 +48,7 @@ public non-sealed class CompoundTag implements Tag, Map<String, Tag>, Iterable<M
 	}
 
 	@Override
-	public void accept(TagVisitor visitor) throws Exception {
+	public void accept(TagVisitor visitor) {
 		visitor.visit(this);
 	}
 

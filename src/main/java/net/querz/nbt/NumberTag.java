@@ -15,4 +15,7 @@ public sealed abstract class NumberTag implements Tag permits ByteTag, DoubleTag
 	public abstract double asDouble();
 
 	public abstract Number asNumber();
+
+	public abstract String toString();
+
 }
