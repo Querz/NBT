@@ -1,13 +1,13 @@
 package net.querz.mca;
 
 import net.querz.nbt.tag.CompoundTag;
-import net.querz.nbt.tag.EndTag;
 import net.querz.nbt.tag.ListTag;
 import static net.querz.mca.LoadFlags.*;
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+
+import java.io.*;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Objects;
 
 public class MCAFileTest extends MCATestCase {
 
@@ -113,6 +113,7 @@ public class MCAFileTest extends MCATestCase {
 		CompoundTag data = new CompoundTag();
 		CompoundTag level = new CompoundTag();
 		data.put("Level", level);
+		data.putInt("DataVersion", DataVersion.JAVA_1_16_5.id());
 		return new Chunk(data);
 	}
 
@@ -161,7 +162,7 @@ public class MCAFileTest extends MCATestCase {
 		assertEquals(getSomeListTagList(), f.getChunk(1023).getPostProcessing());
 		f.getChunk(1023).setStructures(getSomeCompoundTag());
 		assertEquals(getSomeCompoundTag(), f.getChunk(1023).getStructures());
-		Section s = new Section();
+		Section s = f.getChunk(1023).createSection();
 		f.getChunk(1023).setSection(0, s);
 		assertEquals(s, f.getChunk(1023).getSection(0));
 		assertThrowsRuntimeException(() -> f.getChunk(1023).getSection(0).setBlockStates(null), NullPointerException.class);
@@ -181,21 +182,32 @@ public class MCAFileTest extends MCATestCase {
 		assertThrowsNoRuntimeException(() -> f.getChunk(1023).getSection(0).setSkyLight(null));
 	}
 
-	public void testGetBiomeAt() {
+	public void testGetBiomeAt2D() {
 		MCAFile f = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("r.2.2.mca")));
 		assertEquals(21, f.getBiomeAt(1024, 1024));
 		assertEquals(-1, f.getBiomeAt(1040, 1024));
 		f.setChunk(0, 1, Chunk.newChunk(2201));
 		assertEquals(-1, f.getBiomeAt(1024, 1040));
-
 	}
 
-	public void testSetBiomeAt() {
-		MCAFile f = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("r.2.2.mca")), true);
+	public void testSetBiomeAt_2D_2dBiomeWorld() {
+		MCAFile f = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("r.2.2.mca")));
 		f.setBiomeAt(1024, 1024, 20);
 		assertEquals(20, f.getChunk(64, 64).updateHandle(64, 64).getCompoundTag("Level").getIntArray("Biomes")[0]);
 		f.setBiomeAt(1039, 1039, 47);
 		assertEquals(47, f.getChunk(64, 64).updateHandle(64, 64).getCompoundTag("Level").getIntArray("Biomes")[255]);
+		f.setBiomeAt(1040, 1024, 20);
+
+		int[] biomes = f.getChunk(65, 64).updateHandle(65, 64).getCompoundTag("Level").getIntArray("Biomes");
+		assertEquals(256, biomes.length);
+		assertEquals(20, biomes[0]);
+		for (int i = 1; i < 256; i++) {
+			assertEquals(-1, biomes[i]);
+		}
+	}
+
+	public void testSetBiomeAt_2D_3DBiomeWorld() {
+		MCAFile f = new MCAFile(2, 2, DataVersion.JAVA_1_15_0);
 		f.setBiomeAt(1040, 1024, 20);
 		int[] biomes = f.getChunk(65, 64).updateHandle(65, 64).getCompoundTag("Level").getIntArray("Biomes");
 		assertEquals(1024, biomes.length);
@@ -234,8 +246,21 @@ public class MCAFileTest extends MCATestCase {
 		assertEquals(256, s.updateHandle(0).getLongArray("BlockStates").length);
 	}
 
+	public void testMaxAndMinSectionY() {
+		MCAFile f = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("r.2.2.mca")));
+		Chunk c = f.getChunk(0, 0);
+		assertEquals(0, c.getMinSectionY());
+		assertEquals(5, c.getMaxSectionY());
+		c.setSection(-64 / 16, Section.newSection());
+		c.setSection((320 - 16) / 16, Section.newSection());
+		assertEquals(-4, c.getMinSectionY());
+		assertEquals(19, c.getMaxSectionY());
+	}
+
 	public void testSetBlockDataAt() {
 		MCAFile f = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("r.2.2.mca")));
+		assertEquals(f.getMaxChunkDataVersion(), f.getMinChunkDataVersion());
+		assertTrue(f.getDefaultChunkDataVersion() > 0);
 		Section section = f.getChunk(0, 0).getSection(0);
 		assertEquals(10, section.getPalette().size());
 		assertEquals(0b0001000100010001000100010001000100010001000100010001000100010001L, section.getBlockStates()[0]);
@@ -260,6 +285,7 @@ public class MCAFileTest extends MCATestCase {
 		assertNull(f.getChunk(1, 0));
 		f.setBlockStateAt(17, 0, 0, block("minecraft:test"), false);
 		assertNotNull(f.getChunk(1, 0));
+		assertEquals(f.getDefaultChunkDataVersion(), f.getChunk(1, 0).getDataVersion());
 		ListTag<CompoundTag> s = f.getChunk(1, 0).updateHandle(65, 64).getCompoundTag("Level").getListTag("Sections").asCompoundTagList();
 		assertEquals(1, s.size());
 		assertEquals(2, s.get(0).getListTag("Palette").size());
@@ -436,7 +462,7 @@ public class MCAFileTest extends MCATestCase {
 		}
 	}
 
-	public void test1_15GetBiomeAt() throws IOException {
+	public void test1_15GetBiomeAt() {
 		MCAFile f = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("r.0.0.mca")));
 		assertEquals(162, f.getBiomeAt(31, 0, 63));
 		assertEquals(4, f.getBiomeAt(16, 0, 48));
@@ -450,5 +476,126 @@ public class MCAFileTest extends MCATestCase {
 		assertEquals(4, f.getBiomeAt(16, 106, 48));
 		assertEquals(4, f.getBiomeAt(16, 106, 63));
 		assertEquals(162, f.getBiomeAt(31, 106, 48));
+	}
+
+	public void testChunkSectionPutSection() {
+		MCAFile mca = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("1_17_1/region/r.-3.-2.mca")));
+		Chunk chunk = mca.stream().filter(Objects::nonNull).findFirst().orElse(null);
+		assertNotNull(chunk);
+		final Section section2 = chunk.getSection(2);
+		assertNull(chunk.putSection(2, section2));  // no error to replace self
+		assertThrowsException(() -> chunk.putSection(3, section2), IllegalArgumentException.class);  // should fail
+		assertNotSame(section2, chunk.getSection(3));  // shouldn't have updated section 3
+		final Section newSection = chunk.createSection();
+		final Section prevSection2 = chunk.putSection(2, newSection);  // replace existing section 2 with the new one
+		assertNotNull(prevSection2);
+		assertSame(section2, prevSection2);  // check we got the existing section 2 when we replaced it
+		assertSame(newSection, chunk.getSection(2));  // verify we put section 2
+		assertEquals(2, newSection.getHeight());  // insertion should update section height
+		final Section section3 = chunk.putSection(3, section2);  // should be OK to put old section 2 into section 3 place now
+
+		final Section section1 = chunk.getSection(1);
+		final Section prevSection5 = chunk.putSection(5, section1, true);  // move section 1 into section 5
+		assertNotNull(prevSection5);
+		assertNull(chunk.getSection(1));  // verify we 'moved' section one out
+		assertNotSame(section1, prevSection5);  // make sure the return value isn't stupid
+		assertNull(chunk.putSection(1, prevSection5, true));  // moving 5 into empty slot is OK
+
+		// guard against section y default(0) case
+		final Section section0 = chunk.getSection(0);
+		final Section newSection0 = chunk.createSection();
+		assertSame(section0, chunk.putSection(0, newSection0));
+
+		// and finally direct removal via putting null
+		assertSame(newSection0, chunk.putSection(0, null));
+		assertNull(chunk.getSection(0));
+		assertNull(chunk.putSection(0, null));
+		chunk.putSection(0, section0);
+		assertSame(section0, chunk.putSection(0, null, true));
+		assertNull(chunk.getSection(0));
+
+		assertThrowsException(() -> chunk.putSection(Byte.MIN_VALUE - 1, chunk.createSection()), IllegalArgumentException.class);
+		assertThrowsException(() -> chunk.putSection(Byte.MAX_VALUE + 1, chunk.createSection()), IllegalArgumentException.class);
+
+		assertThrowsNoException(() -> chunk.putSection(Byte.MIN_VALUE, chunk.createSection()));
+		assertThrowsNoException(() -> chunk.putSection(Byte.MAX_VALUE, chunk.createSection()));
+	}
+
+	public void testChunkSectionGetSectionY() {
+		MCAFile mca = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("1_17_1/region/r.-3.-2.mca")));
+		Chunk chunk = mca.stream().filter(Objects::nonNull).findFirst().orElse(null);
+		assertNotNull(chunk);
+		assertEquals(SectionBase.NO_HEIGHT_SENTINEL, chunk.getSectionY(null));
+		assertEquals(SectionBase.NO_HEIGHT_SENTINEL, chunk.getSectionY(chunk.createSection()));
+		Section section = chunk.getSection(5);
+		section.setHeight(-5);
+		assertEquals(5, chunk.getSectionY(section));
+		assertEquals(5, section.getHeight());  // getSectionY should sync Y
+	}
+
+	public void testChunkSectionMinMaxSectionY() {
+		Chunk chunk = new Chunk(42);
+		chunk.setDataVersion(DataVersion.JAVA_1_17_1.id());
+		assertEquals(SectionBase.NO_HEIGHT_SENTINEL, chunk.getMinSectionY());
+		assertEquals(SectionBase.NO_HEIGHT_SENTINEL, chunk.getMaxSectionY());
+		Section section = chunk.createSection(3);
+
+	}
+
+	public void testMCAFileChunkIterator() {
+		MCAFile mca = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("1_17_1/region/r.-3.-2.mca")));
+		ChunkIterator<Chunk> iter = mca.iterator();
+		assertEquals(-1, iter.currentIndex());
+		final int populatedX = -65 & 0x1F;
+		final int populatedZ = -42 & 0x1F;
+		int i = 0;
+		for (int z = 0; z < 32; z++) {
+			for (int x = 0; x < 32; x++) {
+				assertTrue(iter.hasNext());
+				Chunk chunk = iter.next();
+				assertEquals(i, iter.currentIndex());
+				assertEquals(x, iter.currentX());
+				assertEquals(z, iter.currentZ());
+				if (x == populatedX && z == populatedZ) {
+					assertNotNull(chunk);
+				} else {
+					assertNull(chunk);
+				}
+				if (i == 1023) {
+					iter.set(mca.createChunk());
+				}
+				i++;
+			}
+		}
+		assertFalse(iter.hasNext());
+		assertNotNull(mca.getChunk(1023));
+	}
+
+	public void testChunkSectionIterator() {
+		MCAFile mca = assertThrowsNoException(() -> MCAUtil.read(copyResourceToTmp("1_17_1/region/r.-3.-2.mca")));
+		assertEquals(1, mca.count());
+		Chunk chunk = mca.stream().filter(Objects::nonNull).findFirst().orElse(null);
+		assertNotNull(chunk);
+		final int minY = chunk.getMinSectionY();
+		final int maxY = chunk.getMaxSectionY();
+		assertNotNull(chunk.getSection(minY));
+		assertNotNull(chunk.getSection(maxY));
+		SectionIterator<Section> iter = chunk.iterator();
+		for (int y = minY; y <= maxY; y++) {
+			assertTrue(iter.hasNext());
+			Section section = iter.next();
+			assertNotNull(section);
+			assertEquals(y, iter.sectionY());
+			assertEquals(y, section.getHeight());
+			if (y > maxY - 2) {
+				iter.remove();
+			}
+		}
+		assertFalse(iter.hasNext());
+		assertEquals(minY, chunk.getMinSectionY());
+		assertEquals(maxY - 2, chunk.getMaxSectionY());
+		assertNull(chunk.getSection(maxY));
+		assertNull(chunk.getSection(maxY - 1));
+		assertNotNull(chunk.getSection(maxY - 2));
 	}
 }

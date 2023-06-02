@@ -1,33 +1,50 @@
 package net.querz.mca;
 
+import static net.querz.mca.DataVersion.JAVA_1_16_20W17A;
 import static net.querz.mca.LoadFlags.*;
 import net.querz.nbt.tag.ByteArrayTag;
 import net.querz.nbt.tag.CompoundTag;
 import net.querz.nbt.tag.ListTag;
 import net.querz.nbt.tag.LongArrayTag;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
-public class Section implements Comparable<Section> {
+import java.util.*;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
-	private CompoundTag data;
-	private Map<String, List<PaletteIndex>> valueIndexedPalette = new HashMap<>();
-	private ListTag<CompoundTag> palette;
-	private byte[] blockLight;
-	private long[] blockStates;
-	private byte[] skyLight;
-	private int height;
-	int dataVersion;
+/**
+ * Represents a REGION data chunk section. Sections can be thought of as "sub-chunks"
+ * which are 16x16x16 block cubes stacked atop each other to create a "chunk".
+ */
+public class Section extends SectionBase<Section> {
+
+	private int dataVersion;  // for internal use only - must be kept in sync with chunk data version
+	protected Map<String, List<PaletteIndex>> valueIndexedPalette = new HashMap<>();
+	protected ListTag<CompoundTag> palette;
+	protected byte[] blockLight;
+	protected long[] blockStates;
+	protected byte[] skyLight;
+
+	public static byte[] createBlockLightBuffer() {
+		return new byte[2048];
+	}
+
+	public static long[] createBlockStates() {
+		return new long[256];
+	}
+
+	public static byte[] createSkyLightBuffer() {
+		return new byte[2048];
+	}
 
 	public Section(CompoundTag sectionRoot, int dataVersion) {
 		this(sectionRoot, dataVersion, ALL_DATA);
 	}
 
 	public Section(CompoundTag sectionRoot, int dataVersion, long loadFlags) {
-		data = sectionRoot;
+		super(sectionRoot);
+		if (dataVersion <= 0) {
+			throw new IllegalArgumentException("Invalid data version - must be GT 0");
+		}
 		this.dataVersion = dataVersion;
 		height = sectionRoot.getNumber("Y").byteValue();
 
@@ -41,23 +58,39 @@ public class Section implements Comparable<Section> {
 			putValueIndexedPalette(data, i);
 		}
 
-		ByteArrayTag blockLight = sectionRoot.getByteArrayTag("BlockLight");
-		LongArrayTag blockStates = sectionRoot.getLongArrayTag("BlockStates");
-		ByteArrayTag skyLight = sectionRoot.getByteArrayTag("SkyLight");
-
 		if ((loadFlags & BLOCK_LIGHTS) != 0) {
-			this.blockLight = blockLight != null ? blockLight.getValue() : null;
+			ByteArrayTag blockLight = sectionRoot.getByteArrayTag("BlockLight");
+			if (blockLight != null) this.blockLight = blockLight.getValue();
 		}
 		if ((loadFlags & BLOCK_STATES) != 0) {
-			this.blockStates = blockStates != null ? blockStates.getValue() : null;
+			LongArrayTag blockStates = sectionRoot.getLongArrayTag("BlockStates");
+			if (blockStates != null) this.blockStates = blockStates.getValue();
 		}
 		if ((loadFlags & SKY_LIGHT) != 0) {
-			this.skyLight = skyLight != null ? skyLight.getValue() : null;
+			ByteArrayTag skyLight = sectionRoot.getByteArrayTag("SkyLight");
+			if (skyLight != null) this.skyLight = skyLight.getValue();
 		}
 	}
 
-	Section() {}
+	Section(int dataVersion) {
+		this.dataVersion = dataVersion;
+		blockLight = createBlockLightBuffer();
+		blockStates = createBlockStates();
+		skyLight = createSkyLightBuffer();
+		palette = new ListTag<>(CompoundTag.class);
+		CompoundTag air = new CompoundTag();
+		air.putString("Name", "minecraft:air");
+		palette.add(air);
+	}
 
+	private void assureBlockStates() {
+		if (blockStates == null) blockStates = createBlockStates();
+	}
+
+	private void assurePalette() {
+		if (palette == null) palette = new ListTag<>(CompoundTag.class);
+	}
+	
 	void putValueIndexedPalette(CompoundTag data, int index) {
 		PaletteIndex leaf = new PaletteIndex(data, index);
 		String name = data.getString("Name");
@@ -89,14 +122,6 @@ public class Section implements Comparable<Section> {
 		return null;
 	}
 
-	@Override
-	public int compareTo(Section o) {
-		if (o == null) {
-			return -1;
-		}
-		return Integer.compare(height, o.height);
-	}
-
 	private static class PaletteIndex {
 
 		CompoundTag data;
@@ -106,25 +131,6 @@ public class Section implements Comparable<Section> {
 			this.data = data;
 			this.index = index;
 		}
-	}
-
-	/**
-	 * Checks whether the data of this Section is empty.
-	 * @return true if empty
-	 */
-	public boolean isEmpty() {
-		return data == null;
-	}
-
-	/**
-	* @return the Y value of this section.
-	* */
-	public int getHeight() {
-		return height;
-	}
-
-	public void setHeight(int height) {
-		this.height = height;
 	}
 
 	/**
@@ -150,17 +156,23 @@ public class Section implements Comparable<Section> {
 	 * @param blockY The y-coordinate of the block in this Section
 	 * @param blockZ The z-coordinate of the block in this Section
 	 * @param state The block state to be set
-	 * @param cleanup When <code>true</code>, it will cleanup the palette of this section.
+	 * @param cleanup When <code>true</code>, it will force a cleanup the palette of this section.
 	 *                This option should only be used moderately to avoid unnecessary recalculation of the palette indices.
 	 *                Recalculating the Palette should only be executed once right before saving the Section to file.
+	 * @return True if {@link Section#cleanupPaletteAndBlockStates()} was run as a result of this call.
+	 * 		Note that it is possible that {@link Section#cleanupPaletteAndBlockStates()} needed to be called even if
+	 * 		the {@code cleanup} argument was {@code false}. In summary if the last call made to this function returns
+	 * 		{@code true} you can skip the call to {@link Section#cleanupPaletteAndBlockStates()}.
 	 */
-	public void setBlockStateAt(int blockX, int blockY, int blockZ, CompoundTag state, boolean cleanup) {
+	public boolean setBlockStateAt(int blockX, int blockY, int blockZ, CompoundTag state, boolean cleanup) {
+		assurePalette();
 		int paletteSizeBefore = palette.size();
 		int paletteIndex = addToPalette(state);
 		//power of 2 --> bits must increase, but only if the palette size changed
 		//otherwise we would attempt to update all blockstates and the entire palette
 		//every time an existing blockstate was added while having 2^x blockstates in the palette
 		if (paletteSizeBefore != palette.size() && (paletteIndex & (paletteIndex - 1)) == 0) {
+			assureBlockStates();
 			adjustBlockStateBits(null, blockStates);
 			cleanup = true;
 		}
@@ -169,18 +181,21 @@ public class Section implements Comparable<Section> {
 
 		if (cleanup) {
 			cleanupPaletteAndBlockStates();
+			return true;
 		}
+		return false;
 	}
 
 	/**
 	 * Returns the index of the block data in the palette.
 	 * @param blockStateIndex The index of the block in this section, ranging from 0-4095.
 	 * @return The index of the block data in the palette.
-	 * */
+	 */
 	public int getPaletteIndex(int blockStateIndex) {
+		assureBlockStates();
 		int bits = blockStates.length >> 6;
 
-		if (dataVersion < 2527) {
+		if (dataVersion > 0 && dataVersion < JAVA_1_16_20W17A.id()) {
 			double blockStatesIndex = blockStateIndex / (4096D / blockStates.length);
 			int longIndex = (int) blockStatesIndex;
 			int startBit = (int) ((blockStatesIndex - Math.floor(blockStatesIndex)) * 64D);
@@ -204,11 +219,12 @@ public class Section implements Comparable<Section> {
 	 * @param blockIndex The index of the block in this section, ranging from 0-4095.
 	 * @param paletteIndex The block state to be set (index of block data in the palette).
 	 * @param blockStates The block states to be updated.
-	 * */
+	 */
 	public void setPaletteIndex(int blockIndex, int paletteIndex, long[] blockStates) {
+		Objects.requireNonNull(blockStates, "blockStates must not be null");
 		int bits = blockStates.length >> 6;
 
-		if (dataVersion < 2527) {
+		if (dataVersion < JAVA_1_16_20W17A.id()) {
 			double blockStatesIndex = blockIndex / (4096D / blockStates.length);
 			int longIndex = (int) blockStatesIndex;
 			int startBit = (int) ((blockStatesIndex - Math.floor(longIndex)) * 64D);
@@ -224,6 +240,31 @@ public class Section implements Comparable<Section> {
 			int startBit = (blockIndex % indicesPerLong) * bits;
 			blockStates[blockStatesIndex] = updateBits(blockStates[blockStatesIndex], paletteIndex, startBit, startBit + bits);
 		}
+	}
+
+	private void upgradeFromBefore20W17A(final int targetVersion) {
+		int newBits = 32 - Integer.numberOfLeadingZeros(palette.size() - 1);
+		newBits = Math.max(newBits, 4);
+		long[] newBlockStates;
+
+		int newLength = (int) Math.ceil(4096D / (Math.floor(64D / newBits)));
+		newBlockStates = newBits == blockStates.length / 64 ? blockStates : new long[newLength];
+
+		for (int i = 0; i < 4096; i++) {
+			setPaletteIndex(i, getPaletteIndex(i), newBlockStates);
+		}
+		this.blockStates = newBlockStates;
+		this.dataVersion = targetVersion;
+	}
+
+	protected void setDataVersion(int newDataVersion) {
+		if (newDataVersion <= 0) {
+			throw new IllegalArgumentException("Invalid data version - must be GT 0");
+		}
+		if (dataVersion < JAVA_1_16_20W17A.id() && newDataVersion >= JAVA_1_16_20W17A.id()) {
+			upgradeFromBefore20W17A(newDataVersion);
+		}
+		dataVersion = newDataVersion;
 	}
 
 	/**
@@ -265,7 +306,7 @@ public class Section implements Comparable<Section> {
 	 * Recalculating the Palette should only be executed once right before saving the Section to file.
 	 */
 	public void cleanupPaletteAndBlockStates() {
-		if (blockStates != null) {
+		if (blockStates != null && palette != null) {
 			Map<Integer, Integer> oldToNewMapping = cleanupPalette();
 			adjustBlockStateBits(oldToNewMapping, blockStates);
 		}
@@ -307,7 +348,7 @@ public class Section implements Comparable<Section> {
 
 		long[] newBlockStates;
 
-		if (dataVersion < 2527) {
+		if (dataVersion < JAVA_1_16_20W17A.id()) {
 			newBlockStates = newBits == blockStates.length / 64 ? blockStates : new long[newBits * 64];
 		} else {
 			int newLength = (int) Math.ceil(4096D / (Math.floor(64D / newBits)));
@@ -388,16 +429,11 @@ public class Section implements Comparable<Section> {
 	/**
 	 * Creates an empty Section with base values.
 	 * @return An empty Section
+	 * @deprecated Dangerous - prefer using {@link Chunk#createSection()} instead.
 	 */
+	@Deprecated
 	public static Section newSection() {
-		Section s = new Section();
-		s.blockStates = new long[256];
-		s.palette = new ListTag<>(CompoundTag.class);
-		CompoundTag air = new CompoundTag();
-		air.putString("Name", "minecraft:air");
-		s.palette.add(air);
-		s.data = new CompoundTag();
-		return s;
+		return new Section(DataVersion.latest().id());
 	}
 
 	/**
@@ -407,7 +443,9 @@ public class Section implements Comparable<Section> {
 	 * @param y The Y-value of this Section
 	 * @return A reference to the raw CompoundTag this Section is based on
 	 */
+	@Override
 	public CompoundTag updateHandle(int y) {
+		checkY(y);
 		data.putByte("Y", (byte) y);
 		if (palette != null) {
 			data.put("Palette", palette);
@@ -424,50 +462,105 @@ public class Section implements Comparable<Section> {
 		return data;
 	}
 
-	public CompoundTag updateHandle() {
-		return updateHandle(height);
-	}
-
 	/**
 	 * Creates an iterable that iterates over all blocks in this section, in order of their indices.
-	 * An index can be calculated using the following formula:
+	 * XYZ can be calculated with the following formulas:
 	 * <pre>
 	 * {@code
-	 * index = (blockY & 0xF) * 256 + (blockZ & 0xF) * 16 + (blockX & 0xF);
+	 * x = index & 0xF;
+	 * z = (index >> 4) & 0xF;
+	 * y = index >> 8;
 	 * }
 	 * </pre>
 	 * The CompoundTags are references to this Section's Palette and should only be modified if the intention is to
 	 * modify ALL blocks of the same type in this Section at the same time.
-	 * */
-	public Iterable<CompoundTag> blocksStates() {
-		return new BlockIterator(this);
+	 */
+	public BlockStateIterator blocksStates() {
+		return new BlockStateIteratorImpl(this);
 	}
 
-	private static class BlockIterator implements Iterable<CompoundTag>, Iterator<CompoundTag> {
+	protected static class BlockStateIteratorImpl implements BlockStateIterator {
 
-		private Section section;
+		private final Section section;
+		private final int sectionWorldY;
 		private int currentIndex;
+		private CompoundTag currentTag;
+		private boolean dirty;
 
-		public BlockIterator(Section section) {
+		public BlockStateIteratorImpl(Section section) {
 			this.section = section;
-			currentIndex = 0;
+			this.sectionWorldY = section.getHeight() * 16;
+			currentIndex = -1;
 		}
 
 		@Override
 		public boolean hasNext() {
-			return currentIndex < 4096;
+			return currentIndex < 4095;
 		}
 
 		@Override
 		public CompoundTag next() {
-			CompoundTag blockState = section.getBlockStateAt(currentIndex);
-			currentIndex++;
-			return blockState;
+			return currentTag = section.getBlockStateAt(++currentIndex);
 		}
 
 		@Override
 		public Iterator<CompoundTag> iterator() {
 			return this;
 		}
+
+		@Override
+		public void setBlockStateAtCurrent(CompoundTag state) {
+			Objects.requireNonNull(state);
+			if (currentTag != state) {
+				dirty = !section.setBlockStateAt(currentX(), currentY(), currentZ(), state, false);
+			}
+		}
+
+		@Override
+		public void cleanupPaletteAndBlockStatesIfDirty() {
+			if (dirty) section.cleanupPaletteAndBlockStates();
+		}
+
+		@Override
+		public int currentIndex() {
+			return currentIndex;
+		}
+
+		@Override
+		public int currentX() {
+			return currentIndex & 0xF;
+		}
+
+		@Override
+		public int currentZ() {
+			return (currentIndex >> 4) & 0xF;
+		}
+
+		@Override
+		public int currentY() {
+			return currentIndex >> 8;
+		}
+
+		@Override
+		public int currentBlockY() {
+			return sectionWorldY + (currentIndex >> 8);
+		}
+	}
+
+	/**
+	 * Streams all blocks in this section, in order of their indices.
+	 * XYZ can be calculated with the following formulas:
+	 * <pre>
+	 * {@code
+	 * x = index & 0xF;
+	 * z = (index >> 4) & 0xF;
+	 * y = index >> 8;
+	 * }
+	 * </pre>
+	 * The CompoundTags are references to this Section's Palette and should only be modified if the intention is to
+	 * modify ALL blocks of the same type in this Section at the same time.
+	 */
+	public Stream<CompoundTag> streamBlocksStates() {
+		return StreamSupport.stream(blocksStates().spliterator(), false);
 	}
 }

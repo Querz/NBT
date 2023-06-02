@@ -1,5 +1,6 @@
 package net.querz;
 
+import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 import net.querz.nbt.io.NBTDeserializer;
 import net.querz.nbt.io.NBTSerializer;
@@ -19,6 +20,8 @@ import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
@@ -151,20 +154,19 @@ public abstract class NBTTestCase extends TestCase {
 		}
 	}
 
-	protected <T, E extends Exception> T assertThrowsNoException(ExceptionSupplier<T, E> r) {
-		return assertThrowsNoException(r, false);
+	private static class UnexpectedExceptionThrownException extends AssertionFailedError {
+		public UnexpectedExceptionThrownException(Exception ex) {
+			super("Threw exception " + ex.getClass().getName() + " with message \"" + ex.getMessage() + "\"");
+			this.setStackTrace(ex.getStackTrace());
+		}
 	}
 
-	protected <T, E extends Exception> T assertThrowsNoException(ExceptionSupplier<T, E> r, boolean printStackTrace) {
+	protected <T, E extends Exception> T assertThrowsNoException(ExceptionSupplier<T, E> r) {
 		try {
 			return r.run();
 		} catch (Exception ex) {
-			if (printStackTrace) {
-				ex.printStackTrace();
-			}
-			TestCase.fail("Threw exception " + ex.getClass().getName() + " with message \"" + ex.getMessage() + "\"");
+			throw new UnexpectedExceptionThrownException(ex);
 		}
-		return null;
 	}
 
 	protected void assertThrowsRuntimeException(Runnable r, Class<? extends Exception> e) {
@@ -213,25 +215,19 @@ public abstract class NBTTestCase extends TestCase {
 	}
 
 	protected File getNewTmpFile(String name) {
-		String workingDir = System.getProperty("user.dir");
-		File tmpDir = new File(workingDir, "tmp");
-		if (!tmpDir.exists()) {
-			tmpDir.mkdirs();
+		final String workingDir = System.getProperty("user.dir");
+		Path tmpPath = Paths.get(
+				workingDir,
+				"tmp",
+				this.getClass().getSimpleName(),
+				getName(),
+				UUID.randomUUID().toString(),
+				name);
+		File dir = tmpPath.getParent().toFile();
+		if (!dir.exists()) {
+			dir.mkdirs();
 		}
-		File tmpFile = new File(tmpDir, name);
-		if (tmpFile.exists()) {
-			tmpFile = new File(tmpDir, UUID.randomUUID() + name);
-		}
-		return tmpFile;
-	}
-
-	protected File getTmpFile(String name) {
-		String workingDir = System.getProperty("user.dir");
-		File tmpDir = new File(workingDir, "tmp");
-		if (!tmpDir.exists()) {
-			tmpDir.mkdirs();
-		}
-		return new File(tmpDir, name);
+		return tmpPath.toFile();
 	}
 
 	protected File copyResourceToTmp(String resource) {
@@ -243,16 +239,18 @@ public abstract class NBTTestCase extends TestCase {
 		return tmpFile;
 	}
 
-	protected void cleanupTmpDir() {
-		String workingDir = System.getProperty("user.dir");
-		File tmpDir = new File(workingDir, "tmp");
-		File[] tmpFiles = tmpDir.listFiles();
-		if (tmpFiles != null && tmpFiles.length != 0) {
-			for (File file : tmpFiles) {
-				file.delete();
+	private void deleteRecursive(File deleteMe) {
+		File[] contents = deleteMe.listFiles();
+		if (contents != null) {
+			for (File file : contents) {
+				deleteRecursive(file);
 			}
 		}
-		tmpDir.delete();
+		deleteMe.delete();
+	}
+
+	protected void cleanupTmpDir() {
+		deleteRecursive(new File(System.getProperty("user.dir"), "tmp"));
 	}
 
 	protected String calculateFileMD5(File file) {

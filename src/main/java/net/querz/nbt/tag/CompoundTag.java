@@ -36,6 +36,10 @@ public class CompoundTag extends Tag<Map<String, Tag<?>>>
 		return getValue().size();
 	}
 
+	public boolean isEmpty() {
+		return getValue().isEmpty();
+	}
+
 	public Tag<?> remove(String key) {
 		return getValue().remove(key);
 	}
@@ -135,6 +139,11 @@ public class CompoundTag extends Tag<Map<String, Tag<?>>>
 
 	public ListTag<?> getListTag(String key) {
 		return get(key, ListTag.class);
+	}
+
+	@SuppressWarnings("unchecked")
+	public <R extends ListTag<?>> R getListTagAutoCast(String key) {
+		return (R) get(key, ListTag.class);
 	}
 
 	public CompoundTag getCompoundTag(String key) {
