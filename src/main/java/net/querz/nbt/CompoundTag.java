@@ -464,6 +464,37 @@ public non-sealed class CompoundTag implements Tag, Map<String, Tag>, Iterable<M
 		return containsValue((Tag) value);
 	}
 
+	// checks if all elements of this CompoundTag are contained in the other CompoundTag
+	public boolean partOf(CompoundTag other) {
+		if (other == null) {
+			return false;
+		}
+		for (Entry<String, Tag> entry : this) {
+			if (!other.containsKey(entry.getKey())) {
+				return false;
+			}
+			Tag tag = entry.getValue();
+			switch (tag.getType()) {
+				case COMPOUND -> {
+					CompoundTag otherTag = other.getCompoundTag(entry.getKey());
+					if (!((CompoundTag) tag).partOf(otherTag)) {
+						return false;
+					}
+				}
+				case LIST -> {
+					ListTag otherTag = other.getListTag(entry.getKey());
+					if (!((ListTag) tag).partOf(otherTag)) {
+						return false;
+					}
+				}
+				default -> {
+					return tag.equals(other.get(entry.getKey()));
+				}
+			}
+		}
+		return true;
+	}
+
 	public Tag remove(String key) {
 		return value.remove(key);
 	}

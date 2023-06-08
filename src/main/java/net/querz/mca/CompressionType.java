@@ -8,9 +8,9 @@ public enum CompressionType {
 	NONE_EXT(0x80, null,     CompressionType::buffered,                               CompressionType::buffered),
 	GZIP_EXT(0x81, null,     GZIPInputStream::new,                                    CompressionType::buffered),
 	ZLIB_EXT(0x82, null,     (i, s) -> new InflaterInputStream(i, new Inflater(), s), CompressionType::buffered),
-	NONE    (0x0,  NONE_EXT, CompressionType::buffered,                               CompressionType::buffered),
-	GZIP    (0x1,  GZIP_EXT, GZIPInputStream::new,                                    GZIPOutputStream::new),
-	ZLIB    (0x2,  ZLIB_EXT, (i, s) -> new InflaterInputStream(i, new Inflater(), s), (o, s) -> new DeflaterOutputStream(o, new Deflater(), s));
+	NONE    (0x0,  NONE_EXT,        CompressionType::buffered,                               CompressionType::buffered),
+	GZIP    (0x1,  GZIP_EXT,        GZIPInputStream::new,                                    GZIPOutputStream::new),
+	ZLIB    (0x2,  ZLIB_EXT,        (i, s) -> new InflaterInputStream(i, new Inflater(), s), (o, s) -> new DeflaterOutputStream(o, new Deflater(), s));
 
 	private final CompressionType external;
 	private final int id;

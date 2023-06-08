@@ -69,6 +69,50 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 		value.add(index, tag);
 	}
 
+
+	// checks if all elements of this ListTag are contained in the other ListTag
+	public boolean partOf(ListTag other) {
+		if (other == null || type != other.type) {
+			return false;
+		}
+		switch (type) {
+			case COMPOUND -> {
+				loop:
+				for (CompoundTag tag : iterateType(CompoundTag.class)) {
+					for (CompoundTag otherTag : other.iterateType(CompoundTag.class)) {
+						if (tag.partOf(otherTag)) {
+							continue loop;
+						}
+					}
+					return false;
+				}
+			}
+			case LIST -> {
+				loop:
+				for (ListTag tag : iterateType(ListTag.class)) {
+					for (ListTag otherTag : other.iterateType(ListTag.class)) {
+						if (tag.partOf(otherTag)) {
+							continue loop;
+						}
+					}
+					return false;
+				}
+			}
+			default -> {
+				loop:
+				for (Tag tag : this) {
+					for (Tag otherTag : other) {
+						if (tag.equals(otherTag)) {
+							continue loop;
+						}
+					}
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
 	public void addBoolean(boolean b) {
 		add(ByteTag.valueOf(b));
 	}
