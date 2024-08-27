@@ -31,7 +31,7 @@ public class SNBTWriterTagVisitor implements TagVisitor {
 	}
 
 	// region primitives
-	
+
 	@Override
 	public void visit(ByteTag t) {
 		writeNumber(t);
@@ -82,7 +82,7 @@ public class SNBTWriterTagVisitor implements TagVisitor {
 	// endregion
 
 	// region arrays
-	
+
 	@Override
 	public void visit(ByteArrayTag t) {
 		writeArray(t, "B");
@@ -113,7 +113,7 @@ public class SNBTWriterTagVisitor implements TagVisitor {
 			throw new UncheckedIOException(ex);
 		}
 	}
-	
+
 	// endregion
 
 	// region hierarchies
@@ -175,7 +175,11 @@ public class SNBTWriterTagVisitor implements TagVisitor {
 	}
 
 	private void writeIndent(int depth) throws IOException {
-		writer.write(indent.repeat(depth));
+		StringBuilder indent = new StringBuilder();
+		for (int i = 0; i < depth; i++) {
+			indent.append(this.indent);
+		}
+		writer.write(indent.toString());
 	}
 
 	// endregion

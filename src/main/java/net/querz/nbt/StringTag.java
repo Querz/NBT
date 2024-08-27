@@ -4,7 +4,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public non-sealed class StringTag implements Tag {
+public class StringTag implements Tag {
 
 	private final String value;
 
@@ -55,7 +55,7 @@ public non-sealed class StringTag implements Tag {
 		return value;
 	}
 
-	public static final TagReader<StringTag> READER = new TagReader<>() {
+	public static final TagReader<StringTag> READER = new TagReader<StringTag>() {
 
 		@Override
 		public StringTag read(DataInput in, int depth) throws IOException {

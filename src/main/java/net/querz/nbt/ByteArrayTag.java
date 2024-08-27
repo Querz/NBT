@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Objects;
 
-public non-sealed class ByteArrayTag extends CollectionTag<ByteTag> {
+public class ByteArrayTag extends CollectionTag<ByteTag> {
 
 	private byte[] value;
 
@@ -110,7 +110,7 @@ public non-sealed class ByteArrayTag extends CollectionTag<ByteTag> {
 		this.value = value;
 	}
 
-	public static final TagReader<ByteArrayTag> READER = new TagReader<>() {
+	public static final TagReader<ByteArrayTag> READER = new TagReader<ByteArrayTag>() {
 
 		@Override
 		public ByteArrayTag read(DataInput in, int depth) throws IOException {

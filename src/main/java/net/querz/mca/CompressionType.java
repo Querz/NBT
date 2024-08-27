@@ -52,15 +52,15 @@ public enum CompressionType {
 	}
 
 	public static CompressionType fromByte(int id) throws IOException {
-		return switch (id) {
-			case 0x0 -> NONE;
-			case 0x1 -> GZIP;
-			case 0x2 -> ZLIB;
-			case 0x80 -> NONE_EXT;
-			case 0x81 -> GZIP_EXT;
-			case 0x82 -> ZLIB_EXT;
-			default -> throw new IOException("invalid compression type " + id);
-		};
+		switch (id) {
+			case 0x0: return NONE;
+			case 0x1: return GZIP;
+			case 0x2: return ZLIB;
+			case 0x80: return NONE_EXT;
+			case 0x81: return GZIP_EXT;
+			case 0x82: return ZLIB_EXT;
+			default: throw new IOException("invalid compression type " + id);
+		}
 	}
 
 	@FunctionalInterface

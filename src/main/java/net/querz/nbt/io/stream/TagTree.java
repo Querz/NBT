@@ -3,11 +3,18 @@ package net.querz.nbt.io.stream;
 import net.querz.nbt.TagReader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
-public record TagTree(
-	int depth,
-	Map<String, TagTree> tree,
-	Map<String, TagReader<?>> selected) {
+public class TagTree {
+	private final int depth;
+	private final Map<String, TagTree> tree;
+	private final Map<String, TagReader<?>> selected;
+
+	public TagTree(int depth, Map<String, TagTree> tree, Map<String, TagReader<?>> selected) {
+		this.depth = depth;
+		this.tree = tree;
+		this.selected = selected;
+	}
 
 	/**
 	 * Creates a new TagTree root element with {@code depth = 1}.
@@ -41,4 +48,30 @@ public record TagTree(
 	public boolean isSelected(String name, TagReader<?> reader) {
 		return reader.equals(selected.get(name));
 	}
+
+	public int depth() {
+		return depth;
+	}
+
+	public Map<String, TagTree> tree() {
+		return tree;
+	}
+
+	public Map<String, TagReader<?>> selected() {
+		return selected;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		TagTree tagTree = (TagTree) o;
+		return depth == tagTree.depth && Objects.equals(tree, tagTree.tree) && Objects.equals(selected, tagTree.selected);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(depth, tree, selected);
+	}
+
 }

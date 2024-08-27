@@ -1,5 +1,7 @@
 package net.querz.mca.parsers;
 
+import java.util.Arrays;
+
 public interface HeightmapParser extends DataParser<HeightmapParser.HeightmapData>, CachedParser {
 
 	HeightmapData getDataAt(int blockX, int blockZ);
@@ -43,10 +45,34 @@ public interface HeightmapParser extends DataParser<HeightmapParser.HeightmapDat
 		}
 	}
 
-	record HeightmapData(int[] data) {
+	class HeightmapData {
+
+		private final int[] data;
+
+		public HeightmapData(int[] data) {
+			this.data = data;
+		}
+
+		public int[] data() {
+			return data;
+		}
 
 		public int getHeight(HeightmapType type) {
 			return data[type.getID()];
 		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+			HeightmapData that = (HeightmapData) o;
+			return Arrays.equals(data, that.data);
+		}
+
+		@Override
+		public int hashCode() {
+			return Arrays.hashCode(data);
+		}
+
 	}
 }

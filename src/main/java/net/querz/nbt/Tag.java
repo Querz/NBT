@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public sealed interface Tag permits CollectionTag, CompoundTag, EndTag, NumberTag, StringTag {
+public interface Tag {
 
 	int MAX_DEPTH = 512;
 

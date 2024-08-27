@@ -152,15 +152,19 @@ public class SeekableByteArray implements SeekableData {
 
 		while (!eol) {
 			switch (c = read()) {
-				case '\n' -> eol = true;
-				case '\r' -> {
+				case '\n':
+					eol = true;
+					break;
+				case '\r':
 					eol = true;
 					long cur = getPointer();
 					if (read() != '\n') {
 						seek(cur);
 					}
-				}
-				default -> sb.append((char) c);
+					break;
+				default:
+					sb.append((char) c);
+					break;
 			}
 		}
 

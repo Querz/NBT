@@ -4,7 +4,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public non-sealed class ByteTag extends NumberTag {
+public class ByteTag extends NumberTag {
 
 	private final byte value;
 
@@ -98,7 +98,7 @@ public non-sealed class ByteTag extends NumberTag {
 		return value + "b";
 	}
 
-	public static final TagReader<ByteTag> READER = new TagReader<>() {
+	public static final TagReader<ByteTag> READER = new TagReader<ByteTag>() {
 
 		@Override
 		public ByteTag read(DataInput in, int depth) throws IOException {

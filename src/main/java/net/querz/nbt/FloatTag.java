@@ -4,7 +4,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public non-sealed class FloatTag extends NumberTag {
+public class FloatTag extends NumberTag {
 
 	private final float value;
 
@@ -92,7 +92,7 @@ public non-sealed class FloatTag extends NumberTag {
 		return value + "f";
 	}
 
-	public static final TagReader<FloatTag> READER = new TagReader<>() {
+	public static final TagReader<FloatTag> READER = new TagReader<FloatTag>() {
 
 		@Override
 		public FloatTag read(DataInput in, int depth) throws IOException {

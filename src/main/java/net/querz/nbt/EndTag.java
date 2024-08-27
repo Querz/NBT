@@ -4,7 +4,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public non-sealed class EndTag implements Tag {
+public class EndTag implements Tag {
 
 	public static final EndTag INSTANCE = new EndTag();
 
@@ -23,7 +23,7 @@ public non-sealed class EndTag implements Tag {
 		visitor.visit(this);
 	}
 
-	public static final TagReader<EndTag> READER = new TagReader<>() {
+	public static final TagReader<EndTag> READER = new TagReader<EndTag>() {
 
 		@Override
 		public EndTag read(DataInput in, int depth) throws IOException {

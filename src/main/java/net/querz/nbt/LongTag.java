@@ -4,7 +4,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public non-sealed class LongTag extends NumberTag {
+public class LongTag extends NumberTag {
 
 	private final long value;
 
@@ -95,7 +95,7 @@ public non-sealed class LongTag extends NumberTag {
 		return value + "L";
 	}
 
-	public static final TagReader<LongTag> READER = new TagReader<>() {
+	public static final TagReader<LongTag> READER = new TagReader<LongTag>() {
 
 		@Override
 		public LongTag read(DataInput in, int depth) throws IOException {

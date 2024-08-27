@@ -10,7 +10,7 @@ import java.util.Objects;
 
 import static net.querz.nbt.Tag.Type.*;
 
-public non-sealed class ListTag extends CollectionTag<Tag> {
+public class ListTag extends CollectionTag<Tag> {
 
 	private final List<Tag> value;
 	private Type type;
@@ -76,7 +76,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 			return false;
 		}
 		switch (type) {
-			case COMPOUND -> {
+			case COMPOUND:
 				loop:
 				for (CompoundTag tag : iterateType(CompoundTag.class)) {
 					for (CompoundTag otherTag : other.iterateType(CompoundTag.class)) {
@@ -86,8 +86,8 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 					}
 					return false;
 				}
-			}
-			case LIST -> {
+				break;
+			case LIST:
 				loop:
 				for (ListTag tag : iterateType(ListTag.class)) {
 					for (ListTag otherTag : other.iterateType(ListTag.class)) {
@@ -97,8 +97,8 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 					}
 					return false;
 				}
-			}
-			default -> {
+				break;
+			default:
 				loop:
 				for (Tag tag : this) {
 					for (Tag otherTag : other) {
@@ -108,7 +108,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 					}
 					return false;
 				}
-			}
+				break;
 		}
 		return true;
 	}
@@ -219,7 +219,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 		if (this == other) {
 			return true;
 		} else {
-			return other instanceof ListTag otherList && value.equals(otherList.value);
+			return other instanceof ListTag && value.equals(((ListTag) other).value);
 		}
 	}
 
@@ -453,7 +453,7 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 
 	}
 
-	public static final TagReader<ListTag> READER = new TagReader<>() {
+	public static final TagReader<ListTag> READER = new TagReader<ListTag>() {
 
 		@Override
 		public ListTag read(DataInput in, int depth) throws IOException {
@@ -476,36 +476,32 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 			TagReader<?> reader = valueOf(in.readByte()).reader;
 			int length = in.readInt();
 			switch (visitor.visitList(reader, length)) {
-				case RETURN -> {
+				case RETURN:
 					return TagTypeVisitor.ValueResult.RETURN;
-				}
-				case BREAK -> {
+				case BREAK:
 					reader.skip(in);
 					return visitor.visitContainerEnd();
-				}
-				default -> {
+				default:
 					int i = 0;
 					loop:
 					for (; i < length; i++) {
 						switch (visitor.visitElement(reader, i)) {
-							case RETURN -> {
+							case RETURN:
 								return TagTypeVisitor.ValueResult.RETURN;
-							}
-							case BREAK -> {
+							case BREAK:
 								reader.skip(in);
 								break loop;
-							}
-							case SKIP -> reader.skip(in);
-							case ENTER -> {
+							case SKIP:
+								reader.skip(in);
+								break;
+							case ENTER:
 								switch (reader.read(in, visitor)) {
-									case RETURN -> {
+									case RETURN:
 										return TagTypeVisitor.ValueResult.RETURN;
-									}
-									case BREAK -> {
+									case BREAK:
 										break loop;
-									}
 								}
-							}
+								break;
 						}
 					}
 
@@ -518,7 +514,6 @@ public non-sealed class ListTag extends CollectionTag<Tag> {
 					}
 
 					return visitor.visitContainerEnd();
-				}
 			}
 		}
 

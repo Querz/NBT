@@ -247,14 +247,14 @@ public final class NBTUtil {
 			}
 		} else {
 			switch (visitor.visitRootEntry(reader)) {
-				case BREAK -> {
+				case BREAK:
 					StringTag.skipUTF(in);
 					reader.skip(in);
-				}
-				case CONTINUE -> {
+					break;
+				case CONTINUE:
 					StringTag.skipUTF(in);
 					reader.read(in, visitor);
-				}
+					break;
 			}
 		}
 	}

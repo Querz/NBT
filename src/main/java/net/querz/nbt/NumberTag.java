@@ -1,6 +1,6 @@
 package net.querz.nbt;
 
-public sealed abstract class NumberTag implements Tag permits ByteTag, DoubleTag, FloatTag, IntTag, LongTag, ShortTag {
+public abstract class NumberTag implements Tag {
 
 	public abstract byte asByte();
 

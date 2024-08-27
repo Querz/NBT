@@ -15,7 +15,7 @@ public final class SNBTWriter {
 	}
 
 	public void write(OutputStream out, Tag tag) throws IOException {
-		PrintWriter writer = new PrintWriter(out, false, StandardCharsets.UTF_8);
+		PrintWriter writer = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8), false);
 		tag.accept(new SNBTWriterTagVisitor(writer, indent));
 		writer.flush();
 	}
@@ -28,7 +28,7 @@ public final class SNBTWriter {
 		try {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			write(baos, tag);
-			return baos.toString(StandardCharsets.UTF_8);
+			return baos.toString(StandardCharsets.UTF_8.name());
 		} catch (IOException ex) {
 			throw new UncheckedIOException(ex);
 		}

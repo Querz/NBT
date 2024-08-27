@@ -7,7 +7,7 @@ import java.util.*;
 
 import static net.querz.nbt.Tag.Type.*;
 
-public non-sealed class CompoundTag implements Tag, Map<String, Tag>, Iterable<Map.Entry<String, Tag>> {
+public class CompoundTag implements Tag, Map<String, Tag>, Iterable<Map.Entry<String, Tag>> {
 
 	private final Map<String, Tag> value;
 
@@ -475,21 +475,20 @@ public non-sealed class CompoundTag implements Tag, Map<String, Tag>, Iterable<M
 			}
 			Tag tag = entry.getValue();
 			switch (tag.getType()) {
-				case COMPOUND -> {
-					CompoundTag otherTag = other.getCompoundTag(entry.getKey());
-					if (!((CompoundTag) tag).partOf(otherTag)) {
+				case COMPOUND:
+					CompoundTag otherCompound = other.getCompoundTag(entry.getKey());
+					if (!((CompoundTag) tag).partOf(otherCompound)) {
 						return false;
 					}
-				}
-				case LIST -> {
-					ListTag otherTag = other.getListTag(entry.getKey());
-					if (!((ListTag) tag).partOf(otherTag)) {
+					break;
+				case LIST:
+					ListTag otherList = other.getListTag(entry.getKey());
+					if (!((ListTag) tag).partOf(otherList)) {
 						return false;
 					}
-				}
-				default -> {
+					break;
+				default:
 					return tag.equals(other.get(entry.getKey()));
-				}
 			}
 		}
 		return true;
@@ -530,7 +529,7 @@ public non-sealed class CompoundTag implements Tag, Map<String, Tag>, Iterable<M
 		return value.entrySet();
 	}
 
-	public static final TagReader<CompoundTag> READER = new TagReader<>() {
+	public static final TagReader<CompoundTag> READER = new TagReader<CompoundTag>() {
 
 		@Override
 		public CompoundTag read(DataInput in, int depth) throws IOException {
@@ -555,38 +554,35 @@ public non-sealed class CompoundTag implements Tag, Map<String, Tag>, Iterable<M
 				if ((id = in.readByte()) != END.id) {
 					TagReader<?> reader = valueOf(id).reader;
 					switch (visitor.visitEntry(reader)) {
-						case RETURN -> {
+						case RETURN:
 							return TagTypeVisitor.ValueResult.RETURN;
-						}
-						case BREAK -> {
+						case BREAK:
 							StringTag.skipUTF(in);
 							reader.skip(in);
-						}
-						case SKIP -> {
+							break;
+						case SKIP:
 							StringTag.skipUTF(in);
 							reader.skip(in);
 							continue;
-						}
-						default -> {
+						default:
 							String name = in.readUTF();
 							switch (visitor.visitEntry(reader, name)) {
-								case RETURN -> {
+								case RETURN:
 									return TagTypeVisitor.ValueResult.RETURN;
-								}
-								case BREAK -> reader.skip(in);
-								case SKIP -> {
+								case BREAK:
+									reader.skip(in);
+									break;
+								case SKIP:
 									reader.skip(in);
 									continue;
-								}
-								case ENTER -> {
+								case ENTER:
 									if (reader.read(in, visitor) == TagTypeVisitor.ValueResult.RETURN) {
 										return TagTypeVisitor.ValueResult.RETURN;
 									} else {
 										continue;
 									}
-								}
 							}
-						}
+							break;
 					}
 				}
 

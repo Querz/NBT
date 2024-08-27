@@ -2,7 +2,7 @@ package net.querz.nbt;
 
 import java.util.AbstractList;
 
-public sealed abstract class CollectionTag<T extends Tag> extends AbstractList<T> implements Tag permits ByteArrayTag, IntArrayTag, ListTag, LongArrayTag {
+public abstract class CollectionTag<T extends Tag> extends AbstractList<T> implements Tag {
 
 	public CollectionTag() {}
 

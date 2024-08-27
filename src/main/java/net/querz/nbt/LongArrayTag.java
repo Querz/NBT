@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Objects;
 
-public non-sealed class LongArrayTag extends CollectionTag<LongTag> {
+public class LongArrayTag extends CollectionTag<LongTag> {
 
 	private long[] value;
 
@@ -112,7 +112,7 @@ public non-sealed class LongArrayTag extends CollectionTag<LongTag> {
 		this.value = value;
 	}
 
-	public static final TagReader<LongArrayTag> READER = new TagReader<>() {
+	public static final TagReader<LongArrayTag> READER = new TagReader<LongArrayTag>() {
 
 		@Override
 		public LongArrayTag read(DataInput in, int depth) throws IOException {

@@ -19,7 +19,14 @@ public final class SNBTReader {
 	}
 
 	public Tag read(InputStream in) throws IOException {
-		String s = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+		// InputStream.readAllBytes is only available in Java 9 and beyond
+		ByteArrayOutputStream result = new ByteArrayOutputStream();
+		byte[] buffer = new byte[1024];
+		for (int length; (length = in.read(buffer)) != -1; ) {
+			result.write(buffer, 0, length);
+		}
+		String s = result.toString(StandardCharsets.UTF_8.name());
+
 		return new SNBTParser(s).parse(ignoreTrailing);
 	}
 

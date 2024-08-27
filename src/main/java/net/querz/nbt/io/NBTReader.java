@@ -123,14 +123,14 @@ public final class NBTReader {
 			}
 		} else {
 			switch (visitor.visitRootEntry(reader)) {
-				case BREAK -> {
+				case BREAK:
 					name = input.readUTF();
 					reader.skip(input);
-				}
-				case CONTINUE -> {
+					break;
+				case CONTINUE:
 					name = input.readUTF();
 					reader.read(input, visitor);
-				}
+					break;
 			}
 		}
 		return new NamedTag(name, visitor.getResult());

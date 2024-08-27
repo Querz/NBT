@@ -8,6 +8,7 @@ import net.querz.nbt.io.stream.TagSelector;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 import static org.junit.jupiter.api.Assertions.*;
@@ -41,7 +42,7 @@ public class TestNBTUtil extends NBTTestCase {
 		}
 
 		try (DataInputStream dis = new DataInputStream(new ByteArrayInputStream(raw))) {
-			t = NBTUtil.parseStream(dis, new TagSelector(List.of("Data", "Player", "Attributes"), "Name", StringTag.READER));
+			t = NBTUtil.parseStream(dis, new TagSelector(Arrays.asList("Data", "Player", "Attributes"), "Name", StringTag.READER));
 
 			System.out.println(NBTUtil.toSNBT(t, "\t"));
 		}
@@ -106,7 +107,7 @@ public class TestNBTUtil extends NBTTestCase {
 
 
 
-	
+
 
 
 

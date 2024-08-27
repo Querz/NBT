@@ -177,19 +177,33 @@ public abstract class NBTTestCase {
 		StringBuilder sb = new StringBuilder();
 
 		switch (tag.getType()) {
-			case END -> {}
-			case BYTE -> sb.append("ByteTag byteTag").append(c).append(" = ByteTag.valueOf((byte) ").append(((ByteTag) tag).asByte()).append(");");
-			case SHORT -> sb.append("ShortTag shortTag").append(c).append(" = ShortTag.valueOf((short) ").append(((ShortTag) tag).asShort()).append(");");
-			case INT -> sb.append("IntTag intTag").append(c).append(" = IntTag.valueOf(").append(((IntTag) tag).asInt()).append(");");
-			case LONG -> sb.append("LongTag longTag").append(c).append(" = LongTag.valueOf(").append(((LongTag) tag).asLong()).append("L);");
-			case FLOAT -> sb.append("FloatTag floatTag").append(c).append(" = FloatTag.valueOf(").append(((FloatTag) tag).asFloat()).append("F);");
-			case DOUBLE -> sb.append("DoubleTag doubleTag").append(c).append(" = DoubleTag.valueOf(").append(((DoubleTag) tag).asDouble()).append("D);");
-			case BYTE_ARRAY -> {
-				String asString = Arrays.toString(((ByteArrayTag) tag).getValue());
-				sb.append("ByteArrayTag byteArrayTag").append(c).append(" = new ByteArrayTag(new byte[]{").append(asString, 1, asString.length() - 1).append("});");
-			}
-			case STRING -> sb.append("StringTag stringTag").append(c).append(" = StringTag.valueOf(\"").append(((StringTag) tag).getValue().replace("\\", "\\\\").replace("\"", "\\\"")).append("\");");
-			case LIST -> {
+			case END: break;
+			case BYTE:
+				sb.append("ByteTag byteTag").append(c).append(" = ByteTag.valueOf((byte) ").append(((ByteTag) tag).asByte()).append(");");
+				break;
+			case SHORT:
+				sb.append("ShortTag shortTag").append(c).append(" = ShortTag.valueOf((short) ").append(((ShortTag) tag).asShort()).append(");");
+				break;
+			case INT:
+				sb.append("IntTag intTag").append(c).append(" = IntTag.valueOf(").append(((IntTag) tag).asInt()).append(");");
+				break;
+			case LONG:
+				sb.append("LongTag longTag").append(c).append(" = LongTag.valueOf(").append(((LongTag) tag).asLong()).append("L);");
+				break;
+			case FLOAT:
+				sb.append("FloatTag floatTag").append(c).append(" = FloatTag.valueOf(").append(((FloatTag) tag).asFloat()).append("F);");
+				break;
+			case DOUBLE:
+				sb.append("DoubleTag doubleTag").append(c).append(" = DoubleTag.valueOf(").append(((DoubleTag) tag).asDouble()).append("D);");
+				break;
+			case BYTE_ARRAY:
+				String asStringBytes = Arrays.toString(((ByteArrayTag) tag).getValue());
+				sb.append("ByteArrayTag byteArrayTag").append(c).append(" = new ByteArrayTag(new byte[]{").append(asStringBytes, 1, asStringBytes.length() - 1).append("});");
+				break;
+			case STRING:
+				sb.append("StringTag stringTag").append(c).append(" = StringTag.valueOf(\"").append(((StringTag) tag).getValue().replace("\\", "\\\\").replace("\"", "\\\"")).append("\");");
+				break;
+			case LIST:
 				String name = "listTag" + c.getAndIncrement();
 				sb.append("ListTag ").append(name).append(" = new ListTag();").append(((ListTag) tag).isEmpty() ? "" : "\n");;
 				int i = ((ListTag) tag).size();
@@ -200,33 +214,31 @@ public abstract class NBTTestCase {
 					String val = es.split(" ", 3)[1];
 					sb.append(name).append(".add(").append(val).append(");").append(--i > 0 ? "\n" : "");
 				}
-			}
-			case COMPOUND -> {
-				String name = "compoundTag" + c.getAndIncrement();
-				sb.append("CompoundTag ").append(name).append(" = new CompoundTag();").append(((CompoundTag) tag).isEmpty() ? "" : "\n");
-				int i = ((CompoundTag) tag).size();
+				break;
+			case COMPOUND:
+				String nameCompound = "compoundTag" + c.getAndIncrement();
+				sb.append("CompoundTag ").append(nameCompound).append(" = new CompoundTag();").append(((CompoundTag) tag).isEmpty() ? "" : "\n");
+				int j = ((CompoundTag) tag).size();
 				for (Map.Entry<String, Tag> e : (CompoundTag) tag) {
 					c.incrementAndGet();
 					String es = tagToCode(e.getValue(), c);
 					sb.append(es).append("\n");
 					String val = es.split(" ", 3)[1];
-					sb.append(name).append(".put(\"").append(e.getKey().replace("\\", "\\\\").replace("\"", "\\\"")).append("\", ").append(val).append(");").append(--i > 0 ? "\n" : "");
+					sb.append(nameCompound).append(".put(\"").append(e.getKey().replace("\\", "\\\\").replace("\"", "\\\"")).append("\", ").append(val).append(");").append(--j > 0 ? "\n" : "");
 				}
-
-			}
-			case INT_ARRAY -> {
-				String asString = Arrays.toString(((IntArrayTag) tag).getValue());
-				sb.append("IntArrayTag intArrayTag").append(c).append(" = new IntArrayTag(new int[]{").append(asString, 1, asString.length() - 1).append("});");
-			}
-			case LONG_ARRAY -> {
+				break;
+			case INT_ARRAY:
+				String asStringInts = Arrays.toString(((IntArrayTag) tag).getValue());
+				sb.append("IntArrayTag intArrayTag").append(c).append(" = new IntArrayTag(new int[]{").append(asStringInts, 1, asStringInts.length() - 1).append("});");
+				break;
+			case LONG_ARRAY:
 				sb.append("LongArrayTag longArrayTag").append(c).append(" = new LongArrayTag(new long[]{");
 				long[] value = ((LongArrayTag) tag).getValue();
-				for (int i = 0; i < value.length; i++) {
-					sb.append(i == 0 ? "" : ", ").append(value[i]).append("L");
+				for (int k = 0; k < value.length; k++) {
+					sb.append(k == 0 ? "" : ", ").append(value[k]).append("L");
 				}
 				sb.append("});");
-			}
-
+				break;
 		}
 		return sb.toString();
 	}

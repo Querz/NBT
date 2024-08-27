@@ -4,7 +4,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public non-sealed class ShortTag extends NumberTag {
+public class ShortTag extends NumberTag {
 
 	private final short value;
 
@@ -95,7 +95,7 @@ public non-sealed class ShortTag extends NumberTag {
 		return value + "s";
 	}
 
-	public static final TagReader<ShortTag> READER = new TagReader<>() {
+	public static final TagReader<ShortTag> READER = new TagReader<ShortTag>() {
 
 		@Override
 		public ShortTag read(DataInput in, int depth) throws IOException {
