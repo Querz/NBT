@@ -256,12 +256,6 @@ public class SNBTParser {
 				if ((m = DOUBLE_LITERAL.matcher(value)).matches()) {
 					return DoubleTag.valueOf(Double.parseDouble(m.group(1)));
 				}
-				if ("true".equalsIgnoreCase(value)) {
-					return ByteTag.TRUE;
-				}
-				if ("false".equalsIgnoreCase(value)) {
-					return ByteTag.FALSE;
-				}
 			} catch (NumberFormatException ex) {
 				// do nothing, check if it's a valid unquoted string below
 			}
