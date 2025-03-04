@@ -88,8 +88,19 @@ public non-sealed class StringTag implements Tag {
 				if (quote == c) {
 					sb.append('\\');
 				}
+			} else if (c == '\b') {
+				sb.append("\\b");
+			} else if (c == '\t') {
+				sb.append("\\t");
+			} else if (c == '\n') {
+				sb.append("\\n");
+			} else if (c == '\f') {
+				sb.append("\\f");
+			} else if (c == '\r') {
+				sb.append("\\r");
+			} else {
+				sb.append(c);
 			}
-			sb.append(c);
 		}
 
 		if (quote == 0) {

@@ -1,33 +1,21 @@
 package net.querz.nbt.io.snbt;
 
-import net.querz.nbt.ByteArrayTag;
-import net.querz.nbt.ByteTag;
-import net.querz.nbt.CollectionTag;
-import net.querz.nbt.CompoundTag;
-import net.querz.nbt.DoubleTag;
-import net.querz.nbt.FloatTag;
-import net.querz.nbt.IntArrayTag;
-import net.querz.nbt.IntTag;
-import net.querz.nbt.ListTag;
-import net.querz.nbt.LongArrayTag;
-import net.querz.nbt.LongTag;
-import net.querz.nbt.ShortTag;
-import net.querz.nbt.StringTag;
-import net.querz.nbt.Tag;
-import net.querz.nbt.TagReader;
+import net.querz.nbt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SNBTParser {
 
-	private static final Pattern FLOAT_LITERAL = Pattern.compile("^[-+]?(?:\\d+\\.?|\\d*\\.\\d+)(?:e[-+]?\\d+)?f$", Pattern.CASE_INSENSITIVE);
-	private static final Pattern DOUBLE_LITERAL = Pattern.compile("^[-+]?(?:\\d+\\.?|\\d*\\.\\d+)(?:e[-+]?\\d+)?d$", Pattern.CASE_INSENSITIVE);
-	private static final Pattern DOUBLE_LITERAL_NO_SUFFIX = Pattern.compile("^[-+]?(?:\\d+\\.|\\d*\\.\\d+)(?:e[-+]?\\d+)?$", Pattern.CASE_INSENSITIVE);
-	private static final Pattern BYTE_LITERAL = Pattern.compile("^[-+]?\\d+b$", Pattern.CASE_INSENSITIVE);
-	private static final Pattern SHORT_LITERAL = Pattern.compile("^[-+]?\\d+s$", Pattern.CASE_INSENSITIVE);
-	private static final Pattern INT_LITERAL = Pattern.compile("^[-+]?\\d+$", Pattern.CASE_INSENSITIVE);
-	private static final Pattern LONG_LITERAL = Pattern.compile("^[-+]?\\d+l$", Pattern.CASE_INSENSITIVE);
+	private static final Pattern FLOAT_LITERAL = Pattern.compile("^([+-]?(?:\\d+(?:_+\\d+)*|\\d?)\\.?(?:\\d+(?:_+\\d+)*|\\d?)(?:[eE][+-]?(?:\\d+(?:_+\\d+)*))?)[fF]$");
+	private static final Pattern DOUBLE_LITERAL = Pattern.compile("^([+-]?(?:\\d+(?:_+\\d+)*|\\d?)\\.?(?:\\d+(?:_+\\d+)*|\\d?)(?:[eE][+-]?(?:\\d+(?:_+\\d+)*))?)[dD]?$");
+	private static final Pattern BYTE_LITERAL = Pattern.compile("^([-+]?\\d+(?:_+\\d+)*|0x[\\da-fA-F]+(?:_+[\\da-fA-F]+)*(?=[su])|0b[01]+(?:_+[01]+)*)([su]?)[bB]$");
+	private static final Pattern SHORT_LITERAL = Pattern.compile("^([-+]?\\d+(?:_+\\d+)*|0x[\\da-fA-F]+(?:_+[\\da-fA-F]+)*|0b[01]+(?:_+[01]+)*)([su]?)[sS]$");
+	private static final Pattern INT_LITERAL = Pattern.compile("^([-+]?\\d+(?:_+\\d+)*|0x[\\da-fA-F]+(?:_+[\\da-fA-F]+)*|0b[01]+(?:_+[01]+)*)(?:([su]?)[iI]|[iI]?)$");
+	private static final Pattern LONG_LITERAL = Pattern.compile("^([-+]?\\d+(?:_+\\d+)*|0x[\\da-fA-F]+(?:_+[\\da-fA-F]+)*|0b[01]+(?:_+[01]+)*)([su]?)[lL]$");
+	private static final Pattern AUTO_TYPE_ARRAY_LITERAL = Pattern.compile("^([-+]?\\d+(?:_+\\d+)*|0x[\\da-fA-F]+(?:_+[\\da-fA-F]+)*|0b[01]+(?:_+[01]+)*)$");
+	private static final Pattern UNQUOTED_STRING = Pattern.compile("^[a-zA-Z_][\\w.+-]*$");
 
 	private final StringPointer ptr;
 
@@ -58,14 +46,16 @@ public class SNBTParser {
 		CompoundTag tag = new CompoundTag();
 		ptr.skipWhitespace();
 		while (ptr.hasNext() && ptr.currentChar() != '}') {
-			int start = ptr.getIndex();
-			ptr.skipWhitespace();
-			String key = ptr.parseString();
-			if (key.isEmpty()) {
-				ptr.setIndex(start);
-				throw ptr.parseException("expected key");
+			if (hasSeparator()) {
+				throw ptr.parseException("unexpected separator");
 			}
-
+			ptr.skipWhitespace();
+			boolean quoted = ptr.currentChar() == '"' || ptr.currentChar() == '\'';
+			String key = ptr.parseString();
+			if (!quoted && !UNQUOTED_STRING.matcher(key).matches()) {
+				throw ptr.parseException("invalid unquoted key " + key);
+			}
+			ptr.skipWhitespace();
 			ptr.expectChar(':');
 			tag.put(key, readValue());
 			if (!hasSeparator()) {
@@ -100,16 +90,18 @@ public class SNBTParser {
 		List<Byte> byteList = new ArrayList<>();
 		while (ptr.currentChar() != ']') {
 			String s = ptr.parseSimpleString();
-			if (BYTE_LITERAL.matcher(s).matches()) {
-				try {
-					byteList.add(Byte.parseByte(s.substring(0, s.length() - 1)));
-				} catch (NumberFormatException ex) {
-					throw ptr.parseException("byte value " + s + " not in range");
+			try {
+				Matcher m;
+				if ((m = AUTO_TYPE_ARRAY_LITERAL.matcher(s)).matches()) {
+					byteList.add(parseByte(m.group(1), null));
+				} else if ((m = BYTE_LITERAL.matcher(s)).matches()) {
+					byteList.add(parseByte(m.group(1), m.group(2)));
+				} else {
+					throw ptr.parseException("invalid byte value " + s);
 				}
-			} else {
+			} catch (NumberFormatException ex) {
 				throw ptr.parseException("invalid byte value " + s);
 			}
-
 			if (!hasSeparator()) {
 				break;
 			}
@@ -126,16 +118,22 @@ public class SNBTParser {
 		List<Integer> intList = new ArrayList<>();
 		while (ptr.currentChar() != ']') {
 			String s = ptr.parseSimpleString();
-			if (INT_LITERAL.matcher(s).matches()) {
-				try {
-					intList.add(Integer.parseInt(s));
-				} catch (NumberFormatException ex) {
-					throw ptr.parseException("int value " + s + " not in range");
+			try {
+				Matcher m;
+				if ((m = AUTO_TYPE_ARRAY_LITERAL.matcher(s)).matches()) {
+					intList.add(parseInt(m.group(1), null));
+				} else if ((m = INT_LITERAL.matcher(s)).matches()) {
+					intList.add(parseInt(m.group(1), m.group(2)));
+				} else if ((m = SHORT_LITERAL.matcher(s)).matches()) {
+					intList.add((int) parseShort(m.group(1), m.group(2)));
+				} else if ((m = BYTE_LITERAL.matcher(s)).matches()) {
+					intList.add((int) parseByte(m.group(1), m.group(2)));
+				} else {
+					throw ptr.parseException("invalid int value " + s);
 				}
-			} else {
+			} catch (NumberFormatException ex) {
 				throw ptr.parseException("invalid int value " + s);
 			}
-
 			if (!hasSeparator()) {
 				break;
 			}
@@ -152,16 +150,24 @@ public class SNBTParser {
 		List<Long> longList = new ArrayList<>();
 		while (ptr.currentChar() != ']') {
 			String s = ptr.parseSimpleString();
-			if (LONG_LITERAL.matcher(s).matches()) {
-				try {
-					longList.add(Long.parseLong(s.substring(0, s.length() - 1)));
-				} catch (NumberFormatException ex) {
-					throw ptr.parseException("long value " + s + " not in range");
+			try {
+				Matcher m;
+				if ((m = AUTO_TYPE_ARRAY_LITERAL.matcher(s)).matches()) {
+					longList.add(parseLong(m.group(1), null));
+				} else if ((m = LONG_LITERAL.matcher(s)).matches()) {
+					longList.add(parseLong(m.group(1), m.group(2)));
+				} else if ((m = INT_LITERAL.matcher(s)).matches()) {
+					longList.add((long) parseInt(m.group(1), m.group(2)));
+				} else if ((m = SHORT_LITERAL.matcher(s)).matches()) {
+					longList.add((long) parseShort(m.group(1), m.group(2)));
+				} else if ((m = BYTE_LITERAL.matcher(s)).matches()) {
+					longList.add((long) parseByte(m.group(1), m.group(2)));
+				} else {
+					throw ptr.parseException("invalid long value " + s);
 				}
-			} else {
+			} catch (NumberFormatException ex) {
 				throw ptr.parseException("invalid long value " + s);
 			}
-
 			if (!hasSeparator()) {
 				break;
 			}
@@ -185,25 +191,37 @@ public class SNBTParser {
 
 	private ListTag readListTag() throws ParseException {
 		ptr.expectChar('[');
-		ListTag tag = new ListTag();
+		List<Tag> list = new ArrayList<>();
 		ptr.skipWhitespace();
-		TagReader<?> reader = null;
+		Tag.Type listType = null;
+		boolean heterogeneous = false;
 		while (ptr.hasNext() && ptr.currentChar() != ']') {
-			int start = ptr.getIndex();
-			Tag t = readValue();
-			if (reader == null) {
-				reader = t.getType().reader;
-			} else if (reader != t.getType().reader) {
-				ptr.setIndex(start);
-				throw ptr.parseException("mixed types in ListTag");
+			if (hasSeparator()) {
+				throw ptr.parseException("unexpected list separator");
 			}
-
-			tag.add(t);
+			Tag t = readValue();
+			if (listType == null) {
+				listType = t.getType();
+			} else if (listType != t.getType()) {
+				heterogeneous = true;
+			}
+			list.add(t);
 			if (!hasSeparator()) {
 				break;
 			}
 		}
 		ptr.expectChar(']');
+		ListTag tag = new ListTag();
+		for (Tag t : list) {
+			if (heterogeneous && t.getType() != Tag.Type.COMPOUND) {
+				CompoundTag wrapper = new CompoundTag();
+				wrapper.put("", t);
+				tag.add(wrapper);
+			} else {
+				tag.add(t);
+			}
+		}
+
 		return tag;
 	}
 
@@ -219,26 +237,24 @@ public class SNBTParser {
 		} else {
 			String value = ptr.parseSimpleString();
 			try {
-				if (BYTE_LITERAL.matcher(value).matches()) {
-					return ByteTag.valueOf(Byte.parseByte(value.substring(0, value.length() - 1)));
+				Matcher m;
+				if ((m = BYTE_LITERAL.matcher(value)).matches()) {
+					return ByteTag.valueOf(parseByte(m.group(1), m.group(2)));
 				}
-				if (SHORT_LITERAL.matcher(value).matches()) {
-					return ShortTag.valueOf(Short.parseShort(value.substring(0, value.length() - 1)));
+				if ((m = SHORT_LITERAL.matcher(value)).matches()) {
+					return ShortTag.valueOf(parseShort(m.group(1), m.group(2)));
 				}
-				if (INT_LITERAL.matcher(value).matches()) {
-					return IntTag.valueOf(Integer.parseInt(value));
+				if ((m = INT_LITERAL.matcher(value)).matches()) {
+					return IntTag.valueOf(parseInt(m.group(1), m.group(2)));
 				}
-				if (LONG_LITERAL.matcher(value).matches()) {
-					return LongTag.valueOf(Long.parseLong(value.substring(0, value.length() - 1)));
+				if ((m = LONG_LITERAL.matcher(value)).matches()) {
+					return LongTag.valueOf(parseLong(m.group(1), m.group(2)));
 				}
-				if (FLOAT_LITERAL.matcher(value).matches()) {
-					return FloatTag.valueOf(Float.parseFloat(value.substring(0, value.length() - 1)));
+				if ((m = FLOAT_LITERAL.matcher(value)).matches()) {
+					return FloatTag.valueOf(Float.parseFloat(m.group(1)));
 				}
-				if (DOUBLE_LITERAL.matcher(value).matches()) {
-					return DoubleTag.valueOf(Double.parseDouble(value.substring(0, value.length() - 1)));
-				}
-				if (DOUBLE_LITERAL_NO_SUFFIX.matcher(value).matches()) {
-					return DoubleTag.valueOf(Double.parseDouble(value));
+				if ((m = DOUBLE_LITERAL.matcher(value)).matches()) {
+					return DoubleTag.valueOf(Double.parseDouble(m.group(1)));
 				}
 				if ("true".equalsIgnoreCase(value)) {
 					return ByteTag.TRUE;
@@ -246,10 +262,66 @@ public class SNBTParser {
 				if ("false".equalsIgnoreCase(value)) {
 					return ByteTag.FALSE;
 				}
-			} catch (NumberFormatException ex) {}
+			} catch (NumberFormatException ex) {
+				// do nothing, check if it's a valid unquoted string below
+			}
+
+			if (!value.isEmpty() && !UNQUOTED_STRING.matcher(value).matches()) {
+				throw ptr.parseException("invalid number or unquoted string " + value);
+			}
 
 			return StringTag.valueOf(value);
 		}
+	}
+
+	private int getRadix(String s) {
+		return s.startsWith("0x") ? 16 : s.startsWith("0b") ? 2 : 10;
+	}
+
+	private String trimNumeric(String s, int radix) {
+		if (radix != 10) {
+			s = s.substring(2);
+		}
+		return s.replace("_", "");
+	}
+
+	private boolean getSigned(String sign, int radix) {
+		// When a suffix is used without u or s, it defaults to signed for decimal numbers and unsigned for binary and hexadecimal numbers
+		return "".equals(sign) || sign == null ? radix == 10 : "s".equals(sign);
+	}
+
+	private byte parseByte(String s, String sign) throws NumberFormatException {
+		int radix = getRadix(s);
+		if (getSigned(sign, radix)) {
+			return Byte.parseByte(trimNumeric(s, radix));
+		}
+		int v = Integer.parseUnsignedInt(trimNumeric(s, radix), radix);
+		if (v > 0xFF) {
+			throw new NumberFormatException("Value out of range. Value:\"" + s + "\" Radix:" + radix);
+		}
+		return (byte) v;
+	}
+
+	private short parseShort(String s, String sign) throws NumberFormatException {
+		int radix = getRadix(s);
+		if (getSigned(sign, radix)) {
+			return Short.parseShort(trimNumeric(s, radix));
+		}
+		int v = Integer.parseUnsignedInt(trimNumeric(s, radix), radix);
+		if (v > 0xFFFF) {
+			throw new NumberFormatException("Value out of range. Value:\"" + s + "\" Radix:" + radix);
+		}
+		return (short) v;
+	}
+
+	private int parseInt(String s, String sign) throws NumberFormatException {
+		int radix = getRadix(s);
+		return getSigned(sign, radix) ? Integer.parseInt(trimNumeric(s, radix)) : Integer.parseUnsignedInt(trimNumeric(s, radix), radix);
+	}
+
+	private long parseLong(String s, String sign) throws NumberFormatException {
+		int radix = getRadix(s);
+		return getSigned(sign, radix) ? Long.parseLong(trimNumeric(s, radix)) : Long.parseUnsignedLong(trimNumeric(s, radix), radix);
 	}
 
 	private boolean hasSeparator() {

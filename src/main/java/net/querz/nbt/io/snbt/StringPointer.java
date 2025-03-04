@@ -1,8 +1,13 @@
 package net.querz.nbt.io.snbt;
 
-public class StringPointer {
+import net.querz.io.util.ThrowingFunction;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Pattern;
 
-	private String value;
+class StringPointer {
+
+	private final String value;
 	private int index;
 
 	public StringPointer(String value) {
@@ -61,6 +66,10 @@ public class StringPointer {
 				if (c == end || c == '\\') {
 					sb.append(c);
 					escaped = false;
+				} else if (escapes.containsKey(c)) {
+					String decoded = escapes.get(c).apply(this);
+					sb.append(decoded);
+					escaped = false;
 				} else {
 					throw parseException("invalid escape of '" + c + "'");
 				}
@@ -75,60 +84,51 @@ public class StringPointer {
 		throw parseException("missing end quote");
 	}
 
-	public int parseInt() throws ParseException {
-		int start = index;
-		while (hasNext() && isNumberChar(currentChar())) {
-			skip(1);
-		}
-		String num = value.substring(start, index);
-		try {
-			return Integer.parseInt(num);
-		} catch (NumberFormatException ex) {
-			index = start;
-			throw parseException("invalid int");
-		}
+	private static final Map<Character, ThrowingFunction<StringPointer, String, ParseException>> escapes = new HashMap<>();
+	private static final Pattern HEX_DIGIT = Pattern.compile("^[0-9a-fA-F]*$");
+
+	static {
+		escapes.put('x', p -> p.readUnicodeHex(2));
+		escapes.put('u', p -> p.readUnicodeHex(4));
+		escapes.put('U', p -> p.readUnicodeHex(8));
+		escapes.put('N', p -> {
+			p.expectChar('{');
+			String name = p.parseStringUntil('}');
+			try {
+				int c = Character.codePointOf(name);
+				return String.valueOf(Character.toChars(c));
+			} catch (IllegalArgumentException ex) {
+				throw p.parseException("undefined character name '" + name + "'");
+			}
+		});
+		escapes.put('b', p -> "\b");
+		escapes.put('s', p -> " ");
+		escapes.put('t', p -> "\t");
+		escapes.put('n', p -> "\n");
+		escapes.put('f', p -> "\f");
+		escapes.put('r', p -> "\r");
 	}
 
-	public long parseLong() throws ParseException {
-		int start = index;
-		while (hasNext() && isNumberChar(currentChar())) {
-			skip(1);
+	private String readUnicodeHex(int length) throws ParseException {
+		String seq = read(length);
+		if (!HEX_DIGIT.matcher(seq).matches()) {
+			throw parseException("invalid hex digit '" + seq + "'");
 		}
-		String num = value.substring(start, index);
-		try {
-			return Long.parseLong(num);
-		} catch (NumberFormatException ex) {
-			index = start;
-			throw parseException("invalid long");
+		int c = Integer.parseInt(seq, 16);
+		if (!Character.isDefined(c)) {
+			throw parseException("undefined character '" + seq + "'");
 		}
+		return String.valueOf(Character.toChars(c));
 	}
 
-	public float parseFloat() throws ParseException {
+	public String read(int length) throws ParseException {
+		if (!hasCharsLeft(length)) {
+			index = value.length() - 1;
+			throw parseException("unexpected end of string");
+		}
 		int start = index;
-		while (hasNext() && isNumberChar(currentChar())) {
-			skip(1);
-		}
-		String num = value.substring(start, index);
-		try {
-			return Float.parseFloat(num);
-		} catch (NumberFormatException ex) {
-			index = start;
-			throw parseException("invalid float");
-		}
-	}
-
-	public double parseDouble() throws ParseException {
-		int start = index;
-		while (hasNext() && isNumberChar(currentChar())) {
-			skip(1);
-		}
-		String num = value.substring(start, index);
-		try {
-			return Double.parseDouble(num);
-		} catch (NumberFormatException ex) {
-			index = start;
-			throw parseException("invalid double");
-		}
+		index += length;
+		return value.substring(start, index);
 	}
 
 	public void skipWhitespace() {
