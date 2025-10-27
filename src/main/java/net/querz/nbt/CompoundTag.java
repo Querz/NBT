@@ -488,7 +488,9 @@ public non-sealed class CompoundTag implements Tag, Map<String, Tag>, Iterable<M
 					}
 				}
 				default -> {
-					return tag.equals(other.get(entry.getKey()));
+					if (!tag.equals(other.get(entry.getKey()))) {
+						return false;
+					}
 				}
 			}
 		}
