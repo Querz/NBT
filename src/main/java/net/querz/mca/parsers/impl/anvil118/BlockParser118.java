@@ -52,9 +52,9 @@ public class BlockParser118 implements BlockParser<CompoundTag> {
 		int mask = (1 << numberOfBits) - 1;
 		int i = 0;
 		for (long l : data) {
-			for (int s = 0; s < shortsPerLong && i < 4096; s++) {
-				parsedIndexes[i++] = (short) (l & mask);
-				l >>= numberOfBits;
+			for (int s = 0; s < shortsPerLong && i < 4096; s++, i++) {
+				parsedIndexes[i] = (short) (l & mask);
+				l = l >> numberOfBits;
 			}
 		}
 	}
@@ -99,6 +99,9 @@ public class BlockParser118 implements BlockParser<CompoundTag> {
 	public void apply() {
 		// collect all used block states
 		Short[] usedBlockStates = new Short[palette.size()];
+		if (parsedIndexes == null) {
+			parseIndexes();
+		}
 		for (short b : parsedIndexes) {
 			usedBlockStates[b] = b;
 		}
@@ -140,19 +143,36 @@ public class BlockParser118 implements BlockParser<CompoundTag> {
 
 		long[] newBlockStates;
 		int shortsPerLong = Math.floorDiv(64, numberOfBits);
+		int freePerLong = Math.floorMod(64, numberOfBits);
 		int newLength = (int) Math.ceil(4096D / shortsPerLong);
 		newBlockStates = data == null || newLength != data.length ? new long[newLength] : data;
 
-
-		int index = 0;
-		for (int i = 0; i < newLength; i++) {
-			long l = 0L;
-			for (int j = 0; j < shortsPerLong; j++, index++) {
-				l += parsedIndexes[index];
+		for (int i = 0; i < newLength - 1; i++) {
+			long l = 0;
+			for (int j = 0; j < shortsPerLong - 1; j++) {
+				l += parsedIndexes[(i + 1) * shortsPerLong - j - 1];
 				l <<= numberOfBits;
+			}
+			l += parsedIndexes[i * shortsPerLong];
+			if(newBlockStates[i] != l){
+				int g =4;
 			}
 			newBlockStates[i] = l;
 		}
+		{
+			int i = newLength - 1;
+			long l = 0L;
+			int jm = 4096 - (newLength - 1) * shortsPerLong;
+			for(int j = 0; j < jm - 1; j++){
+				l += parsedIndexes[i * shortsPerLong + jm - j - 1];
+				l <<= numberOfBits;
+			}
+			l += parsedIndexes[i * shortsPerLong];
+
+			newBlockStates[newLength - 1] = l;
+		}
+
+
 		data = newBlockStates;
 		applyToHandle(palette, data);
 	}

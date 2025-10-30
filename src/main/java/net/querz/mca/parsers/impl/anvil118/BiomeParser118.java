@@ -150,14 +150,27 @@ public class BiomeParser118 implements BiomeParser<String> {
 		int newLength = (int) Math.ceil(64D / bytesPerLong);
 		newBiomes = data == null || newLength != data.length ? new long[newLength] : data;
 
-		int index = 0;
-		for (int i = 0; i < newLength; i++) {
+		for (int i = 0; i < newLength - 1; i++) {
 			long l = 0L;
-			for (int j = 0; j < bytesPerLong; j++, index++) {
-				l += parsedIndexes[index];
+			for (int j = 0; j < bytesPerLong - 1; j++) {
+				l += parsedIndexes[(i + 1) * bytesPerLong - j - 1];
 				l <<= numberOfBits;
 			}
+			l += parsedIndexes[i * bytesPerLong];
+
 			newBiomes[i] = l;
+		}
+		{
+			int i = newLength - 1;
+			long l = 0L;
+			int jm = 64 - (newLength - 1) * bytesPerLong;
+			for (int j = 0; j < jm - 1; j++) {
+				l += parsedIndexes[i * bytesPerLong + jm - j - 1];
+				l <<= numberOfBits;
+			}
+			l += parsedIndexes[i * bytesPerLong];
+
+			newBiomes[newLength - 1] = l;
 		}
 		data = newBiomes;
 		applyToHandle(palette, data);
